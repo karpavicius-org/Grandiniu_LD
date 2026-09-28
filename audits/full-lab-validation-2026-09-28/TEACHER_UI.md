@@ -713,3 +713,39 @@ Tačiau HTTP parseris:
 - būseną keičiantiems `/start`, `/stop`, `/quit` naudoja paprastus URL, kuriuos dabartinis UI kviečia GET metodu.
 
 Todėl tai nėra pilnai hardenintas lokalus web app protokolas. Atsitiktinis portas ir localhost riboja praktinį paviršių, todėl šis radinys nelaikomas nuotoliniu kritiniu pažeidžiamumu; tai security-hardening reikalavimas prieš pramoninį naršyklės UI naudojimą.
+
+
+## HIGH / UX-CORRECTNESS — nevertinami failai vis tiek baigia UI būsena `done`
+
+`mokytojas::process()` turi atskirus skaitiklius:
+- `graded`;
+- `failed`;
+- `dup`.
+
+Jei konkretaus HTML `read_report()/grade()` nepavyksta:
+- į `IVERTINIMAI.csv` įrašoma `NEVERTINTA`;
+- `failed++`.
+
+Tačiau `process()` pabaigoje nepriklausomai nuo `failed` grąžina `0`.
+
+Naršyklės workeris sprendžia tik pagal return code:
+
+- rc == 0 → state=`done`;
+- tekstas „Įvertinimas baigtas. Žurnalas ir atsiliepimai paruošti.“
+
+Todėl teisėtas aplankas su:
+- dalimi sugadintų reportų;
+- visais nepalaikomais reportais;
+- Drive keliu, kuriame hash/read nepavyksta po temp failų pašalinimo,
+
+gali baigtis UI „sėkme“.
+
+CLI konsolė išspausdina „įvertinta X, neįvertinta Y“, tačiau browser status API šių skaitiklių neturi.
+
+Dabartinis `test_mokytojas_ui.py` error keliui naudoja neegzistuojantį aplanką. Jis netestuoja galiojančio katalogo, kuriame reportai yra `NEVERTINTA`.
+
+Dėstytojo UI turi aiškiai atskirti:
+- pilną sėkmę;
+- sėkmę su review/nevertintais failais;
+- dalinį sustabdymą;
+- fatal error.
