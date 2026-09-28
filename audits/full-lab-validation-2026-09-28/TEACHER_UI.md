@@ -749,3 +749,24 @@ Dėstytojo UI turi aiškiai atskirti:
 - sėkmę su review/nevertintais failais;
 - dalinį sustabdymą;
 - fatal error.
+
+
+## MEDIUM/HIGH / TRACEABILITY — hardcodintas `core_version=0.3.0` neidentifikuoja konkretaus build
+
+`grade()` verdict ir `batch.cpp` checkpoint abu rašo statinę eilutę:
+
+`core_version = "0.3.0"`.
+
+Repo nerasta build-time:
+- Git commit SHA;
+- source tree hash;
+- binary build ID;
+- automatinio version generation.
+
+Todėl net `ldcheck/vertinimai.json`, kuris saugo `core_version`, negali vien iš šio lauko įrodyti, kuri tiksli graderio kodo būsena skyrė balą.
+
+Tai ypač svarbu, nes auditų istorijoje graderio funkcionalumas keitėsi LD3–LD12 plėtros metu, o versijos string išlieka bendras.
+
+Oficialiam audit trail reikia bent:
+- semantinės graderio versijos su privalomu bump keičiant rubriką/logiką;
+- ir/ar build commit SHA / source digest.
