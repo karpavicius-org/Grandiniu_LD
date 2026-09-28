@@ -698,3 +698,30 @@ LD1 restore elgiasi kitaip: jis perrašo tik snapshot esančius laukus ir nepaš
 `practice_used` yra vietinės studento būsenos dalis. LD2/LD8 atveju ją galima grąžinti į ankstesnę reikšmę per normalų juodraščio atkūrimą.
 
 Todėl formaliojo assessment vientisumui practice / pagalbos naudojimo faktas negali būti saugomas vien rollbackable studento snapshot būsenoje. Tai sutampa su platesne audito išvada, kad vietinis offline failas negali pats įrodyti sąžiningos assessment istorijos.
+
+
+---
+
+## 29. Windows `mokytojas` Unicode path rizika nėra padengta testu
+
+Kryžmiškai palyginti du C++ dėstytojo entrypointai.
+
+### ldcheck
+
+Windows naudoja `wmain` ir tiesiai perduoda:
+
+`fs::path(argv[1])`
+
+Todėl komandinės eilutės katalogo kelias išlieka native UTF-16.
+
+### mokytojas
+
+Windows taip pat naudoja `wmain`, tačiau:
+1. `wchar_t*` argumentą paverčia į UTF-8 `std::string`;
+2. `mokytojas_run()` naudoja `fs::path(arg)`.
+
+Naršyklės UI taip pat generuoja UTF-8 `std::string arg` ir naudoja tą patį kodą.
+
+Dabartinis `mokytojas` testas turi lietuviškus studentų vardus, bet ne Unicode katalogo pavadinimą. Repo loguose esantis `utf8_paths=true` yra `ldcheck/test_grading` testo rezultatas ir neįrodo šio `mokytojas` kelio.
+
+Todėl tai žymima kaip **neuždaryta Windows platformos rizika**, o ne kaip empiriškai patvirtintas defektas. Reikalingas atskiras Windows testas su non-ASCII lokaliu darbų aplanko keliu ir tas pats testas per `mokytojas --ui`.
