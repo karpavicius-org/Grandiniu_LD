@@ -928,3 +928,21 @@ Neuždaryta:
 - state-changing endpointai naudojami per GET.
 
 Tai vidutinio prioriteto lokalaus web UI hardening, o ne laboratorijų fizikos ar graderio blokatorius.
+
+
+---
+
+## 41. `mokytojas --ui` dalinė vertinimo nesėkmė rodoma kaip sėkmė
+
+Kryžmiškai palygintas `failed` skaitiklis ir HTTP status state.
+
+`process()` nevertinamus failus registruoja `NEVERTINTA` ir didina `failed`, bet vis tiek grąžina 0.
+
+UI workeris `rc==0` interpretuoja kaip bendrą:
+„Įvertinimas baigtas. Žurnalas ir atsiliepimai paruošti.“
+
+Browser `/status` nepateikia `graded/failed/duplicate` skaitiklių.
+
+Esamas UI testas klaidos keliui tikrina tik neegzistuojantį katalogą, kuriame `mokytojas_run()` grąžina nonzero. Galiojantis katalogas su blogais studento failais šiuo testu nepadengtas.
+
+Tai yra reali dėstytojo sprendimo kokybės problema: techninis batch gali turėti review/nevertintų failų, o aukščiausio lygio UI vis tiek atrodo visiškai sėkmingas.
