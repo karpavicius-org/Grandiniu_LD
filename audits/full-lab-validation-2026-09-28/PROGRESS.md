@@ -9,8 +9,8 @@ Bazinis main SHA: `a3f59a87d8f92ee2d281bb87db93eff0d205c0fe`
 
 ## Patikrinta
 
-- Windows/Linux CI dabartiniam `main`: PASS.
-- macOS arm64/x86_64 CI dabartiniam `main`: PASS.
+- Funkcinis bazinis SHA `a3f59a87d8f92ee2d281bb87db93eff0d205c0fe`: Windows/Linux acceptance PASS (run `36162442906`) ir macOS arm64/x86_64 PASS (run `36162442730`).
+- Nuo `a3f59a...` iki dabartinio `main` audito metu pakeisti tik `audits/full-lab-validation-2026-09-28/*` failai; studento/core/tools/workflow runtime nepakeistas, todėl šis keturių platformų funkcionalumo įrodymas tebėra taikomas dabartiniam runtime.
 - C++ testai: 15/15 PASS.
 - Automatinės ataskaitos: 769 eksportuotos ataskaitos.
 - LD1–LD12: po 64 variantus pilnoje automatinėje eigoje.
@@ -195,3 +195,16 @@ Pilna atsekamumo lentelė: `OFFICIAL_LD_MAPPING.md`.
 
 Po perkėlimo į `karpavicius-org/Grandiniu_LD` aktyviame šakniniame `README.md` tebėra Actions nuorodos į `Karpavicius82/Grandiniu_LD`.
 Istoriniuose auditų failuose senas savininkas gali būti paliktas kaip to meto CI įrodymo adresas, tačiau aktualios vartotojui skirtos README nuorodos turi rodyti dabartinę organizacijos saugyklą.
+
+
+## Kryžminio audito papildymas — ataskaitos pateikimo UX
+
+### HIGH — learning ataskaita vis tiek pateikiama kaip „siųstina dėstytojui“
+
+`bench_export_current(lab)` visiems LD po sėkmingo eksporto nustato būseną „Ataskaita išsaugota“ ir tekstą „Persiųskite šį HTML failą dėstytojui.“. Po to `bench_report_saved()` taip pat rodo bendrą instrukciją „Persiųskite dėstytojui vieną HTML failą.“.
+
+Ši logika neatsižvelgia į `report.mode` ar `practice_used`.
+
+Todėl LD3–LD7 ir LD9–LD12, kurie normaliame studento paleidime eksportuojami kaip `mode="learning"`, po eksporto studentui vis tiek tiesiogiai nurodo siųsti failą dėstytojui, nors toks bandymas vėliau neįtraukiamas į pažymių suvestinę.
+
+Pats HTML viduje teisingai rodo „Mokymasis“, tačiau paskutinio produkto veiksmo instrukcija su tuo nesutampa. Tai stiprina pagrindinį assessment režimo defektą ir gali sukurti realų studento→dėstytojo nesusipratimą.
