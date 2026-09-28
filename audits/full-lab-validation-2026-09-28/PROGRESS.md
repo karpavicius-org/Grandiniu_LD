@@ -15,7 +15,7 @@ Bazinis main SHA: `a3f59a87d8f92ee2d281bb87db93eff0d205c0fe`
 - Automatinės ataskaitos: 769 eksportuotos ataskaitos.
 - LD1–LD12: po 64 variantus pilnoje automatinėje eigoje.
 - Tikros Scilab GUI sekos vykdytos variantams 1, 17 ir 64.
-- Student delivery patikra: LD1–LD12, 1280×720 darbo sritis, 1024×768 ir 900×600 mažų ekranų slinkimas.
+- Student delivery bendras langų testas realiai vykdo LD1–LD8; 1280×720 darbo sritis bei 1024×768 ir 900×600 mažų ekranų slinkimas tikrinami šiame delivery teste. LD9–LD12 turi atskirus targeted GUI/geometrijos testus, bet nėra įtraukti į `test_student_delivery.sce` ciklą.
 - Nepriklausoma LD1–LD8 analitinė fizikos patikra: 2368 papildomi atvejai; LD2 AC paklaida prieš nepriklausomas kompleksines formules ~5.7e-14; LD4 nuokrypiai telpa ±5 %; LD7 galios maksimumas ties R=r.
 - Dėstytojo vertinimo grandinė patikrinta: assessment ir learning atskiriami; learning nepatenka į pažymių suvestinę.
 - Variantų bankai LD1–LD8 turi po 64 variantus.
