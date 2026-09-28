@@ -946,3 +946,19 @@ Browser `/status` nepateikia `graded/failed/duplicate` skaitiklių.
 Esamas UI testas klaidos keliui tikrina tik neegzistuojantį katalogą, kuriame `mokytojas_run()` grąžina nonzero. Galiojantis katalogas su blogais studento failais šiuo testu nepadengtas.
 
 Tai yra reali dėstytojo sprendimo kokybės problema: techninis batch gali turėti review/nevertintų failų, o aukščiausio lygio UI vis tiek atrodo visiškai sėkmingas.
+
+
+---
+
+## 42. `core_version=0.3.0` nėra tikslus build identifikatorius
+
+`ldcheck` verdictuose teisingai išsaugomi:
+- lab_revision;
+- rubric_version;
+- core_version.
+
+Tačiau `core_version` dabartiniame kode yra hardcodinta `"0.3.0"`, o Git/build identifikatorius verdictuose nepateikiamas.
+
+Todėl ankstesnė išvada „ldcheck turi versijų laukus“ yra teisinga tik semantiškai; tiksliai konkretaus binaro/source commit iš vieno verdict failo atkurti negalima.
+
+Šį trūkumą reikia uždaryti kartu su deterministiniu release manifestu.
