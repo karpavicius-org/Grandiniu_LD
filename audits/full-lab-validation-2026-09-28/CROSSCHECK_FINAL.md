@@ -146,7 +146,7 @@ Patvirtinta:
 
 Dabartiniu LD3 tai dar nesukuria įskaitinio apėjimo, nes visas normalus LD3 ir taip learning. Tačiau assessment taisymas ir LD3 practice žyma turi būti projektuojami kartu.
 
-LD8/LD9–LD12 restartas per naują init gali nunulinti `practice_used`; būsimo formalaus assessment politikai reikia apsispręsti, ar restartas reiškia naują leistiną bandymą.
+`practice_used` restarto semantika nėra vienoda: LD8 `ld8_init_state()` aiškiai nustato `practice_used=%f`, todėl „Iš naujo“ ją nunulina; LD4–LD7 ir LD9–LD12 `init_state()` šio lauko neperrašo, todėl jau egzistuojantis `practice_used=true` Scilab struktūroje po restarto išlieka. Būsimoje vieningoje assessment būsenoje šią politiką reikia suvienodinti sąmoningai.
 
 ---
 
@@ -612,3 +612,18 @@ Nuo šio SHA iki dabartinio audito `main` funkciniai `studentui/`, `core/`, `too
 Todėl tikslus teiginys yra ne „dabartiniam main paleistas keturių platformų CI“, o:
 
 > funkcionalus runtime yra bitų prasme tas pats kaip keturių platformų PASS baseline; dabartiniam audito HEAD pilnas acceptance sąmoningai nebekartojamas.
+
+
+---
+
+## 26. Practice žymos restarto korekcija
+
+Pakartotinai patikrinta Scilab struktūros semantika ir konkretūs `init_state()/restart()` keliai.
+
+Teisinga dabartinė būsena:
+
+- LD8: `ld8_init_state()` aiškiai nustato `practice_used=%f`; todėl `ld8_restart()` practice žymą nunulina.
+- LD4–LD7 ir LD9–LD12: jų `init_state()` `practice_used` lauko išvis neperrašo. Kadangi restartas nekeičia viso global struct nauju objektu, jau egzistuojantis `practice_used=true` lieka struktūroje.
+- LD3: pavyzdžio callback pats `practice_used` nenustato, todėl pagrindinė LD3 problema išlieka kita — pavyzdžio naudojimas nepažymimas.
+
+Taigi ankstesnis bendras teiginys, kad LD9–LD12 restartas nunulina practice, buvo neteisingas ir šiame protokole pataisytas.
