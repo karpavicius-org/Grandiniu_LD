@@ -980,3 +980,33 @@ Todėl variantų generatoriai papildomai perskaičiuoti nepriklausomai pagal dab
 Dubliuotų pilnų variantų nerasta.
 
 Tai uždaro vieną ankstesnę patikros spragą: visi virtualūs LD1–LD12 dabar turi pagrindą teiginiui, kad jų 1–64 priskyrimai yra 64 skirtingi variantai.
+
+
+---
+
+## 44. Realūs Windows/Linux CI paketai patvirtino LD9–LD12 CSV trūkumą
+
+Kryžminė paketavimo išvada patikrinta tiesiogiai, nebe vien skaitant scenarijus.
+
+Naudotas funkcionaliai patvirtinto SHA `a3f59a87...` Actions run `36162442906`.
+
+### Linux artefaktas 10876895622
+
+Vidiniame `Grandiniu_LD-Linux.zip`:
+- LD1–LD8 `VARIANTAI.csv`: yra;
+- LD9–LD12 `VARIANTAI.csv`: nėra;
+- pačių LD9–LD12 runtime `.sce/.sci` failų yra.
+
+### Windows artefaktas 10877075562
+
+Vidiniame `Grandiniu_LD-Windows.zip`:
+- LD1–LD8 `VARIANTAI.csv`: yra;
+- LD9–LD12 `VARIANTAI.csv`: nėra.
+
+Abu vidiniai paketai turi po 169 įrašus ir rodo tą patį paketavimo rezultatą.
+
+Todėl teiginys „LD9–LD12 CSV gali trūkti, nes HEADLESS nevykdomas“ dabar pakeistas į stipresnį:
+
+> sėkminguose realiuose Windows ir Linux baseline CI paketuose LD9–LD12 variantų CSV iš tiesų nėra.
+
+Tai tiesiogiai prieštarauja `studentui/README.md` nuorodoms į tuos failus ir dabartiniam `check_student_package.py` kontraktui.
