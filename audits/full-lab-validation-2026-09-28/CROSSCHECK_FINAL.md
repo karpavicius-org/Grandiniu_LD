@@ -830,3 +830,28 @@ Tai reiškia, kad persistent istorija yra silpnesnė už batch rezultatų saugoj
 - vienu metu paleistam dvigubam vertinimui.
 
 Oficialiam pažymių žurnalui tai laikytina aukšto prioriteto durability problema.
+
+
+---
+
+## 34. CI dependency verification yra nevienoda
+
+Kryžmiškai patikrinta build tiekimo grandinė.
+
+Teigiamas sluoksnis:
+- Eigen ir nlohmann/json atsisiuntimai turi repo hardcodintus SHA-256;
+- nesaugūs archive entry atmetami.
+
+Neuždarytas sluoksnis:
+- Linux/Windows Scilab 2026.1.0 download neturi checksum verification;
+- macOS Scilab DMG gaunamas iš atskiro UTC mirror ir taip pat neturi checksum/signature verification.
+
+Taigi build'as yra versijos-pinned, bet ne visiškai bytes-pinned.
+
+## 35. Galutiniai native paketai neturi platformos leidėjo parašo
+
+Nerasta Windows Authenticode ar macOS Developer ID/notarization release žingsnių.
+
+macOS nepasirašymas README jau nurodytas. Windows atveju tai taip pat aktualu platinamiems EXE/DLL.
+
+Tai nėra P0 laboratorijų logikos defektas; tai P2/P1 release trust ir diegimo patirties klausimas.
