@@ -614,3 +614,29 @@ senas bandymas lieka istorijoje ir gali būti pasirinktas kaip „geriausias“ 
 Dabartinė architektūra saugi tik esant išorinei darbo tvarkai „vienas atskiras rezultatų katalogas vienam konkrečiam kursui / semestrui / kohortai“. UI šios sutarties neužtikrina ir aiškiai nereikalauja.
 
 Tai reikia spręsti kartu su `course_id`, terminų, bandymų ir vertinimo versijos politika.
+
+
+## HIGH / ROBUSTNESS — embedded newline gali sugadinti persistent CSV readback
+
+`student_profile()` vardą ir grupę tik apkarpo `stripblanks()`; vidinių naujos eilutės simbolių aiškiai nedraudžia.
+
+C++ `text()` taip pat leidžia `\n` / `\r`, jei:
+- JSON reikšmė yra string;
+- ilgis ≤256 baitų;
+- nėra NUL.
+
+`mokytojas::csv()` tokį tekstą cituoja kabutėmis, kas yra teisėtas CSV.
+
+Tačiau vėlesnis `read_csv_rows()` nėra pilnas CSV parseris:
+1. jis pirmiausia ieško `\n` ir suskaido failą į fizines eilutes;
+2. tik tada kiekvieną eilutę parsina pagal kabutes.
+
+Todėl quoted CSV laukas su embedded newline suskaidomas į kelias klaidingas eilutes. Pasekmės gali būti:
+- ankstesnio įrašo `SHA256` nebepatenka į `known`;
+- tas pats failas kitą kartą įvertinamas dar kartą;
+- `ZURNALAS.csv` gali praleisti arba iškraipyti studento įrašą;
+- istorijos atsekamumas tampa nepatikimas.
+
+Normalus Scilab registracijos dialogas greičiausiai neskatina kelių eilučių įvesties, tačiau reportas yra nepatikimas studento failas ir gali būti redaguotas ranka. Backend turi būti atsparus tokiam galiojančiam JSON tekstui.
+
+Tai atskira nuo naršyklės `innerHTML` XSS problemos; čia pažeidžiamas persistent CSV round-trip.
