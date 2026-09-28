@@ -771,3 +771,27 @@ Todėl to paties darbo katalogo pakartotinis naudojimas kitame semestre gali suj
 Tai nėra `ldcheck` batch problema, nes jo output yra naujas atskiras katalogas kiekvienam vertinimui. Tai būdinga būtent persistent `mokytojas` istorijos modeliui.
 
 Minimalus dabartinės sistemos naudojimo apribojimas būtų „atskiras darbo katalogas kiekvienai kurso kohortai / semestrui“, tačiau gamybiniame modelyje šis scope turi būti duomenų dalis, o ne vien dėstytojo disciplina.
+
+
+---
+
+## 32. Persistent CSV parseris neapdoroja embedded newline
+
+Kryžmiškai patikrinta studento tapatybės validacija ir `mokytojas` istorijos parseris.
+
+Graderis priima studento vardą/grupę su vidiniu `\n`, nes `text()` draudžia tik:
+- ne-string;
+- per ilgą tekstą;
+- NUL.
+
+`mokytojas::csv()` tokį lauką teisingai cituoja.
+
+Tačiau `read_csv_rows()` pirmiausia skelia visą failą pagal newline ir tik tada interpretuoja kabutes. Tai nesuderinama su CSV laukais, kuriuose newline teisėtai yra quoted teksto dalis.
+
+Todėl studento kontroliuojamas vardas/grupė gali padaryti persistent `IVERTINIMAI.csv` nepatikimai perskaitomą kitame paleidime ir pažeisti SHA dedup / žurnalo rekonstrukciją.
+
+Šios problemos nėra `ldcheck` vienkartiniame `suvestine.csv` generavime tokiu pačiu mastu, nes jis savo CSV vėliau nenaudoja kaip persistent duomenų bazės.
+
+Reikia arba:
+- drausti CR/LF tapatybės laukuose įvesties ir graderio lygiu; arba
+- naudoti pilną CSV parserį, kuris palaiko multiline quoted fields.
