@@ -208,3 +208,15 @@ Istoriniuose auditų failuose senas savininkas gali būti paliktas kaip to meto 
 Todėl LD3–LD7 ir LD9–LD12, kurie normaliame studento paleidime eksportuojami kaip `mode="learning"`, po eksporto studentui vis tiek tiesiogiai nurodo siųsti failą dėstytojui, nors toks bandymas vėliau neįtraukiamas į pažymių suvestinę.
 
 Pats HTML viduje teisingai rodo „Mokymasis“, tačiau paskutinio produkto veiksmo instrukcija su tuo nesutampa. Tai stiprina pagrindinį assessment režimo defektą ir gali sukurti realų studento→dėstytojo nesusipratimą.
+
+
+## Kryžminio audito papildymas — shared-workstation privatumo/tapatybės rizika
+
+- `student_remember(st)` įrašo paskutinį studentą į globalų `BENCH_STUDENT`.
+- Kitas `student_enroll()` tame pačiame Scilab procese šį objektą naudoja kaip numatytą ankstesnę registraciją.
+- Repo nerasta veiksmo, kuris aiškiai išvalytų `BENCH_STUDENT`.
+- Visi studento HTML reportai ir `.sod` juodraščiai pagal nutylėjimą saugomi bendrame to OS vartotojo kataloge `Grandiniu_LD_darbai`.
+
+Jei laboratorijos kompiuteriu keli studentai naudojasi paeiliui su ta pačia OS paskyra, ankstesnio studento vardas/grupė/numeris gali būti pasiūlytas kitam, o vietiniai reportai ir juodraščiai lieka prieinami tame pačiame kataloge.
+
+Individualiame studento kompiuteryje tai daug mažesnė rizika; bendroje auditorijos darbo vietoje reikia aiškios sesijos išvalymo / studento atskyrimo politikos.
