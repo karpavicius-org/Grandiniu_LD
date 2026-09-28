@@ -257,3 +257,51 @@ Prieš platinimą reikės suprojektuoti vieną deterministinę release grandinę
 Git commit → testai → variantų artefaktų generavimas be side-effect priklausomybės → vienas studento paketo aprašas → package-integrity check → manifestas su tuo pačiu SHA → platinimo nuoroda.
 
 Šiame etape tai tik audito išvada; build/workflow kodas nekeistas.
+
+
+## MEDIUM / SUPPLY CHAIN — Scilab CI instaliatoriai nėra checksum-verifikuojami
+
+C++ trečiųjų šalių priklausomybių kelias yra gerai užrakintas:
+- Eigen 5.0.0 turi konkretų SHA-256;
+- nlohmann/json 3.12.0 turi konkretų SHA-256;
+- archyvo ekstrakcija atmeta symlink/hardlink ir path traversal.
+
+Tačiau Scilab CI diegimas kitoks.
+
+Linux:
+- `curl https://www.scilab.org/.../scilab-2026.1.0...tar.xz`;
+- checksum nepatikrinamas.
+
+Windows:
+- `Invoke-WebRequest https://www.scilab.org/.../scilab-2026.1.0...exe`;
+- checksum / Authenticode publisher verifikacija workflow lygyje neatliekama.
+
+macOS:
+- DMG gaunamas iš `https://www.utc.fr/~mottelet/scilab/download/2026.1.0/...`;
+- checksum ir code-signature/notarization patikra workflow lygyje neatliekama.
+
+HTTPS ir fiksuotas versijos URL mažina riziką, bet reprodukuojamam pramoniniam build'ui neužtenka vien failo pavadinimo.
+
+Vėlesniame CI hardening etape Scilab distribution turi būti tikrinama patikimu paskelbtu digest/signature arba kita deterministine tiekimo grandine.
+
+
+## MEDIUM / DISTRIBUTION — Windows/macOS projekto paketai nepasirašomi
+
+Repo nerasta:
+- Windows `signtool` / Authenticode pasirašymo;
+- macOS `codesign` su projekto Developer ID;
+- Apple notarization žingsnio.
+
+Studento README macOS tai aiškiai pripažįsta.
+
+Windows pusėje analogiškas nepasirašymo faktas dokumentacijoje neakcentuojamas, nors studentams platinami:
+- `ldcore.dll`;
+- `ldcheck.exe`;
+- `mokytojas.exe`.
+
+Tai nėra skaitinio veikimo klaida, tačiau gali sukelti:
+- SmartScreen/reputacijos perspėjimus;
+- antiviruso false-positive/trust problemas;
+- silpnesnį leidinio kilmės patvirtinimą.
+
+Prieš formalų platinimą reikia nuspręsti, ar studentų programinė įranga turi būti pasirašyta platformų leidėjo sertifikatais.
