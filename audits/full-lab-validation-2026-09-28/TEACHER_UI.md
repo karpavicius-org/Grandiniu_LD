@@ -668,3 +668,48 @@ Galimos pasekmės:
 Palyginimui, `batch.cpp/ldcheck` rezultatus rašo per `atomic_write()`, kuris naudoja laikiną failą, flush/fsync ir atominiu būdu commitina rezultatą.
 
 Pramoniniam persistent pažymių žurnalui `mokytojas` turi turėti tokią pačią ar lygiavertę durability/locking sutartį.
+
+
+## MEDIUM / SCALE — vietinis skenavimas tyliai nukerpamas ties 10 000
+
+`mokytojas::scan_local()` po kiekvieno priimto HTML tikrina:
+
+`if (out.size() >= 10000) break;`
+
+Tačiau:
+- nekeliama klaida;
+- negrąžinamas `truncated=true`;
+- UI/CLI nepraneša, kad dalis failų liko nenuskaityta.
+
+Palyginimui, `ldcheck::Batch` virš 10 000 failų meta `batch_file_limit`.
+
+Tipinei grupei 10 000 nėra realus dydis, bet aplanke su kelių metų archyvu / neteisingai pasirinktu medžiu tylus nukirpimas yra pavojingesnis už aiškią nesėkmę.
+
+
+## MEDIUM / HTTP ROBUSTNESS — HTTP `send()` neapdoroja partial write
+
+`mokytojas --ui::http_send()` daro tik:
+
+`send(header)`
+`send(body)`
+
+ir ignoruoja grąžintą išsiųstų baitų skaičių.
+
+TCP `send()` gali teisėtai grąžinti mažiau baitų nei prašyta. Mažiems localhost atsakymams tai dažnai nepastebima, tačiau didesniam `ZURNALAS.csv` ar HTML body nėra garantijos, kad visas `Content-Length` bus realiai išsiųstas.
+
+Dabartiniai UI testai naudoja nedidelį duomenų kiekį ir šios sąlygos neapkrauna.
+
+Gamybiniam lokaliam HTTP sluoksniui reikia `send_all` ciklo ir socket klaidų kontrolės.
+
+
+## MEDIUM / LOCAL WEB HARDENING — Origin/CSRF kontrolės nėra
+
+Serveris saugiai bindinamas tik į `127.0.0.1` ir pasirenka atsitiktinį laisvą portą. Tai yra svarbi rizikos mažinimo priemonė.
+
+Tačiau HTTP parseris:
+- netikrina `Origin`;
+- netikrina `Host`;
+- neturi sesijos/CSRF tokeno;
+- būseną keičiantiems `/start`, `/stop`, `/quit` naudoja paprastus URL, kuriuos dabartinis UI kviečia GET metodu.
+
+Todėl tai nėra pilnai hardenintas lokalus web app protokolas. Atsitiktinis portas ir localhost riboja praktinį paviršių, todėl šis radinys nelaikomas nuotoliniu kritiniu pažeidžiamumu; tai security-hardening reikalavimas prieš pramoninį naršyklės UI naudojimą.
