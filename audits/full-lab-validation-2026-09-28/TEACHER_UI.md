@@ -518,3 +518,29 @@ Svarbiausi sprendimai, kuriuos reikės nagrinėti TIK po analizės:
 10. UI/saugumo defektų uždarymas.
 
 Šiame dokumente tik užfiksuoti radiniai. Funkcinis kodas nekeistas.
+
+
+## MEDIUM / PLATFORM RISK — Windows Unicode aplanko kelias `mokytojas` dar nepatikrintas
+
+`mokytojas.exe` Windows entrypoint naudoja `wmain`, todėl komandinės eilutės argumentą gauna kaip UTF-16. Tačiau kodas tada pats konvertuoja jį į UTF-8 `std::string` ir perduoda `mokytojas_run()`.
+
+`mokytojas_run()` vietiniam katalogui naudoja:
+
+`fs::path(arg)`
+
+o ne `fs::path(wchar_t*)` arba aiškų UTF-8 konvertavimą į native Windows path.
+
+Palyginimui, `ldcheck` Windows kelyje iš `wmain` tiesiogiai daro:
+
+`fs::path(argv[1])`
+
+ir taip išlaiko native wide path semantiką.
+
+Dabartiniai `test_mokytojas.py` ir `test_mokytojas_ui.py` tikrina lietuviškus studentų vardus, tačiau testinis darbų katalogas vadinasi paprastai `pateikimai` / `darbai`; lietuviškas ar kitas non-ASCII **aplanko kelias** Windows pusėje nėra atskirai testuojamas.
+
+Todėl šio punkto statusas yra:
+- ne patvirtintas gedimas;
+- bet reali C++17/Windows path-kontraktų rizika;
+- prieš gamybinį Windows naudojimą būtinas konkretus regression testas su katalogu, pvz. `C:\...\Studentų darbai Žąsė\`.
+
+Naršyklės `mokytojas --ui` kelias turi tą pačią riziką: URL forma perduodamas UTF-8 tekstas dekoduojamas į `std::string` ir vėliau eina per tą patį `mokytojas_run()`.
