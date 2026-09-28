@@ -664,3 +664,37 @@ Tai realus to paties varianto mokymosi/pavyzdžio atsekamumo apėjimas.
 Tai taip pat realus apėjimas.
 
 Išvada: iš trijų šiandien veikiančių assessment darbų du (LD2 ir LD8) leidžia UI veiksmais nuvalyti practice žymą nekeičiant ataskaitos failo ranka.
+
+
+---
+
+## 28. Practice žyma yra rollbackable per juodraštį
+
+Papildomai kryžmiškai patikrintas bendras snapshot mechanizmas.
+
+### LD2
+
+- Snapshot saugo visą `LD2.state`.
+- Ankstyvas assessment snapshot turi `assessment=true` ir neturi `practice_used=true`.
+- Po mokymosi/pavyzdžio `practice_used=true`.
+- `bench_restore_snapshot()` LD2 atveju visą state pakeičia senu `session.state`.
+
+Todėl senas juodraštis gali vienu veiksmu grąžinti assessment būseną be practice žymos.
+
+### LD8
+
+- Snapshot saugo `assessment=true` ir `practice_used=false`.
+- Po pavyzdžio practice tampa true.
+- Restore perrašo snapshot laukus ir grąžina false.
+
+Todėl senas juodraštis taip pat nuvalo practice žymą.
+
+### LD1
+
+LD1 restore elgiasi kitaip: jis perrašo tik snapshot esančius laukus ir nepašalina papildomai atsiradusio `practice_used=true`. Ankstyvame LD1 snapshot šio lauko nėra, todėl ši konkreti rollback seka practice žymos nenuvalo.
+
+### Architektūrinė išvada
+
+`practice_used` yra vietinės studento būsenos dalis. LD2/LD8 atveju ją galima grąžinti į ankstesnę reikšmę per normalų juodraščio atkūrimą.
+
+Todėl formaliojo assessment vientisumui practice / pagalbos naudojimo faktas negali būti saugomas vien rollbackable studento snapshot būsenoje. Tai sutampa su platesne audito išvada, kad vietinis offline failas negali pats įrodyti sąžiningos assessment istorijos.
