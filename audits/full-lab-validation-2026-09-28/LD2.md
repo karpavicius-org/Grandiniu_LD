@@ -282,3 +282,26 @@ Patvirtinta kryžmiškai pagal realų produkto kelią:
 Taigi pavyzdį tame pačiame variante jau matęs studentas po restarto gali sukurti formaliai įskaitinį assessment reportą.
 
 Tai stipresnis defektas nei vien assessment numetimas: restarte prarandamas ir mokymosi/pavyzdžio atsekamumas.
+
+
+## HIGH / ASSESSMENT INTEGRITY — juodraščio rollback taip pat nuvalo practice
+
+LD2 turi dar tiesesnį practice atsekamumo apėjimą nei restartas.
+
+`bench_snapshot("LD2")` išsaugo visą `LD2.state`. Normalus ankstyvas assessment snapshot turi:
+- `assessment=true`;
+- `practice_used` lauko dar nėra.
+
+Po perėjimo į Mokymąsi ir pavyzdžio peržiūros studentas per realų UI gali pasirinkti „Atverti automatinį juodraštį“ arba atverti anksčiau išsaugotą `.sod`.
+
+`bench_restore_snapshot()` LD2 atveju daro:
+
+`LD2.state=session.state`
+
+t. y. pakeičia visą būseną sena kopija.
+
+Todėl vien restore veiksmas gali grąžinti:
+- `assessment=true`;
+- būseną be `practice_used=true`.
+
+Tai reiškia, kad practice žyma yra rollbackable vietinio darbo būsena, o ne monotoniškas formalios sesijos įvykis.
