@@ -586,3 +586,31 @@ Pats `grade()` verdict turi `core_version`, `lab_revision`, `rubric_version`, be
 Palyginimui, `ldcheck` naujame output kataloge kiekvieną kartą iš naujo skaito ir vertina reportą dabartiniu graderiu.
 
 Tai svarbu oficialiam žurnalui: rezultato kilmė turi būti atsekama ne tik iki studento failo SHA, bet ir iki konkrečios vertinimo logikos versijos.
+
+
+## HIGH / DATA SCOPE — persistent žurnalas neturi semestro / kurso atskyrimo
+
+`IVERTINIMAI.csv` ir iš jo statomas `ZURNALAS.csv` neturi laukų:
+- course_id;
+- studijų dalyko leidimas;
+- akademiniai metai;
+- semestras;
+- grupės kohortos identifikatorius.
+
+`rebuild_zurnalas()` raktas yra tik:
+
+`{studento vardas, grupė} + lab_id`.
+
+Be to `IVERTINIMAI.csv` yra append-only istorija proceso darbo kataloge.
+
+Todėl jei tas pats katalogas naudojamas:
+- kitą semestrą;
+- kitais akademiniais metais;
+- kitai kohortai su tuo pačiu grupės kodu;
+- kitam to paties studento kurso kartojimui,
+
+senas bandymas lieka istorijoje ir gali būti pasirinktas kaip „geriausias“ naujame `ZURNALAS.csv`.
+
+Dabartinė architektūra saugi tik esant išorinei darbo tvarkai „vienas atskiras rezultatų katalogas vienam konkrečiam kursui / semestrui / kohortai“. UI šios sutarties neužtikrina ir aiškiai nereikalauja.
+
+Tai reikia spręsti kartu su `course_id`, terminų, bandymų ir vertinimo versijos politika.
