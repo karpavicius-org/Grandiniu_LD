@@ -149,3 +149,49 @@ Rezultatas:
 - `review`, `conflict` ir metodiniai ginčytini atvejai reikalauja dėstytojo sprendimo.
 - Nei `DESTYTOJUI.sce`, nei `mokytojas --ui` neturi integruoto rankinio pažymio pataisymo/patvirtinimo su priežastimi ir istorija.
 - Projekto `core/README.md` tai jau įvardija kaip atvirą priėmimo klausimą („dėstytojo rankinių pažymio pataisų istorija“). Pramoniniam vertinimo workflow tai turi būti uždaryta prieš oficialų naudojimą.
+
+
+## Checkpoint — paketas, pateikimo politika ir infrastruktūra
+
+### Studento paketo švara ir atsekamumas
+
+Realiame Linux studento ZIP patvirtinta, kad kartu su stendais platinami ir vidiniai / dėstytojo komponentai:
+- `DESTYTOJUI.sce`;
+- `bin/ldcheck`, `bin/mokytojas`;
+- `GUI_PATIKRA.sce`, `PATIKRINTI.sh`;
+- `PERZIURA.sce` ir `PERZIURA_LD2…LD12.sce`;
+- `tests/AUTOMATINIS.sce`, `tests/HEADLESS.sce`, `tests/workflows.sci`;
+- `capture_window.py`.
+
+Tai nėra švarus studento leidinys ir be reikalo atveria vidinius testavimo/vertinimo mechanizmus.
+
+Pakete taip pat nerastas aiškus release/build manifestas su repo commit SHA, leidinio numeriu ir failų kontrolinėmis sumomis. `studentui/tests/results/PATIKRA.json` repozitorijoje tokį kontekstą turi, bet `package_native.py` visą `results` katalogą iš studento paketo pašalina. Dėl to gavus ZIP sunkiau patikimai nustatyti, kokio commit/CI leidinys naudojamas.
+
+### Bandymų skaičius ir terminai
+
+- `ldcheck` sąmoningai saugo visus bandymus ir suvestinei parenka aukščiausią galiojantį pažymį.
+- `mokytojas` taip pat žurnale palieka geriausią pažymį (pagal savo, kitokią tapatybės grupavimo taisyklę).
+- Repo schemoje nėra `course_id`, semestro/akademinių metų, deadline, leistino bandymų skaičiaus ar patikimo pateikimo laiko.
+- `IVERTINIMAI.csv` stulpelis `Data` pildomas `now_local()` vertinimo momentu, ne studento pateikimo momentu.
+- `submission_id` laiko dalis generuojama studento kompiuteryje ir yra redaguojamo HTML JSON dalis.
+
+Todėl sistema pati negali patikimai įgyvendinti „iki termino“, „vienas bandymas“ ar „N bandymų“ politikos. Jei tokia politika reikalinga, pateikimo laikas ir bandymo teisė turi ateiti iš dėstytojo/LMS valdomo kanalo.
+
+### Google Drive importas
+
+- `mokytojas` Drive keliui naudoja tik API key, ne OAuth.
+- Google Drive dokumentacija API-key kelią sieja su viešai / „Anyone with the link“ pasiekiamais aplankais; privačiam vartotojo Drive turiniui reikia OAuth autorizacijos.
+- Studentų ataskaitose yra vardas, grupė ir rezultatai, todėl viešai per nuorodą bendrinamas ataskaitų aplankas nėra tinkamas numatytasis privatumo modelis.
+- Vietinis importas rekursinis, Drive importas skaito tik tiesioginius aplanko vaikus.
+- Dabartinis klientas nenaudoja resource-key antraštės ir Shared Drive parametrų `supportsAllDrives/includeItemsFromAllDrives`, todėl dalis link-shared / Shared Drive scenarijų gali neveikti.
+
+### Oficialaus žurnalo numeracija
+
+Empiriškai patvirtinta: repo LD12 (oficialus kurso LD13) `mokytojas` žurnale įrašomas į stulpelį `LD12`, o stulpelis `LD13` lieka tuščias. Kadangi oficialus LD2 lieka fizinis, dabartinis `ZURNALAS.csv` negali būti laikomas oficialia 13 laboratorinių darbų matrica.
+
+Pilna atsekamumo lentelė: `OFFICIAL_LD_MAPPING.md`.
+
+### Repo perkėlimo nuorodos
+
+Po perkėlimo į `karpavicius-org/Grandiniu_LD` aktyviame šakniniame `README.md` tebėra Actions nuorodos į `Karpavicius82/Grandiniu_LD`.
+Istoriniuose auditų failuose senas savininkas gali būti paliktas kaip to meto CI įrodymo adresas, tačiau aktualios vartotojui skirtos README nuorodos turi rodyti dabartinę organizacijos saugyklą.
