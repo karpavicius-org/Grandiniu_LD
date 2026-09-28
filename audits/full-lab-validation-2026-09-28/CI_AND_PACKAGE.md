@@ -305,3 +305,15 @@ Tai nėra skaitinio veikimo klaida, tačiau gali sukelti:
 - silpnesnį leidinio kilmės patvirtinimą.
 
 Prieš formalų platinimą reikia nuspręsti, ar studentų programinė įranga turi būti pasirašyta platformų leidėjo sertifikatais.
+
+
+## MEDIUM / RELEASE TRACEABILITY — grading build identity nėra įrašoma į verdict
+
+Dabartinis C++ graderis ir batch checkpoint naudoja statinį `core_version="0.3.0"`.
+
+Build metu repo commit SHA į C++ binarą/verdict neįterpiamas.
+
+Todėl:
+- package manifestas turi būti susietas su Git SHA;
+- graderio verdict taip pat turi turėti konkretų build/source ID;
+- vien semver string be automatinio bump neužtikrina atsekamumo.
