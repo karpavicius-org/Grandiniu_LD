@@ -962,3 +962,21 @@ Tačiau `core_version` dabartiniame kode yra hardcodinta `"0.3.0"`, o Git/build 
 Todėl ankstesnė išvada „ldcheck turi versijų laukus“ yra teisinga tik semantiškai; tiksliai konkretaus binaro/source commit iš vieno verdict failo atkurti negalima.
 
 Šį trūkumą reikia uždaryti kartu su deterministiniu release manifestu.
+
+
+---
+
+## 43. LD9–LD12 variantų unikalumas papildomai patvirtintas
+
+HEADLESS testas LD9–LD12 tikrina kiekvieno varianto fizines ribas, bet tiesioginio `unique(...)=64` assert šiems naujesniems bankams neturi.
+
+Todėl variantų generatoriai papildomai perskaičiuoti nepriklausomai pagal dabartines formules:
+
+- LD9: 64/64 unikalios `(E,R,L,C,LmH,CnF)` konfigūracijos;
+- LD10: 64/64 unikalios `(E,R,L,C,LmH,CnF)` konfigūracijos;
+- LD11: 64/64 unikalios `(E,R,L,Ck,LmH)` konfigūracijos;
+- LD12: 64/64 unikalios `(Ul,R)` konfigūracijos.
+
+Dubliuotų pilnų variantų nerasta.
+
+Tai uždaro vieną ankstesnę patikros spragą: visi virtualūs LD1–LD12 dabar turi pagrindą teiginiui, kad jų 1–64 priskyrimai yra 64 skirtingi variantai.
