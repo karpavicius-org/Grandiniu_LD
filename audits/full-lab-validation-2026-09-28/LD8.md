@@ -280,3 +280,23 @@ Tačiau prieš kopijuojant LD8 modelį į kitus darbus reikia išspręsti dvi au
 Papildomai lieka vienetų instrukcijų ir oficialaus numeravimo neatitikimai.
 
 Šiame etape niekas netaisyta.
+
+
+## HIGH / ASSESSMENT INTEGRITY — practice žymos apėjimas yra realus dabartiniame assessment
+
+LD8 yra aktyvus assessment darbas, todėl čia restarto semantika jau turi tiesioginę įtaką įskaitomumui.
+
+Patvirtinta seka:
+
+1. LD8 startuoja su `assessment=%t`, `practice_used=%f`.
+2. Pavyzdys UI yra pasiekiamas ir assessment režime.
+3. `ld8_toggle_solution()` parodo kanoninį sujungimą / matavimą ir nustato `practice_used=%t`.
+4. Jei report būtų išsaugotas dabar, jis teisingai nebūtų parinktas suvestinei.
+5. Tačiau `ld8_restart()` kviečia `ld8_init_state()`, kuris tiesiogiai nustato:
+   - `assessment=%t`;
+   - `practice_used=%f`.
+6. Studentas lieka tame pačiame variante ir gali pateikti naują reportą kaip formalų assessment.
+
+Vadinasi dabartinė practice apsauga gali būti apeita vien „Pavyzdys → Iš naujo“ seka, nekeičiant failų ranka.
+
+Jei restartas sąmoningai laikomas nauju bandymu, formaliam assessment vis tiek reikia sprendimo, ar po to paties varianto sprendimo peržiūros tas naujas bandymas gali būti įskaitinis. Dabartinis kodas jį įskaito.
