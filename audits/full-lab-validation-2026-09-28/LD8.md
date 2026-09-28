@@ -300,3 +300,27 @@ Patvirtinta seka:
 Vadinasi dabartinė practice apsauga gali būti apeita vien „Pavyzdys → Iš naujo“ seka, nekeičiant failų ranka.
 
 Jei restartas sąmoningai laikomas nauju bandymu, formaliam assessment vis tiek reikia sprendimo, ar po to paties varianto sprendimo peržiūros tas naujas bandymas gali būti įskaitinis. Dabartinis kodas jį įskaito.
+
+
+## HIGH / ASSESSMENT INTEGRITY — senas juodraštis taip pat gali atkurti practice_used=false
+
+LD8 autosave snapshot saugo visus runtime laukus, tarp jų:
+- `assessment`;
+- `practice_used`.
+
+Prieš pavyzdžio peržiūrą normalus snapshot turi:
+
+`assessment=true, practice_used=false`.
+
+Po Pavyzdžio:
+`practice_used=true`.
+
+Tačiau Pagalboje realiai yra „Tęsti išsaugotą darbą“. Atkuriant seną snapshot `bench_restore_snapshot()` perrašo laukus iš `session.state`, todėl senas `practice_used=false` vėl tampa aktyvus.
+
+Taigi net nepaleidus restarto studentas gali:
+1. turėti seną assessment juodraštį;
+2. atverti Pavyzdį;
+3. grįžti į seną juodraštį;
+4. tęsti kaip `assessment=true, practice_used=false`.
+
+Tai patvirtina, kad dabartinė practice žyma nėra patikimas formalios sesijos įrodymas, nes ją galima rollbackinti per įprastą produkto UI.
