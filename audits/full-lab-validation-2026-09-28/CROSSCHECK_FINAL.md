@@ -573,3 +573,42 @@ Tiksliausias dabartinės būklės apibūdinimas:
 > **techniškai stipri virtualių laboratorijų ir automatinio formuojamojo vertinimo sistema, kurios formaliojo assessment, pateikimo vientisumo, dėstytojo žurnalo ir release sluoksniai dar turi aiškiai apibrėžtų neuždarytų P0/P1 darbų.**
 
 Šis dokumentas užbaigia analizės/kryžminio audito etapą. Jame nesiūloma ir nevykdoma funkcinio kodo implementacija.
+
+
+---
+
+## 24. Learning ataskaitos siuntimo UX
+
+Kryžmiškai patikrintas paskutinis studento veiksmas po eksporto.
+
+`bench_export_current(lab)` nepriklausomai nuo darbo režimo rodo:
+
+- „Ataskaita išsaugota“;
+- „Persiųskite šį HTML failą dėstytojui.“
+
+Bendras `bench_report_saved()` langas taip pat sako:
+
+„Persiųskite dėstytojui vieną HTML failą.“
+
+Tačiau LD3–LD7 ir LD9–LD12 normaliame produkto kelyje reportas yra `mode="learning"` ir nebus `selected_for_summary`.
+
+Todėl sistema pati ragina studentą pateikti failą, kurį dėstytojo agregavimo logika laiko neįskaitiniu.
+
+Pats eksportuotas HTML režimą rodo teisingai („Mokymasis“), todėl duomenų sluoksnis nėra klaidingas; klaida yra paskutinio studento UI pranešimo / workflow semantikoje.
+
+Tai laikytina aukšto prioriteto assessment UX problema ir turi būti taisoma kartu su vieninga LD3–LD7/LD9–LD12 assessment būsenos mašina.
+
+## 25. CI bazinės būsenos patikslinimas
+
+Keturių platformų funkcinis įrodymas tiesiogiai patvirtintas baziniam funkciniam SHA:
+
+`a3f59a87d8f92ee2d281bb87db93eff0d205c0fe`
+
+- Windows/Linux acceptance run `36162442906`: PASS;
+- macOS Intel/Apple Silicon run `36162442730`: PASS.
+
+Nuo šio SHA iki dabartinio audito `main` funkciniai `studentui/`, `core/`, `tools/`, `.github/workflows/` ir `dist/` failai audito metu nekeisti; pridėti/keisti tik audito dokumentai.
+
+Todėl tikslus teiginys yra ne „dabartiniam main paleistas keturių platformų CI“, o:
+
+> funkcionalus runtime yra bitų prasme tas pats kaip keturių platformų PASS baseline; dabartiniam audito HEAD pilnas acceptance sąmoningai nebekartojamas.
