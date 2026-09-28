@@ -795,3 +795,38 @@ Todėl studento kontroliuojamas vardas/grupė gali padaryti persistent `IVERTINI
 Reikia arba:
 - drausti CR/LF tapatybės laukuose įvesties ir graderio lygiu; arba
 - naudoti pilną CSV parserį, kuris palaiko multiline quoted fields.
+
+
+---
+
+## 33. `mokytojas` persistent žurnalas nėra crash/concurrency-safe
+
+Kryžmiškai palygintas `ldcheck` ir `mokytojas` failų rašymas.
+
+### ldcheck
+
+`batch.cpp` turi `atomic_write()`:
+- rašo į naują temp failą;
+- flush/fsync;
+- atominiu rename/link būdu commitina;
+- output katalogas kuriamas atskirai.
+
+### mokytojas
+
+Persistent istorija rašoma tiesioginiais `ofstream` į:
+- appendinamą `IVERTINIMAI.csv`;
+- truncinamą `ZURNALAS.csv`;
+- truncinamus feedback TXT.
+
+Nėra:
+- atomic replace;
+- disk flush garantijos;
+- cross-process lock.
+
+Vienos `mokytojas --ui` instancijos workerio būsena sinchronizuota mutex/atomic kintamaisiais, bet tai neapsaugo nuo dviejų atskirų proceso instancijų tame pačiame darbo kataloge.
+
+Tai reiškia, kad persistent istorija yra silpnesnė už batch rezultatų saugojimo sluoksnį ir nėra pilnai atspari:
+- power/process crash;
+- vienu metu paleistam dvigubam vertinimui.
+
+Oficialiam pažymių žurnalui tai laikytina aukšto prioriteto durability problema.
