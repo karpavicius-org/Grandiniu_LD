@@ -265,3 +265,20 @@ Didžiausios problemos yra **būsenos ir identifikacijos sluoksnyje**, ne fiziko
 5. ID `LD2` konfliktuoja su oficialaus dalyko LD2 numeriu ir tiesiogiai persiduoda į dėstytojo žurnalą.
 
 Šiame etape niekas netaisyta. Įgyvendinimo variantai bus nagrinėjami tik užbaigus visų LD studento→dėstytojo auditą.
+
+
+## HIGH / ASSESSMENT INTEGRITY — practice žymos apėjimas per restartą
+
+Patvirtinta kryžmiškai pagal realų produkto kelią:
+
+1. LD2 normaliai pradeda `assessment=true`.
+2. Assessment metu `ld2_show_solution()` Pavyzdį blokuoja.
+3. Studentas per `bench_mode("LD2")` pereina į Mokymąsi; tada `LD2.state.practice_used=%t`.
+4. Mokymosi režime Pavyzdys tampa pasiekiamas ir gali parodyti to paties varianto sprendimą.
+5. `ld2_restart()` pakeičia visą `LD2.state` nauju `ld2_initial_state(cfg)`.
+6. Naujas `ld2_initial_state()` turi `assessment=%f`, bet `practice_used` lauko apskritai nekuria.
+7. Studentui vėl pasirinkus Atsiskaitymą, `assessment=%t`, o `practice_used` lieka neegzistuojantis; report export jį interpretuoja kaip `false`.
+
+Taigi pavyzdį tame pačiame variante jau matęs studentas po restarto gali sukurti formaliai įskaitinį assessment reportą.
+
+Tai stipresnis defektas nei vien assessment numetimas: restarte prarandamas ir mokymosi/pavyzdžio atsekamumas.
