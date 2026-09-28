@@ -627,3 +627,40 @@ Teisinga dabartinė būsena:
 - LD3: pavyzdžio callback pats `practice_used` nenustato, todėl pagrindinė LD3 problema išlieka kita — pavyzdžio naudojimas nepažymimas.
 
 Taigi ankstesnis bendras teiginys, kad LD9–LD12 restartas nunulina practice, buvo neteisingas ir šiame protokole pataisytas.
+
+
+---
+
+## 27. LD2 ir LD8 practice žymos apėjimas
+
+Kryžmiškai patikrinti trys realiai assessment paleidžiami darbai.
+
+### LD1
+
+- Pavyzdys assessment metu blokuojamas.
+- Perėjus į Mokymąsi `practice_used=true`.
+- `ld1_restart()` šio lauko neperrašo.
+- Grįžus į assessment practice žyma išlieka.
+
+LD1 ši konkreti restart apėjimo seka neveikia.
+
+### LD2
+
+- Pavyzdys assessment metu blokuojamas.
+- Perėjus į Mokymąsi nustatomas `state.practice_used=true`.
+- Pavyzdį galima peržiūrėti.
+- `ld2_restart()` visą state pakeičia nauju `ld2_initial_state()`, kuriame `practice_used` nėra.
+- Vėl pasirinkus assessment, reportas turi assessment režimą ir practice laikomas false.
+
+Tai realus to paties varianto mokymosi/pavyzdžio atsekamumo apėjimas.
+
+### LD8
+
+- Pavyzdys pasiekiamas tiesiai assessment metu.
+- Pavyzdys nustato `practice_used=true`.
+- `ld8_restart()` kviečia init, kuris nustato `assessment=true` ir `practice_used=false`.
+- Tas pats variantas vėl tampa formaliai įskaitomas.
+
+Tai taip pat realus apėjimas.
+
+Išvada: iš trijų šiandien veikiančių assessment darbų du (LD2 ir LD8) leidžia UI veiksmais nuvalyti practice žymą nekeičiant ataskaitos failo ranka.
