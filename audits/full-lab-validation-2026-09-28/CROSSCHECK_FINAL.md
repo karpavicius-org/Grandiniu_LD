@@ -725,3 +725,26 @@ Naršyklės UI taip pat generuoja UTF-8 `std::string arg` ir naudoja tą patį k
 Dabartinis `mokytojas` testas turi lietuviškus studentų vardus, bet ne Unicode katalogo pavadinimą. Repo loguose esantis `utf8_paths=true` yra `ldcheck/test_grading` testo rezultatas ir neįrodo šio `mokytojas` kelio.
 
 Todėl tai žymima kaip **neuždaryta Windows platformos rizika**, o ne kaip empiriškai patvirtintas defektas. Reikalingas atskiras Windows testas su non-ASCII lokaliu darbų aplanko keliu ir tas pats testas per `mokytojas --ui`.
+
+
+---
+
+## 30. `mokytojas` SHA dedup neversijuoja graderio
+
+Kryžmiškai patikrinta persistent `IVERTINIMAI.csv` sutartis.
+
+Dabartinis `mokytojas` laiko failą „jau įvertintu“, jei jo SHA-256 jau yra istorijoje. Tačiau istorijoje nėra:
+- graderio/core versijos;
+- rubric version;
+- lab revision;
+- build/commit SHA.
+
+Taigi studento failo SHA identifikuoja tik **įvestį**, bet ne vertinimo funkciją.
+
+Jei graderis vėliau pataisomas, identiškas studento HTML tame pačiame `IVERTINIMAI.csv` kataloge automatiškai neperskaičiuojamas. Senas pažymys lieka žurnalo šaltiniu.
+
+Tai taip pat reiškia, kad dabartinio `ZURNALAS.csv` negalima visiškai rekonstruoti kaip „studento failas + konkreti graderio versija“, nes antroji dedamoji istorijoje neišsaugota.
+
+`ldcheck` šios konkrečios problemos neturi: naujas batch output iš naujo vertina failus dabartiniu graderiu ir `vertinimai.json` verdictuose turi versijų laukus.
+
+Prieš gamybinį naudojimą persistent mokytojo istorijoje turi būti aiškus vertinimo versijos identifikatorius ir apibrėžta regrade/migration politika.
