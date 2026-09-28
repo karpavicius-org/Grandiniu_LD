@@ -640,3 +640,31 @@ Todėl quoted CSV laukas su embedded newline suskaidomas į kelias klaidingas ei
 Normalus Scilab registracijos dialogas greičiausiai neskatina kelių eilučių įvesties, tačiau reportas yra nepatikimas studento failas ir gali būti redaguotas ranka. Backend turi būti atsparus tokiam galiojančiam JSON tekstui.
 
 Tai atskira nuo naršyklės `innerHTML` XSS problemos; čia pažeidžiamas persistent CSV round-trip.
+
+
+## HIGH / DURABILITY — persistent failai nerašomi atominiu būdu ir nėra process lock
+
+`mokytojas` pagrindiniai ilgalaikiai failai rašomi tiesiogiai:
+
+- `IVERTINIMAI.csv` — `std::ofstream(..., std::ios::app)`;
+- `ZURNALAS.csv` — `std::ofstream(..., std::ios::trunc)`;
+- `atsiliepimai/*.txt` — `std::ofstream(..., std::ios::trunc)`.
+
+Šiame kelyje nėra:
+- temp failo + atomic rename;
+- `fsync` / FlushFileBuffers;
+- file lock;
+- vieno proceso instancijos lock.
+
+UI turi mutex tik savo in-memory būsenai ir neleis antro workerio toje pačioje naršyklės serverio instancijoje, tačiau du atskirai paleisti `mokytojas` procesai gali dirbti tame pačiame CWD vienu metu.
+
+Galimos pasekmės:
+- avariniu uždarymu palikta dalinė CSV eilutė;
+- `ZURNALAS.csv` truncacijos metu paliktas nepilnas failas;
+- du procesai vienu metu perskaito tą patį `last_nr` / `known` rinkinį ir abu appendina konfliktuojančius įrašus;
+- atsiliepimų failų numeriai gali susikirsti;
+- po to `read_csv_rows()` istoriją gali interpretuoti nepilnai.
+
+Palyginimui, `batch.cpp/ldcheck` rezultatus rašo per `atomic_write()`, kuris naudoja laikiną failą, flush/fsync ir atominiu būdu commitina rezultatą.
+
+Pramoniniam persistent pažymių žurnalui `mokytojas` turi turėti tokią pačią ar lygiavertę durability/locking sutartį.
