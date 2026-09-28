@@ -317,3 +317,53 @@ Todėl:
 - package manifestas turi būti susietas su Git SHA;
 - graderio verdict taip pat turi turėti konkretų build/source ID;
 - vien semver string be automatinio bump neužtikrina atsekamumo.
+
+
+## HIGH — empiriškai patvirtinta sėkmingo CI platforminiuose paketuose: LD9–LD12 VARIANTAI.csv nėra
+
+Kad ankstesnė išvada neliktų vien build-script analize, tiesiogiai parsisiųsti bazinio funkcinio SHA `a3f59a87d8f92ee2d281bb87db93eff0d205c0fe` sėkmingo run `36162442906` paketų artefaktai.
+
+### Linux
+
+Actions artefaktas:
+- `Grandiniu-LD-Linux`;
+- artifact id `10876895622`.
+
+Vidinis `Grandiniu_LD-Linux.zip` turi 169 įrašus.
+
+Patikrinta:
+- LD1/VARIANTAI.csv — YRA;
+- LD2/VARIANTAI.csv — YRA;
+- LD3/VARIANTAI.csv — YRA;
+- LD4/VARIANTAI.csv — YRA;
+- LD5/VARIANTAI.csv — YRA;
+- LD6/VARIANTAI.csv — YRA;
+- LD7/VARIANTAI.csv — YRA;
+- LD8/VARIANTAI.csv — YRA;
+- LD9/VARIANTAI.csv — **NĖRA**;
+- LD10/VARIANTAI.csv — **NĖRA**;
+- LD11/VARIANTAI.csv — **NĖRA**;
+- LD12/VARIANTAI.csv — **NĖRA**.
+
+LD9–LD12 stendo `.sce/.sci` failai pačiame pakete yra, taigi trūksta būtent sugeneruotų variantų lentelių, ne pačių laboratorijų.
+
+### Windows
+
+Actions artefaktas:
+- `Grandiniu-LD-Windows`;
+- artifact id `10877075562`.
+
+Vidinis `Grandiniu_LD-Windows.zip` taip pat turi 169 įrašus.
+
+Rezultatas identiškas:
+- LD1–LD8 VARIANTAI.csv — YRA;
+- LD9–LD12 VARIANTAI.csv — **NĖRA**.
+
+### Išvada
+
+Tai empiriškai patvirtina ankstesnę build-order analizę:
+- `HEADLESS.sce` generuoja LD9–LD12 CSV;
+- dabartiniai Actions jo prieš `package_native.py` nevykdo;
+- todėl sėkmingas CI ir sėkmingas package step neužtikrina README pažadėto LD9–LD12 variantų CSV turinio.
+
+Šis trūkumas vienodas bent Windows ir Linux platforminiuose PASS paketuose ir nėra vienos OS anomalija.
