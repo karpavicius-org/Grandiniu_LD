@@ -855,3 +855,46 @@ Nerasta Windows Authenticode ar macOS Developer ID/notarization release žingsni
 macOS nepasirašymas README jau nurodytas. Windows atveju tai taip pat aktualu platinamiems EXE/DLL.
 
 Tai nėra P0 laboratorijų logikos defektas; tai P2/P1 release trust ir diegimo patirties klausimas.
+
+
+---
+
+## 36. Shared-workstation studento tapatybė nėra izoliuota
+
+Bendras studento profilis sąmoningai išsaugomas globaliame `BENCH_STUDENT`.
+
+Kiekvienas naujas `student_enroll()`:
+1. sukuria tuščią profilį;
+2. jei `BENCH_STUDENT` egzistuoja, naudoja jį kaip įvesties defaults.
+
+Visi LD po sėkmingos registracijos kviečia `student_remember(st)`.
+
+Repo nerasta:
+- logout;
+- „baigti studento sesiją“;
+- `BENCH_STUDENT` clear tarp studentų.
+
+Tai patogu vienam studentui atliekant kelis LD, bet bendroje auditorijos Scilab sesijoje:
+- kitas studentas pamato ankstesnio vardą/grupę/numerį;
+- galima netyčia patvirtinti ankstesnio studento tapatybę.
+
+## 37. Vietiniai reportai/juodraščiai bendroje OS paskyroje nėra atskirti per studentą
+
+`bench_documents()` numatytasis katalogas yra vienas:
+
+`<HOME>/Grandiniu_LD_darbai`.
+
+Juodraščiai saugomi jo `Juodrasciai/` poaplankyje.
+
+Failuose yra studento tapatybė ir darbo eiga. Jei keli studentai naudojasi ta pačia OS paskyra:
+- jų darbai kaupiasi tame pačiame kataloge;
+- vienas studentas gali atverti kito ankstesnį `.sod` ar HTML;
+- autosave retention ištrina tik šio running session sukurtų snapshotų perteklių, bet ne ankstesnių studentų failus.
+
+Tai nėra problema individualiame nešiojamame kompiuteryje, tačiau yra reali privatumo ir assessment tapatybės rizika shared-lab deployment scenarijuje.
+
+Prieš diegiant auditorijos kompiuteriuose reikia vienos iš aiškių sutarčių:
+- atskiros OS paskyros;
+- per-student/per-session izoliuotas darbo katalogas;
+- aiškus „Baigti sesiją ir išvalyti tapatybę“ veiksmas;
+- valdomas failų retention.
