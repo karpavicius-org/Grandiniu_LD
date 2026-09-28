@@ -7,7 +7,7 @@ Būsena: auditas, funkcinis kodas nekeistas.
 
 | LD | Etapai | Tikras assessment paleidime | Assessment neišduoda teisingumo vietoje | Autosave realiame sraute | Tęsti juodraštį UI | Pavyzdys pažymimas / blokuojamas | Ataskaita | Rubrika |
 |---|---:|---|---|---|---|---|---|---:|
-| LD1 | 9 | TAIP | TAIP | TAIP | TAIP | assessment režime blokuojamas; mokymosi režimas palieka practice žymą | TAIP | 15 (guided), 22 legacy/manual |
+| LD1 | 9 | TAIP | TAIP | TAIP | TAIP | assessment režime blokuojamas; mokymosi režimas palieka practice žymą | TAIP | 15 normaliame guided sraute; 22 legacy / specialiai sukonstruotai LD1-1 ataskaitai (įprastas UI po guided starto į 22 kriterijų kelią nebegrįžta) |
 | LD2 | 12 | TAIP | TAIP | TAIP | TAIP | assessment režime blokuojamas; mokymosi režimas palieka practice žymą | TAIP | 50 |
 | LD3 | 6 | **NE** | **NE** | **NE** | **NE** | **Pavyzdys rodo teisingus atsakymus, bet practice_used nenustato** | TAIP | 15 |
 | LD4 | 7 | **NE** | **NE** | **NE** | **NE** | practice_used nustatomas | TAIP | 27 |
