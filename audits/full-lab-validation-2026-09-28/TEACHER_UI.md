@@ -544,3 +544,45 @@ Todėl šio punkto statusas yra:
 - prieš gamybinį Windows naudojimą būtinas konkretus regression testas su katalogu, pvz. `C:\...\Studentų darbai Žąsė\`.
 
 Naršyklės `mokytojas --ui` kelias turi tą pačią riziką: URL forma perduodamas UTF-8 tekstas dekoduojamas į `std::string` ir vėliau eina per tą patį `mokytojas_run()`.
+
+
+## HIGH / AUDIT TRAIL — stale pažymys po graderio/rubrikos pakeitimo
+
+`mokytojas` persistent istorijos deduplikacija remiasi tik studento HTML failo SHA-256.
+
+`IVERTINIMAI.csv` antraštėje saugoma:
+- Nr;
+- Data;
+- Studentas;
+- Grupė;
+- LD;
+- Variantas;
+- Įvertinimas;
+- Balai;
+- Iš;
+- Klaidos;
+- Failas;
+- SHA256.
+
+Nesaugoma:
+- `core_version`;
+- `lab_revision`;
+- `rubric_version`;
+- repo commit / grader build identifikatorius.
+
+Paleidimo pradžioje visi seni SHA įkeliami į `known`, o tas pats failas vėliau praleidžiamas:
+
+`if (known.count(hash)) ... continue;`
+
+Todėl jei:
+1. dėstytojas įvertino ataskaitą;
+2. graderio formulė/rubrika vėliau pataisyta;
+3. tas pats originalus studento HTML vertinamas dar kartą tame pačiame darbo kataloge,
+
+`mokytojas` jo neperskaičiuos — paliks istorinį ankstesnio graderio rezultatą.
+
+Pats `grade()` verdict turi `core_version`, `lab_revision`, `rubric_version`, bet `mokytojas` jų į persistent CSV neišsaugo.
+
+Palyginimui, `ldcheck` naujame output kataloge kiekvieną kartą iš naujo skaito ir vertina reportą dabartiniu graderiu.
+
+Tai svarbu oficialiam žurnalui: rezultato kilmė turi būti atsekama ne tik iki studento failo SHA, bet ir iki konkrečios vertinimo logikos versijos.
