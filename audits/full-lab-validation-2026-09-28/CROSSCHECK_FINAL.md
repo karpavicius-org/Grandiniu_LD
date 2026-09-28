@@ -748,3 +748,26 @@ Tai taip pat reiškia, kad dabartinio `ZURNALAS.csv` negalima visiškai rekonstr
 `ldcheck` šios konkrečios problemos neturi: naujas batch output iš naujo vertina failus dabartiniu graderiu ir `vertinimai.json` verdictuose turi versijų laukus.
 
 Prieš gamybinį naudojimą persistent mokytojo istorijoje turi būti aiškus vertinimo versijos identifikatorius ir apibrėžta regrade/migration politika.
+
+
+---
+
+## 31. Persistent žurnalas neturi kurso/semestro ribos
+
+`mokytojas` istorija yra ilgalaikė, tačiau jos loginis scope neįrašytas į duomenis.
+
+CSV eilutėje nėra:
+- course_id;
+- akademinių metų;
+- semestro;
+- kohortos ID.
+
+`ZURNALAS.csv` visą `IVERTINIMAI.csv` istoriją grupuoja pagal:
+
+`vardas + grupė + lab_id`.
+
+Todėl to paties darbo katalogo pakartotinis naudojimas kitame semestre gali sujungti istoriškai skirtingus bandymus ir palikti ankstesnį aukščiausią balą.
+
+Tai nėra `ldcheck` batch problema, nes jo output yra naujas atskiras katalogas kiekvienam vertinimui. Tai būdinga būtent persistent `mokytojas` istorijos modeliui.
+
+Minimalus dabartinės sistemos naudojimo apribojimas būtų „atskiras darbo katalogas kiekvienai kurso kohortai / semestrui“, tačiau gamybiniame modelyje šis scope turi būti duomenų dalis, o ne vien dėstytojo disciplina.
