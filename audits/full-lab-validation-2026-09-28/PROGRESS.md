@@ -95,3 +95,57 @@ Papildomai patvirtinta šiame audito etape:
 - Scilab `DESTYTOJUI.sce` vertinimo išvestį kuria studentų darbų aplanko viduje. Kadangi importas yra rekursinis, pakartotinai vertinant tą patį aplanką ankstesnių `Vertinimai-*/vertinimai.html` failai gali būti nuskaityti kaip įvestis ir patekti į review srautą.
 - `mokytojas --ui` rezultatų failus rašo į proceso dabartinį darbo katalogą, nors UI vartotojui teigia, kad rezultatai rašomi „šalia programos“. Paleidimo būdas gali pakeisti faktinę rezultatų vietą.
 - Šiame etape funkcinis kodas sąmoningai nepakeistas. Radiniai skirti vėlesniam taisymo etapui po pilno studento→dėstytojo srauto audito.
+
+
+## Checkpoint — pateikimo vientisumas ir dėstytojo galutinė eiga
+
+### Kritinis: studento pakete yra dėstytojo etalonų vertintuvas
+
+- `tools/package_native.py` ir `tools/package_student.py` į studentams platinamus paketus sąmoningai įtraukia `ldcheck` ir `mokytojas` binarus.
+- `STENDAS.sce` bendrame meniu taip pat rodo punktą „Dėstytojui · automatinis ataskaitų vertinimas“.
+- Realiu iš CI studento paketo paimtu `ldcheck` patvirtinta: studento klaidingą LD12 ataskaitą programa įvertina ir `vertinimai.html` parodo „Atsakymas / etalonas“ bei tikslų teisingą skaitinį etaloną.
+- Todėl studentas, nekeisdamas programos kodo, gali lokaliai paleisti dėstytojo vertintuvą ir pasižiūrėti atsakymų etalonus.
+- Vien binarų pašalinimo nepakaks aukšto vientisumo atsiskaitymui: studento pakete lieka Scilab šaltiniai su `*_expected_answers` ir kita sprendimo logika. Vietinis/offline paketas negali kriptografiškai įrodyti autorystės; projektas tai jau pripažįsta savo R13 priėmimo pastaboje.
+- Gamybiniam naudojimui būtina aiškiai atskirti mokymosi paketą nuo patikimo atsiskaitymo modelio arba aiškiai dokumentuoti, kad automatinis vertinimas yra mokomasis/administracinis, o ne apsauga nuo atsakymų išgavimo.
+
+### Tapatybė ir variantas tarp dviejų dėstytojo kelių
+
+Kontroliuojamu realių binarų bandymu pateikti du tobuli LD12 darbai:
+- tas pats vardas: `Tas Pats Studentas`;
+- ta pati grupė: `EG-1`;
+- skirtingi studento/varianto numeriai: 1 ir 2.
+
+Rezultatas:
+- `ldcheck`: abu 10.0 ir abu `selected_for_summary=true`, nes geriausio bandymo raktas apima visą studento objektą, įskaitant numerį.
+- `mokytojas`: `IVERTINIMAI.csv` turi abu bandymus, bet `ZURNALAS.csv` turi vieną vardas+grupė eilutę ir vieną LD12 langelį 10.0.
+- Vadinasi, pakeitus varianto numerį, dvi dėstytojo sąsajos studento tapatybę interpretuoja skirtingai.
+
+### Registracijos ir eksporto ribų neatitikimas
+
+- `student_profile.sci` tikrina, kad vardas ir grupė nebūtų tušti, tačiau jų ilgio neriboja.
+- C++ graderio `text()` numatytoji riba — 256 UTF-8 baitai.
+- Realiu `ld_export_report` bandymu:
+  - 300 ASCII simbolių vardas → eksportas FAIL, failas nesukuriamas;
+  - 200 lietuviškų „ą“ (400 UTF-8 baitų) → eksportas FAIL;
+  - 200 ASCII simbolių → eksportas PASS.
+- Tokia klaida turi būti aptikta registruojant studentą, o ne darbo pabaigoje.
+
+### Pavyzdžio / mokymosi atsekamumas
+
+- LD1 ir LD2 pavyzdžiai atsiskaitymo režime blokuojami; norint juos atverti reikia pereiti į mokymosi režimą, o režimo pakeitimas palieka `practice_used=true`.
+- LD4–LD12 pavyzdžio callbackai (išskyrus LD3) tiesiogiai nustato `practice_used=true`, žyma grįžus nenuimama.
+- LD3 `ld3_toggle_solution()` parodo ir į būseną įrašo teisingus atsakymus, tačiau `practice_used=true` nenustato.
+- Dabartiniu kodu LD3 ataskaita vis tiek pagal nutylėjimą yra `learning`, todėl į pažymių žurnalą nepatenka. Tačiau taisant LD3 assessment režimą šį trūkumą būtina taisyti kartu, kitaip pavyzdžio naudojimas galėtų likti nepažymėtas.
+
+### Dėstytojo UI ergonomika ir atkūrimas
+
+- `mokytojas --ui` realus HTTP testas projekte tikrina paleidimą, būseną, pakartotinį paleidimą, klaidos kelią ir `/quit` iškart po 100 failų batch starto; workeris atšaukiamas/joininamas prieš uždarymą.
+- Kontroliuojamame lokaliame UI bandyme `/quit` taip pat tvarkingai uždarė procesą; audito metu fone nepaliktas nė vienas `mokytojas --ui` procesas.
+- Atkūrus tikslų dėstytojo lentelės CSS su normalaus ilgio duomenimis, 15 stulpelių žurnalas yra apie 855 px pločio ir telpa net 900 px lange. Horizontalaus slinkimo trūkumo su normaliomis reikšmėmis nelaikome defektu.
+
+### Trūksta žmogaus sprendimo audito grandinės
+
+- Automatinis graderis laisvos teksto išvados turinio semantiškai nevertina.
+- `review`, `conflict` ir metodiniai ginčytini atvejai reikalauja dėstytojo sprendimo.
+- Nei `DESTYTOJUI.sce`, nei `mokytojas --ui` neturi integruoto rankinio pažymio pataisymo/patvirtinimo su priežastimi ir istorija.
+- Projekto `core/README.md` tai jau įvardija kaip atvirą priėmimo klausimą („dėstytojo rankinių pažymio pataisų istorija“). Pramoniniam vertinimo workflow tai turi būti uždaryta prieš oficialų naudojimą.
