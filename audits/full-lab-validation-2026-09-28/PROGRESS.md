@@ -80,3 +80,18 @@ Bazinis main SHA: `a3f59a87d8f92ee2d281bb87db93eff0d205c0fe`
 - `DESTYTOJUI.sce` ir `mokytojas --ui` turi skirtingą rezultatų modelį ir skirtingus failų pavadinimus; dokumentacijoje jie pristatomi kaip alternatyvos, tačiau šiuo metu nėra semantiškai lygiaverčiai.
 - `mokytojas --ui` rezultatų failus rašo į proceso dabartinį darbo katalogą, o UI tekstas sako „šalia programos“. Tai nėra tas pats dalykas visose paleidimo situacijose.
 - Scilab vertinimas rezultatų aplanką kuria studentų ataskaitų aplanko viduje. Pakartotinai vertinant tą patį tėvinį aplanką, ankstesni `Vertinimai-*/vertinimai.html` failai patenka į rekursinę inventorizaciją ir gali atsirasti kaip papildomi review įrašai.
+
+
+## Checkpoint — studento UI → dėstytojo UI grandinė
+
+Fiksavimo momentu `main` prieš šį commitą: `f9c147fb7d9a059b3ec9a1e3ca2f62bce1d02e36`.
+
+Papildomai patvirtinta šiame audito etape:
+
+- Dėstytojui egzistuoja du realūs vertinimo keliai: Scilab `DESTYTOJUI.sce` (batch/`ldcheck`) ir C++ `mokytojas --ui`. Jie naudoja tą patį grader branduolį, bet **ne tą pačią bandymų vientisumo/suvestinės semantiką**.
+- `ldcheck` aptinka tą patį `submission_id` su skirtingais duomenimis kaip konfliktą; `mokytojas --ui` deduplikuoja tik pagal viso failo SHA-256, todėl pakeista ataskaita su tuo pačiu submission ID gali būti įvertinta kaip atskiras bandymas.
+- `mokytojas --ui` žurnalas grupuoja studentą pagal vardą+grupę, o batch suvestinės parinkimas remiasi pilnesne deklaruota studento tapatybe. Tai gali lemti skirtingą bandymų sugrupavimą tarp dviejų dėstytojo kelių.
+- `mokytojas --ui` naršyklės lentelė `ZURNALAS.csv` reikšmes įterpia per `innerHTML` jų neescapindama. Kadangi studento vardas ir grupė yra laisvas tekstas ir patenka į žurnalą, tai yra realus lokalaus HTML/XSS įterpimo paviršius dėstytojo UI.
+- Scilab `DESTYTOJUI.sce` vertinimo išvestį kuria studentų darbų aplanko viduje. Kadangi importas yra rekursinis, pakartotinai vertinant tą patį aplanką ankstesnių `Vertinimai-*/vertinimai.html` failai gali būti nuskaityti kaip įvestis ir patekti į review srautą.
+- `mokytojas --ui` rezultatų failus rašo į proceso dabartinį darbo katalogą, nors UI vartotojui teigia, kad rezultatai rašomi „šalia programos“. Paleidimo būdas gali pakeisti faktinę rezultatų vietą.
+- Šiame etape funkcinis kodas sąmoningai nepakeistas. Radiniai skirti vėlesniam taisymo etapui po pilno studento→dėstytojo srauto audito.
