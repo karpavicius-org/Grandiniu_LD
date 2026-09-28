@@ -36,3 +36,47 @@ Bazinis main SHA: `a3f59a87d8f92ee2d281bb87db93eff0d205c0fe`
 12. CI artefaktams nenurodytas `retention-days`; numatytasis saugojimas ilgesnis nei reikalinga trumpalaikiams audito artefaktams.
 
 Šis failas yra tarpinis audito kontrolinis taškas, ne galutinė išvada.
+
+
+## Studento UI → dėstytojo UI auditas
+
+### Patvirtinta studento pusėje
+
+- Registracija: eilės numeris griežtai tikrinamas kaip sveikas 1–64; vardas ir grupė privalomi; prieš darbo pradžią parodomas deterministinis variantas ir jo parametrai.
+- LD1 ir LD2 realiame studento paleidime inicijuoja atsiskaitymo režimą bei autosave.
+- LD8 realiame studento paleidime turi pilną atsiskaitymo semantiką: klaidingas, bet netuščias atsakymas išsaugomas ir perduodamas dėstytojo vertinimui; mokymosi režime atsakymas tikrinamas vietoje.
+- LD3–LD7 ir LD9–LD12 bendras `bench_mode()` techniškai egzistuoja, tačiau realiame UI nėra pasiekiamas ir jų `student_primary()` `assessment` būsenos nenaudoja. Net ranka įjungus `assessment`, eiga vis tiek reikalauja teisingo atsakymo prieš perėjimą.
+- LD3–LD7 ir LD9–LD12 realiame paleidime taip pat neįjungia autosave ir UI neturi „Tęsti išsaugotą darbą“. Testai mechanizmą įjungia tiesiogiai, todėl CI nepatvirtina realaus studento kelio.
+
+### Ataskaitos perdavimas
+
+- Studentų HTML generuojamas su inertiniu JSON bloku; matomas HTML tekstas escapinamas, `<` JSON bloke koduojamas, studento įvestis importo metu nevykdoma.
+- Failų importas ribojamas 2 MiB, simbolinės nuorodos atmetamos, nežinomos/sugadintos ataskaitos gauna review/NEVERTINTA, o ne 0 balų.
+- CSV generavime yra apsauga nuo skaičiuoklių formulės įterpimo (`=+-@` pradžia prefiksuojama apostrofu).
+
+### Dėstytojo UI — du skirtingi keliai
+
+1. `DESTYTOJUI.sce` / `ldcheck`:
+   - kuria naują `Vertinimai-...` aplanką;
+   - generuoja `vertinimai.html`, `suvestine.csv`, `vertinimai.json`;
+   - aptinka vienodą `submission_id` su skirtingais duomenimis kaip `conflict` ir sustabdo automatinį balą;
+   - tiksli kopija pažymima `duplicate`;
+   - geriausią bandymą parenka tik iš assessment, nenaudojusių practice.
+
+2. `mokytojas --ui`:
+   - kuria `IVERTINIMAI.csv`, `ZURNALAS.csv`, `atsiliepimai/`;
+   - dublikatus atpažįsta pagal failo SHA-256;
+   - realiu bandymu patvirtinta, kad tas pats `submission_id` su pakeistais duomenimis čia **neaptinkamas kaip konfliktas**: abu failai įvertinami, o žurnalas pasirenka geresnį balą. Tai nesutampa su `ldcheck` vientisumo taisykle.
+   - `ZURNALAS.csv` studentą grupuoja pagal vardą+grupę; `ldcheck` geriausio bandymo raktui naudoja visą studento objektą, įskaitant numerį. Skirtingo varianto bandymai tarp dviejų dėstytojo kelių gali būti sugrupuoti skirtingai.
+
+### Patvirtinta dėstytojo naršyklės UI saugumo spraga
+
+- `mokytojas --ui` grąžina `ZURNALAS.csv` studento vardą/grupę kaip tekstą, bet JavaScript lentelę kuria su `innerHTML` be HTML escapinimo.
+- Kontroliuojamu bandymu galiojanti LD12 ataskaita su studento vardu `<b>AUDITAS</b>` buvo įvertinta 10.0; `/zurnalas` atsakyme žymėjimas išliko neescapintas ir UI rendereris jį perduoda `innerHTML`.
+- Tai yra potenciali lokali XSS iš studento ataskaitos į dėstytojo naršyklės sąsają. Scilab/`ldcheck` generuojamas `vertinimai.html` studento tekstą escapina ir šios konkrečios problemos neturi.
+
+### Ergonomikos / nuoseklumo pastabos dėstytojui
+
+- `DESTYTOJUI.sce` ir `mokytojas --ui` turi skirtingą rezultatų modelį ir skirtingus failų pavadinimus; dokumentacijoje jie pristatomi kaip alternatyvos, tačiau šiuo metu nėra semantiškai lygiaverčiai.
+- `mokytojas --ui` rezultatų failus rašo į proceso dabartinį darbo katalogą, o UI tekstas sako „šalia programos“. Tai nėra tas pats dalykas visose paleidimo situacijose.
+- Scilab vertinimas rezultatų aplanką kuria studentų ataskaitų aplanko viduje. Pakartotinai vertinant tą patį tėvinį aplanką, ankstesni `Vertinimai-*/vertinimai.html` failai patenka į rekursinę inventorizaciją ir gali atsirasti kaip papildomi review įrašai.
