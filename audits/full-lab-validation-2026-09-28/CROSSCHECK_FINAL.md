@@ -1,0 +1,575 @@
+# Galutinis kryžminis auditas — studentas → dėstytojas → CI → paketas
+
+Data: 2026-09-28  
+Audituotas `main` prieš šį checkpointą: `fee3018b122fe6d47ebcba035bcb780157062d33`
+
+## 1. Kontrolinė išvada
+
+Kryžminė patikra atlikta ne remiantis vien ankstesniais audito tekstais, bet dar kartą lyginant:
+
+- dabartinius LD1–LD12 Scilab šaltinius;
+- `bench_report.sci`, `bench_session.sci`, `bench_common.sci`;
+- C++ `grader.cpp`, `batch.cpp`, `mokytojas.cpp`, `model.cpp`;
+- realius `tools/test_ld*.sce/.py` testus;
+- `test_student_delivery.sce/.py`;
+- `AUTOMATINIS.sce`, `HEADLESS.sce`, `GUI_PATIKRA.sce`;
+- `native.yml`, `macos.yml`;
+- `package_native.py`, `package_student.py`, `check_student_package.py`;
+- repo `dist/` istoriją;
+- oficialų KVK „Grandinių teorija“ (TF-EA-2025-07) dalyko aprašą Google Drive.
+
+Bendras rezultatas:
+
+> Skaitinis/fizikinis branduolys ir C++ graderis yra stipri sistemos dalis. Didžiausi neuždaryti klausimai yra formalus assessment srautas, pateikimo vientisumas, dėstytojo agregavimas, LD numeracijos atsekamumas, LD12 matavimo rubrika ir release/paketavimo grandinė.
+
+Funkcinis laboratorijų kodas šio audito metu nekeistas.
+
+---
+
+## 2. Patvirtinta, kad auditas nepakeitė produkto kodo
+
+Palyginta:
+- bazinis audito pradžios commit: `a3f59a87d8f92ee2d281bb87db93eff0d205c0fe`;
+- dabartinė audito šaka prieš šį checkpointą.
+
+Visi pakeisti failai yra tik:
+
+`audits/full-lab-validation-2026-09-28/*`
+
+Nė vienas:
+- `studentui/*`;
+- `core/*`;
+- `.github/workflows/*`;
+- `tools/*`;
+- `dist/*`
+
+funkcinis failas audito metu nepakeistas.
+
+Tai patvirtina, kad visi rasti defektai yra esamos sistemos būklė, o ne audito įvestos regresijos.
+
+---
+
+## 3. Oficialus 13 LD žemėlapis dar kartą patvirtintas tiesiai iš KVK dokumento
+
+Oficialus dokumentas nurodo:
+
+1. Elektrinių grandinių jungimas  
+2. Įtampos ir srovės matavimas  
+3. Omo dėsnio veikimas realioje elektros grandinėje  
+4. Tiesinių rezistorių tyrimas  
+5. Nuosekliai, lygiagrečiai, mišriai jungiamų grandinės elementų tyrimas  
+6. Įtampos daliklio tyrimas  
+7. Nuoseklaus ir lygiagretaus šaltinių jungimo tyrimas  
+8. Įtampos, srovės ir galios suderinamumo tyrimas  
+9. Paprastųjų kintamosios srovės grandinių tyrimas  
+10. Nuosekliai sujungtos R,L,C vienfazės grandinės tyrimas. Įtampų rezonansas  
+11. Lygiagrečiai sujungtos R,L,C vienfazės grandinės tyrimas. Srovių rezonansas  
+12. Aktyviosios, reaktyviosios, pilnutinės galios tyrimas  
+13. Trikampiu ir žvaigžde jungiamų imtuvų tyrimas.
+
+Repo virtualių ID atitiktis patvirtinta:
+
+- repo LD1 → oficialus LD1;
+- oficialus LD2 → atskiras virtualus darbas neįgyvendintas, lieka fizinis;
+- repo LD3 → oficialus LD3;
+- repo LD4 → oficialus LD4;
+- repo LD8 → oficialus LD5;
+- repo LD5 → oficialus LD6;
+- repo LD6 → oficialus LD7;
+- repo LD7 → oficialus LD8;
+- repo LD2 → dengia oficialaus LD9 ir dalį LD10 tematikos;
+- repo LD9 → oficialus LD10;
+- repo LD10 → oficialus LD11;
+- repo LD11 → oficialus LD12;
+- repo LD12 → oficialus LD13.
+
+Todėl techninis `lab_id=LDx` negali būti tiesiogiai laikomas oficialiu kurso LD numeriu.
+
+---
+
+## 4. Assessment/autosave matrica patvirtinta tiesiai iš dabartinių šaltinių
+
+Pilnai prijungtą produkto kelią turi:
+
+### LD1
+- assessment normaliai paleidžiamas;
+- autosave normaliai įjungtas;
+- režimas pasiekiamas UI;
+- juodraščio atkūrimas pasiekiamas;
+- klaidingas raw atsakymas gali būti perduotas graderiui.
+
+Tačiau numatytasis `guided=true` jau pirmajame etape pažymi `guided_used`, todėl normalus UI lieka LD1-2 (15 studento atsakymų kriterijų). 22 kriterijų LD1-1 yra legacy/specialiai konstruojama rubrika, ne normaliai pasiekiamas kelias po guided starto.
+
+### LD2
+- assessment normaliai paleidžiamas;
+- autosave normaliai įjungtas;
+- režimas pasiekiamas;
+- juodraščio atkūrimas pasiekiamas;
+- raw atsakymo teisingumas assessment metu neatskleidžiamas.
+
+Tačiau:
+- restartas numeta assessment;
+- varianto pakeitimas numeta assessment;
+- assessment etapai nefiksuojami `completed/skipped`;
+- galima tyliai pereiti per visiškai tuščią etapą.
+
+### LD8
+- assessment normaliai paleidžiamas;
+- autosave normaliai įjungtas;
+- režimas pasiekiamas;
+- juodraščio atkūrimas pasiekiamas;
+- tuščias atsakymas neleidžiamas;
+- neteisingas netuščias raw atsakymas perduodamas dėstytojui.
+
+Tai geriausias dabartinis assessment architektūros etalonas.
+
+### LD3–LD7 ir LD9–LD12
+Patvirtinta:
+- normalus startas neinicijuoja assessment;
+- realus UI neturi režimo pasirinkimo;
+- normalus startas neįjungia autosave;
+- UI neturi automatinio juodraščio atkūrimo;
+- `student_primary()` assessment būsenos nenaudoja;
+- studentas turi vietoje pataisyti atsakymą iki teisingo.
+
+Todėl vien `assessment=true` pridėjimas šių darbų nepataisytų.
+
+---
+
+## 5. Pavyzdžio/practice kontrolė
+
+Patvirtinta:
+
+- LD1 ir LD2 assessment metu pavyzdys blokuojamas / mokymosi režimas pažymimas.
+- LD4–LD12 pavyzdžio callbackai nustato `practice_used=true`.
+- LD3 pavyzdys rodo teisingą būseną/atsakymus, bet `practice_used=true` nenustato.
+
+Dabartiniu LD3 tai dar nesukuria įskaitinio apėjimo, nes visas normalus LD3 ir taip learning. Tačiau assessment taisymas ir LD3 practice žyma turi būti projektuojami kartu.
+
+LD8/LD9–LD12 restartas per naują init gali nunulinti `practice_used`; būsimo formalaus assessment politikai reikia apsispręsti, ar restartas reiškia naują leistiną bandymą.
+
+---
+
+## 6. Skaitinis saugumas patvirtintas
+
+Aktyviame runtime studento skaitinė įvestis nevykdoma kaip kodas.
+
+Repo paieška `evstr` parodė:
+- aktyviuose studento atsakymų parseriuose `evstr` nebenaudojamas;
+- vienintelis aktyvus `evstr` likęs `HEADLESS.sce` testui, kuris parsina source-controlled `REGISTRY-CODES` intervalo numerius.
+
+Studento skaičių parseriai riboja simbolius ir naudoja `strtod`.
+
+C++ importas papildomai:
+- nevykdo HTML/Scilab;
+- riboja failą iki 2 MiB;
+- tikrina tipą;
+- atmeta symlink;
+- tikrina schemą, ID, vienetus ir variantą.
+
+Ankstesnis įtarimas, kad `mokytojas` vietinis kelias galėtų įvertinti symlink, kryžmiškai atmestas:
+- `scan_local()` pats symlink netikrina;
+- tačiau galutinis bendras `read_report()` turi `!is_symlink(path)` ir tokį failą atmeta.
+
+---
+
+## 7. Fizikos/modelio sluoksnis
+
+Nepatvirtinta jokių naujų esminių fizikinių regresijų.
+
+Ankstesnė nepriklausoma patikra lieka galiojanti, nes funkciniai šaltiniai audito metu nekeisti:
+
+- LD2 RC/RL/RLC visų 64 variantų kompleksinės formulės sutapo su C++ modeliu iki ~5.7e-14 abs. paklaidos;
+- LD1 baziniai serijos/lygiagretūs/KCL santykiai tvarkingi;
+- LD3 Omo dėsnis tvarkingas;
+- LD4 realios R reikšmės ±5 %;
+- LD5 daliklis monotoniškas ir matematiškai nuoseklus;
+- LD6 šaltinių kombinacijos fiziškai nuoseklios;
+- LD7 maksimalios galios režimas R=r;
+- LD8 serijos/lygiagretaus/mišraus jungimo dėsniai tvarkingi;
+- LD9 rezonanso AC modelis nuoseklus;
+- LD10 lygiagretus rezonansas nuoseklus;
+- LD11 kompensacija išlaiko P ir mažina I/S;
+- LD12 idealios simetrinės trifazės formulės nuoseklios.
+
+---
+
+## 8. LD12 kritinis rubrikos/evidence neatitikimas patvirtintas
+
+Realiame studento UI studentas atlieka tik:
+- vieną žvaigždės fazės matavimą;
+- vieną trikampio fazės matavimą.
+
+`bench_report_data("LD12")` iš jų sukuria:
+- tris žvaigždės fazių observations, kopijuodamas vieną matavimą;
+- tris trikampio fazių observations, kopijuodamas vieną matavimą;
+- `ild` tiesiai iš `ld12_line_current()`, t. y. tiesiai iš modelio.
+
+C++ graderis šiuos 7 laukus vertina kaip 7 matavimo kriterijus.
+
+Taigi 19 taškų rubrikos 7 „matavimo“ balai neatitinka 7 nepriklausomų studento matavimo veiksmų.
+
+Tai patvirtintas metodinis/grading evidence defektas.
+
+---
+
+## 9. 769 automatinės ataskaitos — ką šis skaičius realiai reiškia
+
+`test_automatic_reports.py` realiai patikrina:
+- 64 variantus kiekvienam LD1–LD12;
+- papildomą klaidingą/trūkstamą LD2 ataskaitą;
+- iš viso 769 reportus;
+- jų C++ graderio taškų skaičiavimą.
+
+Tačiau testas **neassertina**, kad visi tie reportai:
+- `mode=assessment`;
+- `selected_for_summary=true`.
+
+Todėl:
+
+> „769 graded reports“ reiškia, kad graderis geba juos techniškai įvertinti taškais. Tai nereiškia „769 formaliai įskaitinių assessment pateikimų“.
+
+Tai ypač svarbu LD3–LD7 ir LD9–LD12.
+
+---
+
+## 10. Student delivery testo aprėpties korekcija
+
+Rastas konkretus CI metaduomenų neatitikimas.
+
+`tools/test_student_delivery.sce` turi:
+
+`for lab=1:8`
+
+ir verdict tekstas teisingai sako:
+„eight fixed windows“.
+
+Tačiau `tools/test_student_delivery.py` acceptance.json rašo:
+
+`labs=list(range(1,13))`.
+
+Todėl acceptance JSON klaidingai deklaruoja LD1–LD12 aprėptį.
+
+Teisinga interpretacija:
+
+- bendras delivery/fixed-window launch testas realiai paleidžia LD1–LD8;
+- LD9–LD12 turi atskirus `test_ld9.py`–`test_ld12.py` GUI/geometrijos/graderio testus;
+- mažų ekranų 1024×768 ir 900×600 scrollable mechanizmas testuojamas kaip bendras studento window mechanizmas, ne atskirai kiekvienam LD9–LD12.
+
+---
+
+## 11. Targeted testų skaičių korekcija
+
+Scilab verdict tekstai kai kur pasenę. Faktinis Python `len(expected)` / case konstrukcija duoda:
+
+- LD8: 146 — verdict tekstas 146, sutampa;
+- LD9: 146 — Scilab verdict tekstas vis dar rašo 144;
+- LD10: 146 — Scilab verdict tekstas vis dar rašo 144;
+- LD11: 146 — Scilab verdict tekstas vis dar rašo 148;
+- LD12: 122 — Scilab verdict tekstas vis dar rašo 140.
+
+Tai nekeičia testų rezultatų, tačiau rankiniu būdu įrašyti PASS statistikos tekstai negali būti laikomi autoritetingais test case skaitikliais.
+
+Audito LD10/LD11/LD12 dokumentuose šie skaičiai pataisyti.
+
+---
+
+## 12. Dėstytojo pusės du keliai tikrai nėra semantiškai ekvivalentiški
+
+### DESTYTOJUI.sce / ldcheck
+
+Patvirtinta:
+- vienodas submission_id + identiškas report → duplicate;
+- vienodas submission_id + skirtingas report → conflict;
+- conflict panaikina automatinį balą;
+- geriausias valid assessment parenkamas pagal visą student objektą + lab_id;
+- HTML studento tekstas escapinamas;
+- atšauktas batch turi complete/cancelled būseną JSON.
+
+### mokytojas / mokytojas --ui
+
+Patvirtinta:
+- dedup pagal viso failo SHA-256;
+- vienodas submission_id su pakeistu turiniu konflikto nesukelia;
+- studentas grupuojamas vardas + grupė + lab_id;
+- `ZURNALAS.csv` lentelė naršyklėje kuriama per neescapintą `innerHTML`;
+- geriausias balas paliekamas žurnale;
+- nėra rankinės pataisos istorijos.
+
+Todėl prieš gamybinį naudojimą reikia vienos kanoninės agregavimo semantikos.
+
+---
+
+## 13. mokytojas Google Drive kelio kritinis defektas patvirtintas
+
+Dabartinis `mokytojas_run()`:
+
+1. sukuria temp katalogą;
+2. parsisiunčia Drive HTML į temp;
+3. išsaugo jų kelią `Source.path`;
+4. ištrina visą temp katalogą;
+5. tik tada kviečia `process(files,...)`.
+
+`Source` nesaugo failo baitų — tik kelią ir display vardą.
+
+Todėl po `remove_all(tmp)`:
+- `hash_file()` failo neberanda;
+- ataskaita neįvertinama.
+
+`process()` hash failure atveju didina failed, bet pabaigoje vis tiek gali grąžinti 0, todėl UI gali parodyti sėkmingo užbaigimo būseną.
+
+Esami testai tikrina Drive BE API rakto klaidos kelią, ne sėkmingą realų download→grade kelią.
+
+Tai patvirtintas kritinis defektas.
+
+---
+
+## 14. Ataskaitos vientisumas: formalus assessment nėra kriptografiškai patikimas
+
+HTML ataskaita nėra pasirašyta.
+
+Studento valdomame JSON yra:
+- `mode`;
+- `practice_used`;
+- `submission_id`;
+- vardas/grupė/numeris;
+- raw atsakymai;
+- measurements/evidence.
+
+Graderis puikiai apsaugo nuo:
+- neegzistuojančio varianto;
+- pakeistų variantų parametrų;
+- neleistinų ID/vienetų;
+- netinkamos schemos.
+
+Tačiau jei studentas pakeičia leidžiamą raw atsakymą, mode, practice ar naują submission_id ir dėstytojas gauna tik pakeistą kopiją, sistema neturi serverio pusės originalo ar parašo, su kuriuo galėtų įrodyti pakeitimą.
+
+Tai ne C++ parserio trūkumas — tai pateikimo architektūros ribojimas.
+
+---
+
+## 15. Studentams platinami etalonai patvirtinti
+
+`package_native.py` ir `package_student.py` į studento paketą įtraukia:
+- `ldcore`;
+- `ldcheck`;
+- `mokytojas`.
+
+`STENDAS.sce` studento meniu rodo:
+„Dėstytojui · automatinis ataskaitų vertinimas“.
+
+Studento pakete taip pat yra Scilab šaltinių su `*_expected_answers`.
+
+Todėl studentas lokaliai gali prieiti prie vertinimo etalonų.
+
+Tai reiškia, kad vietinis offline studento paketas negali būti laikomas „slaptų atsakymų“ pagrindu. Formalų vientisumą reikia spręsti pateikimo/assessment architektūra, ne obfuskavimu.
+
+---
+
+## 16. Release/paketavimo grandinės kryžminė išvada
+
+### Trackinti dist paketai pasenę
+
+Visi:
+- `Grandiniu_LD-studentui.zip`;
+- `Grandiniu_LD-macOS-arm64.zip`;
+- `Grandiniu_LD-macOS-x86_64.zip`
+
+paskutinį kartą atnaujinti 2026-09-23.
+
+LD8–LD12 į repo įtraukti 2026-09-24–25.
+
+Todėl README tiesioginės dist nuorodos rodo į release, kuris chronologiškai yra senesnis už LD8–LD12.
+
+### PATIKRA.json pasenęs
+
+Jame:
+- 97 source SHA;
+- yra LD1–LD7;
+- nėra nė vieno LD8–LD12 runtime failo.
+
+### VARIANTAI.csv
+
+LD9–LD12 `VARIANTAI.csv`:
+- dabartiniame Git tree nėra;
+- juos generuoja tik `HEADLESS.sce`;
+- dabartiniai Actions workflow `HEADLESS.sce` nevykdo.
+
+### package_native
+
+Pakuoja visus workspace esančius failus.
+Todėl sugeneruotų CSV buvimas priklauso nuo ankstesnio side-effect.
+
+### package_student
+
+Naudoja `git ls-files`, todėl netrackintų LD9–LD12 CSV neįtrauks net jei jie workspace sugeneruoti.
+
+### check_student_package
+
+Reikalauja LD9–LD12 CSV ir reikalauja runtime == pasenusio PATIKRA manifesto.
+Todėl dabartiniame švariame main šis checker negali būti sėkmingas.
+
+### Actions
+
+Dabartiniai workflow:
+- nekuria bendro `Grandiniu_LD-studentui.zip`;
+- nepaleidžia `check_student_package.py`.
+
+Todėl žalias CI nėra įrodymas, kad README nurodytas bendras ZIP yra dabartinis.
+
+---
+
+## 17. CI dokumentacinių commitų dubliavimas
+
+Audito pradžioje kiekvienas docs commit paleido:
+- Windows/Linux acceptance;
+- macOS acceptance,
+
+nes workflow yra `on: push`.
+
+Funkcinis kodas tuo metu nesikeitė, todėl keli run'ai buvo dubliuoti.
+
+Nuo `CI_AND_PACKAGE.md` checkpointo audito docs commitai daromi su `[skip ci]`.
+
+Patikrinta:
+- naujam `2159f2ec...` nebuvo paleisti Windows/Linux ir macOS acceptance;
+- liko tik atskiras platforminis „Push on main“ check.
+
+Tai atitinka 0 € papildomų resursų ir nedubliuoto CI politiką.
+
+---
+
+## 18. Viešos dokumentacijos neatitikimai
+
+Patvirtinta, kad dalis aktyvios dokumentacijos yra pasenusi:
+
+### core/README.md
+Sako:
+- „LD1–LD12 ... visi dalyko darbai“;
+- bendrą „Atsiskaitymo režime Įrašyti ir toliau“ semantiką.
+
+Realybė:
+- oficialus LD2 lieka fizinis;
+- repo LD2 nėra oficialus LD2;
+- pilnas assessment raw-answer kelias yra tik LD1/LD2/LD8.
+
+### root README.md
+Bendrai teigia:
+„atsiskaitymo režime Įrašyti ir toliau išsaugo tikrus atsakymus“,
+nenurodydamas, kad daugumos LD realus primary vis dar yra learning/TIKRINTI.
+
+Taip pat:
+- Actions nuorodos vis dar rodo seną `Karpavicius82/Grandiniu_LD` savininką;
+- „Naujausia keturių platformų patikra“ nurodo 2026-09-23 LD1–LD7 etapą;
+- skiltis „Plėtra iki 13 LD“ jau neatspindi dabartinės LD1–LD12 būklės.
+
+Šių failų audito metu netaisome; tik fiksuojame.
+
+---
+
+## 19. Paleidimo kelias
+
+Šakniniai:
+- `PALEISTI.bat`;
+- `PALEISTI.sh`;
+- `PALEISTI.command`;
+- `STENDAS.sce`
+
+tik deleguoja į `studentui/`, todėl dviejų skirtingų studento runtime logikų nėra.
+
+Tačiau:
+- root `STENDAS.sce` komentaras vis dar sako „Shared student launch for LD1 and LD2“;
+- dokumentacija reikalauja Scilab 2026.1.0;
+- Linux/macOS launcher priima bet kurį randamą `scilab`;
+- Windows launcher ieško ir `scilab-*` be realaus versijos patikrinimo;
+- Windows iš anksto tikrina `ldcore.dll`, Linux/macOS leidžia klaidai iškilti vėliau per `bench_core_require()`.
+
+Tai nėra branduolio klaida, bet gamybiniam palaikymui versijos/diagnostikos politika nevienoda.
+
+---
+
+## 20. UI ir metodikos defektai, kurių kryžminė patikra nepaneigė
+
+Lieka patvirtinti:
+
+- LD5 mA formulės paaiškinimo spraga;
+- LD6 keli mA formulės paaiškinimai be ×1000;
+- LD7 Pmax/Ik vienetų formuluotės;
+- LD8 šakų srovių mA formulės formuluotė;
+- LD12 If mA formulių ×1000 trūkumas;
+- LD9–LD12 literalūs `<br>` komponentų kortelėse;
+- LD10 starto „nuosekli RLC“ copy/paste;
+- LD10 „voltmetro taikinys“, nors naudojamas ampermetras;
+- LD11 starto „nuosekli RLC“;
+- LD11 „mikromadais“ vietoje mikrofaradais;
+- LD12 starto „nuosekli RLC“;
+- LD12 literalus `R = %g Ω`;
+- LD12 klaidingas fazės mygtukų intervalas B13–B15 vietoje B12–B14;
+- LD12 voltmetro tooltipas vadina jį vatmetru;
+- LD9–LD12 README nurodomi CSV, kurių Git tree nėra.
+
+---
+
+## 21. Kas kryžmiškai paneigta / patikslinta
+
+Kad galutinė analizė nebūtų vien tik problemų sąrašas:
+
+### Paneigta
+- Studentų atsakymų vykdymas per `evstr` — aktyviame UI to nebėra.
+- Symlink failo automatinis įvertinimas `mokytojas` — galutinis `read_report()` symlink atmeta.
+- Funkcinio kodo pakeitimas audito metu — neįvyko.
+
+### Patikslinta
+- „Student delivery LD1–LD12“ → realiai bendras delivery loop LD1–LD8; LD9–LD12 turi atskirus targeted testus.
+- LD1 „22 manual“ → 22 kriterijų kelias nėra normaliai pasiekiamas po numatyto guided starto.
+- LD9–LD12 PASS tekstuose kai kurie case skaičiai pasenę; faktiniai skaičiai nurodyti šiame protokole.
+- „769 reportai“ → 769 techniškai įvertinami reportai, ne 769 assessment-eligible pateikimai.
+
+---
+
+## 22. Galutinė prioritetų eilė prieš įgyvendinimą
+
+### P0 — būtina išspręsti prieš formalų naudojimą
+
+1. Vieninga assessment/learning būsenos mašina LD1–LD12.
+2. LD3–LD7/LD9–LD12 raw-answer assessment semantika.
+3. Pateikimo vientisumo/autorystės modelis.
+4. Studentų ir dėstytojo etalonų/paketų atskyrimo politika.
+5. LD12 realių matavimų ir rubrikos sutartis.
+6. `mokytojas` Drive temp katalogo klaida.
+7. Viena kanoninė submission conflict / student identity semantika.
+8. Oficialus kurso LD numeris atskirai nuo virtualaus techninio ID.
+9. Dabartinių studento release paketų perstatymas ir deterministinė release grandinė.
+
+### P1 — aukštas prioritetas
+
+10. Autosave/restore visiems darbams.
+11. Practice/pavyzdžio/restart politika.
+12. `mokytojas --ui` XSS.
+13. Bandymų skaičiaus ir termino politika.
+14. Rankinio dėstytojo override + audit trail.
+15. Aktyvių README/core README teiginių suvienodinimas su realybe.
+
+### P2 — UX / dokumentacija / priežiūra
+
+16. Vienetų tekstai.
+17. Copy/paste tekstai.
+18. literalūs `<br>`.
+19. LD12 B12–B14 / tooltip / %g klaidos.
+20. Scilab versijos diagnostika launcheriuose.
+21. CI PASS tekstų ir acceptance metadata skaitiklių sutvarkymas.
+22. CI dependency install / artefaktų retention / dubliavimo optimizavimas.
+
+---
+
+## 23. Galutinė būsena
+
+Po kryžminio audito nėra pagrindo teigti, kad skaitinis branduolys yra „sugedęs“. Priešingai — didžioji dalis fizikos, variantų bankų ir C++ graderio validacijos yra gera.
+
+Tačiau taip pat nėra pagrindo dabartinės sistemos dar vadinti užbaigta formalaus pažymio platforma.
+
+Tiksliausias dabartinės būklės apibūdinimas:
+
+> **techniškai stipri virtualių laboratorijų ir automatinio formuojamojo vertinimo sistema, kurios formaliojo assessment, pateikimo vientisumo, dėstytojo žurnalo ir release sluoksniai dar turi aiškiai apibrėžtų neuždarytų P0/P1 darbų.**
+
+Šis dokumentas užbaigia analizės/kryžminio audito etapą. Jame nesiūloma ir nevykdoma funkcinio kodo implementacija.
