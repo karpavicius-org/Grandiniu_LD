@@ -898,3 +898,33 @@ Prieš diegiant auditorijos kompiuteriuose reikia vienos iš aiškių sutarčių
 - per-student/per-session izoliuotas darbo katalogas;
 - aiškus „Baigti sesiją ir išvalyti tapatybę“ veiksmas;
 - valdomas failų retention.
+
+
+---
+
+## 38. `mokytojas` mastelio ribos elgiasi tyliai
+
+Vietinis skeneris sustoja pasiekęs 10 000 HTML failų, tačiau apie truncation nepraneša.
+
+`ldcheck` tuo pačiu mastelio atveju meta aiškią `batch_file_limit` klaidą.
+
+Todėl `mokytojas` gali pateikti sėkmingą rezultatą ne visam pasirinktam katalogui, jei įvestis netikėtai labai didelė.
+
+## 39. Local HTTP sluoksniui trūksta send-all semantikos
+
+`http_send()` vieną kartą kviečia `send()` headeriui ir vieną kartą body, nepatikrindamas return value.
+
+Tai nėra garantuotai teisinga TCP rašymo semantika didesniems atsakymams. Dabartiniam mažam žurnalui tikėtina veikia, bet mastelio testas šios sąlygos nepadengia.
+
+## 40. Localhost UI neturi CSRF/Origin hardening
+
+Teigiama:
+- bind tik `127.0.0.1`;
+- random ephemeral port.
+
+Neuždaryta:
+- Origin/Host netikrinami;
+- nėra CSRF/session token;
+- state-changing endpointai naudojami per GET.
+
+Tai vidutinio prioriteto lokalaus web UI hardening, o ne laboratorijų fizikos ar graderio blokatorius.
