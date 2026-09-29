@@ -72,11 +72,15 @@ endfunction
 
 function ld9_init_state()
     global LD9;
+    assessment=%t; practice=%f;
+    if isfield(LD9,"assessment") then assessment=LD9.assessment; end
+    if isfield(LD9,"practice_used") then practice=LD9.practice_used; end
     LD9.step = 1; LD9.done = zeros(1, 6) == 1; LD9.skipped = zeros(1, 6) == 1;
     LD9.powerOn = %f; LD9.switchOn = %f; LD9.freqPoint = 0; LD9.target = 0;
     LD9.wires = emptystr(0, 2); LD9.journal = [];
     LD9.report_wires = emptystr(0, 2);
     LD9.answers = emptystr(6, 8); LD9.demoMode = %f; LD9.lastMeasurement = %nan; LD9.pending = "";
+    LD9.assessment=assessment; LD9.practice_used=practice;
 endfunction
 
 function expected = ld9_expected_answers()

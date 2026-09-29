@@ -33,6 +33,7 @@ function ld10_start()
     if needgui & ~isfield(LD10, "fig") then
         ld10_build_gui();
     end
+    if ~isfield(LD10,"autosave_enabled") then LD10.autosave_enabled=needgui; end
     ld10_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite lygiagrečią RLC grandinę.", "info", "Seką rasite: Pagalba → [B04] Kaip sujungti.");
 endfunction
 
@@ -46,14 +47,14 @@ function ld10_student_primary()
     end
     // Vienas paspaudimas: patikrinti ir, pavykus, iškart pereiti (LD2 semantika).
     if ~LD10.done(LD10.step) then
-        ld10_check_step();
+        ld10_check_step(~LD10.assessment);
     end
     if LD10.done(LD10.step) & LD10.step < 6 then
         ld10_next_step();
     elseif LD10.step == 6 & LD10.done(6) & ~and(LD10.done) then
         pending = find(~LD10.done); ld10_set_step(pending(1));
     end
-    ld10_student_sync();
+    ld10_student_sync(); bench_autosave("LD10");
 endfunction
 
 function ld10_jump_step(n)
@@ -79,6 +80,8 @@ function ld10_student_sync()
             LD10.ui.studentPrimary.string = "UŽBAIGTI PRALEISTĄ ETAPĄ";
         elseif LD10.done(LD10.step) then
             LD10.ui.studentPrimary.string = "TOLIAU →";
+        elseif LD10.assessment then
+            LD10.ui.studentPrimary.string = "ĮRAŠYTI IR TOLIAU →";
         else
             LD10.ui.studentPrimary.string = "TIKRINTI";
         end

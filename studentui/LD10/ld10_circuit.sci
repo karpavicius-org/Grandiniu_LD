@@ -75,11 +75,15 @@ endfunction
 
 function ld10_init_state()
     global LD10;
+    assessment=%t; practice=%f;
+    if isfield(LD10,"assessment") then assessment=LD10.assessment; end
+    if isfield(LD10,"practice_used") then practice=LD10.practice_used; end
     LD10.step = 1; LD10.done = zeros(1, 6) == 1; LD10.skipped = zeros(1, 6) == 1;
     LD10.powerOn = %f; LD10.switchOn = %f; LD10.freqPoint = 0; LD10.target = 0;
     LD10.wires = emptystr(0, 2); LD10.journal = [];
     LD10.report_wires = emptystr(0, 2);
     LD10.answers = emptystr(6, 8); LD10.demoMode = %f; LD10.lastMeasurement = %nan; LD10.pending = "";
+    LD10.assessment=assessment; LD10.practice_used=practice;
 endfunction
 
 function expected = ld10_expected_answers()

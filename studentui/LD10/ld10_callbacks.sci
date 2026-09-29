@@ -101,8 +101,9 @@ function ok = ld10_close_enough(value, expected, relative, absolute)
     ok = abs(value - expected) <= absolute + relative*abs(expected);
 endfunction
 
-function ld10_check_step()
+function ld10_check_step(check_answers)
     global LD10;
+    if argn(2)<1 then check_answers=%t; end
     if LD10.demoMode then return; end
     ld10_save_answers(); step = LD10.step;
     if ~ld10_valid_index(step, 6) then return; end
@@ -125,6 +126,12 @@ function ld10_check_step()
     for index = 1:12
         [answer_step, slot] = ld10_answer_slot(index);
         if answer_step <> step then continue; end
+        if ~check_answers then
+            if stripblanks(LD10.answers(step,slot))=="" then
+                ld10_set_status("Įrašykite ["+ld10_answer_code(step,slot)+"].","error","Atsakymą vertins dėstytojo programa."); return;
+            end
+            continue;
+        end
         value = ld10_parse_number(LD10.answers(step, slot)); relative = .02; absolute = 1e-9;
         if step == 1 then relative = .01; end
         if step == 3 & slot == 1 then relative = .03; end
@@ -135,7 +142,9 @@ function ld10_check_step()
         end
     end
     LD10.done(step) = %t; ld10_render_stage();
-    ld10_set_status(string(step) + " etapas patikrintas.", "ok", "");
+    text=string(step)+" etapas patikrintas.";
+    if ~check_answers then text=string(step)+" etapo atsakymai įrašyti."; end
+    ld10_set_status(text, "ok", "");
 endfunction
 
 function ld10_next_step()
@@ -234,6 +243,9 @@ function ld10_toggle_solution()
         end
         LD10.pending = ""; ld10_render_stage(); ld10_set_status("Grįžta į savo darbą.", "info", ""); return;
     end
+    if LD10.assessment then
+        ld10_set_status("Pavyzdys atsiskaitymo režime nepasiekiamas.","error","Perjunkite į Mokymąsi per Pagalbą."); return;
+    end
     ld10_save_answers(); LD10.backup = struct();
     for field = ["wires" "answers" "journal" "powerOn" "switchOn" "lastMeasurement" "freqPoint" "target"]
         LD10.backup(field) = LD10(field);
@@ -264,7 +276,7 @@ function ld10_restore_stage()
 endfunction
 
 function ld10_restart()
-    ld10_init_state(); ld10_render_stage(); ld10_set_status("Darbas pradėtas iš naujo.", "info", "Studentas ir variantas išliko.");
+    ld10_init_state(); ld10_render_stage(); ld10_set_status("Darbas pradėtas iš naujo.", "info", "Studentas, variantas, režimas ir mokymosi žyma išliko."); bench_autosave("LD10");
 endfunction
 
 function ld10_answers_changed()

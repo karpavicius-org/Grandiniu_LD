@@ -101,8 +101,9 @@ function ok = ld9_close_enough(value, expected, relative, absolute)
     ok = abs(value - expected) <= absolute + relative*abs(expected);
 endfunction
 
-function ld9_check_step()
+function ld9_check_step(check_answers)
     global LD9;
+    if argn(2)<1 then check_answers=%t; end
     if LD9.demoMode then return; end
     ld9_save_answers(); step = LD9.step;
     if ~ld9_valid_index(step, 6) then return; end
@@ -125,6 +126,12 @@ function ld9_check_step()
     for index = 1:12
         [answer_step, slot] = ld9_answer_slot(index);
         if answer_step <> step then continue; end
+        if ~check_answers then
+            if stripblanks(LD9.answers(step,slot))=="" then
+                ld9_set_status("Įrašykite ["+ld9_answer_code(step,slot)+"].","error","Atsakymą vertins dėstytojo programa."); return;
+            end
+            continue;
+        end
         value = ld9_parse_number(LD9.answers(step, slot)); relative = .02; absolute = 1e-9;
         if step == 1 then relative = .01; end
         if step == 3 & slot == 1 then relative = .03; end
@@ -135,7 +142,9 @@ function ld9_check_step()
         end
     end
     LD9.done(step) = %t; ld9_render_stage();
-    ld9_set_status(string(step) + " etapas patikrintas.", "ok", "");
+    text=string(step)+" etapas patikrintas.";
+    if ~check_answers then text=string(step)+" etapo atsakymai įrašyti."; end
+    ld9_set_status(text, "ok", "");
 endfunction
 
 function ld9_next_step()
@@ -234,6 +243,9 @@ function ld9_toggle_solution()
         end
         LD9.pending = ""; ld9_render_stage(); ld9_set_status("Grįžta į savo darbą.", "info", ""); return;
     end
+    if LD9.assessment then
+        ld9_set_status("Pavyzdys atsiskaitymo režime nepasiekiamas.","error","Perjunkite į Mokymąsi per Pagalbą."); return;
+    end
     ld9_save_answers(); LD9.backup = struct();
     for field = ["wires" "answers" "journal" "powerOn" "switchOn" "lastMeasurement" "freqPoint" "target"]
         LD9.backup(field) = LD9(field);
@@ -264,7 +276,7 @@ function ld9_restore_stage()
 endfunction
 
 function ld9_restart()
-    ld9_init_state(); ld9_render_stage(); ld9_set_status("Darbas pradėtas iš naujo.", "info", "Studentas ir variantas išliko.");
+    ld9_init_state(); ld9_render_stage(); ld9_set_status("Darbas pradėtas iš naujo.", "info", "Studentas, variantas, režimas ir mokymosi žyma išliko."); bench_autosave("LD9");
 endfunction
 
 function ld9_answers_changed()

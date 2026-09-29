@@ -33,6 +33,7 @@ function ld9_start()
     if needgui & ~isfield(LD9, "fig") then
         ld9_build_gui();
     end
+    if ~isfield(LD9,"autosave_enabled") then LD9.autosave_enabled=needgui; end
     ld9_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite nuoseklią RLC grandinę.", "info", "Seką rasite: Pagalba → [B04] Kaip sujungti.");
 endfunction
 
@@ -46,14 +47,14 @@ function ld9_student_primary()
     end
     // Vienas paspaudimas: patikrinti ir, pavykus, iškart pereiti (LD2 semantika).
     if ~LD9.done(LD9.step) then
-        ld9_check_step();
+        ld9_check_step(~LD9.assessment);
     end
     if LD9.done(LD9.step) & LD9.step < 6 then
         ld9_next_step();
     elseif LD9.step == 6 & LD9.done(6) & ~and(LD9.done) then
         pending = find(~LD9.done); ld9_set_step(pending(1));
     end
-    ld9_student_sync();
+    ld9_student_sync(); bench_autosave("LD9");
 endfunction
 
 function ld9_jump_step(n)
@@ -79,6 +80,8 @@ function ld9_student_sync()
             LD9.ui.studentPrimary.string = "UŽBAIGTI PRALEISTĄ ETAPĄ";
         elseif LD9.done(LD9.step) then
             LD9.ui.studentPrimary.string = "TOLIAU →";
+        elseif LD9.assessment then
+            LD9.ui.studentPrimary.string = "ĮRAŠYTI IR TOLIAU →";
         else
             LD9.ui.studentPrimary.string = "TIKRINTI";
         end
