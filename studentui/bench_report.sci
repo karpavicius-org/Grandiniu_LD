@@ -394,7 +394,12 @@ function path=bench_export_current(lab)
         else ld2_save_answers(); end
         path=bench_export_report(lab);
         if lab=="LD1" then ld1_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
-        elseif lab=="LD3" then ld3_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
+        elseif lab=="LD3" then
+            if LD3.assessment & ~LD3.practice_used then
+                ld3_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
+            else
+                ld3_set_status("Mokymosi ataskaita išsaugota: "+path,"info","Šis bandymas neįtraukiamas į pažymių suvestinę.");
+            end
         elseif lab=="LD4" then ld4_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
         elseif lab=="LD5" then ld5_set_status("Ataskaita išsaugota: "+path,"ok","Persiūskite šį HTML failą dėstytojui.");
         elseif lab=="LD6" then ld6_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
@@ -405,7 +410,11 @@ function path=bench_export_current(lab)
         elseif lab=="LD12" then ld12_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
         elseif lab=="LD7" then ld7_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
         else ld2_set_status("Ataskaita išsaugota: "+path+". Persiųskite šį HTML failą dėstytojui.","ok"); end
-        bench_report_saved(path,"Ataskaita išsaugota");
+        if lab=="LD3" & (~LD3.assessment | LD3.practice_used) then
+            bench_report_saved(path,"Mokymosi ataskaita išsaugota");
+        else
+            bench_report_saved(path,"Ataskaita išsaugota");
+        end
     catch
         if lab=="LD1" then ld1_set_status(strcat(lasterror()," "),"error","");
         elseif lab=="LD3" then ld3_set_status(strcat(lasterror()," "),"error","");

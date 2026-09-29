@@ -268,14 +268,22 @@ function bench_ld3_workflow(n,root,gui)
     LD3=struct("cfg",cfg,"student",student_profile(n,"Automatinė Patikra","TEST","LD3"), ...
         "ui",struct("headless",~gui));
     ld3_start();
+    assert_checktrue(LD3.assessment);
+    assert_checkfalse(LD3.practice_used);
     if gui then
+        assert_checktrue(LD3.autosave_enabled);
         if isfield(LD3.ui,"figure") then LD3.ui.figure.figure_name="PATIKRA · LD3 · variantas "+string(n);
         elseif isfield(LD3,"fig") then LD3.fig.figure_name="PATIKRA · LD3 · variantas "+string(n); end
+        if n==17 then
+            // Formal assessment must not reveal the example.
+            ld3_toggle_solution(); assert_checkfalse(LD3.demoMode); assert_checkfalse(LD3.practice_used);
+        end
     end
     W=["E_P" "K1";"K2" "A_P";"A_N" "R1A";"R1B" "E_N";"V_P" "R1A";"V_N" "R1B"];
     u=[cfg.U1 cfg.U2 cfg.U3];
     for step=1:6
         assert_checkequal(LD3.step,step);
+        primary_done=%f;
         select step
         case 1 then
             for k=1:size(W,1); bench_ld3_click(W(k,1)); bench_ld3_click(W(k,2)); end
@@ -284,29 +292,37 @@ function bench_ld3_workflow(n,root,gui)
             bench_ld3_action("ld3_toggle_power()");
             bench_ld3_action("ld3_toggle_switch()");
             ld3_set_voltage(u(1)); bench_ld3_action("ld3_measure()");
-            if gui then
-                // Clicking Check must also collect a draft without Enter or
-                // an explicit edit callback, and retain a rejected raw answer.
+            if gui & n==17 then
+                // Assessment keeps the student's wrong raw value and advances
+                // without showing the correct value locally.
                 LD3.ui.answerEdits(1).string="0";
-                bench_ld3_primary(); assert_checkfalse(LD3.done(2));
+                bench_ld3_primary();
+                assert_checktrue(LD3.done(2)); assert_checkequal(LD3.step,3);
                 assert_checkequal(LD3.answers(2,1),"0");
+                assert_checktrue(strindex(LD3.ui.statusMain.string,"Tikimasi")==[]);
+                // Restore a correct raw answer so the exported acceptance fixture
+                // remains a perfect report.
+                ld3_jump_step(2);
                 LD3.ui.answerEdits(1).string=msprintf("%.12g",u(1)/cfg.R*1000);
+                execstr(LD3.ui.answerEdits(1).callback);
+                assert_checkfalse(LD3.done(2));
+                bench_ld3_primary();
+                assert_checktrue(LD3.done(2)); assert_checkequal(LD3.step,3);
+                primary_done=%t;
             end
         case 3 then
             for k=2:3
                 ld3_set_voltage(u(k)); bench_ld3_action("ld3_measure()");
             end
         case 4 then
-            // R_k read from the student's own journal rows: R = U/(I in A), I in mA.
             r=[LD3.journal(1,1)*1000/LD3.journal(1,2) LD3.journal(2,1)*1000/LD3.journal(2,2) LD3.journal(3,1)*1000/LD3.journal(3,2)];
             bench_ld3_answers(step,[r(1) r(2) r(3) (r(1)+r(2)+r(3))/3]);
         case 5 then
-            // Slope of the U(I) line through the outer measured points.
             bench_ld3_answers(step,(LD3.journal(3,1)-LD3.journal(1,1))/((LD3.journal(3,2)-LD3.journal(1,2))/1000));
         case 6 then
             bench_ld3_answers(step,[1 1]);
         end
-        bench_ld3_primary();
+        if ~primary_done then bench_ld3_primary(); end
         if ~LD3.done(step) then
             detail="";
             if isfield(LD3.ui,"statusMain") then detail=": "+LD3.ui.statusMain.string; end
@@ -324,10 +340,35 @@ function bench_ld3_workflow(n,root,gui)
     assert_checktrue(and(LD3.done));
     assert_checkequal(LD3.student.number,n);
     if gui then
+        if n==17 then
+            // Snapshot restore keeps formal state and raw work, but powers down.
+            saved=bench_snapshot("LD3");
+            keep=LD3.answers(5,1); LD3.answers(5,1)="sugadinta";
+            bench_restore_snapshot(saved);
+            assert_checkequal(LD3.answers(5,1),keep);
+            assert_checktrue(LD3.assessment); assert_checkfalse(LD3.powerOn); assert_checkfalse(LD3.switchOn);
+        end
         bench_ld3_primary();
         assert_checktrue(strindex(LD3.ui.statusMain.string,"Ataskaita išsaugota")<>[]);
-        if isfield(LD3.ui,"figure") then delete(LD3.ui.figure);
-        elseif isfield(LD3,"fig") then delete(LD3.fig); end
+        if n==17 then
+            // Learning still performs local correctness checks, restart keeps
+            // the practice marker, and the example is then available.
+            LD3.assessment=%f; LD3.practice_used=%t; ld3_restart();
+            assert_checkfalse(LD3.assessment); assert_checktrue(LD3.practice_used);
+            for k=1:size(W,1); bench_ld3_click(W(k,1)); bench_ld3_click(W(k,2)); end
+            bench_ld3_primary(); assert_checkequal(LD3.step,2);
+            bench_ld3_action("ld3_toggle_power()"); bench_ld3_action("ld3_toggle_switch()");
+            ld3_set_voltage(u(1)); bench_ld3_action("ld3_measure()");
+            LD3.ui.answerEdits(1).string="0"; bench_ld3_primary();
+            assert_checkfalse(LD3.done(2)); assert_checkequal(LD3.step,2);
+            assert_checktrue(strindex(LD3.ui.statusMain.string,"Tikimasi")<>[]);
+            ld3_toggle_solution(); assert_checktrue(LD3.demoMode); assert_checktrue(LD3.practice_used);
+            ld3_toggle_solution(); assert_checkfalse(LD3.demoMode);
+        end
+        assert_checktrue(isfield(LD3,"autosave_paths"));
+        assert_checktrue(size(LD3.autosave_paths,"*")>=1);
+        ld3_close();
+        assert_checkfalse(is_handle_valid(LD3.fig));
     end
 endfunction
 

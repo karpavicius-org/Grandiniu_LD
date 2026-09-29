@@ -10,6 +10,8 @@ function session=bench_snapshot(lab)
             session.state(field)=LD1(field);
         end
     elseif lab=="LD3" then
+        if LD3.demoMode then error("Grįžkite į savo darbą prieš išsaugodami juodraštį."); end
+        ld3_save_answers();
         session.cfg=LD3.cfg; session.student=LD3.student;
         for field=fieldnames(LD3)'
             if or(field==["ui" "fig" "term" "base" "root" "cfg" "student" "autosave_paths" "autosave_error"]) then continue; end
@@ -112,7 +114,7 @@ function bench_autosave(lab)
         if ~LD1.autosave_enabled | LD1.demoMode then return; end
     elseif lab=="LD3" then
         if ~isfield(LD3,"autosave_enabled") then return; end
-        if ~LD3.autosave_enabled then return; end
+        if ~LD3.autosave_enabled | LD3.demoMode then return; end
     elseif lab=="LD4" then
         if ~isfield(LD4,"autosave_enabled") then return; end
         if ~LD4.autosave_enabled then return; end
@@ -314,18 +316,13 @@ function bench_restore_snapshot(session)
             LD1.ui.studentIdentity.string=student_caption(LD1.student);
             ld1_student_sync();
         elseif session.lab=="LD3" then
-            step=session.state.step;
             LD3.cfg=session.cfg;LD3.student=session.student;
-            // Re-render the saved stage, then reapply the raw store: rendering
-            // may touch transient controls, answers and the journal stay saved.
-            LD3.step=0;
-            for field=fieldnames(session.state)'
-                if field=="step" then continue;end
-                LD3(field)=session.state(field);
-            end
-            ld3_set_step(step);
             for field=fieldnames(session.state)';LD3(field)=session.state(field);end
-            ld3_set_status("Juodraštis atkurtas: "+student_caption(LD3.student),"ok","");
+            if ~isfield(session.state,"assessment") then LD3.assessment=%f;LD3.practice_used=%t;end
+            LD3.powerOn=%f;LD3.switchOn=%f;LD3.demoMode=%f;LD3.pending="";
+            LD3.autosave_enabled=~LD3.ui.headless;
+            ld3_render_stage();ld3_student_sync();
+            ld3_set_status("Juodraštis atkurtas: "+student_caption(LD3.student),"ok","Maitinimas išjungtas.");
         elseif session.lab=="LD4" then
             step=session.state.step;
             LD4.cfg=session.cfg;LD4.student=session.student;

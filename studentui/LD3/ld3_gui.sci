@@ -197,15 +197,28 @@ function ld3_build_gui()
     LD3.ui.controls=controls; LD3.ui.dynamic=controls;
     LD3.ui.statusMain=student_text(f,[0.025 0.055 0.95 0.035],"",13,%t,[0.94 0.96 0.96]);
     LD3.ui.statusFix=student_text(f,[0.025 0.020 0.95 0.035],"",12,%f,[0.94 0.96 0.96]);
+    f.closerequestfcn="ld3_close()";
     student_finish_window(f); f.visible="on"; ld3_render_stage();
 endfunction
 
 function ld3_show_actions()
-    choice=messagebox("Pagalba ir darbo veiksmai","LD3","info", ...
-        ["[B04] Kaip sujungti" "[B05] Žemėlapis" "[B07] Pavyzdys" "[B08] Ataskaita" "[B06] Atkurti stendą" "[B09] Iš naujo" "Grįžti"],"modal");
+    global LD3;
+    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
+        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD3 · Pagalba");
     select choice
-    case 1 then ld3_show_wiring_guide(); case 2 then ld3_show_stand_map();
-    case 3 then ld3_toggle_solution(); case 4 then bench_export_current("LD3");
-    case 5 then ld3_restore_stage(); case 6 then ld3_restart();
+    case 1 then bench_open_snapshot("LD3");
+    case 2 then ld3_show_wiring_guide();
+    case 3 then bench_export_current("LD3");
+    case 4 then bench_mode("LD3"); ld3_student_sync(); bench_autosave("LD3");
+    case 6 then ld3_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD3.student);"";student_parameter_lines("LD3",LD3.cfg)]);
+    case 5 then
+        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD3 · Daugiau veiksmų");
+        select extra
+        case 1 then ld3_show_stand_map();
+        case 2 then ld3_toggle_solution();
+        case 3 then ld3_restore_stage();
+        case 4 then
+            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD3","question",["Pradėti" "Grįžti"],"modal")==1 then ld3_restart(); end
+        end
     end
 endfunction

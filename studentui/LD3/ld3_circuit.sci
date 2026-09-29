@@ -61,6 +61,9 @@ endfunction
 
 function ld3_init_state()
     global LD3;
+    assessment=%t; practice=%f;
+    if isfield(LD3,"assessment") then assessment=LD3.assessment; end
+    if isfield(LD3,"practice_used") then practice=LD3.practice_used; end
     LD3.step = 1;
     LD3.done = [%f %f %f %f %f %f];
     LD3.skipped = [%f %f %f %f %f %f];
@@ -73,6 +76,7 @@ function ld3_init_state()
     LD3.demoMode = %f;
     LD3.lastMeasurement = %nan;
     LD3.pending = "";
+    LD3.assessment=assessment; LD3.practice_used=practice;
 endfunction
 
 function expected = ld3_expected_answers()

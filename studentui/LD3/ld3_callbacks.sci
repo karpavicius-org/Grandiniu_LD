@@ -39,6 +39,7 @@ function ld3_terminal_click(id)
     if isfield(LD3, "ui") then
         if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_wires(); end
     end
+    bench_autosave("LD3");
 endfunction
 
 function ld3_toggle_power()
@@ -49,7 +50,7 @@ function ld3_toggle_power()
     else
         ld3_set_status("[B01] Maitinimas iŠJUNGTAS.","info","Įtampa nustatoma mygtukais [B10]–[B12].");
     end
-    ld3_render_wires();
+    ld3_render_wires(); bench_autosave("LD3");
 endfunction
 
 function ld3_toggle_switch()
@@ -60,7 +61,7 @@ function ld3_toggle_switch()
     end
     LD3.switchOn = ~LD3.switchOn;
     if LD3.switchOn then ld3_set_status("[B02] Jungiklis UŽDARYTAS.","ok","Nustatykite įtampą [B10]–[B12] ir matuokite [B03]."); end
-    ld3_render_wires();
+    ld3_render_wires(); bench_autosave("LD3");
 endfunction
 
 function ld3_set_voltage(v)
@@ -69,7 +70,7 @@ function ld3_set_voltage(v)
     LD3.voltage = max(0, min(12, round(v)));
     if isfield(LD3, "ui") then
         if isfield(LD3.ui, "headless") then
-            if LD3.ui.headless then return; end
+            if LD3.ui.headless then bench_autosave("LD3"); return; end
         end
         if isfield(LD3.ui, "voltLabel") & is_handle_valid(LD3.ui.voltLabel) then
             LD3.ui.voltLabel.string = msprintf("%d V", LD3.voltage);
@@ -79,6 +80,7 @@ function ld3_set_voltage(v)
         end
         ld3_render_wires();
     end
+    bench_autosave("LD3");
 endfunction
 
 function ld3_measure()
@@ -109,6 +111,7 @@ function ld3_measure()
     if isfield(LD3, "ui") then
         if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_journal(); ld3_render_wires(); end
     end
+    bench_autosave("LD3");
 endfunction
 
 function ok = ld3_close_enough(userValue, expectedValue)
@@ -118,8 +121,9 @@ function ok = ld3_close_enough(userValue, expectedValue)
     ok = abs(userValue - expectedValue) <= 0.02 * scale;
 endfunction
 
-function ld3_check_step()
+function ld3_check_step(check_answers)
     global LD3;
+    if argn(2)<1 then check_answers=%t; end
     n = LD3.step;
     if LD3.done(n) then ld3_set_status("Etapas jau atliktas.","ok","Spauskite TOLIAU."); return; end
     select n
@@ -129,11 +133,16 @@ function ld3_check_step()
         LD3.done(1) = %t;
         ld3_set_status("1 etapas baigtas: stendas sujungtas teisingai.","ok","[E02] atveria teorinę prognozę.");
     case 2 then
-        v = ld3_parse_number(LD3.answers(2,1));
-        e = LD3.cfg.U1 / LD3.cfg.R * 1000;
-        if isnan(v) then ld3_set_status("Įrašykite teorinę srovę [A02.01], mA.","error","I = U1 / R · 1000."); return; end
-        if ~ld3_close_enough(v, e) then
-            ld3_set_status("Teorinė srovė [A02.01] netiksli.","error",msprintf("Tikimasi ≈ %.2f mA (I = U1/R·1000).", e)); return; end
+        if stripblanks(LD3.answers(2,1))=="" then
+            ld3_set_status("Įrašykite teorinę srovę [A02.01], mA.","error","Atsakymą vertins dėstytojo programa."); return;
+        end
+        if check_answers then
+            v = ld3_parse_number(LD3.answers(2,1));
+            e = LD3.cfg.U1 / LD3.cfg.R * 1000;
+            if isnan(v) then ld3_set_status("Įrašykite skaitinę teorinę srovę [A02.01], mA.","error","I = U1 / R · 1000."); return; end
+            if ~ld3_close_enough(v, e) then
+                ld3_set_status("Teorinė srovė [A02.01] netiksli.","error",msprintf("Tikimasi ≈ %.2f mA (I = U1/R·1000).", e)); return; end
+        end
         if size(LD3.journal,1) < 1 then
             ld3_set_status("Trūksta pirmo matavimo.","error","Spauskite [B10] U1 ir [B03] MATUOTI."); return; end
         LD3.done(2) = %t;
@@ -147,32 +156,50 @@ function ld3_check_step()
     case 4 then
         exp = ld3_expected_answers();
         for k = 1:4
-            v = ld3_parse_number(LD3.answers(4,k));
-            if isnan(v) then
-                ld3_set_status(msprintf("Įrašykite [%s].", ld3_answer_code(4,k)), "error", "R = U / I (I mA → dalyti iš 1000)."); return; end
-            if ~ld3_close_enough(v, ld3_parse_number(exp(4,k))) then
-                ld3_set_status(msprintf("[%s] netikslus.", ld3_answer_code(4,k)), "error", ...
-                    msprintf("Tikimasi ≈ %s.", exp(4,k))); return; end
+            if stripblanks(LD3.answers(4,k))=="" then
+                ld3_set_status(msprintf("Įrašykite [%s].", ld3_answer_code(4,k)), "error", "Atsakymą vertins dėstytojo programa."); return;
+            end
+            if check_answers then
+                v = ld3_parse_number(LD3.answers(4,k));
+                if isnan(v) then
+                    ld3_set_status(msprintf("Įrašykite skaičių [%s].", ld3_answer_code(4,k)), "error", "R = U / I (I mA → dalyti iš 1000)."); return; end
+                if ~ld3_close_enough(v, ld3_parse_number(exp(4,k))) then
+                    ld3_set_status(msprintf("[%s] netikslus.", ld3_answer_code(4,k)), "error", ...
+                        msprintf("Tikimasi ≈ %s.", exp(4,k))); return; end
+            end
         end
         LD3.done(4) = %t;
         ld3_set_status("4 etapas baigtas.","ok","[E05] — I(U) charakteristika.");
     case 5 then
-        v = ld3_parse_number(LD3.answers(5,1));
-        e = LD3.cfg.R;
-        if isnan(v) then ld3_set_status("Įrašykite R iš nuolydžio [A05.01], Ω.","error","R = ΔU / ΔI (I mA → ΔI/1000)."); return; end
-        if ~ld3_close_enough(v, e) then
-            ld3_set_status("[A05.01] netikslus.","error",msprintf("Tikimasi ≈ %g Ω.", e)); return; end
+        if stripblanks(LD3.answers(5,1))=="" then
+            ld3_set_status("Įrašykite R iš nuolydžio [A05.01], Ω.","error","Atsakymą vertins dėstytojo programa."); return;
+        end
+        if check_answers then
+            v = ld3_parse_number(LD3.answers(5,1));
+            e = LD3.cfg.R;
+            if isnan(v) then ld3_set_status("Įrašykite skaitinę R reikšmę [A05.01], Ω.","error","R = ΔU / ΔI (I mA → ΔI/1000)."); return; end
+            if ~ld3_close_enough(v, e) then
+                ld3_set_status("[A05.01] netikslus.","error",msprintf("Tikimasi ≈ %g Ω.", e)); return; end
+        end
         LD3.done(5) = %t;
         ld3_set_status("5 etapas baigtas.","ok","[E06] — išvados.");
     case 6 then
-        if LD3.answers(6,1) ~= "1" then ld3_set_status("[A06.01]: atsakykite 1 (Taip) arba 2 (Ne).","error","Palyginkite tris matavimų taškus [V02] sąraše."); return; end
-        if LD3.answers(6,2) ~= "1" then ld3_set_status("[A06.02]: atsakykite 1 (Taip) arba 2 (Ne).","error","Palyginkite [A04.01]–[A04.03]."); return; end
+        for k=1:2
+            if stripblanks(LD3.answers(6,k))=="" then
+                ld3_set_status(msprintf("Įrašykite [%s].",ld3_answer_code(6,k)),"error","1 – Taip, 2 – Ne."); return;
+            end
+        end
+        if check_answers then
+            if LD3.answers(6,1) ~= "1" then ld3_set_status("[A06.01]: atsakymas neteisingas.","error","Palyginkite tris matavimų taškus [V02] sąraše."); return; end
+            if LD3.answers(6,2) ~= "1" then ld3_set_status("[A06.02]: atsakymas neteisingas.","error","Palyginkite [A04.01]–[A04.03]."); return; end
+        end
         LD3.done(6) = %t;
         ld3_set_status("6 etapas baigtas: darbas atliktas!","ok","[B08] ATASKAITA DĖSTYTOJUI sukuria HTML ataskaitą.");
     end
     if isfield(LD3, "ui") then
         if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_stage(); end
     end
+    if ~check_answers then ld3_set_status(string(n)+" etapo atsakymai įrašyti.","ok","Teisingumą vertins dėstytojo programa."); end
 endfunction
 
 function ld3_next_step()
@@ -198,6 +225,7 @@ function ld3_set_step(n)
             end
         end
     end
+    bench_autosave("LD3");
 endfunction
 
 function s = ld3_step_instruction(n)
@@ -235,7 +263,7 @@ endfunction
 function ld3_answers_changed()
     global LD3;
     if LD3.demoMode then return; end
-    ld3_save_answers(); ld3_student_sync();
+    ld3_save_answers(); ld3_student_sync(); bench_autosave("LD3");
 endfunction
 
 function [st, sl] = ld3_answer_slot(k)
@@ -315,8 +343,13 @@ function ld3_toggle_solution()
             if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_stage(); end
         end
         ld3_set_status("Grįžta į savo darbą.","info","Jūsų laidai ir atsakymai atkurti.");
+        bench_autosave("LD3");
         return;
     end
+    if LD3.assessment then
+        ld3_set_status("Pavyzdys atsiskaitymo režime nepasiekiamas.","error","Perjunkite į Mokymąsi per Pagalbą."); return;
+    end
+    LD3.practice_used=%t;
     ld3_save_answers();
     LD3.backup = struct();
     LD3.backup.wires = LD3.wires;
@@ -349,6 +382,7 @@ function ld3_restore_stage()
     if isfield(LD3, "ui") then
         if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_stage(); end
     end
+    bench_autosave("LD3");
 endfunction
 
 function ld3_restart()
@@ -359,5 +393,20 @@ function ld3_restart()
     if isfield(LD3, "ui") then
         if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_stage(); end
     end
-    ld3_set_status("Darbas pradėtas iš naujo.","info","Variantas ir studentas išliko.");
+    ld3_set_status("Darbas pradėtas iš naujo.","info","Variantas, studentas, režimas ir mokymosi žyma išliko.");
+    bench_autosave("LD3");
+endfunction
+
+function ld3_close()
+    global LD3;
+    if ~isfield(LD3,"fig") then return; end
+    if ~is_handle_valid(LD3.fig) then return; end
+    if LD3.demoMode then ld3_toggle_solution(); end
+    ld3_save_answers(); bench_autosave("LD3");
+    if isfield(LD3,"autosave_error") then
+        if LD3.autosave_error<>"" then
+            ld3_set_status("Nepavyko išsaugoti juodraščio.","error","Langas paliktas atvertas, kad neprarastumėte darbo."); return;
+        end
+    end
+    delete(LD3.fig);
 endfunction

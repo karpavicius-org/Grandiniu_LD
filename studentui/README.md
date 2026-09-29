@@ -17,10 +17,16 @@ Automatinio LD1 vertinime skiriama iki **15 balų už studento atsakymus** (LD1-
 automatinis jungimas ir matavimai papildomų balų nesuteikia. Senos LD1-1 ataskaitos
 išlieka suderinamos su ankstesne 22 balų rubrika.
 
-LD3 užduotis tikrinama mygtuku **TIKRINTI**. Įtampą parinkite U1 / U2 / U3,
-maitinimą ir jungiklį valdykite stendo dešinėje. Papildomi veiksmai – viršutiniame
-**Pagalba** meniu; apačioje galima grįžti į ankstesnį etapą arba atverti kontaktų žemėlapį.
-Laido tarpas sankirtoje reiškia, kad laidai elektriškai nesujungti.
+**LD3 – Omo dėsnio veikimas realioje grandinėje:** pradedama atsiskaitymo režimu.
+**Įrašyti ir toliau** išsaugo studento raw atsakymą; teisingumą vertina dėstytojo
+programa, todėl vietoje teisinga reikšmė neatskleidžiama. Įtampą parinkite U1 / U2 / U3,
+maitinimą ir jungiklį valdykite stende. **Pagalba → Mokymosi / atsiskaitymo režimas**
+leidžia pasirinkti savikontrolę; mokymosi režime **Tikrinti** parodo klaidas, o pavyzdys
+pasiekiamas tik mokymuisi. Kartą pasirinkus mokymąsi ar pavyzdį, practice žyma išlieka
+ir toks bandymas neįtraukiamas į pažymių suvestinę. Laidai, matavimai ir atsakymai
+automatiškai saugomi vietiniame juodraštyje; tęsti galima per **Pagalba → Tęsti
+išsaugotą darbą**. Atkurtas stendas būna be maitinimo. Laido tarpas sankirtoje reiškia,
+kad laidai elektriškai nesujungti.
 
 **LD5 – įtampos daliklis:** sujunkite septynis laidus pagal **Pagalba → Kaip sujungti**.
 Gnybtus galima keisti tik pirmame etape; esamą laidą pašalinsite paspaudę abu jo galus.
@@ -104,7 +110,7 @@ vertinamos pagal ankstesnę rubriką.
 Pabaigoje spauskite **Išsaugoti ataskaitą**. Langas pasiūlo **Atverti ataskaitą** arba **Atverti ataskaitų aplanką**.
 Sukurtą vieną HTML failą iš
 naudotojo aplanko `Grandiniu_LD_darbai` persiųskite dėstytojui. Nebaigtą
-ataskaitą taip pat galima išsaugoti per Pagalbą. LD1 ir LD2 juodraščiai saugomi automatiškai
+ataskaitą taip pat galima išsaugoti per Pagalbą. LD1, LD2 ir LD3 juodraščiai saugomi automatiškai
 įrašant atsakymus ir pereinant į kitą etapą; juos atverkite per Pagalbą.
 
 Dėstytojui: vykdykite `DESTYTOJUI.sce` ir pasirinkite aplanką su ataskaitomis.
