@@ -282,12 +282,24 @@ function ld12_build_gui()
 endfunction
 
 function ld12_show_actions()
-    choice = messagebox("Pagalba ir darbo veiksmai", "LD12", "info", ...
-        ["[B04] Kaip sujungti" "[B05] Žemėlapis" "[B07] Pavyzdys" "[B08] Ataskaita" "[B06] Atkurti stendą" "[B09] Iš naujo" "Grįžti"], "modal");
+    global LD12;
+    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
+        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD12 · Pagalba");
     select choice
-    case 1 then ld12_show_wiring_guide(); case 2 then ld12_show_stand_map();
-    case 3 then ld12_toggle_solution(); case 4 then bench_export_current("LD12");
-    case 5 then ld12_restore_stage(); case 6 then ld12_restart();
+    case 1 then bench_open_snapshot("LD12");
+    case 2 then ld12_show_wiring_guide();
+    case 3 then bench_export_current("LD12");
+    case 4 then bench_mode("LD12"); ld12_student_sync(); bench_autosave("LD12");
+    case 6 then ld12_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD12.student);"";student_parameter_lines("LD12",LD12.cfg)]);
+    case 5 then
+        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD12 · Daugiau veiksmų");
+        select extra
+        case 1 then ld12_show_stand_map();
+        case 2 then ld12_toggle_solution();
+        case 3 then ld12_restore_stage();
+        case 4 then
+            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD12","question",["Pradėti" "Grįžti"],"modal")==1 then ld12_restart(); end
+        end
     end
 endfunction
 
