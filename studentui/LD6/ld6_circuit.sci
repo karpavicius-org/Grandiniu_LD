@@ -72,6 +72,9 @@ endfunction
 
 function ld6_init_state()
     global LD6;
+    assessment=%t; practice=%f;
+    if isfield(LD6,"assessment") then assessment=LD6.assessment; end
+    if isfield(LD6,"practice_used") then practice=LD6.practice_used; end
     LD6.step=1; LD6.done=zeros(1,6)==1; LD6.skipped=zeros(1,6)==1;
     LD6.powerOn=%f; LD6.switchOn=%f; LD6.wireMode=1;
     LD6.wires=emptystr(0,2); LD6.journal=[];
@@ -80,6 +83,7 @@ function ld6_init_state()
         LD6.wires_by_mode(index)=emptystr(0,2); LD6.report_wires(index)=emptystr(0,2);
     end
     LD6.answers=emptystr(6,8); LD6.demoMode=%f; LD6.lastMeasurement=%nan; LD6.pending="";
+    LD6.assessment=assessment; LD6.practice_used=practice;
 endfunction
 
 function expected=ld6_expected_answers()

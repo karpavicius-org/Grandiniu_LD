@@ -183,7 +183,8 @@ function ld6_render_stage()
         end
     end
     LD6.ui.instructionLine(1).string=student_wrap(ld6_step_instruction(LD6.step),38);
-    LD6.ui.progress.string=string(LD6.step)+" / 6 etapas";
+    regime="ATSISKAITYMAS"; if ~LD6.assessment then regime="MOKYMASIS"; end
+    LD6.ui.progress.string=string(LD6.step)+" / 6 etapas · "+regime;
     if LD6.demoMode then LD6.ui.progress.string="PAVYZDYS"; end
     LD6.ui.identity.string=student_caption(LD6.student);
     ld6_render_wires(); ld6_render_journal(); ld6_student_sync();
@@ -247,17 +248,30 @@ function ld6_build_gui()
     LD6.ui.controls=controls; LD6.ui.dynamic=controls;
     LD6.ui.statusMain=student_text(f,[0.025 0.055 0.95 0.035],"",13,%t,[0.94 0.96 0.96]);
     LD6.ui.statusFix=student_text(f,[0.025 0.020 0.95 0.035],"",12,%f,[0.94 0.96 0.96]);
+    f.closerequestfcn="ld6_close()";
     ld6_font(f); student_finish_window(f); f.visible="on"; ld6_render_stage();
     f.resizefcn="ld6_resize("+string(f.figure_id)+")";
 endfunction
 
 function ld6_show_actions()
-    choice=messagebox("Pagalba ir darbo veiksmai","LD6","info", ...
-        ["[B04] Kaip sujungti" "[B05] Žemėlapis" "[B07] Pavyzdys" "[B08] Ataskaita" "[B06] Atkurti stendą" "[B09] Iš naujo" "Grįžti"],"modal");
+    global LD6;
+    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
+        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD6 · Pagalba");
     select choice
-    case 1 then ld6_show_wiring_guide(); case 2 then ld6_show_stand_map();
-    case 3 then ld6_toggle_solution(); case 4 then bench_export_current("LD6");
-    case 5 then ld6_restore_stage(); case 6 then ld6_restart();
+    case 1 then bench_open_snapshot("LD6");
+    case 2 then ld6_show_wiring_guide();
+    case 3 then bench_export_current("LD6");
+    case 4 then bench_mode("LD6"); ld6_render_stage(); bench_autosave("LD6");
+    case 6 then ld6_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD6.student);"";student_parameter_lines("LD6",LD6.cfg)]);
+    case 5 then
+        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD6 · Daugiau veiksmų");
+        select extra
+        case 1 then ld6_show_stand_map();
+        case 2 then ld6_toggle_solution();
+        case 3 then ld6_restore_stage();
+        case 4 then
+            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD6","question",["Pradėti" "Grįžti"],"modal")==1 then ld6_restart(); end
+        end
     end
 endfunction
 

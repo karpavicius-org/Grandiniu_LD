@@ -19,21 +19,30 @@ endfunction
 try
     LD6=struct(); LD6_CANCEL=%t; exec(root+"LD6/LD6.sce",-1); assert_checkfalse(isfield(LD6,"fig"));
     LD6_CANCEL=%f; exec(root+"LD6/LD6.sce",-1); assert_checkequal(LD6.student.number,17);
-    assert_checkequal(LD6.student.bank,"LD6-64-B-2026"); delete(LD6.fig);
+    assert_checkequal(LD6.student.bank,"LD6-64-B-2026");
+    assert_checktrue(LD6.assessment); assert_checkfalse(LD6.practice_used);
+    assert_checkequal(LD6.fig.closerequestfcn,"ld6_close()");
+    delete(LD6.fig);
     exec(root+"tests/workflows.sci",-1); exec(source+"tools/ergonomics.sci",-1);
     for number=[1 17 64]; bench_ld6_workflow(number,root,%t); end
     LD6=struct("cfg",ld6_variant_config(1),"student",student_profile(1,"Patikra Žąsė","TEST","LD6"),"ui",struct("headless",%f));
     ld6_start(); report=bench_report_data("LD6");
     for stage=[1 3 4 5]; assert_checkequal(length(report.evidence.wiring("s"+string(stage)).pairs),0); end
     assert_checkequal(length(report.observations),0);
+    assert_checkequal(report.mode,"assessment"); assert_checkfalse(report.practice_used);
     ld6_set_mode(4); assert_checkequal(size(LD6.wires,1),0);
     ld6_set_mode(0); ld6_set_mode(%nan); ld6_set_mode(1.5); assert_checkequal(LD6.wireMode,4);
     ld6_set_step(7); ld6_jump_step(%nan); assert_checkequal(LD6.step,1);
     assert_checkfalse(ld6_valid_index([1 2],4));
-    ld6_toggle_solution(); rejected=%f;
+    // Formal mode blocks the worked example.
+    ld6_toggle_solution(); assert_checkfalse(LD6.demoMode); assert_checkfalse(LD6.practice_used);
+    // Learning mode permits the example; demo state cannot be exported.
+    LD6.assessment=%f; LD6.practice_used=%t; ld6_render_stage();
+    ld6_toggle_solution(); assert_checktrue(LD6.demoMode); rejected=%f;
     try report=bench_report_data("LD6"); catch rejected=%t; end
     assert_checktrue(rejected); ld6_measure(); ld6_check_step(); assert_checkfalse(or(LD6.done));
     ld6_toggle_solution(); assert_checkequal(size(LD6.journal,1),0); assert_checkequal(size(LD6.wires,1),0);
+    LD6.assessment=%t; LD6.practice_used=%f; ld6_render_stage();
     descriptor=mopen(out+"geometry.tsv","wt"); sizes=[1280 720;1280 800;1600 900];
     for dimension=1:3
         geometry_size(LD6.fig,sizes(dimension,:));
@@ -72,23 +81,32 @@ try
         end
     end
     journal=LD6.journal; ld6_measure(); assert_checkequal(LD6.journal,journal);
+    values=ld6_reference(4); bench_ld6_answers(5,values);
     LD6.ui.answerEdits(6).string="10,321";
     snapshot_path=bench_save_snapshot("LD6"); snapshot=bench_read_snapshot(snapshot_path,"LD6");
     ld6_restart(); bench_restore_snapshot(snapshot);
     assert_checkequal(LD6.ui.answerEdits(6).string,"10,321"); assert_checkequal(LD6.journal,journal);
-    assert_checkfalse(LD6.powerOn); assert_checkfalse(LD6.switchOn);
-    ld6_toggle_solution(); assert_checkequal(size(LD6.journal,1),1); ld6_toggle_solution(); assert_checkequal(LD6.journal,journal);
-    LD6.done(5)=%t; LD6.ui.answerEdits(6).string="1+2"; bench_ld6_primary();
-    assert_checkfalse(LD6.done(5)); assert_checkequal(LD6.step,5); assert_checkequal(LD6.ui.answerEdits(6).string,"1+2");
-    values=ld6_reference(4); bench_ld6_answers(5,values);
-    LD6.ui.answerEdits(6).string=strsubst(LD6.ui.answerEdits(6).string,".",","); bench_ld6_primary();
+    assert_checktrue(LD6.assessment); assert_checkfalse(LD6.powerOn); assert_checkfalse(LD6.switchOn);
+    // Formal assessment preserves invalid raw text and advances without revealing the key.
+    values=ld6_reference(4); bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string="1+2";
+    bench_ld6_primary(); assert_checkequal(LD6.step,6); assert_checktrue(LD6.done(5));
+    assert_checkequal(LD6.answers(5,1),"1+2"); assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")==[]);
+    // Learning mode still validates locally.
+    ld6_jump_step(5); LD6.assessment=%f; LD6.practice_used=%t; ld6_render_stage();
+    values=ld6_reference(4); bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string="1+2";
+    bench_ld6_primary(); assert_checkfalse(LD6.done(5)); assert_checkequal(LD6.step,5);
+    assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")<>[]);
+    bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string=strsubst(LD6.ui.answerEdits(6).string,".",","); bench_ld6_primary();
     assert_checkequal(LD6.step,6); assert_checktrue(LD6.done(5));
+    ld6_toggle_solution(); assert_checktrue(LD6.demoMode); assert_checktrue(LD6.practice_used);
+    ld6_toggle_solution(); assert_checkfalse(LD6.demoMode);
+    LD6.assessment=%t; LD6.practice_used=%f;
     ld6_set_step(5); ld6_restore_stage(); assert_checkequal(size(LD6.wires,1),0);
     assert_checkequal(size(ld6_journal_rows(4),1),0); assert_checkfalse(LD6.done(5));
     report=bench_report_data("LD6"); assert_checkequal(length(report.evidence.wiring.s5.pairs),0);
     ld6_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD6.fig); delete(window);
     ld6_show_stand_map(); window=gcf(); assert_checktrue(window<>LD6.fig); delete(window);
-    delete(LD6.fig);
+    ld6_close(); assert_checkfalse(is_handle_valid(LD6.fig));
     cases=list(); specs=[2 1 .01;4 1 .01;4 2 .02;4 3 .01;4 4 .02;5 1 .01;5 2 .02;5 3 .02;5 4 .02];
     for number=[1 17 64]
         bench_ld6_workflow(number,root,%f); expected=ld6_expected_answers(); original=LD6.answers;
@@ -114,7 +132,7 @@ try
         end
     end
     mputl(toJSON(cases),out+"tolerance-cases.json");
-    mputl("LD6_PASS: 3 GUI variants; four manually wired modes; signed MNA readings; actual report button; saved wiring evidence; comma input without Enter; demo isolation; draft restore; 39 geometry cases including resize callback; 132 grading comparisons",out+"verdict.log"); exit(0);
+    mputl("LD6_PASS: assessment/learning split; autosave/restore/close; 3 GUI variants; four safely wired modes; signed MNA readings; actual report button; saved wiring evidence; comma/raw input; demo isolation; 39 geometry cases including resize callback; grading comparisons",out+"verdict.log"); exit(0);
 catch
     mputl("LD6_FAIL: "+strcat(lasterror()," | "),out+"verdict.log"); disp(lasterror()); exit(1);
 end

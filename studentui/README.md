@@ -1,7 +1,7 @@
 # Laboratorinių darbų stendai studentui
 
 LD1–LD7 naudoja tą patį išdėstymą: kairėje grandinė ir prietaisai, dešinėje
-vieno etapo užduotis ir atsakymai. LD1–LD5 atsiskaitymo režime **Įrašyti ir toliau**
+vieno etapo užduotis ir atsakymai. LD1–LD6 atsiskaitymo režime **Įrašyti ir toliau**
 išsaugo jūsų atsakymus. Mokymosi režime **Patikrinti** parodo klaidas.
 Papildomi veiksmai ir režimo pasirinkimas yra skiltyje **Pagalba**.
 
@@ -111,22 +111,28 @@ Keisdami padėtį matuokite [B03]; žurnale kaupiami U, I ir P = U·I. Skaičiuo
 varža r = ΔU/ΔI, galia kiekvienoje padėtyje, Pmax = E²/(4r) ir naudingumo koeficientas.
 64 variantai: `LD7/VARIANTAI.csv`, bankas `LD7-64-A-2026`, ataskaitos revizija 1.
 
-**LD6 – nuoseklus ir lygiagretus šaltinių jungimas:** šeši etapai, keturios
-studento jungiamos schemos: E1, nuosekliai, priešpriešiais ir lygiagrečiai.
-Režimo mygtukas išsaugo jūsų tos schemos laidus. Jungdami išjunkite maitinimą;
-matavimui įjunkite maitinimą, uždarykite jungiklį ir spauskite **Matuoti**.
-Kiekvieno šaltinio vidinė varža – 10 Ω. Neigiama šaltinio srovė reiškia, kad
-srovė teka į šaltinį. Srovę įrašykite mA, įtampą V; tinka kablelis arba taškas.
-**Tikrinti** patikrina ir perkelia į kitą etapą, pabaigoje – **Įrašyti ataskaitą**.
-C++ branduolys sprendžia grandinę ir vertina ataskaitą: 25 taškai už atsakymus,
-matavimus ir keturių schemų jungimus. 64 variantai: `LD6/VARIANTAI.csv`,
-bankas `LD6-64-B-2026`, ataskaitos revizija 2. Ankstesnės revizijos ataskaitos
-vertinamos pagal ankstesnę rubriką.
+**LD6 – nuoseklus ir lygiagretus šaltinių jungimas:** pradedama atsiskaitymo
+režimu. Studentas sujungia keturias schemas: E1, nuosekliai, priešpriešiais ir
+lygiagrečiai. Režimo keitimas automatiškai išjungia maitinimą; laidus galima
+keisti tik be maitinimo. Atsiskaityme užpildytas raw atsakymas išsaugomas, o jo
+teisingumą vertina dėstytojo programa; mokymosi režime **Tikrinti** pateikia
+savikontrolę. Sroves mA vienetais skaičiuokite su ×1000: pvz.
+**I = 1000·(E1+E2)/(R+r1+r2)**, o lygiagrečiai
+**I = 1000·U/R**, **I1 = 1000·(E1−U)/r1**, **I2 = 1000·(E2−U)/r2**.
+Nevienodų idealizuotų šaltinių tiesioginis lygiagretus jungimas nebūtų tinkamas;
+šiame modelyje sroves riboja įtrauktos vidinės varžos r1 ir r2. Neigiamas šaltinio
+srovės ženklas reiškia srovę į šaltinį. Pavyzdys formaliame atsiskaityme blokuojamas;
+mokymosi / pavyzdžio žyma po restarto neišnyksta. Laidai, režimas, matavimai ir
+atsakymai automatiškai saugomi vietiniame juodraštyje; tęsti galima per
+**Pagalba → Tęsti išsaugotą darbą**. Atkurtas stendas būna be maitinimo.
+C++ branduolys vertina 25 kriterijus; bankas `LD6-64-B-2026`, ataskaitos
+revizija 2. Pastaba: šiame techniniame stendo numeravime LD6 yra šaltinių jungimas,
+o oficialaus kurso numerių susiejimas turi būti tvarkomas atskiru kurso žemėlapiu.
 
 Pabaigoje spauskite **Išsaugoti ataskaitą**. Langas pasiūlo **Atverti ataskaitą** arba **Atverti ataskaitų aplanką**.
 Sukurtą vieną HTML failą iš
 naudotojo aplanko `Grandiniu_LD_darbai` persiųskite dėstytojui. Nebaigtą
-ataskaitą taip pat galima išsaugoti per Pagalbą. LD1–LD5 juodraščiai saugomi automatiškai
+ataskaitą taip pat galima išsaugoti per Pagalbą. LD1–LD6 juodraščiai saugomi automatiškai
 įrašant atsakymus ir pereinant į kitą etapą; juos atverkite per Pagalbą.
 
 Dėstytojui: vykdykite `DESTYTOJUI.sce` ir pasirinkite aplanką su ataskaitomis.

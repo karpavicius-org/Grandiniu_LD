@@ -753,11 +753,20 @@ function bench_ld6_workflow(number,root,gui)
     cfg=ld6_variant_config(number); [valid,message]=ld6_validate_config(cfg); assert_checktrue(valid);
     LD6=struct("cfg",cfg,"student",student_profile(number,"Automatinė Patikra","TEST","LD6"),"ui",struct("headless",~gui));
     ld6_start();
+    assert_checktrue(LD6.assessment); assert_checkfalse(LD6.practice_used);
+    if gui then
+        assert_checktrue(LD6.autosave_enabled);
+        if isfield(LD6,"fig") then LD6.fig.figure_name="PATIKRA · LD6 · variantas "+string(number); end
+        if number==17 then
+            ld6_toggle_solution(); assert_checkfalse(LD6.demoMode); assert_checkfalse(LD6.practice_used);
+        end
+    end
     series=(cfg.E1+cfg.E2)/(cfg.R+cfg.r1+cfg.r2);
     opposing=(cfg.E1-cfg.E2)/(cfg.R+cfg.r1+cfg.r2);
     parallel=(cfg.E1/cfg.r1+cfg.E2/cfg.r2)/(1/cfg.R+1/cfg.r1+1/cfg.r2);
     for step=1:6
         assert_checkequal(LD6.step,step);
+        primary_done=%f;
         if or(step==[1 3 4 5]) then bench_ld6_connect(ld6_stage_mode(step)); end
         if or(step==[2 3 4 5]) then
             bench_ld6_action("ld6_toggle_power()"); bench_ld6_action("ld6_toggle_switch()"); bench_ld6_action("ld6_measure()");
@@ -765,20 +774,56 @@ function bench_ld6_workflow(number,root,gui)
         select step
         case 2 then bench_ld6_answers(step,cfg.E1/(cfg.R+cfg.r1)*1000);
         case 4 then bench_ld6_answers(step,[series*cfg.R series*1000 opposing*cfg.R opposing*1000]);
-        case 5 then bench_ld6_answers(step,[parallel parallel/cfg.R*1000 (cfg.E1-parallel)/cfg.r1*1000 (cfg.E2-parallel)/cfg.r2*1000]);
+        case 5 then
+            bench_ld6_answers(step,[parallel parallel/cfg.R*1000 (cfg.E1-parallel)/cfg.r1*1000 (cfg.E2-parallel)/cfg.r2*1000]);
+            if gui & number==17 then
+                // Formal assessment stores non-empty raw text without local correctness disclosure.
+                LD6.ui.answerEdits(6).string="1+2";
+                bench_ld6_primary();
+                assert_checktrue(LD6.done(5)); assert_checkequal(LD6.step,6);
+                assert_checkequal(LD6.answers(5,1),"1+2");
+                assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")==[]);
+                // Restore the correct answer so the acceptance export remains perfect.
+                ld6_jump_step(5);
+                values=ld6_reference(4); bench_ld6_answers(5,values);
+                bench_ld6_primary();
+                assert_checktrue(LD6.done(5)); assert_checkequal(LD6.step,6);
+                primary_done=%t;
+            end
         case 6 then bench_ld6_answers(step,[1 2]);
         end
-        bench_ld6_primary();
+        if ~primary_done then bench_ld6_primary(); end
         if ~LD6.done(step) then error("LD6 variantas "+string(number)+", etapas "+string(step)); end
         if gui then mprintf("PASS LD6 V%02d: etapas %d\n",number,step); end
     end
     assert_checktrue(and(LD6.done)); assert_checkequal(size(LD6.journal,1),4);
     if gui then
+        if number==17 then
+            saved=bench_snapshot("LD6");
+            keep=LD6.answers(5,1); LD6.answers(5,1)="sugadinta";
+            bench_restore_snapshot(saved);
+            assert_checkequal(LD6.answers(5,1),keep);
+            assert_checktrue(LD6.assessment); assert_checkfalse(LD6.powerOn); assert_checkfalse(LD6.switchOn);
+        end
+        r=bench_report_data("LD6"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
         before=size(listfiles(bench_documents()+"/*.html"),"*");
         bench_ld6_primary();
         assert_checkequal(size(listfiles(bench_documents()+"/*.html"),"*"),before+1);
         assert_checktrue(strindex(LD6.ui.statusMain.string,"Ataskaita išsaugota")<>[]);
-        delete(LD6.fig);
+        if number==17 then
+            // Learning mode still validates answers locally and allows the example.
+            LD6.assessment=%f; LD6.practice_used=%t; ld6_restart();
+            assert_checkfalse(LD6.assessment); assert_checktrue(LD6.practice_used);
+            bench_ld6_connect(1); bench_ld6_primary(); assert_checkequal(LD6.step,2);
+            bench_ld6_action("ld6_toggle_power()"); bench_ld6_action("ld6_toggle_switch()"); bench_ld6_action("ld6_measure()");
+            LD6.ui.answerEdits(1).string="1+2"; bench_ld6_primary();
+            assert_checkfalse(LD6.done(2)); assert_checkequal(LD6.step,2);
+            assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")<>[]);
+            ld6_toggle_solution(); assert_checktrue(LD6.demoMode); assert_checktrue(LD6.practice_used);
+            ld6_toggle_solution(); assert_checkfalse(LD6.demoMode);
+        end
+        assert_checktrue(isfield(LD6,"autosave_paths")); assert_checktrue(size(LD6.autosave_paths,"*")>=1);
+        ld6_close(); assert_checkfalse(is_handle_valid(LD6.fig));
     end
 endfunction
 

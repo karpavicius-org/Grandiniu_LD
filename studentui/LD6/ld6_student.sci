@@ -34,7 +34,8 @@ function ld6_start()
     if needgui & ~isfield(LD6, "fig") then
         ld6_build_gui();
     end
-    ld6_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite matavimo grandinę.","info","Seką rasite: Pagalba → [B04] Kaip sujungti.");
+    if ~isfield(LD6,"autosave_enabled") then LD6.autosave_enabled=needgui; end
+    ld6_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite matavimo grandinę.","info","Atsiskaitymo režimas. Seką rasite: Pagalba → [B04] Kaip sujungti.");
 endfunction
 
 function ld6_student_primary()
@@ -47,14 +48,14 @@ function ld6_student_primary()
     end
     // Vienas paspaudimas: patikrinti ir, pavykus, iškart pereiti (LD2 semantika).
     if ~LD6.done(LD6.step) then
-        ld6_check_step();
+        ld6_check_step(~LD6.assessment);
     end
     if LD6.done(LD6.step) & LD6.step < 6 then
         ld6_next_step();
     elseif LD6.step==6 & LD6.done(6) & ~and(LD6.done) then
         pending=find(~LD6.done); ld6_set_step(pending(1));
     end
-    ld6_student_sync();
+    ld6_student_sync(); bench_autosave("LD6");
 endfunction
 
 function ld6_jump_step(n)
@@ -80,6 +81,8 @@ function ld6_student_sync()
             LD6.ui.studentPrimary.string = "UŽBAIGTI PRALEISTĄ ETAPĄ";
         elseif LD6.done(LD6.step) then
             LD6.ui.studentPrimary.string = "TOLIAU →";
+        elseif LD6.assessment then
+            LD6.ui.studentPrimary.string = "ĮRAŠYTI IR TOLIAU →";
         else
             LD6.ui.studentPrimary.string = "TIKRINTI";
         end
