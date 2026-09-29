@@ -104,8 +104,9 @@ function ok = ld12_close_enough(value, expected, relative, absolute)
     ok = abs(value - expected) <= absolute + relative*abs(expected);
 endfunction
 
-function ld12_check_step()
+function ld12_check_step(check_answers)
     global LD12;
+    if argn(2)<1 then check_answers=%t; end
     if LD12.demoMode then return; end
     ld12_save_answers(); step = LD12.step;
     if ~ld12_valid_index(step, 6) then return; end
@@ -132,6 +133,12 @@ function ld12_check_step()
     for index = 1:10
         [answer_step, slot] = ld12_answer_slot(index);
         if answer_step <> step then continue; end
+        if ~check_answers then
+            if stripblanks(LD12.answers(step,slot))=="" then
+                ld12_set_status("Įrašykite ["+ld12_answer_code(step,slot)+"].","error","Atsakymą vertins dėstytojo programa."); return;
+            end
+            continue;
+        end
         value = ld12_parse_number(LD12.answers(step, slot)); relative = .02; absolute = 1e-9;
         if step == 1 | step == 3 then relative = .01; end
         if step == 3 & slot == 1 then relative = 0; absolute = .005; end
@@ -141,7 +148,9 @@ function ld12_check_step()
         end
     end
     LD12.done(step) = %t; ld12_render_stage();
-    ld12_set_status(string(step) + " etapas patikrintas.", "ok", "");
+    text=string(step)+" etapas patikrintas.";
+    if ~check_answers then text=string(step)+" etapo atsakymai įrašyti."; end
+    ld12_set_status(text, "ok", "");
 endfunction
 
 function ld12_next_step()
@@ -239,6 +248,9 @@ function ld12_toggle_solution()
         end
         LD12.pending = ""; ld12_render_stage(); ld12_set_status("Grįžta į savo darbą.", "info", ""); return;
     end
+    if LD12.assessment then
+        ld12_set_status("Pavyzdys atsiskaitymo režime nepasiekiamas.","error","Perjunkite į Mokymąsi per Pagalbą."); return;
+    end
     ld12_save_answers(); LD12.backup = struct();
     for field = ["wires" "answers" "wireMode" "journal" "powerOn" "switchOn" "lastMeasurement"]
         LD12.backup(field) = LD12(field);
@@ -262,11 +274,11 @@ function ld12_restore_stage()
 endfunction
 
 function ld12_restart()
-    ld12_init_state(); ld12_render_stage(); ld12_set_status("Darbas pradėtas iš naujo.", "info", "Studentas ir variantas išliko.");
+    ld12_init_state(); ld12_render_stage(); ld12_set_status("Darbas pradėtas iš naujo.", "info", "Studentas, variantas, režimas ir mokymosi žyma išliko."); bench_autosave("LD12");
 endfunction
 
 function ld12_answers_changed()
-    ld12_save_answers(); ld12_student_sync();
+    ld12_save_answers(); ld12_student_sync(); bench_autosave("LD12");
 endfunction
 
 function name = names_rezhimas()

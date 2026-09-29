@@ -62,6 +62,9 @@ endfunction
 
 function ld11_init_state()
     global LD11;
+    assessment=%t; practice=%f;
+    if isfield(LD11,"assessment") then assessment=LD11.assessment; end
+    if isfield(LD11,"practice_used") then practice=LD11.practice_used; end
     LD11.step = 1; LD11.done = zeros(1, 6) == 1; LD11.skipped = zeros(1, 6) == 1;
     LD11.powerOn = %f; LD11.switchOn = %f; LD11.wireMode = 1;
     LD11.wires = emptystr(0, 2); LD11.journal = [];
@@ -70,6 +73,7 @@ function ld11_init_state()
         LD11.wires_by_mode(index) = emptystr(0, 2); LD11.report_wires(index) = emptystr(0, 2);
     end
     LD11.answers = emptystr(6, 8); LD11.demoMode = %f; LD11.lastMeasurement = %nan; LD11.pending = "";
+    LD11.assessment=assessment; LD11.practice_used=practice;
 endfunction
 
 function expected = ld11_expected_answers()

@@ -33,6 +33,7 @@ function ld11_start()
     if needgui & ~isfield(LD11, "fig") then
         ld11_build_gui();
     end
+    if ~isfield(LD11,"autosave_enabled") then LD11.autosave_enabled=needgui; end
     ld11_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite R–L rišlę be kompensavimo kondensatoriaus.", "info", "Seką rasite: Pagalba → [B04] Kaip sujungti.");
 endfunction
 
@@ -46,14 +47,14 @@ function ld11_student_primary()
     end
     // Vienas paspaudimas: patikrinti ir, pavykus, iškart pereiti (LD2 semantika).
     if ~LD11.done(LD11.step) then
-        ld11_check_step();
+        ld11_check_step(~LD11.assessment);
     end
     if LD11.done(LD11.step) & LD11.step < 6 then
         ld11_next_step();
     elseif LD11.step == 6 & LD11.done(6) & ~and(LD11.done) then
         pending = find(~LD11.done); ld11_set_step(pending(1));
     end
-    ld11_student_sync();
+    ld11_student_sync(); bench_autosave("LD11");
 endfunction
 
 function ld11_jump_step(n)
@@ -79,6 +80,8 @@ function ld11_student_sync()
             LD11.ui.studentPrimary.string = "UŽBAIGTI PRALEISTĄ ETAPĄ";
         elseif LD11.done(LD11.step) then
             LD11.ui.studentPrimary.string = "TOLIAU →";
+        elseif LD11.assessment then
+            LD11.ui.studentPrimary.string = "ĮRAŠYTI IR TOLIAU →";
         else
             LD11.ui.studentPrimary.string = "TIKRINTI";
         end

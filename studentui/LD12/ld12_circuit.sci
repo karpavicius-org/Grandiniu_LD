@@ -72,6 +72,9 @@ endfunction
 
 function ld12_init_state()
     global LD12;
+    assessment=%t; practice=%f;
+    if isfield(LD12,"assessment") then assessment=LD12.assessment; end
+    if isfield(LD12,"practice_used") then practice=LD12.practice_used; end
     LD12.step = 1; LD12.done = zeros(1, 6) == 1; LD12.skipped = zeros(1, 6) == 1;
     LD12.powerOn = %f; LD12.switchOn = %f; LD12.wireMode = 1; LD12.phase = 0;
     LD12.wires = emptystr(0, 2); LD12.journal = [];
@@ -80,6 +83,7 @@ function ld12_init_state()
         LD12.wires_by_mode(index) = emptystr(0, 2); LD12.report_wires(index) = emptystr(0, 2);
     end
     LD12.answers = emptystr(6, 8); LD12.demoMode = %f; LD12.lastMeasurement = %nan; LD12.pending = "";
+    LD12.assessment=assessment; LD12.practice_used=practice;
 endfunction
 
 function expected = ld12_expected_answers()

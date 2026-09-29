@@ -95,8 +95,9 @@ function ok = ld11_close_enough(value, expected, relative, absolute)
     ok = abs(value - expected) <= absolute + relative*abs(expected);
 endfunction
 
-function ld11_check_step()
+function ld11_check_step(check_answers)
     global LD11;
+    if argn(2)<1 then check_answers=%t; end
     if LD11.demoMode then return; end
     ld11_save_answers(); step = LD11.step;
     if ~ld11_valid_index(step, 6) then return; end
@@ -123,6 +124,12 @@ function ld11_check_step()
     for index = 1:12
         [answer_step, slot] = ld11_answer_slot(index);
         if answer_step <> step then continue; end
+        if ~check_answers then
+            if stripblanks(LD11.answers(step,slot))=="" then
+                ld11_set_status("Įrašykite ["+ld11_answer_code(step,slot)+"].","error","Atsakymą vertins dėstytojo programa."); return;
+            end
+            continue;
+        end
         value = ld11_parse_number(LD11.answers(step, slot)); relative = .02; absolute = 1e-9;
         if step == 1 | step == 3 then relative = .01; end
         if step == 3 & slot == 1 then relative = .03; end
@@ -132,7 +139,9 @@ function ld11_check_step()
         end
     end
     LD11.done(step) = %t; ld11_render_stage();
-    ld11_set_status(string(step) + " etapas patikrintas.", "ok", "");
+    text=string(step)+" etapas patikrintas.";
+    if ~check_answers then text=string(step)+" etapo atsakymai įrašyti."; end
+    ld11_set_status(text, "ok", "");
 endfunction
 
 function ld11_next_step()
@@ -231,6 +240,9 @@ function ld11_toggle_solution()
         end
         LD11.pending = ""; ld11_render_stage(); ld11_set_status("Grįžta į savo darbą.", "info", ""); return;
     end
+    if LD11.assessment then
+        ld11_set_status("Pavyzdys atsiskaitymo režime nepasiekiamas.","error","Perjunkite į Mokymąsi per Pagalbą."); return;
+    end
     ld11_save_answers(); LD11.backup = struct();
     for field = ["wires" "answers" "wireMode" "journal" "powerOn" "switchOn" "lastMeasurement"]
         LD11.backup(field) = LD11(field);
@@ -254,11 +266,11 @@ function ld11_restore_stage()
 endfunction
 
 function ld11_restart()
-    ld11_init_state(); ld11_render_stage(); ld11_set_status("Darbas pradėtas iš naujo.", "info", "Studentas ir variantas išliko.");
+    ld11_init_state(); ld11_render_stage(); ld11_set_status("Darbas pradėtas iš naujo.", "info", "Studentas, variantas, režimas ir mokymosi žyma išliko."); bench_autosave("LD11");
 endfunction
 
 function ld11_answers_changed()
-    ld11_save_answers(); ld11_student_sync();
+    ld11_save_answers(); ld11_student_sync(); bench_autosave("LD11");
 endfunction
 
 function name = names_rezhimas()

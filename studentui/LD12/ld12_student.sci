@@ -33,6 +33,7 @@ function ld12_start()
     if needgui & ~isfield(LD12, "fig") then
         ld12_build_gui();
     end
+    if ~isfield(LD12,"autosave_enabled") then LD12.autosave_enabled=needgui; end
     ld12_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite trifazį imtuvą žvaigžde.", "info", "Seką rasite: Pagalba → [B04] Kaip sujungti.");
 endfunction
 
@@ -46,14 +47,14 @@ function ld12_student_primary()
     end
     // Vienas paspaudimas: patikrinti ir, pavykus, iškart pereiti (LD2 semantika).
     if ~LD12.done(LD12.step) then
-        ld12_check_step();
+        ld12_check_step(~LD12.assessment);
     end
     if LD12.done(LD12.step) & LD12.step < 6 then
         ld12_next_step();
     elseif LD12.step == 6 & LD12.done(6) & ~and(LD12.done) then
         pending = find(~LD12.done); ld12_set_step(pending(1));
     end
-    ld12_student_sync();
+    ld12_student_sync(); bench_autosave("LD12");
 endfunction
 
 function ld12_jump_step(n)
@@ -79,6 +80,8 @@ function ld12_student_sync()
             LD12.ui.studentPrimary.string = "UŽBAIGTI PRALEISTĄ ETAPĄ";
         elseif LD12.done(LD12.step) then
             LD12.ui.studentPrimary.string = "TOLIAU →";
+        elseif LD12.assessment then
+            LD12.ui.studentPrimary.string = "ĮRAŠYTI IR TOLIAU →";
         else
             LD12.ui.studentPrimary.string = "TIKRINTI";
         end
