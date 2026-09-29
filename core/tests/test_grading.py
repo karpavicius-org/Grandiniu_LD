@@ -378,6 +378,7 @@ def main(exe):
             "duplicate_item":lambda r:r["answers"].append(r["answers"][0]),
             "unknown_item":lambda r:r["answers"].append(dict(id="unexpected",raw="1",unit="A")),
             "bad_points":lambda r:r["evidence"]["resonance"][0].update(f="exec()"),
+            "identity_newline":lambda r:r["student"].update(name="Vardas\nSugadinta eilutė"),
         }
         for name,mutate in mutations.items():
             r=copy.deepcopy(base);mutate(r);write(adversarial/(name+".html"),r)
@@ -391,7 +392,7 @@ def main(exe):
         write(adversarial/"good.html",base);write(adversarial/"good_copy.html",base)
         data,_=run(exe,adversarial,root/"Blogų rezultatai")
         statuses=[v["status"] for v in data["results"]]
-        assert statuses.count("review")==14,statuses
+        assert statuses.count("review")==15,statuses
         assert statuses.count("graded")==2 and statuses.count("duplicate")==1,statuses
         inv=next(v for v in data["results"] if v["file"]=="invalid_numbers.html")
         assert inv["points"]==48

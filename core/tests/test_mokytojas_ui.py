@@ -62,6 +62,8 @@ def main(exe):
             # 1) puslapis
             code, html = get(base, "/")
             assert code == 200 and "MOKYTOJAS" in html and "Įvertinti" in html, (code, html[:100])
+            assert "Baigti programą" in html and "dabartiniame darbo kataloge" in html, html[:500]
+            assert "innerHTML" not in html, "Žurnalas neturi būti kuriamas iš nepatikimo HTML"
 
             # 2) pradinė būsena
             code, body = get(base, "/status")

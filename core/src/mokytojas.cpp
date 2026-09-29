@@ -661,25 +661,36 @@ int mokytojas_run(const std::vector<std::string>& args, const std::function<bool
         fs::path tmp = fs::temp_directory_path() / ("mokytojas-" + std::to_string(pid_value()));
         std::error_code ec;
         fs::create_directories(tmp, ec);
-        auto list = drive_list(folder, key, tmp, skipped_other, skipped_large);
-        int idx = 0;
-        for (const DriveEntry& e : list) {
-            fs::path p = drive_download(e, key, tmp, ++idx);
-            files.push_back({p, e.name});
-        }
-        std::error_code rm;
-        fs::remove_all(tmp, rm);
-        std::cout << "MOKYTOJAS: is Google Drive parsisiusta failu: " << files.size() << "\n";
-    } else {
-        fs::path root = fs::path(arg);
-        if (!is_dir) {
-            std::cerr << "Argumentas nera nei Google Drive nuoroda/ID, nei egzistuojantis aplankas: "
-                      << arg << "\n";
+        if (ec) {
+            std::cerr << "Nepavyko sukurti laikino Google Drive katalogo: " << ec.message() << "\n";
             return 1;
         }
-        for (const fs::path& p : scan_local(root, skipped_other, skipped_large))
-            files.push_back({p, fs::relative(p, root).generic_string()});
+        try {
+            auto list = drive_list(folder, key, tmp, skipped_other, skipped_large);
+            int idx = 0;
+            for (const DriveEntry& e : list) {
+                fs::path p = drive_download(e, key, tmp, ++idx);
+                files.push_back({p, e.name});
+            }
+            std::cout << "MOKYTOJAS: is Google Drive parsisiusta failu: " << files.size() << "\n";
+            const int rc = process(files, skipped_other, skipped_large, tick, cancel);
+            std::error_code rm;
+            fs::remove_all(tmp, rm);
+            return rc;
+        } catch (...) {
+            std::error_code rm;
+            fs::remove_all(tmp, rm);
+            throw;
+        }
     }
+    fs::path root = fs::path(arg);
+    if (!is_dir) {
+        std::cerr << "Argumentas nera nei Google Drive nuoroda/ID, nei egzistuojantis aplankas: "
+                  << arg << "\n";
+        return 1;
+    }
+    for (const fs::path& p : scan_local(root, skipped_other, skipped_large))
+        files.push_back({p, fs::relative(p, root).generic_string()});
     return process(files, skipped_other, skipped_large, tick, cancel);
 }
 
@@ -714,7 +725,8 @@ td:first-child,td:nth-child(2){text-align:left}
 </style></head><body>
 <h1>MOKYTOJAS — automatinis laboratorinių vertinimas</h1>
 <p><input id="arg" type="text" placeholder="Google Drive aplanko nuoroda arba vietinis aplankas (tuščia = dabartinis)">
-<button id="go">Įvertinti</button> <button id="stop" class="antras" disabled>Sustabdyti</button></p>
+<button id="go">Įvertinti</button> <button id="stop" class="antras" disabled>Sustabdyti</button>
+<button id="quit" class="antras">Baigti programą</button></p>
 <div id="status">Paruošta.</div>
 <table id="zurnalas"></table>
 <div class="kelias" id="failai"></div>
@@ -736,15 +748,27 @@ async function zurnalas(){
   if(!lines.length)return;
   const parse=l=>{const f=l.split('";"').map(x=>x.replace(/^"|"$/g,''));return f.length===1?l.split(';'):f};
   const rows=lines.map(parse);
-  $('zurnalas').innerHTML='<tr>'+rows[0].map(h=>'<th>'+h+'</th>').join('')+'</tr>'+
-    rows.slice(1).map(r=>'<tr>'+r.map(c=>'<td>'+(c||'—')+'</td>').join('')+'</tr>').join('');
+  const table=$('zurnalas');table.replaceChildren();
+  const head=document.createElement('tr');
+  rows[0].forEach(value=>{const cell=document.createElement('th');cell.textContent=value;head.appendChild(cell);});
+  table.appendChild(head);
+  rows.slice(1).forEach(row=>{const tr=document.createElement('tr');
+    row.forEach(value=>{const cell=document.createElement('td');cell.textContent=value||'—';tr.appendChild(cell);});
+    table.appendChild(tr);
+  });
 }
 $('go').onclick=async()=>{
   const arg=encodeURIComponent($('arg').value.trim()||'.');
   await fetch('/start?arg='+arg);statusas();
 };
 $('stop').onclick=async()=>{await fetch('/stop');statusas();};
-$('failai').innerHTML='Rezultatai rašomi šalia programos: <b>IVERTINIMAI.csv</b> (papildomas istorijos žurnalas), <b>ZURNALAS.csv</b> (studentų × darbų lentelė), <b>atsiliepimai/</b> (detalus kiekvieno įvertinimo paaiškinimas).<br>Lango uždarymas: mygtukas čia arba Ctrl+C terminale.';
+$('quit').onclick=async()=>{
+  $('quit').disabled=true;
+  try{await fetch('/quit');}catch(e){}
+  $('go').disabled=true;$('stop').disabled=true;
+  $('status').textContent='Programa uždaryta. Šį naršyklės langą galite užverti.';
+};
+$('failai').textContent='Rezultatai rašomi dabartiniame darbo kataloge: IVERTINIMAI.csv (istorijos žurnalas), ZURNALAS.csv (studentų × darbų lentelė) ir atsiliepimai/ (detalūs paaiškinimai). Programą užbaikite mygtuku „Baigti programą“ arba Ctrl+C terminale.';
 statusas();setInterval(statusas,700);
 </script></body></html>)HTML";
 

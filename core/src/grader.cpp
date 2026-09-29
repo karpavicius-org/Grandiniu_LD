@@ -868,7 +868,12 @@ Json grade(const Json& r) {
     int variant=r.at("variant").get<int>();auto b=bank(variant);
     const auto& s=r.at("student");
     require(s.at("number").is_number_integer()&&s.at("number")==variant,"student_number");
-    for(auto k:{"name","group"}) require(text(s.at(k)).find_first_not_of(" \t\r\n")!=std::string::npos,"student_identity");
+    for(auto k:{"name","group"}) {
+        const auto value=text(s.at(k));
+        require(value.find_first_not_of(" \t\r\n")!=std::string::npos &&
+                value.find('\r')==std::string::npos && value.find('\n')==std::string::npos,
+                "student_identity");
+    }
     auto id=text(r.at("submission_id"),128);require(!id.empty(),"submission_identity");
     require(r.at("mode")=="learning"||r.at("mode")=="assessment","mode");
     text(r.at("note"),32000);

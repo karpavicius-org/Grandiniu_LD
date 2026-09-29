@@ -18,6 +18,10 @@ function st=student_profile(number,name,group,lab)
     name=stripblanks(name); group=stripblanks(group);
     if name=="" then error("Įveskite vardą ir pavardę."); end
     if group=="" then error("Įveskite grupę."); end
+    if size(strindex(name,ascii(10)),"*")>0 | size(strindex(name,ascii(13)),"*")>0 then error("Vardas ir pavardė turi būti vienoje eilutėje."); end
+    if size(strindex(group,ascii(10)),"*")>0 | size(strindex(group,ascii(13)),"*")>0 then error("Grupė turi būti vienoje eilutėje."); end
+    if length(name)>64 then error("Vardas ir pavardė per ilgi (iki 64 ženklų)."); end
+    if length(group)>64 then error("Grupės pavadinimas per ilgas (iki 64 ženklų)."); end
     st=struct("number",number,"name",name,"group",group, ...
         "variant_id",msprintf("%s-V%02d",lab,number),"bank",lab+"-64-A-2026");
     if lab=="LD6" then st.bank="LD6-64-B-2026"; end
