@@ -53,7 +53,7 @@ function [u, i, ok, message] = ld12_measure_values()
     if ~LD12.switchOn then message = "Uždarykite jungiklį [B02]."; return; end
     [valid, message] = ld12_wiring_valid(LD12.wires);
     if ~valid then return; end
-    if LD12.phase == 0 then message = "Pasirinkite matuojamą fazę [B13]–[B15]."; return; end
+    if LD12.phase == 0 then message = "Pasirinkite matuojamą fazę [B12]–[B14]."; return; end
     // Fizika — ld_ac kind 6 (trifazė MNA branduolyje):
     // v = [Uf_Y, If_Y, Uf_D, If_D, Il_D, P_Y, P_D, Ul].
     bench_core_require(); cfg = LD12.cfg;

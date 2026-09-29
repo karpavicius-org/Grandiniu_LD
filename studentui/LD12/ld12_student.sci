@@ -33,7 +33,7 @@ function ld12_start()
     if needgui & ~isfield(LD12, "fig") then
         ld12_build_gui();
     end
-    ld12_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite nuoseklią RLC grandinę.", "info", "Seką rasite: Pagalba → [B04] Kaip sujungti.");
+    ld12_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite trifazį imtuvą žvaigžde.", "info", "Seką rasite: Pagalba → [B04] Kaip sujungti.");
 endfunction
 
 function ld12_student_primary()

@@ -123,7 +123,7 @@ function ld12_render_wires()
     if valid then ampText = msprintf("%.3f mA", i); end
     modeName = "ŽVAIGŽDĖ"; if LD12.wireMode == 2 then modeName = "TRIKAMPIS"; end
     phaseName = "—"; if LD12.phase > 0 then phaseName = "L" + string(LD12.phase); end
-    vals = [msprintf("3~ %g V<br>50 Hz", LD12.cfg.Ul), switchText, phaseName, ...
+    vals = [msprintf("3~ %g V · 50 Hz", LD12.cfg.Ul), switchText, phaseName, ...
         msprintf("%g Ω", LD12.cfg.R), msprintf("%g Ω", LD12.cfg.R), msprintf("%g Ω", LD12.cfg.R), ...
         voltText, ampText];
     pairs = ["N" "L1";"K1" "K2";"" "";"" "";"" "";"" "";"" "";"" ""];
@@ -141,10 +141,9 @@ function ld12_render_wires()
         h = student_text(fr, [0.06 0.66 0.88 0.24], names(k), 12, %t, bg); h.horizontalalignment = "center";
         h = student_text(fr, [0.04 0.04 0.92 0.58], vals(k), 13, %t, bg); h.horizontalalignment = "center";
         h.tag = "reading:" + ids(k);
-        if k == 6 then h.tooltipstring = "Voltmetras: įtampa U prie generatoriaus galų."; end
-        if k == 7 then h.tooltipstring = "Vatmetras: aktyrioji galia P, kurią suvartoja grandinė."; end
         if or(k == [4 5 6]) then h.tooltipstring = msprintf("Imtuvas: R = %g Ω (visi trys vienodi).", LD12.cfg.R); end
-        if k == 4 | k == 5 | k == 6 then h.tooltipstring = msprintf("Imtuvas: R = %g Ω (visi trys vienodi).", LD12.cfg.R); end
+        if k == 7 then h.tooltipstring = "Voltmetras: įtampa U prie generatoriaus galų."; end
+        if k == 8 then h.tooltipstring = "Ampermetras: pasirinktos fazės srovė."; end
     end
     tids = ld12_terminal_ids();
     for id = matrix(tids, 1, -1)
@@ -256,9 +255,9 @@ function ld12_build_gui()
     LD12.ui.instructionLine(1) = student_text(right, [0.07 0.72 0.86 0.22], "", 14, %f);
     LD12.ui.instructionLine(1).verticalalignment = "top";
     labels = ["[A01.01] Uf = Ul/√3, V"; ...
-        "[A02.01] If = Uf/R, mA"; ...
+        "[A02.01] If = 1000·Uf/R, mA"; ...
         "[A03.01] Trikampio Uf, V"; ...
-        "[A04.01] If = Ul/R, mA"; ...
+        "[A04.01] If = 1000·Ul/R, mA"; ...
         "[A05.01] Il = √3·If, mA";"[A05.02] PΔ = √3·Ul·Il, mW";"[A05.03] PY = 3·Uf·If, mW"; ...
         "[A06.01] Žvaigždėje If = Il?";"[A06.02] Trikampyje Il = √3·If?";"[A06.03] PΔ = 3·PY?"];
     LD12.ui.answerEdits = []; LD12.ui.answerLabels = [];

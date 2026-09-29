@@ -163,9 +163,9 @@ function text = ld12_step_instruction(step)
     cfg = LD12.cfg;
     select step
     case 1 then text = msprintf("[B10] Sujunkite žvaigždę be maitinimo: L1 → R1, L2 → R2, L3 → R3; visi imtuvų galai b → bendras neutralis N. Seka: Pagalba → [B04]. [A01.01] Apskaičiuokite fazinę įtampą Uf = Ul/√3; Ul = %g V.", cfg.Ul);
-    case 2 then text = "Pasirinkite fazę [B12]–[B14], įjunkite [B01], uždarykite [B02] ir matuokite [B03]. Simetrinėje grandinėje visos fazės vienodos: If = Il. [A02.01] If = Uf/R (mA); R = %g Ω.";
+    case 2 then text = msprintf("Pasirinkite fazę [B12]–[B14], įjunkite [B01], uždarykite [B02] ir matuokite [B03]. Simetrinėje grandinėje visos fazės vienodos: If = Il. [A02.01] If = 1000·Uf/R (mA); R = %g Ω.", cfg.R);
     case 3 then text = "[B11] Sujungite trikampį: R1 tarp L1–L2, R2 tarp L2–L3, R3 tarp L3–L1. [A03.01] Užrašykite trikampio fazinę įtampą (kokia ji lygi?).";
-    case 4 then text = "Pasirinkite fazę, įjunkite ir matuokite [B03]. [A04.01] Fazinė srovė If = Ul/R (mA).";
+    case 4 then text = "Pasirinkite fazę, įjunkite ir matuokite [B03]. [A04.01] Fazinė srovė If = 1000·Ul/R (mA).";
     case 5 then text = "[A05.01] Linijinė srovė trikampyje Il = √3·If (mA); [A05.02] galia PΔ = √3·Ul·Il (mW); [A05.03] žvaigždės galia PY = 3·Uf·If (mW). Palyginkite PΔ ir PY!";
     case 6 then text = "[A06.01] Ar žvaigždėje fazinė srovė lygi linijinei? [A06.02] Ar trikampyje Il = √3·If? [A06.03] Ar trikampio galia tris kartus didesnė už žvaigždės? 1 – Taip, 2 – Ne.";
     else text = "";

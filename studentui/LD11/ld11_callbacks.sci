@@ -155,7 +155,7 @@ function text = ld11_step_instruction(step)
     select step
     case 1 then text = msprintf("[B10] Sujungite rišlę be maitinimo: generatorius → jungiklis → ampermetras → rišlė (R, L) → grįžimas. Seka: Pagalba → [B04]. [A01.01] Apskaičiuokite pradinį galios faktorių cos φ0 = R/Z; R = %g Ω, L = %g mH, f = 50 Hz.", cfg.R, cfg.LmH);
     case 2 then text = "Įjunkite [B01], uždarykite [B02] ir matuokite [B03]: žurnale atsiras U, I ir P (vatmetras). [A02.01] S = U·I; [A02.02] Q = √(S²−P²); [A02.03] cos φ = P/S (I — mA, tad S — mVA).";
-    case 3 then text = "[A03.01] Apskaičiuokite kompensuojantį kondensatorių: Ck = XL/(ω·(R²+XL²)), ω = 2π·50. Atsakymą rašykite mikromadais (µF). Stende Ck paruoštas — tikrinkite [B11].";
+    case 3 then text = "[A03.01] Apskaičiuokite kompensuojantį kondensatorių: Ck = XL/(ω·(R²+XL²)), ω = 2π·50. Atsakymą rašykite mikrofaradais (µF). Stende Ck paruoštas — tikrinkite [B11].";
     case 4 then text = "[B11] Sujungite Ck lygiagrečiai rišlei (abu nauji laidai). Įjunkite, uždarykite jungiklį ir matuokite [B03]: U2, I2, P2.";
     case 5 then text = "Iš antrojo matavimo: [A05.01] S2 = U·I2; [A05.02] Q2 = √(S2²−P2²); [A05.03] cos φ2 = P2/S2; [A05.04] ΔS = S − S2. Palyginkite S2 < S, I2 < I, cos φ2 > cos φ.";
     case 6 then text = "[A06.01] Ar aktyvioji galia P po kompensacijos nepakito? [A06.02] Ar srovė I sumažėjo? [A06.03] Ar cos φ padidėjo? 1 – Taip, 2 – Ne.";
