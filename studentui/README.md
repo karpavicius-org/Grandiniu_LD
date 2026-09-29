@@ -1,7 +1,7 @@
 # Laboratorinių darbų stendai studentui
 
 LD1–LD7 naudoja tą patį išdėstymą: kairėje grandinė ir prietaisai, dešinėje
-vieno etapo užduotis ir atsakymai. LD1 ir LD2 atsiskaitymo režime **Įrašyti ir toliau**
+vieno etapo užduotis ir atsakymai. LD1–LD4 atsiskaitymo režime **Įrašyti ir toliau**
 išsaugo jūsų atsakymus. Mokymosi režime **Patikrinti** parodo klaidas.
 Papildomi veiksmai ir režimo pasirinkimas yra skiltyje **Pagalba**.
 
@@ -27,6 +27,18 @@ ir toks bandymas neįtraukiamas į pažymių suvestinę. Laidai, matavimai ir at
 automatiškai saugomi vietiniame juodraštyje; tęsti galima per **Pagalba → Tęsti
 išsaugotą darbą**. Atkurtas stendas būna be maitinimo. Laido tarpas sankirtoje reiškia,
 kad laidai elektriškai nesujungti.
+
+**LD4 – tiesinių rezistorių tyrimas:** pradedama atsiskaitymo režimu. Studentas
+išmatuoja po tris R1 ir R2 U/I taškus, apskaičiuoja varžas, nuokrypius, nuolydžius,
+laidumą ir nuoseklaus R1+R2 jungimo varžą. Kai srovė rodoma mA, varžai omų vienetais
+naudokite **R = 1000·U/I_mA** ir **R = 1000·ΔU/ΔI_mA**. Atsiskaityme užpildytas raw
+atsakymas išsaugomas ir jo teisingumą vertina dėstytojo programa; mokymosi režime
+**Tikrinti** pateikia savikontrolę. Pavyzdys formaliame atsiskaityme blokuojamas.
+Perjungiant į R2 ir pereinant prie nuoseklaus jungimo maitinimas išjungiamas; rankiniu
+būdu keisti laidus leidžiama tik be maitinimo. Laidai, matavimai ir atsakymai
+automatiškai saugomi vietiniame juodraštyje; tęsti galima per **Pagalba → Tęsti
+išsaugotą darbą**. Mokymosi / pavyzdžio žyma po restarto neišnyksta.
+
 
 **LD5 – įtampos daliklis:** sujunkite septynis laidus pagal **Pagalba → Kaip sujungti**.
 Gnybtus galima keisti tik pirmame etape; esamą laidą pašalinsite paspaudę abu jo galus.
@@ -110,7 +122,7 @@ vertinamos pagal ankstesnę rubriką.
 Pabaigoje spauskite **Išsaugoti ataskaitą**. Langas pasiūlo **Atverti ataskaitą** arba **Atverti ataskaitų aplanką**.
 Sukurtą vieną HTML failą iš
 naudotojo aplanko `Grandiniu_LD_darbai` persiųskite dėstytojui. Nebaigtą
-ataskaitą taip pat galima išsaugoti per Pagalbą. LD1, LD2 ir LD3 juodraščiai saugomi automatiškai
+ataskaitą taip pat galima išsaugoti per Pagalbą. LD1–LD4 juodraščiai saugomi automatiškai
 įrašant atsakymus ir pereinant į kitą etapą; juos atverkite per Pagalbą.
 
 Dėstytojui: vykdykite `DESTYTOJUI.sce` ir pasirinkite aplanką su ataskaitomis.

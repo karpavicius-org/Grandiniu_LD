@@ -421,13 +421,20 @@ function bench_ld4_workflow(n,root,gui)
     LD4=struct("cfg",cfg,"student",student_profile(n,"Automatinė Patikra","TEST","LD4"), ...
         "ui",struct("headless",~gui));
     ld4_start();
+    assert_checktrue(LD4.assessment);
+    assert_checkfalse(LD4.practice_used);
     if gui then
+        assert_checktrue(LD4.autosave_enabled);
         if isfield(LD4,"fig") then LD4.fig.figure_name="PATIKRA · LD4 · variantas "+string(n); end
+        if n==17 then
+            ld4_toggle_solution(); assert_checkfalse(LD4.demoMode); assert_checkfalse(LD4.practice_used);
+        end
     end
     W=["E_P" "K1";"K2" "A_P";"A_N" "R1A";"R1B" "E_N";"V_P" "R1A";"V_N" "R1B"];
     u=[cfg.U1 cfg.U2 cfg.U3];
     for step=1:7
         assert_checkequal(LD4.step,step);
+        primary_done=%f;
         select step
         case 1 then
             for k=1:size(W,1); bench_ld4_click(W(k,1)); bench_ld4_click(W(k,2)); end
@@ -438,8 +445,28 @@ function bench_ld4_workflow(n,root,gui)
             for k=3:-1:1
                 bench_ld4_action(msprintf("ld4_set_voltage(LD4.cfg.U%d)",k)); bench_ld4_action("ld4_measure()");
             end
+            if gui & n==17 then
+                // Formal assessment keeps an incorrect raw answer and does not reveal the key.
+                LD4.ui.answerEdits(1).string="0";
+                bench_ld4_primary();
+                assert_checktrue(LD4.done(2)); assert_checkequal(LD4.step,3);
+                assert_checkequal(LD4.answers(2,1),"0");
+                assert_checktrue(strindex(LD4.ui.statusMain.string,"Tikimasi")==[]);
+                assert_checkfalse(LD4.powerOn); assert_checkfalse(LD4.switchOn);
+                // Restore the correct raw answer so the exported acceptance report is perfect.
+                ld4_jump_step(2);
+                LD4.ui.answerEdits(1).string=msprintf("%.12g",u(1)/cfg.R1nom*1000);
+                execstr(LD4.ui.answerEdits(1).callback);
+                assert_checkfalse(LD4.done(2));
+                bench_ld4_primary();
+                assert_checktrue(LD4.done(2)); assert_checkequal(LD4.step,3);
+                primary_done=%t;
+            end
         case 3 then
+            assert_checkfalse(LD4.powerOn); assert_checkfalse(LD4.switchOn);
             bench_ld4_action("ld4_set_resistor(2)");
+            assert_checkfalse(LD4.powerOn); assert_checkfalse(LD4.switchOn);
+            bench_ld4_action("ld4_toggle_power()"); bench_ld4_action("ld4_toggle_switch()");
             for k=1:3
                 bench_ld4_action(msprintf("ld4_set_voltage(LD4.cfg.U%d)",k)); bench_ld4_action("ld4_measure()");
             end
@@ -452,43 +479,67 @@ function bench_ld4_workflow(n,root,gui)
             r2s=(LD4.journal(6,1)-LD4.journal(4,1))/((LD4.journal(6,2)-LD4.journal(4,2))/1000);
             bench_ld4_answers(step,[r1s r2s 1000/r2s]);
         case 6 then
+            assert_checkfalse(LD4.powerOn); assert_checkfalse(LD4.switchOn);
             // Remove the old R2 feed/probe through actual terminal callbacks.
             bench_ld4_click("A_N"); bench_ld4_click("R2A");
             bench_ld4_click("V_P"); bench_ld4_click("R2A");
             for wire=["A_N" "R1A";"R1B" "R2A";"V_P" "R1A"]'
                 bench_ld4_click(wire(1)); bench_ld4_click(wire(2));
             end
+            bench_ld4_action("ld4_toggle_power()"); bench_ld4_action("ld4_toggle_switch()");
             bench_ld4_action("ld4_set_voltage(LD4.cfg.U3)"); bench_ld4_action("ld4_measure()");
             bench_ld4_answers(step,LD4.journal(7,1)/LD4.journal(7,2)*1000);
         case 7 then
             bench_ld4_answers(step,[1 1]);
         end
-        bench_ld4_primary();
+        if ~primary_done then bench_ld4_primary(); end
         if ~LD4.done(step) then
             detail="";
             if isfield(LD4.ui,"statusMain") then detail=": "+LD4.ui.statusMain.string; end
             error("LD4 V"+string(n)+" etapas "+string(step)+detail);
         end
-        if step==3 then
-            assert_checkequal(size(LD4.journal,1),6);
-        end
+        if step==3 then assert_checkequal(size(LD4.journal,1),6); end
         if step==6 then
             assert_checkequal(size(LD4.journal,1),7);
             assert_checkalmostequal(LD4.journal(7,2),u(3)/(cfg.R1+cfg.R2)*1000,1e-3,1e-3);
         end
         if gui then mprintf("PASS LD4 V%02d: etapas %d\n",n,step); end
     end
-    assert_checktrue(and(LD4.done));
-    assert_checkequal(LD4.student.number,n);
+    assert_checktrue(and(LD4.done)); assert_checkequal(LD4.student.number,n);
     if gui then
-                // Atstatome tikrąjį kelią, kai LD_DATA_DIR prieš tai nebuvo nustatytas:
-                // tuščia reikšmė sugadintų visus vėlesnius bench_documents() kreipinius.
-                if getos()=="Windows" then userdir=getenv("USERPROFILE",SCIHOME); else userdir=getenv("HOME",SCIHOME); end
-                old=getenv("LD_DATA_DIR",fullfile(userdir,"Grandiniu_LD_darbai"));
-                setenv("LD_DATA_DIR",root+"tests/results/");
+        if n==17 then
+            saved=bench_snapshot("LD4");
+            keep=LD4.answers(5,1); LD4.answers(5,1)="sugadinta";
+            bench_restore_snapshot(saved);
+            assert_checkequal(LD4.answers(5,1),keep);
+            assert_checktrue(LD4.assessment); assert_checkfalse(LD4.powerOn); assert_checkfalse(LD4.switchOn);
+        end
+        r=bench_report_data("LD4"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
+        // Atstatome tikrąjį kelią, kai LD_DATA_DIR prieš tai nebuvo nustatytas.
+        if getos()=="Windows" then userdir=getenv("USERPROFILE",SCIHOME); else userdir=getenv("HOME",SCIHOME); end
+        old=getenv("LD_DATA_DIR",fullfile(userdir,"Grandiniu_LD_darbai"));
+        setenv("LD_DATA_DIR",root+"tests/results/");
         path=bench_export_current("LD4"); setenv("LD_DATA_DIR",old);
         assert_checktrue(path<>""); assert_checktrue(isfile(path));
-        if isfield(LD4,"fig") then delete(LD4.fig); end
+        if n==17 then
+            // Learning mode still checks locally; practice survives restart.
+            LD4.assessment=%f; LD4.practice_used=%t; ld4_restart();
+            assert_checkfalse(LD4.assessment); assert_checktrue(LD4.practice_used);
+            for k=1:size(W,1); bench_ld4_click(W(k,1)); bench_ld4_click(W(k,2)); end
+            bench_ld4_primary(); assert_checkequal(LD4.step,2);
+            bench_ld4_action("ld4_toggle_power()"); bench_ld4_action("ld4_toggle_switch()");
+            for k=1:3
+                bench_ld4_action(msprintf("ld4_set_voltage(LD4.cfg.U%d)",k)); bench_ld4_action("ld4_measure()");
+            end
+            LD4.ui.answerEdits(1).string="0"; bench_ld4_primary();
+            assert_checkfalse(LD4.done(2)); assert_checkequal(LD4.step,2);
+            assert_checktrue(strindex(LD4.ui.statusMain.string,"Tikimasi")<>[]);
+            ld4_toggle_solution(); assert_checktrue(LD4.demoMode); assert_checktrue(LD4.practice_used);
+            ld4_toggle_solution(); assert_checkfalse(LD4.demoMode);
+        end
+        assert_checktrue(isfield(LD4,"autosave_paths"));
+        assert_checktrue(size(LD4.autosave_paths,"*")>=1);
+        ld4_close(); assert_checkfalse(is_handle_valid(LD4.fig));
     end
 endfunction
 

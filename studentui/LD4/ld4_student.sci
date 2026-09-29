@@ -34,7 +34,8 @@ function ld4_start()
     if needgui & ~isfield(LD4, "fig") then
         ld4_build_gui();
     end
-    ld4_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite matavimo grandinę.","info","Seką rasite: Pagalba → [B04] Kaip sujungti.");
+    if ~isfield(LD4,"autosave_enabled") then LD4.autosave_enabled=needgui; end
+    ld4_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite matavimo grandinę.","info","Atsiskaitymo režimas. Seką rasite: Pagalba → [B04] Kaip sujungti.");
 endfunction
 
 function ld4_student_primary()
@@ -47,12 +48,12 @@ function ld4_student_primary()
     end
     // Vienas paspaudimas: patikrinti ir, pavykus, iškart pereiti (LD2 semantika).
     if ~LD4.done(LD4.step) then
-        ld4_check_step();
+        ld4_check_step(~LD4.assessment);
     end
     if LD4.done(LD4.step) & LD4.step < 7 then
         ld4_next_step();
     end
-    ld4_student_sync();
+    ld4_student_sync(); bench_autosave("LD4");
 endfunction
 
 function ld4_jump_step(n)
@@ -74,6 +75,8 @@ function ld4_student_sync()
             LD4.ui.studentPrimary.string = "ĮRAŠYTI ATASKAITĄ";
         elseif LD4.done(LD4.step) then
             LD4.ui.studentPrimary.string = "TOLIAU →";
+        elseif LD4.assessment then
+            LD4.ui.studentPrimary.string = "ĮRAŠYTI IR TOLIAU →";
         else
             LD4.ui.studentPrimary.string = "TIKRINTI";
         end

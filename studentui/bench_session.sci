@@ -18,6 +18,8 @@ function session=bench_snapshot(lab)
             session.state(field)=LD3(field);
         end
     elseif lab=="LD4" then
+        if LD4.demoMode then error("Grįžkite į savo darbą prieš išsaugodami juodraštį."); end
+        ld4_save_answers();
         session.cfg=LD4.cfg; session.student=LD4.student;
         for field=fieldnames(LD4)'
             if or(field==["ui" "fig" "term" "base" "root" "cfg" "student" "backup" "autosave_paths" "autosave_error"]) then continue; end
@@ -117,7 +119,7 @@ function bench_autosave(lab)
         if ~LD3.autosave_enabled | LD3.demoMode then return; end
     elseif lab=="LD4" then
         if ~isfield(LD4,"autosave_enabled") then return; end
-        if ~LD4.autosave_enabled then return; end
+        if ~LD4.autosave_enabled | LD4.demoMode then return; end
     elseif lab=="LD5" then
         if ~isfield(LD5,"autosave_enabled") then return; end
         if ~LD5.autosave_enabled | LD5.demoMode then return; end
@@ -324,16 +326,13 @@ function bench_restore_snapshot(session)
             ld3_render_stage();ld3_student_sync();
             ld3_set_status("Juodraštis atkurtas: "+student_caption(LD3.student),"ok","Maitinimas išjungtas.");
         elseif session.lab=="LD4" then
-            step=session.state.step;
             LD4.cfg=session.cfg;LD4.student=session.student;
-            LD4.step=0;
-            for field=fieldnames(session.state)'
-                if field=="step" then continue;end
-                LD4(field)=session.state(field);
-            end
-            ld4_set_step(step);
             for field=fieldnames(session.state)';LD4(field)=session.state(field);end
-            ld4_set_status("Juodraštis atkurtas: "+student_caption(LD4.student),"ok","");
+            if ~isfield(session.state,"assessment") then LD4.assessment=%f;LD4.practice_used=%t;end
+            LD4.powerOn=%f;LD4.switchOn=%f;LD4.demoMode=%f;LD4.pending="";
+            LD4.lastMeasurement=%nan; LD4.autosave_enabled=~LD4.ui.headless;
+            ld4_render_stage();ld4_student_sync();
+            ld4_set_status("Juodraštis atkurtas: "+student_caption(LD4.student),"ok","Maitinimas išjungtas.");
         elseif session.lab=="LD5" then
             LD5.cfg=session.cfg;LD5.student=session.student;
             // Apply the store before rendering, so stale edits cannot overwrite it.

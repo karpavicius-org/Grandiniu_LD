@@ -80,6 +80,9 @@ endfunction
 
 function ld4_init_state()
     global LD4;
+    assessment=%t; practice=%f;
+    if isfield(LD4,"assessment") then assessment=LD4.assessment; end
+    if isfield(LD4,"practice_used") then practice=LD4.practice_used; end
     LD4.step = 1;
     LD4.done = [%f %f %f %f %f %f %f];
     LD4.skipped = [%f %f %f %f %f %f %f];
@@ -95,6 +98,7 @@ function ld4_init_state()
     LD4.wireMode = 1;
     LD4.report_wires=list();
     for k=1:7; LD4.report_wires(k)=emptystr(0,2); end
+    LD4.assessment=assessment; LD4.practice_used=practice;
 endfunction
 
 function expected = ld4_expected_answers()
