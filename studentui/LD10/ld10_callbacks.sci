@@ -57,7 +57,7 @@ function ld10_set_freq(k)
     LD10.freqPoint = k;
     ld10_render_wires();
     names = ["0,5·f0 (žemiau rezonanso)";"f0 (rezonansas)";"2·f0 (aukščiau rezonanso)"];
-    ld10_set_status(msprintf("Dažnis: %s — %g Hz.", names(k), ld10_current_frequency()), "info", "Rinkitės voltmetro taikinį [B13]–[B16] ir matuokite [B03].");
+    ld10_set_status(msprintf("Dažnis: %s — %g Hz.", names(k), ld10_current_frequency()), "info", "Rinkitės ampermetro taikinį [B13]–[B16] ir matuokite [B03].");
 endfunction
 
 function ld10_set_target(t)
@@ -160,7 +160,7 @@ function text = ld10_step_instruction(step)
     case 2 then text = "[B10] Nustatykite 0,5·f0. Perkelkite ampermetrą ir išmatuokite keturias sroves: [B13] IR (R šakoje), [B14] IL, [B15] IC, [B16] I (pagrindinėje linijoje). U visose šakose vienoda.";
     case 3 then text = "[B11] Nustatykite f0. Išmatuokite IR, IL, IC, I. [A03.01] Q = IL/I; [A03.02] IL − IC (turėtų būti ≈ 0). Stebėkite: I minimalus!";
     case 4 then text = "[B12] Nustatykite 2·f0. Išmatuokite IR, IL, IC, I.";
-    case 5 then text = "Iš pirmojo taško (0,5·f0) matavimų: [A05.01] srovių trikampis √(IR²+(IL−IC)²); [A05.02] Y = I/U; [A05.03] cos φ = IR/I; [A05.04] P = U·IR; [A05.05] Q = U·(IL−IC); [A05.06] S = U·I (srovės — mA, U — V).";
+    case 5 then text = "Iš pirmojo taško (0,5·f0) matavimų: [A05.01] srovių trikampis √(IR²+(IL−IC)²), mA; [A05.02] Y = I/U, mS (I — mA); [A05.03] cos φ = IR/I; [A05.04] P = U·IR, mW; [A05.05] Q = U·(IL−IC), mvar; [A05.06] S = U·I, mVA.";
     case 6 then text = "[A06.01] Ties f0 bendroji srovė I minimali? [A06.02] Ties f0 IL = IC? [A06.03] Žemiau f0 grandinė indukcinė, aukščiau — talpinė? 1 – Taip, 2 – Ne. Palyginkite su nuosekliąja grandine (LD9)!";
     else text = "";
     end
@@ -198,7 +198,7 @@ function ld10_show_wiring_guide()
     for index = 1:size(wires, 1)
         text($+1) = msprintf("%d. [%s]–[%s]: %s → %s", index, ld10_terminal_code(wires(index,1)), ld10_terminal_code(wires(index,2)), wires(index,1), wires(index,2));
     end
-    text = [text; ""; "Ampermetras perkeliamas mygtukais [B13]–[B16] — laidų nirinkti nereikia."; "Dažnis nustatomas mygtukais [B10]–[B12] pagal etapą."; "Lygiagretus jungimas: visos šakos tarp tų pačių dviejų mazgų."];
+    text = [text; ""; "Ampermetras perkeliamas mygtukais [B13]–[B16] — laidų keisti nereikia."; "Dažnis nustatomas mygtukais [B10]–[B12] pagal etapą."; "Lygiagretus jungimas: visos šakos tarp tų pačių dviejų mazgų."];
     ld10_text_window("Kaip sujungti", text);
 endfunction
 

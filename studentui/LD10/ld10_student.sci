@@ -33,7 +33,7 @@ function ld10_start()
     if needgui & ~isfield(LD10, "fig") then
         ld10_build_gui();
     end
-    ld10_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite nuoseklią RLC grandinę.", "info", "Seką rasite: Pagalba → [B04] Kaip sujungti.");
+    ld10_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite lygiagrečią RLC grandinę.", "info", "Seką rasite: Pagalba → [B04] Kaip sujungti.");
 endfunction
 
 function ld10_student_primary()

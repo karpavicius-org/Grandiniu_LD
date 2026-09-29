@@ -160,7 +160,7 @@ function text = ld9_step_instruction(step)
     case 2 then text = "[B10] Nustatykite 0,5·f0. Išmatuokite I ir visus keturis įtempimus: [B13] UR, [B14] UL, [B15] UC, [B16] U — kiekvienam mygtukui [B03].";
     case 3 then text = "[B11] Nustatykite f0. Išmatuokite I, UR, UL, UC, U. [A03.01] Q = UL/U; [A03.02] UL − UC (turėtų būti ≈ 0).";
     case 4 then text = "[B12] Nustatykite 2·f0. Išmatuokite I, UR, UL, UC, U.";
-    case 5 then text = "Iš pirmojo taško (0,5·f0) matavimų: [A05.01] įtampų trikampis √(UR²+(UL−UC)²); [A05.02] Z = U/I; [A05.03] cos φ = UR/U; [A05.04] P = UR·I; [A05.05] Q = (UL−UC)·I; [A05.06] S = U·I (I — mA).";
+    case 5 then text = "Iš pirmojo taško (0,5·f0) matavimų: [A05.01] įtampų trikampis √(UR²+(UL−UC)²), V; [A05.02] Z = 1000·U/I, Ω (I — mA); [A05.03] cos φ = UR/U; [A05.04] P = UR·I, mW; [A05.05] Q = (UL−UC)·I, mvar; [A05.06] S = U·I, mVA.";
     case 6 then text = "[A06.01] Ties f0 φ = 0? [A06.02] Ties f0 UL = UC? [A06.03] Žemiau f0 grandinė talpinė, aukščiau — indukcinė? 1 – Taip, 2 – Ne.";
     else text = "";
     end

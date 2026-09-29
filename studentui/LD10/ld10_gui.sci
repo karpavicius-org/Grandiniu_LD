@@ -113,7 +113,7 @@ function ld10_render_wires()
     if valid then voltText = msprintf("%.4f V", u); end
     ampText = "— mA";
     if valid then ampText = msprintf("%.3f mA", i); end
-    vals = [msprintf("5 V ~<br>%s", freqText), switchText, ampText, ...
+    vals = [msprintf("5 V ~ · %s", freqText), switchText, ampText, ...
         msprintf("%g Ω", LD10.cfg.R), msprintf("%g mH", LD10.cfg.LmH), msprintf("%g nF", LD10.cfg.CnF), voltText];
     pairs = ["GEN_N" "GEN_P";"K1" "K2";"A_P" "A_N";"R_A" "R_B";"L_A" "L_B";"C_A" "C_B";"" ""];
     for k = 1:7
