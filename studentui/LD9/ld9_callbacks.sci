@@ -280,5 +280,5 @@ function ld9_restart()
 endfunction
 
 function ld9_answers_changed()
-    ld9_save_answers(); ld9_student_sync();
+    ld9_save_answers(); ld9_student_sync(); bench_autosave("LD9");
 endfunction

@@ -280,5 +280,5 @@ function ld10_restart()
 endfunction
 
 function ld10_answers_changed()
-    ld10_save_answers(); ld10_student_sync();
+    ld10_save_answers(); ld10_student_sync(); bench_autosave("LD10");
 endfunction
