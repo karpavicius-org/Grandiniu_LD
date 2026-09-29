@@ -234,7 +234,7 @@ function ld12_build_gui()
     p = student_frame(f, [0.025 0.12 0.655 0.77]); LD12.ui.circuitFrame = p;
     right = student_frame(f, [0.70 0.12 0.275 0.77]); LD12.ui.right = right;
     student_text(p, [0.79 0.40 0.19 0.13], student_wrap("Laidas: spauskite abu galus. Pakartoję — pašalinsite. Tarpas sankirtoje: nesujungta.", 20), 12, %f);
-    // Šešių matavimų žurnalas (3 fazės × 2 jungimai).
+    // Du realūs matavimai: po vieną pasirinktą fazę simetrinei žvaigždei ir trikampiui.
     LD12.ui.journalList = uicontrol(p, "style", "listbox", "units", "normalized", ...
         "position", [0.04 0.80 0.64 0.18], "string", "Matavimai", ...
         "fontname", "DejaVu Sans", "fontunits", "pixels", "fontsize", 12, "tag", "V02");

@@ -777,13 +777,8 @@ void grade_ld12(Grader& grader,const Json& report,const Bank& variant) {
     const double i_line_delta=i_ph_delta*std::sqrt(3.0);
     const double p_star=Ul*Ul/R;
     const double p_delta=3.0*Ul*Ul/R;   // P = 3·Uf²/R abiem jungimais
-    grader.measured("i1s","Matavimas (žvaigždė): I1 linijinė",i_star,"mA",.02);
-    grader.measured("i2s","Matavimas (žvaigždė): I2",i_star,"mA",.02);
-    grader.measured("i3s","Matavimas (žvaigždė): I3",i_star,"mA",.02);
-    grader.measured("i1d","Matavimas (trikampis): fazinė I12",i_ph_delta,"mA",.02);
-    grader.measured("i2d","Matavimas (trikampis): fazinė I23",i_ph_delta,"mA",.02);
-    grader.measured("i3d","Matavimas (trikampis): fazinė I31",i_ph_delta,"mA",.02);
-    grader.measured("ild","Matavimas (trikampis): linijinė I1",i_line_delta,"mA",.02);
+    grader.measured("is","Matavimas (žvaigždė): pasirinktos fazės srovė",i_star,"mA",.02);
+    grader.measured("id","Matavimas (trikampis): pasirinktos šakos fazinė srovė",i_ph_delta,"mA",.02);
     grader.answer("s1.q1","Fazinė įtampa žvaigždėje: Uf = Ul/√3",phase,"V","Uf = Ul/√3.",.01,1e-9);
     grader.answer("s2.q1","Žvaigždės fazinė srovė: If = Uf/R",i_star,"mA","If = Uf/R, mA.",.02,1e-9);
     grader.answer("s3.q1","Trikampio fazinė įtampa",Ul,"V","Trikampyje Uf = Ul.",0,.005);

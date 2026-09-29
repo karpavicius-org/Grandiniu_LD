@@ -309,20 +309,12 @@ function r=bench_report_data(lab)
             answers($+1)=bench_answer(msprintf("s%d.q%d",step,q),LD12.answers(step,q),specs(k,3));
         end
         if isfield(LD12,"journal") & LD12.journal<>[] then
-            // 7 stebėjimai: 3 fazės žvaigždėje + 3 fazinės + 1 linijinė trikampyje.
+            // Simetrinėje grandinėje studentas realiai matuoja po vieną fazę kiekvienu jungimu.
+            // Kitų fazių ir linijinės srovės negeneruojame kaip tariamų matavimų.
             row1=find(LD12.journal(:,3)==1);
-            if row1<>[] then
-                for k=1:3
-                    observations($+1)=bench_observation("i"+string(k)+"s",LD12.journal(row1(1),2),"mA");
-                end
-            end
+            if row1<>[] then observations($+1)=bench_observation("is",LD12.journal(row1(1),2),"mA"); end
             row2=find(LD12.journal(:,3)==2);
-            if row2<>[] then
-                for k=1:3
-                    observations($+1)=bench_observation("i"+string(k)+"d",LD12.journal(row2(1),2),"mA");
-                end
-                observations($+1)=bench_observation("ild",ld12_line_current(),"mA");
-            end
+            if row2<>[] then observations($+1)=bench_observation("id",LD12.journal(row2(1),2),"mA"); end
         end
         params=struct("Ul",cfg.Ul,"R",cfg.R);
         evidence.wiring=struct();
