@@ -406,7 +406,12 @@ function path=bench_export_current(lab)
             else
                 ld4_set_status("Mokymosi ataskaita išsaugota: "+path,"info","Šis bandymas neįtraukiamas į pažymių suvestinę.");
             end
-        elseif lab=="LD5" then ld5_set_status("Ataskaita išsaugota: "+path,"ok","Persiūskite šį HTML failą dėstytojui.");
+        elseif lab=="LD5" then
+            if LD5.assessment & ~LD5.practice_used then
+                ld5_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
+            else
+                ld5_set_status("Mokymosi ataskaita išsaugota: "+path,"info","Šis bandymas neįtraukiamas į pažymių suvestinę.");
+            end
         elseif lab=="LD6" then ld6_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
         elseif lab=="LD8" then ld8_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
         elseif lab=="LD9" then ld9_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
@@ -418,6 +423,7 @@ function path=bench_export_current(lab)
         learning_report=%f;
         if lab=="LD3" then learning_report=(~LD3.assessment | LD3.practice_used); end
         if lab=="LD4" then learning_report=(~LD4.assessment | LD4.practice_used); end
+        if lab=="LD5" then learning_report=(~LD5.assessment | LD5.practice_used); end
         if learning_report then bench_report_saved(path,"Mokymosi ataskaita išsaugota");
         else bench_report_saved(path,"Ataskaita išsaugota"); end
     catch

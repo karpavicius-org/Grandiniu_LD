@@ -60,6 +60,9 @@ endfunction
 
 function ld5_init_state()
     global LD5;
+    assessment=%t; practice=%f;
+    if isfield(LD5,"assessment") then assessment=LD5.assessment; end
+    if isfield(LD5,"practice_used") then practice=LD5.practice_used; end
     LD5.step = 1;
     LD5.done = [%f %f %f %f %f %f];
     LD5.skipped = [%f %f %f %f %f %f];
@@ -74,6 +77,7 @@ function ld5_init_state()
     LD5.demoMode = %f;
     LD5.lastMeasurement = %nan;
     LD5.pending = "";
+    LD5.assessment=assessment; LD5.practice_used=practice;
 endfunction
 
 function ok=ld5_valid_index(n,maximum)

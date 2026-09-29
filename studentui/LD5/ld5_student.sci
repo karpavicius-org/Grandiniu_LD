@@ -34,7 +34,8 @@ function ld5_start()
     if needgui & ~isfield(LD5, "fig") then
         ld5_build_gui();
     end
-    ld5_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite matavimo grandinę.","info","Seką rasite: Pagalba → [B04] Kaip sujungti.");
+    if ~isfield(LD5,"autosave_enabled") then LD5.autosave_enabled=needgui; end
+    ld5_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite matavimo grandinę.","info","Atsiskaitymo režimas. Seką rasite: Pagalba → [B04] Kaip sujungti.");
 endfunction
 
 function ld5_student_primary()
@@ -47,12 +48,12 @@ function ld5_student_primary()
     end
     // Vienas paspaudimas: patikrinti ir, pavykus, iškart pereiti (LD2 semantika).
     if ~LD5.done(LD5.step) then
-        ld5_check_step();
+        ld5_check_step(~LD5.assessment);
     end
     if LD5.done(LD5.step) & LD5.step < 6 then
         ld5_next_step();
     end
-    ld5_student_sync();
+    ld5_student_sync(); bench_autosave("LD5");
 endfunction
 
 function ld5_jump_step(n)
@@ -76,6 +77,8 @@ function ld5_student_sync()
             LD5.ui.studentPrimary.string = "ĮRAŠYTI ATASKAITĄ";
         elseif LD5.done(LD5.step) then
             LD5.ui.studentPrimary.string = "TOLIAU →";
+        elseif LD5.assessment then
+            LD5.ui.studentPrimary.string = "ĮRAŠYTI IR TOLIAU →";
         else
             LD5.ui.studentPrimary.string = "TIKRINTI";
         end

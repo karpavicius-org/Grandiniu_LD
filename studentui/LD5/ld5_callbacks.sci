@@ -7,6 +7,11 @@ function ld5_terminal_click(id)
     if LD5.demoMode then return; end
     if LD5.step<>1 then return; end
     if ~or(ld5_terminal_ids()==id) then return; end
+    if LD5.powerOn then
+        LD5.pending="";
+        ld5_set_status("Prieš keisdami laidus išjunkite maitinimą.","error","Spauskite [B01] MAITINIMAS, tada junkite laidus.");
+        bench_autosave("LD5"); return;
+    end
     if LD5.pending=="" then
         LD5.pending=id;
         ld5_set_status("Pasirinktas ["+ld5_terminal_code(id)+"] "+ld5_terminal_name(id),"info","Spauskite kitą gnybtą. Esamas laidas tarp tų pačių gnybtų bus pašalintas.");
@@ -24,7 +29,7 @@ function ld5_terminal_click(id)
                 uses1=sum(LD5.wires==first); uses2=sum(LD5.wires==id);
                 if uses1>=2 | uses2>=2 then
                     ld5_set_status("Gnybte jau yra du laidai.","error","Pirma pašalinkite netinkamą laidą, paspausdami abu jo galus.");
-                    ld5_render_wires(); return;
+                    ld5_render_wires(); bench_autosave("LD5"); return;
                 end
                 LD5.wires($+1,:)=[first id];
                 ld5_set_status("Laidas pridėtas.","ok","Laidą pašalinsite dar kartą paspaudę abu jo galus.");
@@ -34,23 +39,28 @@ function ld5_terminal_click(id)
             LD5.lastMeasurement=%nan;
         end
     end
-    ld5_render_wires(); ld5_render_journal(); ld5_student_sync();
+    ld5_render_wires(); ld5_render_journal(); ld5_student_sync(); bench_autosave("LD5");
 endfunction
 
 function ld5_toggle_power()
     global LD5;
     LD5.powerOn = ~LD5.powerOn;
-    if LD5.powerOn then ld5_set_status("[B01] Maitinimas ĮJUNGTAS.","ok","Dabar uždarykite jungiklį [B02].");
-    else ld5_set_status("[B01] Maitinimas IŠJUNGTAS.","info","Įtampa neveikia."); end
-    ld5_render_wires();
+    if LD5.powerOn then
+        ld5_set_status("[B01] Maitinimas ĮJUNGTAS.","ok","Dabar uždarykite jungiklį [B02].");
+    else
+        LD5.switchOn=%f;
+        ld5_set_status("[B01] Maitinimas IŠJUNGTAS.","info","Jungiklis atidarytas; dabar saugu keisti laidus.");
+    end
+    ld5_render_wires(); bench_autosave("LD5");
 endfunction
 
 function ld5_toggle_switch()
     global LD5;
     if ~LD5.powerOn then ld5_set_status("Negalima jungti be maitinimo.","error","Pirmiausia [B01] MAITINIMAS."); return; end
     LD5.switchOn = ~LD5.switchOn;
-    if LD5.switchOn then ld5_set_status("[B02] Jungiklis UŽDARYTAS.","ok","Pasirinkite padėtį [B10]–[B12] ir matuokite [B03]."); end
-    ld5_render_wires();
+    if LD5.switchOn then ld5_set_status("[B02] Jungiklis UŽDARYTAS.","ok","Pasirinkite padėtį [B10]–[B12] ir matuokite [B03].");
+    else ld5_set_status("[B02] Jungiklis ATIDARYTAS.","info",""); end
+    ld5_render_wires(); bench_autosave("LD5");
 endfunction
 
 function ld5_set_position(k)
@@ -60,7 +70,7 @@ function ld5_set_position(k)
     LD5.position = k;
     p = LD5.cfg("P" + string(k));
     ld5_set_status(msprintf("Potenciometras: padėtis %d (%d %%).", k, p), "ok", "Dabar matuokite [B03].");
-    ld5_render_wires();
+    ld5_render_wires(); bench_autosave("LD5");
 endfunction
 
 function ld5_set_voltage(v)
@@ -78,7 +88,7 @@ function ld5_measure()
     end
     tag = LD5.position;
     if size(ld5_journal_rows(tag), 1) >= 1 then
-        ld5_set_status("Ši padėtis jau užfikstuota.","error","Perjunkite [B10]/[B11]/[B12].");
+        ld5_set_status("Ši padėtis jau užfiksuota.","error","Perjunkite [B10]/[B11]/[B12].");
         return;
     end
     LD5.journal($+1, :) = [u, i, tag];
@@ -87,6 +97,7 @@ function ld5_measure()
     if isfield(LD5, "ui") then
         if ~isfield(LD5.ui, "headless") | ~LD5.ui.headless then ld5_render_journal(); ld5_render_wires(); end
     end
+    bench_autosave("LD5");
 endfunction
 
 function ok = ld5_close_enough(userValue, expectedValue, rel, absolute)
@@ -97,8 +108,9 @@ function ok = ld5_close_enough(userValue, expectedValue, rel, absolute)
     ok=abs(userValue-expectedValue)<=absolute+rel*abs(expectedValue);
 endfunction
 
-function ld5_check_step()
+function ld5_check_step(check_answers)
     global LD5;
+    if argn(2)<1 then check_answers=%t; end
     if LD5.demoMode then return; end
     ld5_save_answers();
     n = LD5.step;
@@ -113,52 +125,79 @@ function ld5_check_step()
         LD5.done(1) = %t;
         ld5_set_status("1 etapas baigtas: daliklis sujungtas.","ok","[E02] — teorinė prognozė.");
     case 2 then
-        v = ld5_parse_number(LD5.answers(2,1));
-        e = exp(2,1);
-        if isnan(v) then ld5_set_status("Įrašykite teorinę U2 [A02.01], V.","error","U2 = E·RVd/(R1+RVd)."); return; end
-        if ~ld5_close_enough(v, e,0.01) then ld5_set_status("Teorinė U2 [A02.01] netiksli.","error",msprintf("Tikimasi ≈ %.2f V.", e)); return; end
+        if stripblanks(LD5.answers(2,1))=="" then
+            ld5_set_status("Įrašykite teorinę U2 [A02.01], V.","error","Atsakymą vertins dėstytojo programa."); return;
+        end
+        if check_answers then
+            v = ld5_parse_number(LD5.answers(2,1)); e = exp(2,1);
+            if isnan(v) then ld5_set_status("Įrašykite skaitinę teorinę U2 [A02.01], V.","error","U2 = E·RVd/(R1+RVd)."); return; end
+            if ~ld5_close_enough(v, e,0.01) then ld5_set_status("Teorinė U2 [A02.01] netiksli.","error",msprintf("Tikimasi ≈ %.2f V.", e)); return; end
+        end
         if size(ld5_journal_rows(2), 1) < 1 then
-            ld5_set_status("Trūksta 2-os padėties matavimo.","error","[B11] PADĖTIS 2 → [B03] MATUOTI."); return; end
+            ld5_set_status("Trūksta 2-os padėties matavimo.","error","[B11] PADĖTIS 2 → [B03] MATUOTI."); return;
+        end
         LD5.done(2) = %t;
         ld5_set_status("2 etapas baigtas.","ok","[E03] — kitos dvi padėtys.");
     case 3 then
         if size(ld5_journal_rows(1), 1) < 1 then
-            ld5_set_status("Trūksta 1-os padėties matavimo.","error","[B10] PADĖTIS 1 → [B03]."); return; end
+            ld5_set_status("Trūksta 1-os padėties matavimo.","error","[B10] PADĖTIS 1 → [B03]."); return;
+        end
         if size(ld5_journal_rows(3), 1) < 1 then
-            ld5_set_status("Trūksta 3-ios padėties matavimo.","error","[B12] PADĖTIS 3 → [B03]."); return; end
+            ld5_set_status("Trūksta 3-ios padėties matavimo.","error","[B12] PADĖTIS 3 → [B03]."); return;
+        end
         LD5.done(3) = %t;
         ld5_set_status("3 etapas baigtas: visos padėtys užfiksuotos.","ok","[E04] — skaičiavimai.");
     case 4 then
         etik = ["A04.01 U1t, V";"A04.02 U3t, V";"A04.03 ΔU, V";"A04.04 diapazonas, %"];
         for k = 1:4
-            v = ld5_parse_number(LD5.answers(4,k));
-            e = exp(4,k);
-            rel=0.02; if k<=2 then rel=0.01; end
-            if isnan(v) then ld5_set_status("Įrašykite [" + etik(k) + "].","error","U = E·RVd/(R1+RVd)."); return; end
-            if ~ld5_close_enough(v, e,rel) then
-                ld5_set_status("[" + etik(k) + "] netikslus.","error",msprintf("Tikimasi ≈ %.4g.", e)); return; end
+            if stripblanks(LD5.answers(4,k))=="" then
+                ld5_set_status("Įrašykite [" + etik(k) + "].","error","Atsakymą vertins dėstytojo programa."); return;
+            end
+            if check_answers then
+                v = ld5_parse_number(LD5.answers(4,k)); e = exp(4,k);
+                rel=0.02; if k<=2 then rel=0.01; end
+                if isnan(v) then ld5_set_status("Įrašykite skaičių [" + etik(k) + "].","error","U = E·RVd/(R1+RVd)."); return; end
+                if ~ld5_close_enough(v, e,rel) then
+                    ld5_set_status("[" + etik(k) + "] netikslus.","error",msprintf("Tikimasi ≈ %.4g.", e)); return; end
+            end
         end
         LD5.done(4) = %t;
         ld5_set_status("4 etapas baigtas.","ok","[E05] — srovė ir dalis.");
     case 5 then
         etik = ["A05.01 I2, mA";"A05.02 dalis, %"];
         for k = 1:2
-            v = ld5_parse_number(LD5.answers(5,k));
-            e = exp(5,k);
-            if isnan(v) then ld5_set_status("Įrašykite [" + etik(k) + "].","error","I = E/(R1+RVd); dalis = RVd/(R1+RVd)·100 %."); return; end
-            if ~ld5_close_enough(v, e) then
-                ld5_set_status("[" + etik(k) + "] netikslus.","error",msprintf("Tikimasi ≈ %.4g.", e)); return; end
+            if stripblanks(LD5.answers(5,k))=="" then
+                ld5_set_status("Įrašykite [" + etik(k) + "].","error","Atsakymą vertins dėstytojo programa."); return;
+            end
+            if check_answers then
+                v = ld5_parse_number(LD5.answers(5,k)); e = exp(5,k);
+                if isnan(v) then
+                    ld5_set_status("Įrašykite skaičių [" + etik(k) + "].","error","I_mA = 1000·E/(R1+RVd); dalis = RVd/(R1+RVd)·100 %."); return;
+                end
+                if ~ld5_close_enough(v, e) then
+                    ld5_set_status("[" + etik(k) + "] netikslus.","error",msprintf("Tikimasi ≈ %.4g.", e)); return; end
+            end
         end
         LD5.done(5) = %t;
         ld5_set_status("5 etapas baigtas.","ok","[E06] — išvados.");
     case 6 then
-        if ld5_parse_number(LD5.answers(6,1)) <> 1 then ld5_set_status("[A06.01]: atsakykite 1 arba 2.","error","1 – Taip, 2 – Ne."); return; end
-        if ld5_parse_number(LD5.answers(6,2)) <> 1 then ld5_set_status("[A06.02]: atsakykite 1 arba 2.","error","1 – Taip, 2 – Ne."); return; end
+        for k=1:2
+            if stripblanks(LD5.answers(6,k))=="" then
+                ld5_set_status(msprintf("Įrašykite [A06.0%d].",k),"error","1 – Taip, 2 – Ne."); return;
+            end
+        end
+        if check_answers then
+            if ld5_parse_number(LD5.answers(6,1)) <> 1 then ld5_set_status("[A06.01]: atsakymas neteisingas.","error","1 – Taip, 2 – Ne."); return; end
+            if ld5_parse_number(LD5.answers(6,2)) <> 1 then ld5_set_status("[A06.02]: atsakymas neteisingas.","error","1 – Taip, 2 – Ne."); return; end
+        end
         LD5.done(6) = %t;
         ld5_set_status("6 etapas baigtas: darbas atliktas!","ok","[B08] ATASKAITA DĖSTYTOJUI sukuria HTML ataskaitą.");
     end
     if isfield(LD5, "ui") then
         if ~isfield(LD5.ui, "headless") | ~LD5.ui.headless then ld5_render_stage(); end
+    end
+    if ~check_answers & or(n==[2 4 5 6]) then
+        ld5_set_status(string(n)+" etapo atsakymai įrašyti.","ok","Teisingumą vertins dėstytojo programa.");
     end
 endfunction
 
@@ -180,10 +219,9 @@ function ld5_set_step(n)
     LD5.pending="";
     LD5.step = n;
     if isfield(LD5, "ui") then
-        if ~isfield(LD5.ui, "headless") | ~LD5.ui.headless then
-            ld5_render_stage();
-        end
+        if ~isfield(LD5.ui, "headless") | ~LD5.ui.headless then ld5_render_stage(); end
     end
+    bench_autosave("LD5");
 endfunction
 
 function s = ld5_step_instruction(n)
@@ -194,7 +232,7 @@ function s = ld5_step_instruction(n)
     case 2 then s = msprintf("Apskaičiuokite teorinę U2 = E·RVd/(R1+RVd) (E=%g V, R1=%g Ω, RV=%g Ω, padėtis 2 = %d %%) → [A02.01]. Tada [B01], [B02], [B11] PADĖTIS 2, [B03] MATUOTI.", cfg.E, cfg.R1, cfg.RV, cfg.P2);
     case 3 then s = msprintf("[B10] PADĖTIS 1 (%d %%) → [B03]; tada [B12] PADĖTIS 3 (%d %%) → [B03].", cfg.P1, cfg.P3);
     case 4 then s = "Apskaičiuokite: [A04.01] U1t ir [A04.02] U3t (teorinės), [A04.03] ΔU = U3t−U1t, [A04.04] diapazoną % nuo E.";
-    case 5 then s = msprintf("[A05.01] I2 = E/(R1+RVd), mA; [A05.02] dalis = RVd/(R1+RVd)·100 %% (padėtis 2 = %d %%).", cfg.P2);
+    case 5 then s = msprintf("[A05.01] I2 = 1000·E/(R1+RVd), mA; [A05.02] dalis = RVd/(R1+RVd)·100 %% (padėtis 2 = %d %%).", cfg.P2);
     case 6 then s = "[A06.01] Ar U reguliuojama sklandžiai? [A06.02] Ar dalikio dėsnis galioja? (1 – Taip, 2 – Ne). Tada [B08] ataskaita.";
     else s = "";
     end
@@ -291,7 +329,11 @@ function ld5_toggle_solution()
             if ~isfield(LD5.ui, "headless") | ~LD5.ui.headless then ld5_render_stage(); end
         end
         ld5_set_status("Grįžta į savo darbą.","info","Laidai ir atsakymai atkurti.");
+        bench_autosave("LD5");
         return;
+    end
+    if LD5.assessment then
+        ld5_set_status("Pavyzdys atsiskaitymo režime nepasiekiamas.","error","Perjunkite į Mokymąsi per Pagalbą."); return;
     end
     ld5_save_answers();
     LD5.backup = struct();
@@ -325,10 +367,11 @@ function ld5_restore_stage()
         LD5.wires=[]; LD5.report_wires(1)=emptystr(0,2);
         LD5.done(:)=%f; LD5.journal=[];
     end
-    ld5_set_status("Etapo stendas atkurtas.","info","");
+    ld5_set_status("Etapo stendas atkurtas; maitinimas išjungtas.","info","");
     if isfield(LD5, "ui") then
         if ~isfield(LD5.ui, "headless") | ~LD5.ui.headless then ld5_render_stage(); end
     end
+    bench_autosave("LD5");
 endfunction
 
 function ld5_restart()
@@ -339,11 +382,26 @@ function ld5_restart()
     if isfield(LD5, "ui") then
         if ~isfield(LD5.ui, "headless") | ~LD5.ui.headless then ld5_render_stage(); end
     end
-    ld5_set_status("Darbas pradėtas iš naujo.","info","Variantas ir studentas išliko.");
+    ld5_set_status("Darbas pradėtas iš naujo.","info","Variantas, studentas, režimas ir mokymosi žyma išliko.");
+    bench_autosave("LD5");
 endfunction
 
 function ld5_answers_changed()
     // Atsakymo laukelio redagavimas: nedelsiant saugoma į store.
     global LD5;
-    ld5_save_answers(); ld5_student_sync();
+    ld5_save_answers(); ld5_student_sync(); bench_autosave("LD5");
+endfunction
+
+function ld5_close()
+    global LD5;
+    if ~isfield(LD5,"fig") then return; end
+    if ~is_handle_valid(LD5.fig) then return; end
+    if LD5.demoMode then ld5_toggle_solution(); end
+    ld5_save_answers(); bench_autosave("LD5");
+    if isfield(LD5,"autosave_error") then
+        if LD5.autosave_error<>"" then
+            ld5_set_status("Nepavyko išsaugoti juodraščio.","error","Langas paliktas atvertas, kad neprarastumėte darbo."); return;
+        end
+    end
+    delete(LD5.fig);
 endfunction

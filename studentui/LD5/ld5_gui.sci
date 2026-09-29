@@ -177,7 +177,8 @@ function ld5_render_stage()
         end
     end
     LD5.ui.instructionLine(1).string=student_wrap(ld5_step_instruction(LD5.step),38);
-    LD5.ui.progress.string=string(LD5.step)+" / 6 etapas";
+    regime="ATSISKAITYMAS"; if ~LD5.assessment then regime="MOKYMASIS"; end
+    LD5.ui.progress.string=string(LD5.step)+" / 6 etapas · "+regime;
     if LD5.demoMode then LD5.ui.progress.string="PAVYZDYS"; end
     LD5.ui.identity.string=student_caption(LD5.student);
     ld5_render_wires(); ld5_render_journal(); ld5_student_sync();
@@ -229,16 +230,29 @@ function ld5_build_gui()
     LD5.ui.controls=controls; LD5.ui.dynamic=controls;
     LD5.ui.statusMain=student_text(f,[0.025 0.055 0.95 0.035],"",13,%t,[0.94 0.96 0.96]);
     LD5.ui.statusFix=student_text(f,[0.025 0.020 0.95 0.035],"",12,%f,[0.94 0.96 0.96]);
+    f.closerequestfcn="ld5_close()";
     ld5_font(f); student_finish_window(f); f.visible="on"; ld5_render_stage();
 endfunction
 
 function ld5_show_actions()
-    choice=messagebox("Pagalba ir darbo veiksmai","LD5","info", ...
-        ["[B04] Kaip sujungti" "[B05] Žemėlapis" "[B07] Pavyzdys" "[B08] Ataskaita" "[B06] Atkurti stendą" "[B09] Iš naujo" "Grįžti"],"modal");
+    global LD5;
+    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
+        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD5 · Pagalba");
     select choice
-    case 1 then ld5_show_wiring_guide(); case 2 then ld5_show_stand_map();
-    case 3 then ld5_toggle_solution(); case 4 then bench_export_current("LD5");
-    case 5 then ld5_restore_stage(); case 6 then ld5_restart();
+    case 1 then bench_open_snapshot("LD5");
+    case 2 then ld5_show_wiring_guide();
+    case 3 then bench_export_current("LD5");
+    case 4 then bench_mode("LD5"); ld5_render_stage(); bench_autosave("LD5");
+    case 6 then ld5_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD5.student);"";student_parameter_lines("LD5",LD5.cfg)]);
+    case 5 then
+        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD5 · Daugiau veiksmų");
+        select extra
+        case 1 then ld5_show_stand_map();
+        case 2 then ld5_toggle_solution();
+        case 3 then ld5_restore_stage();
+        case 4 then
+            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD5","question",["Pradėti" "Grįžti"],"modal")==1 then ld5_restart(); end
+        end
     end
 endfunction
 

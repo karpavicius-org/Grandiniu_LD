@@ -1,7 +1,7 @@
 # Laboratorinių darbų stendai studentui
 
 LD1–LD7 naudoja tą patį išdėstymą: kairėje grandinė ir prietaisai, dešinėje
-vieno etapo užduotis ir atsakymai. LD1–LD4 atsiskaitymo režime **Įrašyti ir toliau**
+vieno etapo užduotis ir atsakymai. LD1–LD5 atsiskaitymo režime **Įrašyti ir toliau**
 išsaugo jūsų atsakymus. Mokymosi režime **Patikrinti** parodo klaidas.
 Papildomi veiksmai ir režimo pasirinkimas yra skiltyje **Pagalba**.
 
@@ -40,16 +40,20 @@ automatiškai saugomi vietiniame juodraštyje; tęsti galima per **Pagalba → T
 išsaugotą darbą**. Mokymosi / pavyzdžio žyma po restarto neišnyksta.
 
 
-**LD5 – įtampos daliklis:** sujunkite septynis laidus pagal **Pagalba → Kaip sujungti**.
-Gnybtus galima keisti tik pirmame etape; esamą laidą pašalinsite paspaudę abu jo galus.
-Toliau įjunkite maitinimą, uždarykite jungiklį ir rinkitės **P1 / P2 / P3**.
-Parinkta padėtis išryškinama; RV laukelyje rodoma tos padėties aktyvi varža.
-Voltmetras ir ampermetras atsinaujina iškart, **Matuoti** įrašo rodmenis į žurnalą.
-Kiekvieną padėtį užtenka išmatuoti vieną kartą. Atsakymuose tinka kablelis arba taškas;
-prieš **Tikrinti** nereikia spausti Enter. Po šešto etapo spauskite **Įrašyti ataskaitą**.
-Pavyzdžio peržiūra nekeičia jūsų matavimų ir jos negalima pateikti kaip ataskaitos.
-LD5 skaičiavimams ir ataskaitų vertinimui naudojamas bendras C++ branduolys.
-LD5 turi 64 pastovius variantus: `LD5/VARIANTAI.csv`.
+**LD5 – įtampos daliklis:** pradedama atsiskaitymo režimu. Sujunkite septynis laidus
+pagal **Pagalba → Kaip sujungti**; laidus keiskite tik išjungę maitinimą. Toliau
+įjunkite maitinimą, uždarykite jungiklį ir rinkitės **P1 / P2 / P3**. Parinkta padėtis
+išryškinama, o **Matuoti** įrašo U ir I į žurnalą. Atsiskaityme užpildytas raw atsakymas
+išsaugomas, jo teisingumą vertina dėstytojo programa; mokymosi režime **Tikrinti**
+pateikia savikontrolę. 5 etapo srovei mA vienetais naudokite
+**I2 = 1000·E/(R1+RVd)**. Pavyzdys formaliame atsiskaityme blokuojamas; mokymosi ar
+pavyzdžio žyma po restarto neišnyksta. Laidai, matavimai, padėtis ir atsakymai
+automatiškai saugomi vietiniame juodraštyje; tęsti galima per **Pagalba → Tęsti
+išsaugotą darbą**. Atkurtas stendas būna be maitinimo. LD5 skaičiavimams ir
+ataskaitų vertinimui naudojamas bendras C++ branduolys; yra 64 variantai:
+`LD5/VARIANTAI.csv`. Pastaba: šiame techniniame stendo numeravime LD5 yra įtampos
+daliklis; oficialaus dalyko darbų numerių susiejimas turi būti tvarkomas atskiru
+kurso žemėlapiu, o ne vien techniniu `LD5` identifikatoriumi.
 
 **LD12 – trifazės grandinės: žvaigždė ir trikampis:** šeši etapai, simetrinis
 trifazis šaltinis (Ul pagal variantą, 50 Hz) ir trys vienodi imtuvai R. Jungimas
@@ -122,7 +126,7 @@ vertinamos pagal ankstesnę rubriką.
 Pabaigoje spauskite **Išsaugoti ataskaitą**. Langas pasiūlo **Atverti ataskaitą** arba **Atverti ataskaitų aplanką**.
 Sukurtą vieną HTML failą iš
 naudotojo aplanko `Grandiniu_LD_darbai` persiųskite dėstytojui. Nebaigtą
-ataskaitą taip pat galima išsaugoti per Pagalbą. LD1–LD4 juodraščiai saugomi automatiškai
+ataskaitą taip pat galima išsaugoti per Pagalbą. LD1–LD5 juodraščiai saugomi automatiškai
 įrašant atsakymus ir pereinant į kitą etapą; juos atverkite per Pagalbą.
 
 Dėstytojui: vykdykite `DESTYTOJUI.sce` ir pasirinkite aplanką su ataskaitomis.

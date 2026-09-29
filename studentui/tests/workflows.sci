@@ -588,14 +588,21 @@ function bench_ld5_workflow(n,root,gui)
     LD5=struct("cfg",cfg,"student",student_profile(n,"Automatinė Patikra","TEST","LD5"), ...
         "ui",struct("headless",~gui));
     ld5_start();
+    assert_checktrue(LD5.assessment);
+    assert_checkfalse(LD5.practice_used);
     if gui then
+        assert_checktrue(LD5.autosave_enabled);
         if isfield(LD5,"fig") then LD5.fig.figure_name="PATIKRA · LD5 · variantas "+string(n); end
+        if n==17 then
+            ld5_toggle_solution(); assert_checkfalse(LD5.demoMode); assert_checkfalse(LD5.practice_used);
+        end
     end
     W=["E_P" "K1";"K2" "A_P";"A_N" "R1A";"R1B" "RVA";"RVB" "E_N";"V_P" "RVA";"V_N" "RVB"];
     rv2=cfg.RV*cfg.P2/100; rv1=cfg.RV*cfg.P1/100; rv3=cfg.RV*cfg.P3/100;
     u2=cfg.E*rv2/(cfg.R1+rv2); u1=cfg.E*rv1/(cfg.R1+rv1); u3=cfg.E*rv3/(cfg.R1+rv3);
     for step=1:6
         assert_checkequal(LD5.step,step);
+        primary_done=%f;
         select step
         case 1 then
             for k=1:size(W,1); bench_ld5_click(W(k,1)); bench_ld5_click(W(k,2)); end
@@ -608,6 +615,23 @@ function bench_ld5_workflow(n,root,gui)
             bench_ld5_action("ld5_toggle_power()");
             bench_ld5_action("ld5_toggle_switch()");
             bench_ld5_action("ld5_set_position(2)"); bench_ld5_action("ld5_measure()");
+            if gui & n==17 then
+                // Formal assessment keeps the student's wrong raw answer and advances
+                // without disclosing the expected value locally.
+                LD5.ui.answerEdits(1).string="0";
+                bench_ld5_primary();
+                assert_checktrue(LD5.done(2)); assert_checkequal(LD5.step,3);
+                assert_checkequal(LD5.answers(2,1),"0");
+                assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")==[]);
+                // Put the correct raw value back so acceptance exports remain perfect.
+                ld5_jump_step(2);
+                LD5.ui.answerEdits(1).string=msprintf("%.12g",u2);
+                execstr(LD5.ui.answerEdits(1).callback);
+                assert_checkfalse(LD5.done(2));
+                bench_ld5_primary();
+                assert_checktrue(LD5.done(2)); assert_checkequal(LD5.step,3);
+                primary_done=%t;
+            end
         case 3 then
             bench_ld5_action("ld5_set_position(1)"); bench_ld5_action("ld5_measure()");
             bench_ld5_action("ld5_set_position(3)"); bench_ld5_action("ld5_measure()");
@@ -618,7 +642,7 @@ function bench_ld5_workflow(n,root,gui)
         case 6 then
             bench_ld5_answers(step,[1 1]);
         end
-        bench_ld5_primary();
+        if ~primary_done then bench_ld5_primary(); end
         if ~LD5.done(step) then
             detail="";
             if isfield(LD5.ui,"statusMain") then detail=": "+LD5.ui.statusMain.string; end
@@ -638,11 +662,35 @@ function bench_ld5_workflow(n,root,gui)
     assert_checktrue(and(LD5.done));
     assert_checkequal(LD5.student.number,n);
     if gui then
+        if n==17 then
+            saved=bench_snapshot("LD5");
+            keep=LD5.answers(5,1); LD5.answers(5,1)="sugadinta";
+            bench_restore_snapshot(saved);
+            assert_checkequal(LD5.answers(5,1),keep);
+            assert_checktrue(LD5.assessment); assert_checkfalse(LD5.powerOn); assert_checkfalse(LD5.switchOn);
+        end
+        r=bench_report_data("LD5"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
         before=size(listfiles(bench_documents()+"/*.html"),"*");
         bench_ld5_primary();
         assert_checkequal(size(listfiles(bench_documents()+"/*.html"),"*"),before+1);
         assert_checktrue(strindex(LD5.ui.statusMain.string,"Ataskaita išsaugota")<>[]);
-        if isfield(LD5,"fig") then delete(LD5.fig); end
+        if n==17 then
+            // Learning mode still checks locally; practice survives restart.
+            LD5.assessment=%f; LD5.practice_used=%t; ld5_restart();
+            assert_checkfalse(LD5.assessment); assert_checktrue(LD5.practice_used);
+            for k=1:size(W,1); bench_ld5_click(W(k,1)); bench_ld5_click(W(k,2)); end
+            bench_ld5_primary(); assert_checkequal(LD5.step,2);
+            bench_ld5_action("ld5_toggle_power()"); bench_ld5_action("ld5_toggle_switch()");
+            bench_ld5_action("ld5_set_position(2)"); bench_ld5_action("ld5_measure()");
+            LD5.ui.answerEdits(1).string="0"; bench_ld5_primary();
+            assert_checkfalse(LD5.done(2)); assert_checkequal(LD5.step,2);
+            assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")<>[]);
+            ld5_toggle_solution(); assert_checktrue(LD5.demoMode); assert_checktrue(LD5.practice_used);
+            ld5_toggle_solution(); assert_checkfalse(LD5.demoMode);
+        end
+        assert_checktrue(isfield(LD5,"autosave_paths"));
+        assert_checktrue(size(LD5.autosave_paths,"*")>=1);
+        ld5_close(); assert_checkfalse(is_handle_valid(LD5.fig));
     end
 endfunction
 
