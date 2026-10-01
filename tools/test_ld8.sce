@@ -45,10 +45,15 @@ try
     ld8_set_mode(0); ld8_set_mode(%nan); ld8_set_mode(1.5); assert_checkequal(LD8.wireMode,3);
     ld8_set_step(7); ld8_jump_step(%nan); assert_checkequal(LD8.step,1);
     assert_checkfalse(ld8_valid_index([1 2],3));
-    ld8_toggle_solution(); rejected=%f;
+    // Formal mode blocks the example.
+    ld8_toggle_solution(); assert_checkfalse(LD8.demoMode); assert_checkfalse(LD8.practice_used);
+    // Learning mode permits it; demo state itself cannot be exported.
+    LD8.assessment=%f; LD8.practice_used=%t; ld8_render_stage();
+    ld8_toggle_solution(); assert_checktrue(LD8.demoMode); rejected=%f;
     try report=bench_report_data("LD8"); catch rejected=%t; end
     assert_checktrue(rejected); ld8_measure(); ld8_check_step(); assert_checkfalse(or(LD8.done));
     ld8_toggle_solution(); assert_checkequal(size(LD8.journal,1),0); assert_checkequal(size(LD8.wires,1),0);
+    LD8.assessment=%t; LD8.practice_used=%f; ld8_render_stage();
     descriptor=mopen(out+"geometry.tsv","wt"); sizes=[1280 720];
     screen=get(0,"screensize_px"); viewport=min(sizes,max([320 240],screen(3:4)-[40 120]));
     for dimension=1
@@ -97,9 +102,14 @@ try
     snapshot_path=bench_save_snapshot("LD8"); snapshot=bench_read_snapshot(snapshot_path,"LD8");
     ld8_restart(); bench_restore_snapshot(snapshot);
     assert_checkequal(LD8.ui.answerEdits(8).string,"10,321"); assert_checkequal(LD8.journal,journal);
-    assert_checkfalse(LD8.powerOn); assert_checkfalse(LD8.switchOn);
-    ld8_toggle_solution(); assert_checkequal(size(LD8.journal,1),1); ld8_toggle_solution(); assert_checkequal(LD8.journal,journal);
-    LD8.assessment=%f; LD8.done(5)=%t; LD8.ui.answerEdits(8).string="1+2"; bench_ld8_primary();
+    assert_checktrue(LD8.assessment); assert_checkfalse(LD8.powerOn); assert_checkfalse(LD8.switchOn);
+    ld8_toggle_solution(); assert_checkfalse(LD8.demoMode);
+    LD8.assessment=%f; LD8.practice_used=%t; ld8_toggle_solution(); assert_checktrue(LD8.demoMode);
+    assert_checkequal(size(LD8.journal,1),1); ld8_toggle_solution(); assert_checkequal(LD8.journal,journal);
+    // Restart must not erase the practice marker.
+    ld8_restart(); assert_checkfalse(LD8.assessment); assert_checktrue(LD8.practice_used);
+    bench_restore_snapshot(snapshot); LD8.assessment=%f; LD8.practice_used=%t;
+    LD8.done(5)=%t; LD8.ui.answerEdits(8).string="1+2"; bench_ld8_primary();
     assert_checkfalse(LD8.done(5)); assert_checkequal(LD8.step,5); assert_checkequal(LD8.ui.answerEdits(8).string,"1+2");
     expected=ld8_expected_answers(); bench_ld8_answers(5,expected(5,1:3));
     LD8.ui.answerEdits(8).string=strsubst(LD8.ui.answerEdits(8).string,".",","); bench_ld8_primary();

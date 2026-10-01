@@ -28,10 +28,13 @@ try
     assert_checkequal(length(report.observations),0);
     ld12_set_step(7); ld12_jump_step(%nan); assert_checkequal(LD12.step,1);
     ld12_set_mode(0); ld12_set_mode(%nan); ld12_set_mode(1.5); assert_checkequal(LD12.wireMode,1);
-    ld12_toggle_solution(); rejected=%f;
+    ld12_toggle_solution(); assert_checkfalse(LD12.demoMode); assert_checkfalse(LD12.practice_used);
+    LD12.assessment=%f; LD12.practice_used=%t; ld12_render_stage();
+    ld12_toggle_solution(); assert_checktrue(LD12.demoMode); rejected=%f;
     try report=bench_report_data("LD12"); catch rejected=%t; end
     assert_checktrue(rejected); ld12_measure(); ld12_check_step(); assert_checkfalse(or(LD12.done));
     ld12_toggle_solution(); assert_checkequal(size(LD12.journal,1),0); assert_checkequal(size(LD12.wires,1),0);
+    LD12.assessment=%t; LD12.practice_used=%f; ld12_render_stage();
     descriptor=mopen(out+"geometry.tsv","wt"); sizes=[1280 720;1280 800;1600 900];
     for dimension=1:3
         geometry_size(LD12.fig,sizes(dimension,:));
@@ -81,8 +84,12 @@ try
     snapshot_path=bench_save_snapshot("LD12"); snapshot=bench_read_snapshot(snapshot_path,"LD12");
     ld12_restart(); bench_restore_snapshot(snapshot);
     assert_checkequal(LD12.ui.answerEdits(6).string,"10,321"); assert_checkequal(LD12.journal,journal);
-    assert_checkfalse(LD12.powerOn); assert_checkfalse(LD12.switchOn);
-    ld12_toggle_solution(); assert_checkequal(size(LD12.journal,1),1); ld12_toggle_solution(); assert_checkequal(LD12.journal,journal);
+    assert_checktrue(LD12.assessment); assert_checkfalse(LD12.powerOn); assert_checkfalse(LD12.switchOn);
+    ld12_toggle_solution(); assert_checkfalse(LD12.demoMode);
+    LD12.assessment=%f; LD12.practice_used=%t; ld12_toggle_solution(); assert_checktrue(LD12.demoMode);
+    assert_checkequal(size(LD12.journal,1),1); ld12_toggle_solution(); assert_checkequal(LD12.journal,journal);
+    ld12_restart(); assert_checkfalse(LD12.assessment); assert_checktrue(LD12.practice_used);
+    bench_restore_snapshot(snapshot); LD12.assessment=%f; LD12.practice_used=%t;
     LD12.done(5)=%t; LD12.ui.answerEdits(6).string="1+2"; bench_ld12_primary();
     assert_checkfalse(LD12.done(5)); assert_checkequal(LD12.step,5); assert_checkequal(LD12.ui.answerEdits(6).string,"1+2");
     expected=ld12_expected_answers(); bench_ld12_answers(5,expected(5,1:4));

@@ -194,25 +194,38 @@ function bench_ld2_workflow(n,root,gui)
     assert_checktrue(length(LD2.state.measurements)>=30);
     assert_checkequal(LD2.state.student.number,n);
     if gui then
-        before=LD2.state;
-        ld2_show_solution(); assert_checktrue(LD2.example_active);
-        bench_ld2_primary(); assert_checkfalse(LD2.example_active);
-        assert_checkequal(LD2.state.student,before.student);
-        assert_checkequal(LD2.state.answers_text,before.answers_text);
-        bench_ld2_primary(); // Student report button at the completed final stage.
+        // Formal assessment accepts nonempty raw text without local correctness disclosure.
+        clean=LD2.state; LD2.state.assessment=%t; LD2.state.practice_used=%f;
+        ld2_go_step(3,%f); LD2.state.completed(3)=0;
+        LD2.ui.answer_edits(1).string="raw-wrong"; execstr(LD2.ui.answer_edits(1).callback);
+        bench_ld2_primary();
+        assert_checkequal(LD2.state.step,4); assert_checkequal(LD2.state.completed(3),1);
+        assert_checkequal(LD2.state.answers_text(3,1),"raw-wrong");
+        // Restore the fully correct state and verify formal example blocking/export.
+        LD2.state=clean; LD2.state.assessment=%t; LD2.state.practice_used=%f; ld2_render_step();
+        ld2_show_solution(); assert_checkfalse(LD2.example_active); assert_checkfalse(LD2.state.practice_used);
+        bench_ld2_primary();
         assert_checktrue(strindex(LD2.ui.status.string,"Ataskaita išsaugota")<>[]);
         ld2_write_exports(root+"tests/results/");
         ld2_write_session(root+"tests/results/LD2-test.sod");
         session=ld2_read_session(root+"tests/results/LD2-test.sod");
         assert_checkequal(session.state.student,LD2.state.student);
+        assert_checktrue(session.state.assessment); assert_checkfalse(session.state.practice_used);
         ld2_restore_session(session);
-        assert_checktrue(and(LD2.state.completed==1));
+        assert_checktrue(and(LD2.state.completed==1)); assert_checktrue(LD2.state.assessment);
         assert_checkfalse(LD2.state.power);
+        // Learning/example marks practice permanently; restart keeps both mode and practice.
+        LD2.state.assessment=%f; LD2.state.practice_used=%t;
+        ld2_show_solution(); assert_checktrue(LD2.example_active);
+        bench_ld2_primary(); assert_checkfalse(LD2.example_active); assert_checktrue(LD2.state.practice_used);
+        ld2_restart(); assert_checkfalse(LD2.state.assessment); assert_checktrue(LD2.state.practice_used);
+        ld2_restore_session(session);
         st=student_profile(n,"Pataisytas Vardas","TEST-2","LD2"); ld2_apply_profile(st,cfg);
-        assert_checktrue(and(LD2.state.completed==1));
+        assert_checktrue(and(LD2.state.completed==1)); assert_checktrue(LD2.state.assessment);
         st=student_profile(modulo(n,64)+1,"Kitas Studentas","TEST","LD2");
         ld2_apply_profile(st,ld2_variant_config(st.number));
         assert_checkequal(length(LD2.state.measurements),0); assert_checkequal(LD2.state.step,1);
+        assert_checktrue(LD2.state.assessment); assert_checkfalse(LD2.state.practice_used);
         delete(LD2.ui.figure);
     end
 endfunction

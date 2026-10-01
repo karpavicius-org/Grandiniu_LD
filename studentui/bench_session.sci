@@ -389,15 +389,15 @@ function bench_restore_snapshot(session)
             ld8_set_status("Juodraštis atkurtas: "+student_caption(LD8.student),"ok","Maitinimas išjungtas.");
         elseif session.lab=="LD9" then
             LD9.cfg=session.cfg;LD9.student=session.student;
-            // Apply the store before rendering, so stale edits cannot overwrite it.
             for field=fieldnames(session.state)';LD9(field)=session.state(field);end
             if ~isfield(session.state,"report_wires") then
                 LD9.report_wires=emptystr(0,2);
                 LD9.done(:)=%f;
             end
+            if ~isfield(session.state,"assessment") then LD9.assessment=%f;LD9.practice_used=%t;end
             LD9.powerOn=%f;LD9.switchOn=%f;LD9.demoMode=%f;LD9.pending="";
-            LD9.lastMeasurement=%nan;
-            ld9_render_stage();
+            LD9.lastMeasurement=%nan;LD9.autosave_enabled=~LD9.ui.headless;
+            ld9_render_stage();ld9_student_sync();
             ld9_set_status("Juodraštis atkurtas: "+student_caption(LD9.student),"ok","Maitinimas išjungtas.");
         elseif session.lab=="LD10" then
             LD10.cfg=session.cfg;LD10.student=session.student;
@@ -406,9 +406,10 @@ function bench_restore_snapshot(session)
                 LD10.report_wires=emptystr(0,2);
                 LD10.done(:)=%f;
             end
+            if ~isfield(session.state,"assessment") then LD10.assessment=%f;LD10.practice_used=%t;end
             LD10.powerOn=%f;LD10.switchOn=%f;LD10.demoMode=%f;LD10.pending="";
-            LD10.lastMeasurement=%nan;
-            ld10_render_stage();
+            LD10.lastMeasurement=%nan;LD10.autosave_enabled=~LD10.ui.headless;
+            ld10_render_stage();ld10_student_sync();
             ld10_set_status("Juodraštis atkurtas: "+student_caption(LD10.student),"ok","Maitinimas išjungtas.");
         elseif session.lab=="LD11" then
             LD11.cfg=session.cfg;LD11.student=session.student;
@@ -418,9 +419,10 @@ function bench_restore_snapshot(session)
                 for k=1:2;LD11.report_wires(k)=emptystr(0,2);end
                 LD11.done(:)=%f;
             end
+            if ~isfield(session.state,"assessment") then LD11.assessment=%f;LD11.practice_used=%t;end
             LD11.powerOn=%f;LD11.switchOn=%f;LD11.demoMode=%f;LD11.pending="";
-            LD11.lastMeasurement=%nan;
-            ld11_render_stage();
+            LD11.lastMeasurement=%nan;LD11.autosave_enabled=~LD11.ui.headless;
+            ld11_render_stage();ld11_student_sync();
             ld11_set_status("Juodraštis atkurtas: "+student_caption(LD11.student),"ok","Maitinimas išjungtas.");
         elseif session.lab=="LD12" then
             LD12.cfg=session.cfg;LD12.student=session.student;
@@ -430,13 +432,17 @@ function bench_restore_snapshot(session)
                 for k=1:2;LD12.report_wires(k)=emptystr(0,2);end
                 LD12.done(:)=%f;
             end
+            if ~isfield(session.state,"assessment") then LD12.assessment=%f;LD12.practice_used=%t;end
             LD12.powerOn=%f;LD12.switchOn=%f;LD12.demoMode=%f;LD12.pending="";
-            LD12.lastMeasurement=%nan;
-            ld12_render_stage();
+            LD12.lastMeasurement=%nan;LD12.autosave_enabled=~LD12.ui.headless;
+            ld12_render_stage();ld12_student_sync();
             ld12_set_status("Juodraštis atkurtas: "+student_caption(LD12.student),"ok","Maitinimas išjungtas.");
         else
             LD2.cfg=session.cfg;LD2.state=session.state;LD2.state.power=%f;
+            if ~isfield(LD2.state,"assessment") then LD2.state.assessment=%f;end
+            if ~isfield(LD2.state,"practice_used") then LD2.state.practice_used=%t;end
             LD2.example_active=%f;LD2.ui.answer_step=0;LD2.ui.answer_edits=[];
+            LD2.autosave_enabled=~LD2.ui.headless;
             ld2_reset_live_readings(ld2_phase_for_step(LD2.state.step));ld2_render_step();
         end
     catch

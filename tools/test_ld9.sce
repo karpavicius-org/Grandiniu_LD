@@ -28,10 +28,13 @@ try
     assert_checkequal(length(report.observations),0);
     ld9_set_step(7); ld9_jump_step(%nan); assert_checkequal(LD9.step,1);
     assert_checkfalse(ld9_valid_index([1 2],4));
-    ld9_toggle_solution(); rejected=%f;
+    ld9_toggle_solution(); assert_checkfalse(LD9.demoMode); assert_checkfalse(LD9.practice_used);
+    LD9.assessment=%f; LD9.practice_used=%t; ld9_render_stage();
+    ld9_toggle_solution(); assert_checktrue(LD9.demoMode); rejected=%f;
     try report=bench_report_data("LD9"); catch rejected=%t; end
     assert_checktrue(rejected); ld9_measure(); ld9_check_step(); assert_checkfalse(or(LD9.done));
     ld9_toggle_solution(); assert_checkequal(size(LD9.journal,1),0); assert_checkequal(size(LD9.wires,1),0);
+    LD9.assessment=%t; LD9.practice_used=%f; ld9_render_stage();
     descriptor=mopen(out+"geometry.tsv","wt"); sizes=[1280 720;1280 800;1600 900];
     for dimension=1:3
         geometry_size(LD9.fig,sizes(dimension,:));
@@ -85,8 +88,12 @@ try
     snapshot_path=bench_save_snapshot("LD9"); snapshot=bench_read_snapshot(snapshot_path,"LD9");
     ld9_restart(); bench_restore_snapshot(snapshot);
     assert_checkequal(LD9.ui.answerEdits(4).string,"10,321"); assert_checkequal(LD9.journal,journal);
-    assert_checkfalse(LD9.powerOn); assert_checkfalse(LD9.switchOn);
-    ld9_set_step(3); ld9_toggle_solution(); assert_checkequal(size(LD9.journal,1),4); ld9_toggle_solution(); assert_checkequal(LD9.journal,journal);
+    assert_checktrue(LD9.assessment); assert_checkfalse(LD9.powerOn); assert_checkfalse(LD9.switchOn);
+    ld9_set_step(3); ld9_toggle_solution(); assert_checkfalse(LD9.demoMode);
+    LD9.assessment=%f; LD9.practice_used=%t; ld9_toggle_solution(); assert_checktrue(LD9.demoMode);
+    assert_checkequal(size(LD9.journal,1),4); ld9_toggle_solution(); assert_checkequal(LD9.journal,journal);
+    ld9_restart(); assert_checkfalse(LD9.assessment); assert_checktrue(LD9.practice_used);
+    bench_restore_snapshot(snapshot); LD9.assessment=%f; LD9.practice_used=%t;
     ld9_set_step(5); LD9.done(5)=%t; LD9.ui.answerEdits(4).string="1+2"; bench_ld9_primary();
     assert_checkfalse(LD9.done(5)); assert_checkequal(LD9.step,5); assert_checkequal(LD9.ui.answerEdits(4).string,"1+2");
     expected=ld9_expected_answers(); bench_ld9_answers(5,expected(5,1:6));
