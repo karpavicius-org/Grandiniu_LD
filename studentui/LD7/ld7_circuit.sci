@@ -89,6 +89,9 @@ endfunction
 
 function ld7_init_state()
     global LD7;
+    assessment=%t; practice=%f;
+    if isfield(LD7,"assessment") then assessment=LD7.assessment; end
+    if isfield(LD7,"practice_used") then practice=LD7.practice_used; end
     LD7.step = 1; LD7.done = zeros(1, 6) == 1; LD7.skipped = zeros(1, 6) == 1;
     LD7.powerOn = %f; LD7.switchOn = %f; LD7.wireMode = 1; LD7.position = 0;
     LD7.wires = emptystr(0, 2); LD7.journal = [];
@@ -97,6 +100,7 @@ function ld7_init_state()
         LD7.wires_by_mode(index) = emptystr(0, 2); LD7.report_wires(index) = emptystr(0, 2);
     end
     LD7.answers = emptystr(6, 8); LD7.demoMode = %f; LD7.lastMeasurement = %nan; LD7.pending = "";
+    LD7.assessment=assessment; LD7.practice_used=practice;
 endfunction
 
 function expected = ld7_expected_answers()

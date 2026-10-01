@@ -1,7 +1,7 @@
 # Laboratorinių darbų stendai studentui
 
 LD1–LD7 naudoja tą patį išdėstymą: kairėje grandinė ir prietaisai, dešinėje
-vieno etapo užduotis ir atsakymai. LD1–LD6 atsiskaitymo režime **Įrašyti ir toliau**
+vieno etapo užduotis ir atsakymai. LD1–LD7 atsiskaitymo režime **Įrašyti ir toliau**
 išsaugo jūsų atsakymus. Mokymosi režime **Patikrinti** parodo klaidas.
 Papildomi veiksmai ir režimo pasirinkimas yra skiltyje **Pagalba**.
 
@@ -104,12 +104,24 @@ uždarant išsaugomas ir dar nepatvirtintas įvedimas. Grįžkite per
 **Pagalba → Tęsti išsaugotą darbą**. Atkurtas stendas visada būna be maitinimo.
 **Pagalba → Studentas ir priskirtos reikšmės** leidžia pakartotinai peržiūrėti duomenis.
 
-**LD7 – įtampos, srovės ir galios suderinamumas:** šeši etapai, trys sujungimai:
-darbinė grandinė E → jungiklis → ampermetras → reostatas R (penkios padėtys P1–P5),
-tuščioji eiga (voltmetras prie šaltinio) ir trumpasis jungimas (ampermetras vietoj krovinio).
-Keisdami padėtį matuokite [B03]; žurnale kaupiami U, I ir P = U·I. Skaičiuojama vidinė
-varža r = ΔU/ΔI, galia kiekvienoje padėtyje, Pmax = E²/(4r) ir naudingumo koeficientas.
-64 variantai: `LD7/VARIANTAI.csv`, bankas `LD7-64-A-2026`, ataskaitos revizija 1.
+**LD7 – įtampos, srovės ir galios suderinamumas:** pradedama atsiskaitymo režimu.
+Studentas tiria darbinę grandinę E → jungiklis → ampermetras → reostatas R penkiose
+padėtyse P1–P5, tuščiąją eigą ir **virtualų kontroliuojamą trumpąjį jungimą**.
+Atsiskaityme užpildytas raw atsakymas išsaugomas, o jo teisingumą vertina dėstytojo
+programa; mokymosi režime **Tikrinti** pateikia savikontrolę. Srovės žurnale yra mA,
+todėl vidinei varžai naudokite **r = 1000·(U5−U1)/(I1_mA−I5_mA)**. Galiai
+**P = U·I_mA** tiesiogiai gaunami mW, o teorinei didžiausiai galiai naudokite
+**Pmax = 1000·E²/(4r), mW**. Virtualiam trumpajam jungimui
+**Ik = 1000·E/r, mA**. Realiame laboratoriniame stende trumpojo jungimo bandymas
+atliekamas tik pagal dėstytojo nustatytą schemą ir srovės ribojimo procedūrą; šio
+virtualaus scenarijaus nereikia interpretuoti kaip leidimo trumpinti realų šaltinį.
+Laidus galima keisti tik išjungus maitinimą, o režimo keitimas jį išjungia automatiškai.
+Pavyzdys formaliame atsiskaityme blokuojamas; mokymosi / pavyzdžio žyma po restarto
+neišnyksta. Laidai, režimas, matavimai ir atsakymai automatiškai saugomi vietiniame
+juodraštyje; tęsti galima per **Pagalba → Tęsti išsaugotą darbą**. Atkurtas stendas
+būna be maitinimo. 64 variantai: `LD7/VARIANTAI.csv`, bankas `LD7-64-A-2026`.
+Pastaba: šiame techniniame stendo numeravime LD7 semantiškai atitinka oficialų kurso
+LD8; oficialų numerį turi nustatyti atskiras kurso žemėlapis.
 
 **LD6 – nuoseklus ir lygiagretus šaltinių jungimas:** pradedama atsiskaitymo
 režimu. Studentas sujungia keturias schemas: E1, nuosekliai, priešpriešiais ir
@@ -132,7 +144,7 @@ o oficialaus kurso numerių susiejimas turi būti tvarkomas atskiru kurso žemė
 Pabaigoje spauskite **Išsaugoti ataskaitą**. Langas pasiūlo **Atverti ataskaitą** arba **Atverti ataskaitų aplanką**.
 Sukurtą vieną HTML failą iš
 naudotojo aplanko `Grandiniu_LD_darbai` persiųskite dėstytojui. Nebaigtą
-ataskaitą taip pat galima išsaugoti per Pagalbą. LD1–LD6 juodraščiai saugomi automatiškai
+ataskaitą taip pat galima išsaugoti per Pagalbą. LD1–LD7 juodraščiai saugomi automatiškai
 įrašant atsakymus ir pereinant į kitą etapą; juos atverkite per Pagalbą.
 
 Dėstytojui: vykdykite `DESTYTOJUI.sce` ir pasirinkite aplanką su ataskaitomis.

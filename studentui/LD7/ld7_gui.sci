@@ -242,7 +242,7 @@ function ld7_build_gui()
         "position", [0.04 0.74 0.73 0.24], "string", "Matavimai", ...
         "fontname", "DejaVu Sans", "fontunits", "pixels", "fontsize", 12, "tag", "V02");
     controls = [];
-    modes = ["Darbinė";"Tuščioji eiga";"Trumpasis jungimas"];
+    modes = ["Darbinė";"Tuščioji eiga";"Virtualus TJ"];
     for k = 1:3
         cb = "ld7_set_mode(" + string(k) + ")";
         controls($+1) = ld7_button(p, [0.02+(k-1)*0.245 0.105 0.235 0.075], modes(k), cb, 12);

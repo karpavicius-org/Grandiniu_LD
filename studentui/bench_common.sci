@@ -183,8 +183,13 @@ function bench_mode(lab)
     elseif lab=="LD7" then
         LD7.assessment=(selected==1);
         if selected==2 then LD7.practice_used=%t; end
-        if LD7.assessment then ld7_set_status("Atsiskaitymo režimas: atsakymus tikrins dėstytojo programa.","ok","");
-        else ld7_set_status("Mokymosi režimas: galima tikrintis ir naudotis pagalba.","ok",""); end
+        if LD7.assessment & LD7.practice_used then
+            ld7_set_status("Atsiskaitymo režimas pasirinktas, bet šis bandymas jau pažymėtas mokymosi.","info","Naujam formaliam bandymui reikės naujos darbo sesijos.");
+        elseif LD7.assessment then
+            ld7_set_status("Atsiskaitymo režimas: atsakymus tikrins dėstytojo programa.","ok","");
+        else
+            ld7_set_status("Mokymosi režimas: galima tikrintis ir naudotis pagalba.","ok","");
+        end
     elseif lab=="LD8" then
         LD8.assessment=(selected==1);
         if selected==2 then LD8.practice_used=%t; end

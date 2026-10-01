@@ -880,9 +880,18 @@ function bench_ld7_workflow(number,root,gui)
     cfg=ld7_variant_config(number); [valid,message]=ld7_validate_config(cfg); assert_checktrue(valid);
     LD7=struct("cfg",cfg,"student",student_profile(number,"Automatinė Patikra","TEST","LD7"),"ui",struct("headless",~gui));
     ld7_start();
+    assert_checktrue(LD7.assessment); assert_checkfalse(LD7.practice_used);
+    if gui then
+        assert_checktrue(LD7.autosave_enabled);
+        if isfield(LD7,"fig") then LD7.fig.figure_name="PATIKRA · LD7 · variantas "+string(number); end
+        if number==17 then
+            ld7_toggle_solution(); assert_checkfalse(LD7.demoMode); assert_checkfalse(LD7.practice_used);
+        end
+    end
     loads=[cfg.R1 cfg.R2 cfg.R3 cfg.R4 cfg.R5];
     for step=1:6
         assert_checkequal(LD7.step,step);
+        primary_done=%f;
         select step
         case 1 then
             bench_ld7_connect(1);
@@ -898,6 +907,20 @@ function bench_ld7_workflow(number,root,gui)
         case 4 then
             uu=cfg.E*loads./(loads+cfg.r); ii=cfg.E./(loads+cfg.r)*1000;
             bench_ld7_answers(step,[uu(1)*ii(1) uu(3)*ii(3) uu(5)*ii(5) 1000*cfg.E^2/(4*cfg.r) 50]);
+            if gui & number==17 then
+                // Formal assessment keeps a non-empty wrong raw value and does not reveal correctness.
+                LD7.ui.answerEdits(3).string="1+2";
+                bench_ld7_primary();
+                assert_checktrue(LD7.done(4)); assert_checkequal(LD7.step,5);
+                assert_checkequal(LD7.answers(4,1),"1+2");
+                assert_checktrue(strindex(LD7.ui.statusMain.string,"Patikrinkite")==[]);
+                // Restore correct data so the exported acceptance fixture remains perfect.
+                ld7_jump_step(4);
+                bench_ld7_answers(4,[uu(1)*ii(1) uu(3)*ii(3) uu(5)*ii(5) 1000*cfg.E^2/(4*cfg.r) 50]);
+                bench_ld7_primary();
+                assert_checktrue(LD7.done(4)); assert_checkequal(LD7.step,5);
+                primary_done=%t;
+            end
         case 5 then
             bench_ld7_connect(2);
             bench_ld7_action("ld7_toggle_power()"); bench_ld7_action("ld7_measure()"); bench_ld7_action("ld7_toggle_power()");
@@ -908,17 +931,43 @@ function bench_ld7_workflow(number,root,gui)
         case 6 then
             bench_ld7_answers(step,[1 1 1]);
         end
-        bench_ld7_primary();
+        if ~primary_done then bench_ld7_primary(); end
         if ~LD7.done(step) then error("LD7 variantas "+string(number)+", etapas "+string(step)); end
         if gui then mprintf("PASS LD7 V%02d: etapas %d\n",number,step); end
     end
     assert_checktrue(and(LD7.done)); assert_checkequal(size(LD7.journal,1),7);
     if gui then
+        if number==17 then
+            saved=bench_snapshot("LD7");
+            keep=LD7.answers(4,1); LD7.answers(4,1)="sugadinta";
+            bench_restore_snapshot(saved);
+            assert_checkequal(LD7.answers(4,1),keep);
+            assert_checktrue(LD7.assessment); assert_checkfalse(LD7.powerOn); assert_checkfalse(LD7.switchOn);
+        end
+        r=bench_report_data("LD7"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
         before=size(listfiles(bench_documents()+"/*.html"),"*");
         bench_ld7_primary();
         assert_checkequal(size(listfiles(bench_documents()+"/*.html"),"*"),before+1);
         assert_checktrue(strindex(LD7.ui.statusMain.string,"Ataskaita išsaugota")<>[]);
-        delete(LD7.fig);
+        if number==17 then
+            // Learning mode still validates locally; practice remains sticky across restart.
+            LD7.assessment=%f; LD7.practice_used=%t; ld7_restart();
+            assert_checkfalse(LD7.assessment); assert_checktrue(LD7.practice_used);
+            bench_ld7_connect(1); bench_ld7_primary(); assert_checkequal(LD7.step,2);
+            bench_ld7_action("ld7_toggle_power()"); bench_ld7_action("ld7_toggle_switch()");
+            for k=1:5
+                bench_ld7_action("ld7_set_position("+string(k)+")"); bench_ld7_action("ld7_measure()");
+            end
+            bench_ld7_action("ld7_toggle_power()"); bench_ld7_primary(); assert_checkequal(LD7.step,3);
+            LD7.ui.answerEdits(1).string="1+2"; LD7.ui.answerEdits(2).string=string(cfg.E);
+            bench_ld7_primary();
+            assert_checkfalse(LD7.done(3)); assert_checkequal(LD7.step,3);
+            assert_checktrue(strindex(LD7.ui.statusMain.string,"Patikrinkite")<>[]);
+            ld7_toggle_solution(); assert_checktrue(LD7.demoMode); assert_checktrue(LD7.practice_used);
+            ld7_toggle_solution(); assert_checkfalse(LD7.demoMode);
+        end
+        assert_checktrue(isfield(LD7,"autosave_paths")); assert_checktrue(size(LD7.autosave_paths,"*")>=1);
+        ld7_close(); assert_checkfalse(is_handle_valid(LD7.fig));
     end
 endfunction
 

@@ -361,16 +361,16 @@ function bench_restore_snapshot(session)
             ld6_set_status("Juodraštis atkurtas: "+student_caption(LD6.student),"ok","Maitinimas išjungtas.");
         elseif session.lab=="LD7" then
             LD7.cfg=session.cfg;LD7.student=session.student;
-            // Apply the store before rendering, so stale edits cannot overwrite it.
             for field=fieldnames(session.state)';LD7(field)=session.state(field);end
             if ~isfield(session.state,"report_wires") then
                 LD7.report_wires=list();
                 for k=1:3;LD7.report_wires(k)=emptystr(0,2);end
                 LD7.done(:)=%f;
             end
+            if ~isfield(session.state,"assessment") then LD7.assessment=%f;LD7.practice_used=%t;end
             LD7.powerOn=%f;LD7.switchOn=%f;LD7.demoMode=%f;LD7.pending="";
-            LD7.lastMeasurement=%nan;
-            ld7_render_stage();
+            LD7.lastMeasurement=%nan;LD7.autosave_enabled=~LD7.ui.headless;
+            ld7_render_stage();ld7_student_sync();
             ld7_set_status("Juodraštis atkurtas: "+student_caption(LD7.student),"ok","Maitinimas išjungtas.");
         elseif session.lab=="LD8" then
             LD8.cfg=session.cfg;LD8.student=session.student;

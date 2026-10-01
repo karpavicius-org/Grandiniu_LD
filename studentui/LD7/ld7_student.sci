@@ -34,7 +34,8 @@ function ld7_start()
     if needgui & ~isfield(LD7, "fig") then
         ld7_build_gui();
     end
-    ld7_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite matavimo grandinę.", "info", "Seką rasite: Pagalba → [B04] Kaip sujungti.");
+    if ~isfield(LD7,"autosave_enabled") then LD7.autosave_enabled=needgui; end
+    ld7_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite matavimo grandinę.", "info", "Atsiskaitymo režimas. Seką rasite: Pagalba → [B04] Kaip sujungti.");
 endfunction
 
 function ld7_student_primary()
@@ -47,14 +48,14 @@ function ld7_student_primary()
     end
     // Vienas paspaudimas: patikrinti ir, pavykus, iškart pereiti (LD2 semantika).
     if ~LD7.done(LD7.step) then
-        ld7_check_step();
+        ld7_check_step(~LD7.assessment);
     end
     if LD7.done(LD7.step) & LD7.step < 6 then
         ld7_next_step();
     elseif LD7.step == 6 & LD7.done(6) & ~and(LD7.done) then
         pending = find(~LD7.done); ld7_set_step(pending(1));
     end
-    ld7_student_sync();
+    ld7_student_sync(); bench_autosave("LD7");
 endfunction
 
 function ld7_jump_step(n)
@@ -80,6 +81,8 @@ function ld7_student_sync()
             LD7.ui.studentPrimary.string = "UŽBAIGTI PRALEISTĄ ETAPĄ";
         elseif LD7.done(LD7.step) then
             LD7.ui.studentPrimary.string = "TOLIAU →";
+        elseif LD7.assessment then
+            LD7.ui.studentPrimary.string = "ĮRAŠYTI IR TOLIAU →";
         else
             LD7.ui.studentPrimary.string = "TIKRINTI";
         end

@@ -17,7 +17,11 @@ endfunction
 function ld7_terminal_click(id)
     global LD7;
     if ~ld7_wiring_editable() | ~or(ld7_terminal_ids() == id) then return; end
-    if LD7.powerOn then ld7_set_status("Prieš keisdami laidus išjunkite [B01].", "error", ""); return; end
+    if LD7.powerOn then
+        LD7.pending="";
+        ld7_set_status("Prieš keisdami laidus išjunkite [B01].", "error", "Maitinimas turi būti išjungtas prieš bet kokį perjungimą.");
+        bench_autosave("LD7"); return;
+    end
     if LD7.pending == "" then
         LD7.pending = id;
         ld7_set_status("Pasirinktas [" + ld7_terminal_code(id) + "] " + ld7_terminal_name(id), "info", "Spauskite kitą gnybtą. Pakartoję esamo laido galus jį pašalinsite.");
@@ -33,7 +37,7 @@ function ld7_terminal_click(id)
             else
                 if sum(LD7.wires == first) >= 2 | sum(LD7.wires == id) >= 2 then
                     ld7_set_status("Gnybte jau yra du laidai.", "error", "Pirma pašalinkite netinkamą laidą.");
-                    ld7_render_wires(); return;
+                    ld7_render_wires(); bench_autosave("LD7"); return;
                 end
                 LD7.wires($+1,:) = [first id]; ld7_set_status("Laidas pridėtas.", "ok", "");
             end
@@ -41,7 +45,7 @@ function ld7_terminal_click(id)
             LD7.switchOn = %f; ld7_invalidate_mode();
         end
     end
-    ld7_render_wires(); ld7_render_journal(); ld7_student_sync();
+    ld7_render_wires(); ld7_render_journal(); ld7_student_sync(); bench_autosave("LD7");
 endfunction
 
 function ld7_toggle_power()
@@ -50,7 +54,8 @@ function ld7_toggle_power()
     if ~LD7.powerOn then LD7.switchOn = %f; end
     ld7_render_wires();
     if LD7.powerOn then ld7_set_status("Maitinimas įjungtas.", "ok", "Darbinėje grandinėje uždarykite jungiklį [B02].");
-    else ld7_set_status("Maitinimas išjungtas.", "info", "Galima keisti šio etapo laidus."); end
+    else ld7_set_status("Maitinimas išjungtas.", "info", "Galima saugiai keisti šio etapo laidus."); end
+    bench_autosave("LD7");
 endfunction
 
 function ld7_toggle_switch()
@@ -59,6 +64,7 @@ function ld7_toggle_switch()
     LD7.switchOn = ~LD7.switchOn; ld7_render_wires();
     if LD7.switchOn then ld7_set_status("Jungiklis uždarytas.", "ok", "Rodmenis įrašykite [B03].");
     else ld7_set_status("Jungiklis atviras.", "info", ""); end
+    bench_autosave("LD7");
 endfunction
 
 function ld7_set_mode(mode)
@@ -71,7 +77,8 @@ function ld7_set_mode(mode)
         if mode <> 1 then LD7.position = 0; end
     end
     ld7_render_wires();
-    ld7_set_status("Režimas: " + ld7_mode_name(mode), "info", "Šio režimo laidai išliko. Jungimo seką rasite Pagalboje.");
+    ld7_set_status("Režimas: " + ld7_mode_name(mode), "info", "Maitinimas išjungtas. Šio režimo laidai išliko; jungimo seką rasite Pagalboje.");
+    bench_autosave("LD7");
 endfunction
 
 function ld7_set_position(k)
@@ -84,6 +91,7 @@ function ld7_set_position(k)
     LD7.position = k;
     ld7_render_wires();
     ld7_set_status(msprintf("Padėtis P%d: R = %g Ω.", k, LD7.cfg("R" + string(k))), "info", "Įjungę maitinimą matuokite [B03].");
+    bench_autosave("LD7");
 endfunction
 
 function ld7_measure()
@@ -112,8 +120,9 @@ function ld7_measure()
     elseif LD7.wireMode == 2 then
         ld7_set_status(msprintf("TE: U0 = %.4f V (srovė ≈ %.4f mA).", voltage, current), "ok", "Tuščiosios eigos įtampa artima šaltinio EV.");
     else
-        ld7_set_status(msprintf("TJ: Ik = %.3f mA (įtampa ≈ %.4f V).", current, voltage), "ok", "Srovę ribina vidinė varža r.");
+        ld7_set_status(msprintf("Virtualus TJ: Ik = %.3f mA (įtampa ≈ %.4f V).", current, voltage), "ok", "Tai kontroliuojamas virtualus trumpasis jungimas; srovę riboja vidinė varža r.");
     end
+    bench_autosave("LD7");
 endfunction
 
 function ok = ld7_close_enough(value, expected, relative, absolute)
@@ -124,8 +133,9 @@ function ok = ld7_close_enough(value, expected, relative, absolute)
     ok = abs(value - expected) <= absolute + relative*abs(expected);
 endfunction
 
-function ld7_check_step()
+function ld7_check_step(check_answers)
     global LD7;
+    if argn(2)<1 then check_answers=%t; end
     if LD7.demoMode then return; end
     ld7_save_answers(); step = LD7.step;
     if ~ld7_valid_index(step, 6) then return; end
@@ -144,8 +154,8 @@ function ld7_check_step()
     elseif step == 5 then
         for tag = [6 7]
             if ld7_journal_rows(tag) == [] then
-                name = "tuščioji eiga [B11]"; if tag == 7 then name = "trumpasis jungimas [B12]"; end
-                ld7_set_status("Trūksta matavimo: " + name + ".", "error", "Sujungite atitinkamą grandinę ir matuokite [B03]."); return;
+                name = "tuščioji eiga [B11]"; if tag == 7 then name = "virtualus trumpasis jungimas [B12]"; end
+                ld7_set_status("Trūksta matavimo: " + name + ".", "error", "Sujunkite atitinkamą grandinę ir matuokite [B03]."); return;
             end
         end
     end
@@ -153,6 +163,10 @@ function ld7_check_step()
     for index = 1:12
         [answer_step, slot] = ld7_answer_slot(index);
         if answer_step <> step then continue; end
+        if stripblanks(LD7.answers(step,slot))=="" then
+            ld7_set_status("Įrašykite [" + ld7_answer_code(step, slot) + "].", "error", "Atsakymą vertins dėstytojo programa."); return;
+        end
+        if ~check_answers then continue; end
         value = ld7_parse_number(LD7.answers(step, slot)); relative = .02; absolute = 1e-9;
         if step == 3 then if slot == 1 then relative = .03; else relative = .01; end; end
         if step == 5 then if slot == 1 then relative = .01; else relative = .02; end; end
@@ -162,7 +176,8 @@ function ld7_check_step()
         end
     end
     LD7.done(step) = %t; ld7_render_stage();
-    ld7_set_status(string(step) + " etapas patikrintas.", "ok", "");
+    if check_answers then ld7_set_status(string(step) + " etapas patikrintas.", "ok", "");
+    else ld7_set_status(string(step) + " etapo atsakymai įrašyti.", "ok", "Teisingumą vertins dėstytojo programa."); end
 endfunction
 
 function ld7_next_step()
@@ -176,18 +191,18 @@ function ld7_set_step(step)
     if ~ld7_valid_index(step, 6) then return; end
     if LD7.demoMode then ld7_toggle_solution(); end
     ld7_save_answers(); LD7.pending = ""; LD7.step = step;
-    ld7_set_mode(ld7_stage_mode(step)); ld7_render_stage();
+    ld7_set_mode(ld7_stage_mode(step)); ld7_render_stage(); bench_autosave("LD7");
 endfunction
 
 function text = ld7_step_instruction(step)
     global LD7;
     cfg = LD7.cfg;
     select step
-    case 1 then text = msprintf("Sujunkite darbinę grandinę be maitinimo: E → jungiklis → ampermetras → reostatas R; voltmetro zondai prie R galų. Seka: Pagalba → [B04]. Šaltinis E = %g V; jo vidinė varža nežymima.", cfg.E);
+    case 1 then text = msprintf("Sujunkite darbinę grandinę be maitinimo: E → jungiklis → ampermetras → reostatas R; voltmetro zondai prie R galų. Seka: Pagalba → [B04]. Šaltinis E = %g V; modelyje vidinė varža r yra šaltinio dalis.", cfg.E);
     case 2 then text = "Įjunkite [B01], uždarykite [B02]. Rinkitės padėtis [B13]–[B17] ir kiekvienoje spauskite [B03]. Penki matavimai (U ir I) sudarys lentelę — jos reikės skaičiavimams.";
-    case 3 then text = "[A03.01] Vidinė varža iš dviejų taškų: r = (U5−U1)/(I1−I5) — srovę perkelkite į amperus. [A03.02] Patikra: E = U1 + I1·r (I1 — A), V.";
-    case 4 then text = "Galia P = U·I (V·mA = mW). [A04.01] P1; [A04.02] P3; [A04.03] P5. [A04.04] Teorinė didžiausioji: Pmax = E²/(4r), mW. [A04.05] Naudingumo koeficientas η3 = (U3/E)·100.";
-    case 5 then text = "[B11] Tuščioji eiga: voltmetras prie šaltinio galų — išmatuokite U0 → [A05.01]. [B12] Trumpasis jungimas: ampermetras vietoj R — išmatuokite Ik → [A05.02], mA (Ik = E/r).";
+    case 3 then text = "[A03.01] Vidinė varža iš dviejų taškų: r = 1000·(U5−U1)/(I1_mA−I5_mA), Ω. [A03.02] Patikra: E = U1 + (I1_mA/1000)·r, V.";
+    case 4 then text = "Galia P = U·I_mA, mW. [A04.01] P1; [A04.02] P3; [A04.03] P5. [A04.04] Teorinė didžiausioji: Pmax = 1000·E²/(4r), mW. [A04.05] η3 = (U3/E)·100 %.";
+    case 5 then text = "[B11] Tuščioji eiga: voltmetras prie šaltinio galų — išmatuokite U0 → [A05.01]. [B12] VIRTUALUS kontroliuojamas trumpasis jungimas: ampermetras vietoj R — Ik = 1000·E/r, mA → [A05.02]. Realiame stende trumpasis jungimas atliekamas tik pagal dėstytojo procedūrą ir su srovės ribojimu.";
     case 6 then text = "[A06.01] Galia didžiausia, kai R = r? [A06.02] Suderinamumo režime η = 50 %? [A06.03] Įtampa mažėja didėjant srovei dėl kritimo vidinėje varžoje? Atsakykite 1 – Taip, 2 – Ne.";
     else text = "";
     end
@@ -219,7 +234,7 @@ function ld7_test_answers(step, values)
 endfunction
 
 function name = ld7_mode_name(mode)
-    names = ["Darbinė";"Tuščioji eiga";"Trumpasis jungimas"]; name = names(mode);
+    names = ["Darbinė";"Tuščioji eiga";"Virtualus TJ"]; name = names(mode);
 endfunction
 
 function ld7_show_wiring_guide()
@@ -231,11 +246,11 @@ function ld7_show_wiring_guide()
     end
     notes = ["Reostato varža priklauso nuo padėties [B13]–[B17]."];
     if LD7.wireMode == 1 then
-        notes = [notes; "Voltmetro zondai visada prie reostato R galų."];
+        notes = [notes; "Voltmetro zondai visada prie reostato R galų."; "Šaltinio vidinė varža r modeliuojama šaltinio viduje ir lemia U(I), Pmax bei η."];
     elseif LD7.wireMode == 2 then
-        notes = [notes; "TE: reostatas ir ampermetras nenaudojami — srovės beveik nėra."; "Šaltinio vidinė varža riboja tik mažą zondo srovę."];
+        notes = [notes; "TE: reostatas ir ampermetras nenaudojami — srovės beveik nėra."; "Šaltinio vidinė varža riboja tik mažą voltmetro srovę."];
     else
-        notes = [notes; "TJ: vietoj R jungiamas ampermetras; įtampa beveik nulinė."; "Srovę Ik ribina vidinė varža r: Ik = E/r."];
+        notes = [notes; "TJ šiame stende yra tik virtualus kontroliuojamas scenarijus."; "Ampermetras modelyje pakeičia R, o srovę riboja vidinė r: Ik = 1000·E/r, mA."; "Realiame stende trumpąjį jungimą atlikite tik pagal laboratorijos ir dėstytojo procedūrą su srovės ribojimu."];
     end
     text = [text; ""; notes];
     ld7_text_window("Kaip sujungti", text);
@@ -270,7 +285,10 @@ function ld7_toggle_solution()
         for field = ["wires" "answers" "wireMode" "journal" "powerOn" "switchOn" "lastMeasurement" "position"]
             LD7(field) = LD7.backup(field);
         end
-        LD7.pending = ""; ld7_render_stage(); ld7_set_status("Grįžta į savo darbą.", "info", ""); return;
+        LD7.pending = ""; ld7_render_stage(); ld7_set_status("Grįžta į savo darbą.", "info", ""); bench_autosave("LD7"); return;
+    end
+    if LD7.assessment then
+        ld7_set_status("Pavyzdys atsiskaitymo režime nepasiekiamas.", "error", "Perjunkite į Mokymąsi per Pagalbą."); return;
     end
     ld7_save_answers(); LD7.backup = struct();
     for field = ["wires" "answers" "wireMode" "journal" "powerOn" "switchOn" "lastMeasurement" "position"]
@@ -285,7 +303,7 @@ function ld7_toggle_solution()
             [voltage, current, ok, message, load] = ld7_measure_values();
             if ok then LD7.journal($+1,:) = [voltage, current, k, load, voltage*current]; end
         end
-        LD7.position = 3;  // Suderinamumo padėtis paryškinta pavyzdyje.
+        LD7.position = 3;
     else
         [voltage, current, ok, message, load] = ld7_measure_values();
         if ok then LD7.journal = [voltage, current, 4 + LD7.wireMode, load, voltage*current]; end
@@ -300,13 +318,28 @@ function ld7_restore_stage()
     if ld7_wiring_editable() then
         LD7.wires = emptystr(0, 2); LD7.wires_by_mode(LD7.wireMode) = LD7.wires; ld7_invalidate_mode();
     end
-    ld7_render_stage(); ld7_set_status("Šio etapo stendas atkurtas.", "info", "");
+    ld7_render_stage(); ld7_set_status("Šio etapo stendas atkurtas; maitinimas išjungtas.", "info", "");
+    bench_autosave("LD7");
 endfunction
 
 function ld7_restart()
-    ld7_init_state(); ld7_render_stage(); ld7_set_status("Darbas pradėtas iš naujo.", "info", "Studentas ir variantas išliko.");
+    ld7_init_state(); ld7_render_stage(); ld7_set_status("Darbas pradėtas iš naujo.", "info", "Studentas, variantas, režimas ir mokymosi žyma išliko."); bench_autosave("LD7");
 endfunction
 
 function ld7_answers_changed()
-    ld7_save_answers(); ld7_student_sync();
+    ld7_save_answers(); ld7_student_sync(); bench_autosave("LD7");
+endfunction
+
+function ld7_close()
+    global LD7;
+    if ~isfield(LD7,"fig") then return; end
+    if ~is_handle_valid(LD7.fig) then return; end
+    if LD7.demoMode then ld7_toggle_solution(); end
+    ld7_save_answers(); bench_autosave("LD7");
+    if isfield(LD7,"autosave_error") then
+        if LD7.autosave_error<>"" then
+            ld7_set_status("Nepavyko išsaugoti juodraščio.","error","Langas paliktas atvertas, kad neprarastumėte darbo."); return;
+        end
+    end
+    delete(LD7.fig);
 endfunction
