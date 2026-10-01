@@ -1,7 +1,7 @@
 # Laboratorinių darbų stendai studentui
 
-LD1–LD7 naudoja tą patį išdėstymą: kairėje grandinė ir prietaisai, dešinėje
-vieno etapo užduotis ir atsakymai. LD1–LD7 atsiskaitymo režime **Įrašyti ir toliau**
+LD1–LD12 naudoja bendrą studento darbo principą: kairėje grandinė ir prietaisai, dešinėje
+vieno etapo užduotis ir atsakymai. LD1–LD12 atsiskaitymo režime **Įrašyti ir toliau**
 išsaugo jūsų atsakymus. Mokymosi režime **Patikrinti** parodo klaidas.
 Papildomi veiksmai ir režimo pasirinkimas yra skiltyje **Pagalba**.
 
@@ -144,7 +144,7 @@ o oficialaus kurso numerių susiejimas turi būti tvarkomas atskiru kurso žemė
 Pabaigoje spauskite **Išsaugoti ataskaitą**. Langas pasiūlo **Atverti ataskaitą** arba **Atverti ataskaitų aplanką**.
 Sukurtą vieną HTML failą iš
 naudotojo aplanko `Grandiniu_LD_darbai` persiųskite dėstytojui. Nebaigtą
-ataskaitą taip pat galima išsaugoti per Pagalbą. LD1–LD7 juodraščiai saugomi automatiškai
+ataskaitą taip pat galima išsaugoti per Pagalbą. LD1–LD12 juodraščiai saugomi automatiškai
 įrašant atsakymus ir pereinant į kitą etapą; juos atverkite per Pagalbą.
 
 Dėstytojui: vykdykite `DESTYTOJUI.sce` ir pasirinkite aplanką su ataskaitomis.

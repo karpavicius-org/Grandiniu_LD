@@ -33,7 +33,7 @@ def main(executable):
             if number % 2:
                 for stage in report['evidence']['wiring'].values():
                     stage['pairs'] = [pair[::-1] for pair in stage['pairs'][::-1]]
-            filename = f'v{number:02d}.html'; write(folder/filename, report); expected[filename] = 19
+            filename = f'v{number:02d}.html'; write(folder/filename, report); expected[filename] = 14
         for stage in ['s1', 's3']:
             for damage in ['missing', 'duplicate', 'extra_endpoint']:
                 name = f'{stage}-{damage}.html'; report = fixture('LD12', 1, name)
@@ -41,7 +41,7 @@ def main(executable):
                 if damage == 'missing': pairs.pop()
                 elif damage == 'duplicate': pairs[-1] = copy.deepcopy(pairs[0])
                 else: pairs[0].append('N')
-                write(folder/name, report); expected[name] = 18
+                write(folder/name, report); expected[name] = 13
         report = fixture('LD12', 64, 'empty')
         report['answers'] = []; report['observations'] = []; report['evidence']['wiring'] = {}
         write(folder/'empty.html', report); expected['empty.html'] = 0
@@ -54,7 +54,7 @@ def main(executable):
                 answer = next(item for item in report['answers'] if item['id'] == key)
                 answer['raw'] = format(base * factor, '.17g')
                 filename = f'{key}-{name}.html'; write(folder/filename, report)
-                expected[filename] = 19 if name == 'in' else 18
+                expected[filename] = 14 if name == 'in' else 13
         results, seconds = run(executable, folder, root/'Vertinimas')
         assert len(results['results']) == len(expected)
         for result in results['results']:

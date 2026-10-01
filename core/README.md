@@ -61,4 +61,4 @@ python tools/test_automatic_reports.py --scilab /path/to/scilab --runtime studen
 
 Komandinė dėstytojo versija: `ldcheck STUDENTU_APLANKAS NAUJAS_REZULTATU_APLANKAS`. Windows naudoja Unicode `wmain`, Scilab siunčia UTF-8 baitus tiesiai į C++ ir nekviečia komandinio interpretatoriaus. GitHub Actions surenka ir tikrina Windows Server 2022 / MSVC bei Ubuntu 22.04. CI neatstoja Windows 10/11 GUI / DPI patikros su tikrais naudotojais.
 
-Atviri viso projekto priėmimo klausimai: 6 likusios metodikos ir jų testai, trifazio darbo pilna studento eiga, Windows 10/11 naudotojo sąsajos / DPI patikra, dėstytojo rankinių pažymio pataisų istorija, projekto licencijos pasirinkimas ir dalykinė / išorinė aprobacija. Jie nepristatomi kaip jau atlikti.
+Atviri viso projekto priėmimo klausimai po LD1–LD12 techninio užbaigimo: Windows 10/11 naudotojo sąsajos / DPI patikra su realiais naudotojais, dėstytojo rankinių pažymio pataisų istorija, techninių LD numerių susiejimas su oficialia dalyko numeracija, projekto licencijos pasirinkimas ir dalykinė / išorinė aprobacija. Jie nepristatomi kaip jau atlikti.

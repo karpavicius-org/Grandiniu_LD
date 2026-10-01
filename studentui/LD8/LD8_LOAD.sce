@@ -1,4 +1,4 @@
-// Pakrauna LD8 funkcijas neatidarius langų (kaip LD1–LD7_LOAD).
+// Pakrauna LD8 funkcijas neatidarius langų (kaip LD1–LD12_LOAD).
 LD8_ROOT = get_absolute_file_path("LD8_LOAD.sce");
 ld8_saved_funcprot = funcprot(); funcprot(0);
 exec(LD8_ROOT + "../student_style.sci", -1);

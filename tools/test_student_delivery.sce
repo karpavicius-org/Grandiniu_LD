@@ -10,7 +10,7 @@ function n=messagebox(varargin)
 endfunction
 try
     screen=get(0,"screensize_px");expected=min([1280 720],max([320 240],screen(3:4)-[40 120]));
-    for lab=1:8
+    for lab=1:12
         exec(root+"LD"+string(lab)+"/LD"+string(lab)+".sce",-1);
         select lab
         case 1 then f=LD1.fig;
@@ -55,7 +55,7 @@ try
         if h.string=="Atverti ataskaitų aplanką" then execstr(h.callback);assert_checkequal(DELIVERY_OPEN,fileparts(BENCH_LAST_REPORT));end
     end
     assert_checkequal(buttons,3);delete(BENCH_REPORT_WINDOW);
-    mputl("PASS: eight fixed windows; small-screen scrolling; LD2/LD3 full GUI; report and folder buttons",out+"verdict.log");exit(0);
+    mputl("PASS: twelve fixed windows; small-screen scrolling; LD2/LD3 full GUI; report and folder buttons",out+"verdict.log");exit(0);
 catch
     problem=strcat(lasterror()," | ");mputl("FAIL: "+problem,out+"verdict.log");disp(problem);exit(1);
 end

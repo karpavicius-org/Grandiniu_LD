@@ -139,9 +139,11 @@ function ld2_restart()
         ld2_clear_dynamic();
         teacher=LD2.state.teacher_mode;
         student=LD2.state.student;
+        assessment=LD2.state.assessment; practice=LD2.state.practice_used;
         LD2.state=ld2_initial_state(LD2.cfg);
         LD2.state.teacher_mode=teacher;
         LD2.state.student=student;
+        LD2.state.assessment=assessment; LD2.state.practice_used=practice;
         ld2_go_step(1,%t);
         ld2_set_status("Laboratorija pradėta iš naujo.","ok");
     end
@@ -672,6 +674,62 @@ function ld2_help_current()
     ld2_open_method(LD2.state.step);
 endfunction
 
+function ok=ld2_assessment_ready()
+    global LD2;
+    ok=%f; step=LD2.state.step;
+    [labels,n]=ld2_answer_spec(step);
+    for k=1:n
+        if stripblanks(LD2.state.answers_text(step,k))=="" then
+            ld2_set_status("Užpildykite ["+msprintf("A%02d.%02d",step,k)+"].","error","Atsakymo teisingumą vertins dėstytojo programa.");
+            return;
+        end
+    end
+    select step
+    case 1 then ok=%t;
+    case 2 then
+        [ok,missing]=ld2_validate_main("RC");
+        if ~ok then ld2_set_status("RC grandinė dar nesujungta.","error","Užbaikite laidus pagal šio etapo schemą."); end
+    case 3 then ok=%t;
+    case 4 then
+        ok=~isnan(LD2.state.rc_I) & ~isnan(LD2.state.rc_UR) & ~isnan(LD2.state.rc_UC) & ~isnan(LD2.state.rc_UE);
+        if ~ok then ld2_set_status("Trūksta RC matavimo.","error","Užfiksuokite I, UR, UC ir E."); end
+    case 5 then
+        [ok,missing]=ld2_validate_main("RL");
+        if ~ok then ld2_set_status("RL grandinė dar nesujungta.","error","Užbaikite laidus pagal šio etapo schemą."); end
+    case 6 then ok=%t;
+    case 7 then
+        ok=~isnan(LD2.state.rl_I) & ~isnan(LD2.state.rl_UR) & ~isnan(LD2.state.rl_UL) & ~isnan(LD2.state.rl_UE);
+        if ~ok then ld2_set_status("Trūksta RL matavimo.","error","Užfiksuokite I, UR, UL ir E."); end
+    case 8 then
+        [ok,missing]=ld2_validate_main("RLC");
+        if ~ok then ld2_set_status("RLC grandinė dar nesujungta.","error","Užbaikite laidus pagal šio etapo schemą."); end
+    case 9 then
+        if size(LD2.state.res_f,"*")<3 then
+            ld2_set_status("Rezonanso paieškai reikia bent trijų matavimo taškų.","error","Užfiksuokite taškus abipus stebimo maksimumo."); return;
+        end
+        [umax,imax]=max(LD2.state.res_ur); fm=LD2.state.res_f(imax);
+        ok=min(LD2.state.res_f)<fm & max(LD2.state.res_f)>fm;
+        if ~ok then ld2_set_status("Rezonanso maksimumas dar neaprėmintas.","error","Reikia matavimo mažesniu ir didesniu dažniu."); end
+    case 10 then
+        ok=%t;
+        for target=["UL" "UC" "ULC"]
+            idx=find(LD2.state.peak_target==target);
+            [bestf,bestu,found]=ld2_peak_best(target);
+            if ~found | size(idx,"*")<3 | min(LD2.state.peak_f(idx))>=bestf | max(LD2.state.peak_f(idx))<=bestf then ok=%f; end
+        end
+        if ~ok then ld2_set_status("Trūksta ekstremumų matavimo taškų.","error","Kiekvienam UL, UC ir ULC reikia bent trijų taškų abipus ekstremumo."); end
+    case 11 then
+        ok=~isnan(LD2.state.f1_meas) & ~isnan(LD2.state.f2_meas) & LD2.state.f2_meas>LD2.state.f1_meas;
+        if ~ok then ld2_set_status("Trūksta f1 ir f2 matavimų.","error","Užfiksuokite abu dažnius skirtingose rezonanso pusėse."); end
+    case 12 then
+        expected=0:1000:LD2.cfg.F_MAX;
+        ok=size(LD2.state.sweep_f,"*")==size(expected,"*");
+        if ok then ok=and(LD2.state.sweep_f==expected); end
+        if ~ok then ld2_set_status("Dažninė lentelė dar neužpildyta.","error","Atlikite 0–10 kHz skenavimą."); end
+    end
+    if ok then ld2_set_status("Etapo duomenys įrašyti.","ok","Teisingumą vertins dėstytojo programa."); end
+endfunction
+
 function ld2_check_step()
     global LD2;
     if LD2.example_active then
@@ -852,6 +910,7 @@ function ld2_show_solution()
         return;
     end
     ld2_save_answers();
+    LD2.state.practice_used=%t;
     LD2.example_backup=LD2.state;
     LD2.example_active=%t;
     step=LD2.state.step;

@@ -66,6 +66,7 @@ function s = ld2_initial_state(cfg)
         "last_error", "", ...
         "last_fix", "");
     s.assessment=%f;
+    s.practice_used=%f;
     s.answers_text = emptystr(12,8);
     s.revision = 0;
     s.measurements = list();

@@ -204,7 +204,8 @@ function ld8_render_stage()
         end
     end
     LD8.ui.instructionLine(1).string = student_wrap(ld8_step_instruction(LD8.step), 38);
-    LD8.ui.progress.string = string(LD8.step) + " / 6 etapas";
+    regime="ATSISKAITYMAS"; if ~LD8.assessment then regime="MOKYMASIS"; end
+    LD8.ui.progress.string = string(LD8.step) + " / 6 etapas · " + regime;
     if LD8.demoMode then LD8.ui.progress.string = "PAVYZDYS"; end
     LD8.ui.identity.string = student_caption(LD8.student);
     ld8_render_wires(); ld8_render_journal(); ld8_student_sync();

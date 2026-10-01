@@ -2,7 +2,7 @@
 
 Interaktyvūs elektros grandinių laboratoriniai darbai: Scilab sąsaja, bendras C++ branduolys ir automatinis LD1–LD12 ataskaitų vertinimas.
 
-LD12: simetrinė trifazė grandinė — trys vienodi imtuvai žvaigždėje ir trikampyje; Uf = Ul/√3, fazinės ir linijinės srovės, Il = √3·If bei galios P = √3·Ul·Il = 3PY (trikampis tris kartus galingesnis); 64 variantai, šeši etapai ir automatinis 19 kriterijų vertinimas.
+LD12: simetrinė trifazė grandinė — trys vienodi imtuvai žvaigždėje ir trikampyje; Uf = Ul/√3, fazinės ir linijinės srovės, Il = √3·If bei galios P = √3·Ul·Il = 3PY (trikampis tris kartus galingesnis); 64 variantai, šeši etapai ir automatinis 14 kriterijų vertinimas.
 
 LD11: rišlė (R, L) su 50 Hz generatoriumi, ampermetru, voltmetru ir vatmetru; aktyvioji P, reaktyvioji Q ir pilnutinė S galia bei cos φ prieš kompensaciją; teorinis kompensuojantis kondensatorius Ck ir matavimai su juo — P nepakinta, S ir I sumažėja, cos φ artėja į 1; 64 variantai, šeši etapai ir automatinis 20 kriterijų vertinimas.
 
@@ -20,7 +20,7 @@ LD6: E1, nuoseklus, priešpriešinis ir lygiagretus šaltinių jungimas; 64 vari
 
 **Studentas pateikia vieną HTML ataskaitą. Dėstytojas pasirenka darbų aplanką ir gauna balus, klaidų komentarus bei CSV suvestinę.** [Naudojimas, rubrika ir surinkimas](core/README.md). [Naujausia automatinio vertinimo patikra](audits/closure-2026-09-13/README.md).
 
-Windows / Linux paketai su C++ branduoliu kuriami [GitHub Actions](https://github.com/Karpavicius82/Grandiniu_LD/actions/workflows/native.yml). macOS Intel ir Apple Silicon tikrinami [atskiroje patikroje](https://github.com/Karpavicius82/Grandiniu_LD/actions/workflows/macos.yml). Šaltinių kopijai pirmiausia reikia surinkti branduolį pagal `core/README.md`.
+Windows / Linux paketai su C++ branduoliu kuriami [GitHub Actions](https://github.com/karpavicius-org/Grandiniu_LD/actions/workflows/native.yml). macOS Intel ir Apple Silicon tikrinami [atskiroje patikroje](https://github.com/karpavicius-org/Grandiniu_LD/actions/workflows/macos.yml). Kiekviename naujame CI pakete yra `RELEASE.json` su konkrečiu Git commit ir platformos binarų SHA-256. Šaltinių kopijai pirmiausia reikia surinkti branduolį pagal `core/README.md`.
 
 [Stendų ergonomikos auditas](audits/ergonomics-2026-09-13/README.md): LD1–LD3 kontaktų koordinatės, 36 × 40 px paspaudimo zonos, bent 8 px tarpai, laidų sankirtos, langų vaizdai ir C++ patikra. Linux CI tikrina tikrus Scilab langus.
 
@@ -41,11 +41,9 @@ LD1 turi naujus 64 pastovius virtualius variantus. LD2 išlaiko originalų
 `LD2-64-A-2026` priskyrimą. Vardas, grupė ir variantas išlieka eksportuose;
 LD2 juos išlaiko ir išsaugotame darbe. Pakeitus tik vardą ar grupę atliktas darbas išlieka.
 
-[Naudojimas ir variantai](studentui/README.md) · [Windows ir Linux paketas su C++ branduoliu](dist/Grandiniu_LD-studentui.zip)
+[Naudojimas ir variantai](studentui/README.md). Naujausi naudotini paketai yra konkretaus sėkmingo GitHub Actions paleidimo artefaktai: Windows/Linux – `native.yml`, macOS arm64/x86_64 – `macos.yml`. Repo kataloge `dist/` esantys seni archyvai yra tik istoriniai ir nelaikomi dabartinio `main` leidiniu.
 
-Mac: [Apple Silicon paketas](dist/Grandiniu_LD-macOS-arm64.zip) · [Intel paketas](dist/Grandiniu_LD-macOS-x86_64.zip). Pasirinkite savo Scilab architektūrą.
-
-[Naujausia keturių platformų patikra](audits/student-delivery-2026-09-23/README.md): vienodi LD1–LD7 langai, suprantamos ataskaitos ir automatinis vertinimas.
+Galutinis priėmimas turi sutapti su paketo `RELEASE.json` nurodytu `source_commit`; vien failo pavadinimas be šio manifesto nelaikomas leidinio tapatybės įrodymu.
 
 ## Automatinė patikra
 
@@ -59,8 +57,8 @@ procese ir uždaromi pasibaigus patikrai.
 
 - Visi 64 LD1 variantai tikrinami skaitiniu grandinės sprendikliu.
 - Visi 64 LD2 variantai atlieka visus 12 etapų (768 etapų).
-- Su 1, 17 ir 64 variantais visi LD1, LD2 ir LD3 etapai atliekami per tikrų
-  langų valdiklių funkcijas; tikrinamas ir duomenų išlaikymas, eksportas bei sesijos atkūrimas.
+- Su 1, 17 ir 64 variantais tiksliniai testai vykdo LD1–LD12 studento srautus per realias callback funkcijas; tikrinami matavimai, ataskaitos, sesijų atkūrimas ir pagrindiniai kraštiniai atvejai.
+- Atskiras studento pristatymo testas atidaro ir patikrina visus 12 laboratorinių langų.
 
 Naudojamas **Scilab 2026.1.0**. [LD6 Windows ir Linux patikra](audits/ld6-1b0f00a-fixes/README.md)
 apima tikrus valdiklius, geometriją ir ataskaitų vertinimą. Paketų šaltinių SHA256:
@@ -72,7 +70,7 @@ Fizinių ekranų ir visų DPI skalių patikra neatlikta.
 - `studentui/` – vienintelis aktyvus šaltinis: bendra studento sąsaja, LD1–LD12
   variantai, elementų numerių registrai (T/B/E/F/V/H/W/D/A kodai) ir automatinė patikra.
 - `audits/` – LD2 nepriklausomo kryžminio audito medžiaga, naudota prieš v2.0.
-- `dist/` – paruoštas savarankiškas studento versijos ZIP paketas.
+- `dist/` – lokalaus / CI paketavimo išvestis; naudoti galima tik paketą, kurio `RELEASE.json` commit sutampa su priimta Git būsena.
 
 Studento versijos vykdomojo kodo pagrindas – pilni LD1 v1.7 ir LD2 v1.1
 paketai, papildyti originaliu LD2 v2 variantų moduliu. Senieji šakniniai

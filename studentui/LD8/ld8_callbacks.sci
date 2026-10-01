@@ -259,7 +259,10 @@ function ld8_toggle_solution()
         for field = ["wires" "answers" "wireMode" "journal" "powerOn" "switchOn" "lastMeasurement"]
             LD8(field) = LD8.backup(field);
         end
-        LD8.pending = ""; ld8_render_stage(); ld8_set_status("Grįžta į savo darbą.", "info", ""); return;
+        LD8.pending = ""; ld8_render_stage(); ld8_set_status("Grįžta į savo darbą.", "info", ""); bench_autosave("LD8"); return;
+    end
+    if LD8.assessment then
+        ld8_set_status("Pavyzdys atsiskaitymo režime nepasiekiamas.", "error", "Perjunkite į Mokymąsi per Pagalbą."); return;
     end
     ld8_save_answers(); LD8.backup = struct();
     for field = ["wires" "answers" "wireMode" "journal" "powerOn" "switchOn" "lastMeasurement"]
@@ -284,7 +287,7 @@ function ld8_restore_stage()
 endfunction
 
 function ld8_restart()
-    ld8_init_state(); ld8_render_stage(); ld8_set_status("Darbas pradėtas iš naujo.", "info", "Studentas ir variantas išliko."); bench_autosave("LD8");
+    ld8_init_state(); ld8_render_stage(); ld8_set_status("Darbas pradėtas iš naujo.", "info", "Studentas, variantas, režimas ir mokymosi žyma išliko."); bench_autosave("LD8");
 endfunction
 
 function ld8_answers_changed()

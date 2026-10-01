@@ -289,11 +289,8 @@ def fixture(lab, n, identity):
         i_line = i_ph * m12.sqrt(3)
         p_star = ul12_ * ul12_ / r12_
         p_delta = 3 * ul12_ * ul12_ / r12_
-        for k in range(3):
-            observation(f"i{k+1}s", i_star, "mA")
-        for k in range(3):
-            observation(f"i{k+1}d", i_ph, "mA")
-        observation("ild", i_line, "mA")
+        observation("is", i_star, "mA")
+        observation("id", i_ph, "mA")
         vector(1, [phase], ["V"])
         vector(2, [i_star], ["mA"])
         vector(3, [ul12_], ["V"])

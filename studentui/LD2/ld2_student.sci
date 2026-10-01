@@ -50,9 +50,11 @@ endfunction
 function ld2_apply_profile(st,cfg)
     global LD2;
     ld2_save_answers();
+    assessment=LD2.state.assessment; practice=LD2.state.practice_used;
     if st.number<>LD2.state.student.number then
         ld2_clear_dynamic();
         LD2.cfg=cfg; LD2.state=ld2_initial_state(cfg);
+        LD2.state.assessment=assessment; LD2.state.practice_used=practice;
     end
     LD2.state.student=st;
     ld2_render_step();
@@ -254,6 +256,8 @@ function ld2_student_primary()
     ld2_save_answers();
     if LD2.example_active then ld2_show_solution();
     elseif LD2.state.assessment then
+        if ~ld2_assessment_ready() then bench_autosave("LD2"); return; end
+        LD2.state.completed(LD2.state.step)=1; LD2.state.skipped(LD2.state.step)=0;
         bench_autosave("LD2");
         if LD2.state.step==12 then bench_export_current("LD2");
         else ld2_go_step(LD2.state.step+1,%f);end

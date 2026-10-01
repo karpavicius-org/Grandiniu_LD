@@ -1,4 +1,4 @@
-"""Internal feedback: eight consistent windows, compact screens and report actions."""
+"""Internal feedback: twelve consistent windows, compact screens and report actions."""
 import argparse,json,os,shutil,subprocess,sys
 from pathlib import Path
 p=argparse.ArgumentParser(description=__doc__)
