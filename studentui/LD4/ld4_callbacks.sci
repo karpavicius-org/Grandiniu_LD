@@ -437,5 +437,7 @@ function ld4_close()
             ld4_set_status("Nepavyko išsaugoti juodraščio.","error","Langas paliktas atvertas, kad neprarastumėte darbo."); return;
         end
     end
-    delete(LD4.fig);
+    f=LD4.fig;
+    delete(f);
+    LD4.fig=[];
 endfunction

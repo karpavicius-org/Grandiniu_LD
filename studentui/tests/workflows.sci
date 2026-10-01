@@ -526,6 +526,7 @@ function bench_ld4_workflow(n,root,gui)
             bench_restore_snapshot(saved);
             assert_checkequal(LD4.answers(5,1),keep);
             assert_checktrue(LD4.assessment); assert_checkfalse(LD4.powerOn); assert_checkfalse(LD4.switchOn);
+            mprintf("PASS LD4 V17: snapshot restore\n");
         end
         r=bench_report_data("LD4"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
         // Atstatome tikrąjį kelią, kai LD_DATA_DIR prieš tai nebuvo nustatytas.
@@ -538,6 +539,7 @@ function bench_ld4_workflow(n,root,gui)
             // Learning mode still checks locally; practice survives restart.
             LD4.assessment=%f; LD4.practice_used=%t; ld4_restart();
             assert_checkfalse(LD4.assessment); assert_checktrue(LD4.practice_used);
+            mprintf("PASS LD4 V17: learning restart\n");
             for k=1:size(W,1); bench_ld4_click(W(k,1)); bench_ld4_click(W(k,2)); end
             bench_ld4_primary(); assert_checkequal(LD4.step,2);
             bench_ld4_action("ld4_toggle_power()"); bench_ld4_action("ld4_toggle_switch()");
@@ -547,8 +549,10 @@ function bench_ld4_workflow(n,root,gui)
             LD4.ui.answerEdits(1).string="0"; bench_ld4_primary();
             assert_checkfalse(LD4.done(2)); assert_checkequal(LD4.step,2);
             assert_checktrue(strindex(LD4.ui.statusMain.string,"Tikimasi")<>[]);
+            mprintf("PASS LD4 V17: learning validation\n");
             ld4_toggle_solution(); assert_checktrue(LD4.demoMode); assert_checktrue(LD4.practice_used);
             ld4_toggle_solution(); assert_checkfalse(LD4.demoMode);
+            mprintf("PASS LD4 V17: practice demo\n");
         end
         assert_checktrue(isfield(LD4,"autosave_paths"));
         assert_checktrue(size(LD4.autosave_paths,"*")>=1);
@@ -736,6 +740,7 @@ function bench_ld6_answers(step,values)
         [answer_step,slot]=ld6_answer_slot(index);
         if answer_step==step then
             LD6.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
+            execstr(LD6.ui.answerEdits(index).callback);
             value_index=value_index+1;
         end
     end
@@ -869,6 +874,7 @@ function bench_ld7_answers(step,values)
         [answer_step,slot]=ld7_answer_slot(index);
         if answer_step==step then
             LD7.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
+            execstr(LD7.ui.answerEdits(index).callback);
             value_index=value_index+1;
         end
     end
@@ -1013,6 +1019,7 @@ function bench_ld8_answers(step,values)
         [answer_step,slot]=ld8_answer_slot(index);
         if answer_step==step then
             LD8.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
+            execstr(LD8.ui.answerEdits(index).callback);
             value_index=value_index+1;
         end
     end
@@ -1107,6 +1114,7 @@ function bench_ld9_answers(step,values)
         [answer_step,slot]=ld9_answer_slot(index);
         if answer_step==step then
             LD9.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
+            execstr(LD9.ui.answerEdits(index).callback);
             value_index=value_index+1;
         end
     end
@@ -1208,6 +1216,7 @@ function bench_ld10_answers(step,values)
         [answer_step,slot]=ld10_answer_slot(index);
         if answer_step==step then
             LD10.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
+            execstr(LD10.ui.answerEdits(index).callback);
             value_index=value_index+1;
         end
     end
@@ -1309,6 +1318,7 @@ function bench_ld11_answers(step,values)
         [answer_step,slot]=ld11_answer_slot(index);
         if answer_step==step then
             LD11.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
+            execstr(LD11.ui.answerEdits(index).callback);
             value_index=value_index+1;
         end
     end
@@ -1401,6 +1411,7 @@ function bench_ld12_answers(step,values)
         [answer_step,slot]=ld12_answer_slot(index);
         if answer_step==step then
             LD12.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
+            execstr(LD12.ui.answerEdits(index).callback);
             value_index=value_index+1;
         end
     end
