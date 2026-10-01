@@ -439,5 +439,5 @@ function ld4_close()
     end
     f=LD4.fig;
     delete(f);
-    LD4.fig=[];
+    LD4=rmfield(LD4,"fig");
 endfunction
