@@ -6,7 +6,9 @@ function ld4_student_main(root)
     global LD4;
     if typeof(LD4)=="st" then
         if isfield(LD4,"fig") then
-            if is_handle_valid(LD4.fig) then show_window(LD4.fig); return; end
+            if typeof(LD4.fig)=="handle" then
+                if is_handle_valid(LD4.fig) then show_window(LD4.fig); return; end
+            end
         end
     end
     bench_core_require();

@@ -79,7 +79,7 @@ try
     assert_checktrue(ld4_close_enough(30.3,30,0.01,1e-9));
     assert_checkfalse(ld4_close_enough(30.45,30,0.01,1e-9));
     assert_checktrue(ld4_close_enough(0,1e-14,0.05,0.005));
-    ld4_close();assert_checkfalse(isfield(LD4,"fig"));
+    ld4_close();assert_checktrue(typeof(LD4.fig)<>"handle");
     mputl("LD4_PASS: registration, assessment/learning split, autosave/close, safe rewiring, GUI variants 1/17/64, removal, reconnect, actual export, evidence, C++ readings, raw edits, 42 geometry cases",out+"verdict.log");exit(0);
 catch
     mputl("LD4_FAIL: "+strcat(lasterror()," | "),out+"verdict.log");disp(lasterror());exit(1);

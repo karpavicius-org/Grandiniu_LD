@@ -556,7 +556,7 @@ function bench_ld4_workflow(n,root,gui)
         end
         assert_checktrue(isfield(LD4,"autosave_paths"));
         assert_checktrue(size(LD4.autosave_paths,"*")>=1);
-        ld4_close(); assert_checkfalse(isfield(LD4,"fig"));
+        ld4_close(); assert_checktrue(typeof(LD4.fig)<>"handle");
     end
 endfunction
 
