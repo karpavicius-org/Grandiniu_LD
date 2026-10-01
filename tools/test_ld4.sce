@@ -71,7 +71,7 @@ try
     // Formal assessment keeps a wrong raw answer and advances without revealing the key.
     LD4.ui.answerEdits(1).string="0";
     ld4_student_primary();assert_checkequal(LD4.step,3);assert_checktrue(LD4.done(2));
-    assert_checkequal(LD4.answers(2,1),"0");assert_checktrue(strindex(LD4.ui.statusMain.string,"Tikimasi")==[]);
+    assert_checkequal(LD4.answers(2,1),"0");assert_checktrue(strindex(LD4.ui.statusMain.string,"Tikimasi")==[]);assert_checktrue(strindex(LD4.ui.statusFix.string,"Tikimasi")==[]);
     assert_checkfalse(LD4.powerOn);assert_checkfalse(LD4.switchOn);
     ld4_set_resistor(2);assert_checkfalse(LD4.powerOn);assert_checkfalse(LD4.switchOn);
     ld4_set_step(4);

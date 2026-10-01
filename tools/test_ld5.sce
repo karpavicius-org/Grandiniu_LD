@@ -89,11 +89,11 @@ try
     LD5.done(2)=%f; LD5.step=2; ld5_render_stage();
     LD5.ui.answerEdits(1).string="1+2";
     bench_ld5_primary(); assert_checkequal(LD5.step,3); assert_checktrue(LD5.done(2));
-    assert_checkequal(LD5.answers(2,1),"1+2"); assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")==[]);
+    assert_checkequal(LD5.answers(2,1),"1+2"); assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")==[]); assert_checktrue(strindex(LD5.ui.statusFix.string,"Tikimasi")==[]);
     // Learning mode still performs local validation.
     ld5_jump_step(2); LD5.assessment=%f; LD5.practice_used=%t; ld5_render_stage();
     LD5.ui.answerEdits(1).string="1+2"; bench_ld5_primary();
-    assert_checkequal(LD5.step,2); assert_checkfalse(LD5.done(2)); assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")<>[]);
+    assert_checkequal(LD5.step,2); assert_checkfalse(LD5.done(2)); assert_checktrue(strindex(LD5.ui.statusFix.string,"Tikimasi")<>[]);
     exp=ld5_expected_answers(); LD5.ui.answerEdits(1).string=strsubst(msprintf("%.12g",exp(2,1)),".",",");
     bench_ld5_primary(); assert_checkequal(LD5.step,3); assert_checktrue(LD5.done(2));
     LD5.assessment=%t; LD5.practice_used=%f;

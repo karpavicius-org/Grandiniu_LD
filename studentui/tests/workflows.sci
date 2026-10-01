@@ -312,7 +312,7 @@ function bench_ld3_workflow(n,root,gui)
                 bench_ld3_primary();
                 assert_checktrue(LD3.done(2)); assert_checkequal(LD3.step,3);
                 assert_checkequal(LD3.answers(2,1),"0");
-                assert_checktrue(strindex(LD3.ui.statusMain.string,"Tikimasi")==[]);
+                assert_checktrue(strindex(LD3.ui.statusMain.string,"Tikimasi")==[]); assert_checktrue(strindex(LD3.ui.statusFix.string,"Tikimasi")==[]);
                 // Restore a correct raw answer so the exported acceptance fixture
                 // remains a perfect report.
                 ld3_jump_step(2);
@@ -374,7 +374,7 @@ function bench_ld3_workflow(n,root,gui)
             ld3_set_voltage(u(1)); bench_ld3_action("ld3_measure()");
             LD3.ui.answerEdits(1).string="0"; bench_ld3_primary();
             assert_checkfalse(LD3.done(2)); assert_checkequal(LD3.step,2);
-            assert_checktrue(strindex(LD3.ui.statusMain.string,"Tikimasi")<>[]);
+            assert_checktrue(strindex(LD3.ui.statusFix.string,"Tikimasi")<>[]);
             ld3_toggle_solution(); assert_checktrue(LD3.demoMode); assert_checktrue(LD3.practice_used);
             ld3_toggle_solution(); assert_checkfalse(LD3.demoMode);
         end
@@ -464,7 +464,7 @@ function bench_ld4_workflow(n,root,gui)
                 bench_ld4_primary();
                 assert_checktrue(LD4.done(2)); assert_checkequal(LD4.step,3);
                 assert_checkequal(LD4.answers(2,1),"0");
-                assert_checktrue(strindex(LD4.ui.statusMain.string,"Tikimasi")==[]);
+                assert_checktrue(strindex(LD4.ui.statusMain.string,"Tikimasi")==[]); assert_checktrue(strindex(LD4.ui.statusFix.string,"Tikimasi")==[]);
                 assert_checkfalse(LD4.powerOn); assert_checkfalse(LD4.switchOn);
                 // Restore the correct raw answer so the exported acceptance report is perfect.
                 ld4_jump_step(2);
@@ -548,7 +548,7 @@ function bench_ld4_workflow(n,root,gui)
             end
             LD4.ui.answerEdits(1).string="0"; bench_ld4_primary();
             assert_checkfalse(LD4.done(2)); assert_checkequal(LD4.step,2);
-            assert_checktrue(strindex(LD4.ui.statusMain.string,"Tikimasi")<>[]);
+            assert_checktrue(strindex(LD4.ui.statusFix.string,"Tikimasi")<>[]);
             mprintf("PASS LD4 V17: learning validation\n");
             ld4_toggle_solution(); assert_checktrue(LD4.demoMode); assert_checktrue(LD4.practice_used);
             ld4_toggle_solution(); assert_checkfalse(LD4.demoMode);
@@ -639,7 +639,7 @@ function bench_ld5_workflow(n,root,gui)
                 bench_ld5_primary();
                 assert_checktrue(LD5.done(2)); assert_checkequal(LD5.step,3);
                 assert_checkequal(LD5.answers(2,1),"0");
-                assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")==[]);
+                assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")==[]); assert_checktrue(strindex(LD5.ui.statusFix.string,"Tikimasi")==[]);
                 // Put the correct raw value back so acceptance exports remain perfect.
                 ld5_jump_step(2);
                 LD5.ui.answerEdits(1).string=msprintf("%.12g",u2);
@@ -701,7 +701,7 @@ function bench_ld5_workflow(n,root,gui)
             bench_ld5_action("ld5_set_position(2)"); bench_ld5_action("ld5_measure()");
             LD5.ui.answerEdits(1).string="0"; bench_ld5_primary();
             assert_checkfalse(LD5.done(2)); assert_checkequal(LD5.step,2);
-            assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")<>[]);
+            assert_checktrue(strindex(LD5.ui.statusFix.string,"Tikimasi")<>[]);
             ld5_toggle_solution(); assert_checktrue(LD5.demoMode); assert_checktrue(LD5.practice_used);
             ld5_toggle_solution(); assert_checkfalse(LD5.demoMode);
         end
