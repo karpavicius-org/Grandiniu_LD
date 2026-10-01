@@ -207,7 +207,8 @@ function ld7_render_stage()
         end
     end
     LD7.ui.instructionLine(1).string = student_wrap(ld7_step_instruction(LD7.step), 38);
-    LD7.ui.progress.string = string(LD7.step) + " / 6 etapas";
+    regime="ATSISKAITYMAS"; if ~LD7.assessment then regime="MOKYMASIS"; end
+    LD7.ui.progress.string = string(LD7.step) + " / 6 etapas · " + regime;
     if LD7.demoMode then LD7.ui.progress.string = "PAVYZDYS"; end
     LD7.ui.identity.string = student_caption(LD7.student);
     ld7_render_wires(); ld7_render_journal(); ld7_student_sync();
@@ -259,8 +260,8 @@ function ld7_build_gui()
     LD7.ui.instructionLine(1).verticalalignment = "top";
     labels = ["[A03.01] r = ΔU/ΔI, Ω";"[A03.02] E = U1+I1·r, V"; ...
         "[A04.01] P1 = U1·I1, mW";"[A04.02] P3 = U3·I3, mW";"[A04.03] P5 = U5·I5, mW"; ...
-        "[A04.04] Pmax = E²/(4r), mW";"[A04.05] η3 = U3/E · 100"; ...
-        "[A05.01] U0 (TE), V";"[A05.02] Ik = E/r, mA"; ...
+        "[A04.04] Pmax = 1000·E²/(4r), mW";"[A04.05] η3 = U3/E · 100"; ...
+        "[A05.01] U0 (TE), V";"[A05.02] Ik = 1000·E/r, mA"; ...
         "[A06.01] P max kai R = r?";"[A06.02] η = 50 %?";"[A06.03] U krinta dėl r?"];
     LD7.ui.answerEdits = []; LD7.ui.answerLabels = [];
     for k = 1:12
@@ -278,17 +279,30 @@ function ld7_build_gui()
     LD7.ui.controls = controls; LD7.ui.dynamic = controls;
     LD7.ui.statusMain = student_text(f, [0.025 0.055 0.95 0.035], "", 13, %t, [0.94 0.96 0.96]);
     LD7.ui.statusFix = student_text(f, [0.025 0.020 0.95 0.035], "", 12, %f, [0.94 0.96 0.96]);
+    f.closerequestfcn="ld7_close()";
     ld7_font(f); student_finish_window(f); f.visible = "on"; ld7_render_stage();
     f.resizefcn = "ld7_resize(" + string(f.figure_id) + ")";
 endfunction
 
 function ld7_show_actions()
-    choice = messagebox("Pagalba ir darbo veiksmai", "LD7", "info", ...
-        ["[B04] Kaip sujungti" "[B05] Žemėlapis" "[B07] Pavyzdys" "[B08] Ataskaita" "[B06] Atkurti stendą" "[B09] Iš naujo" "Grįžti"], "modal");
+    global LD7;
+    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
+        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD7 · Pagalba");
     select choice
-    case 1 then ld7_show_wiring_guide(); case 2 then ld7_show_stand_map();
-    case 3 then ld7_toggle_solution(); case 4 then bench_export_current("LD7");
-    case 5 then ld7_restore_stage(); case 6 then ld7_restart();
+    case 1 then bench_open_snapshot("LD7");
+    case 2 then ld7_show_wiring_guide();
+    case 3 then bench_export_current("LD7");
+    case 4 then bench_mode("LD7"); ld7_render_stage(); bench_autosave("LD7");
+    case 6 then ld7_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD7.student);"";student_parameter_lines("LD7",LD7.cfg)]);
+    case 5 then
+        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD7 · Daugiau veiksmų");
+        select extra
+        case 1 then ld7_show_stand_map();
+        case 2 then ld7_toggle_solution();
+        case 3 then ld7_restore_stage();
+        case 4 then
+            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD7","question",["Pradėti" "Grįžti"],"modal")==1 then ld7_restart(); end
+        end
     end
 endfunction
 
