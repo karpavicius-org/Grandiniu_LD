@@ -108,6 +108,17 @@ function path=bench_save_snapshot(lab)
     if status<>0 then error("Juodraštis neišsaugotas. Ankstesnis įrašas liko nepakeistas."); end
 endfunction
 
+function paths=bench_autosave_trim(paths)
+    if size(paths,"*")<=2 then return; end
+    old=paths(1);
+    try
+        if isfile(old) then mdelete(old); end
+    catch
+        // Retention is best-effort. The newly written snapshot remains valid.
+    end
+    paths(1)=[];
+endfunction
+
 function bench_autosave(lab)
     global LD1 LD2 LD3 LD4 LD5 LD6 LD7 LD8 LD9 LD10 LD11 LD12 BENCH_AUTOSAVE_SUSPENDED;
     if BENCH_AUTOSAVE_SUSPENDED==%t then return; end
@@ -155,62 +166,62 @@ function bench_autosave(lab)
         if lab=="LD1" then
             if ~isfield(LD1,"autosave_paths") then LD1.autosave_paths=emptystr(0,1); end
             LD1.autosave_paths($+1)=path;
-            if size(LD1.autosave_paths,"*")>2 then mdelete(LD1.autosave_paths(1));LD1.autosave_paths(1)=[];end
+            LD1.autosave_paths=bench_autosave_trim(LD1.autosave_paths);
             LD1.autosave_error="";
         elseif lab=="LD3" then
             if ~isfield(LD3,"autosave_paths") then LD3.autosave_paths=emptystr(0,1); end
             LD3.autosave_paths($+1)=path;
-            if size(LD3.autosave_paths,"*")>2 then mdelete(LD3.autosave_paths(1));LD3.autosave_paths(1)=[];end
+            LD3.autosave_paths=bench_autosave_trim(LD3.autosave_paths);
             LD3.autosave_error="";
         elseif lab=="LD4" then
             if ~isfield(LD4,"autosave_paths") then LD4.autosave_paths=emptystr(0,1); end
             LD4.autosave_paths($+1)=path;
-            if size(LD4.autosave_paths,"*")>2 then mdelete(LD4.autosave_paths(1));LD4.autosave_paths(1)=[];end
+            LD4.autosave_paths=bench_autosave_trim(LD4.autosave_paths);
             LD4.autosave_error="";
         elseif lab=="LD5" then
             if ~isfield(LD5,"autosave_paths") then LD5.autosave_paths=emptystr(0,1); end
             LD5.autosave_paths($+1)=path;
-            if size(LD5.autosave_paths,"*")>2 then mdelete(LD5.autosave_paths(1));LD5.autosave_paths(1)=[];end
+            LD5.autosave_paths=bench_autosave_trim(LD5.autosave_paths);
             LD5.autosave_error="";
         elseif lab=="LD6" then
             if ~isfield(LD6,"autosave_paths") then LD6.autosave_paths=emptystr(0,1); end
             LD6.autosave_paths($+1)=path;
-            if size(LD6.autosave_paths,"*")>2 then mdelete(LD6.autosave_paths(1));LD6.autosave_paths(1)=[];end
+            LD6.autosave_paths=bench_autosave_trim(LD6.autosave_paths);
             LD6.autosave_error="";
         elseif lab=="LD7" then
             if ~isfield(LD7,"autosave_paths") then LD7.autosave_paths=emptystr(0,1); end
             LD7.autosave_paths($+1)=path;
-            if size(LD7.autosave_paths,"*")>2 then mdelete(LD7.autosave_paths(1));LD7.autosave_paths(1)=[];end
+            LD7.autosave_paths=bench_autosave_trim(LD7.autosave_paths);
             LD7.autosave_error="";
         elseif lab=="LD8" then
             if ~isfield(LD8,"autosave_paths") then LD8.autosave_paths=emptystr(0,1); end
             LD8.autosave_paths($+1)=path;
-            if size(LD8.autosave_paths,"*")>2 then mdelete(LD8.autosave_paths(1));LD8.autosave_paths(1)=[];end
+            LD8.autosave_paths=bench_autosave_trim(LD8.autosave_paths);
             LD8.autosave_error="";
         elseif lab=="LD9" then
             if ~isfield(LD9,"autosave_paths") then LD9.autosave_paths=emptystr(0,1); end
             LD9.autosave_paths($+1)=path;
-            if size(LD9.autosave_paths,"*")>2 then mdelete(LD9.autosave_paths(1));LD9.autosave_paths(1)=[];end
+            LD9.autosave_paths=bench_autosave_trim(LD9.autosave_paths);
             LD9.autosave_error="";
         elseif lab=="LD10" then
             if ~isfield(LD10,"autosave_paths") then LD10.autosave_paths=emptystr(0,1); end
             LD10.autosave_paths($+1)=path;
-            if size(LD10.autosave_paths,"*")>2 then mdelete(LD10.autosave_paths(1));LD10.autosave_paths(1)=[];end
+            LD10.autosave_paths=bench_autosave_trim(LD10.autosave_paths);
             LD10.autosave_error="";
         elseif lab=="LD11" then
             if ~isfield(LD11,"autosave_paths") then LD11.autosave_paths=emptystr(0,1); end
             LD11.autosave_paths($+1)=path;
-            if size(LD11.autosave_paths,"*")>2 then mdelete(LD11.autosave_paths(1));LD11.autosave_paths(1)=[];end
+            LD11.autosave_paths=bench_autosave_trim(LD11.autosave_paths);
             LD11.autosave_error="";
         elseif lab=="LD12" then
             if ~isfield(LD12,"autosave_paths") then LD12.autosave_paths=emptystr(0,1); end
             LD12.autosave_paths($+1)=path;
-            if size(LD12.autosave_paths,"*")>2 then mdelete(LD12.autosave_paths(1));LD12.autosave_paths(1)=[];end
+            LD12.autosave_paths=bench_autosave_trim(LD12.autosave_paths);
             LD12.autosave_error="";
         else
             if ~isfield(LD2,"autosave_paths") then LD2.autosave_paths=emptystr(0,1); end
             LD2.autosave_paths($+1)=path;
-            if size(LD2.autosave_paths,"*")>2 then mdelete(LD2.autosave_paths(1));LD2.autosave_paths(1)=[];end
+            LD2.autosave_paths=bench_autosave_trim(LD2.autosave_paths);
             LD2.autosave_error="";
         end
     catch

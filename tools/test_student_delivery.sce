@@ -58,5 +58,8 @@ try
     assert_checkequal(buttons,3);delete(BENCH_REPORT_WINDOW);
     mputl("PASS: twelve fixed windows; small-screen scrolling; LD2/LD3 full GUI; report and folder buttons",out+"verdict.log");exit(0);
 catch
-    problem=strcat(lasterror()," | ");mputl("FAIL: "+problem,out+"verdict.log");disp(problem);exit(1);
+    [messages,errno,errline,errfunc]=lasterror(%f);
+    problem=strcat(messages," | ");
+    detail="FAIL: "+problem+" [error="+string(errno)+", function="+errfunc+", line="+string(errline)+"]";
+    mputl(detail,out+"verdict.log");disp(detail);exit(1);
 end

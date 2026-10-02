@@ -198,8 +198,11 @@ function bench_ld2_workflow(n,root,gui)
         clean=LD2.state; LD2.state.assessment=%t; LD2.state.practice_used=%f;
         mprintf("PASS LD2 V17: postflow baseline\n");
         ld2_go_step(3,%f); LD2.state.completed(3)=0;
+        mprintf("PASS LD2 V17: reopened step 3\n");
         LD2.ui.answer_edits(1).string="raw-wrong"; execstr(LD2.ui.answer_edits(1).callback);
+        mprintf("PASS LD2 V17: raw edit callback\n");
         bench_ld2_primary();
+        mprintf("PASS LD2 V17: assessment primary\n");
         assert_checkequal(LD2.state.step,4); assert_checkequal(LD2.state.completed(3),1);
         assert_checkequal(LD2.state.answers_text(3,1),"raw-wrong");
         mprintf("PASS LD2 V17: assessment raw\n");

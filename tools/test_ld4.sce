@@ -84,5 +84,7 @@ try
     assert_checktrue(typeof(LD4.fig)<>"handle");
     mputl("LD4_PASS: registration, assessment/learning split, autosave/close, safe rewiring, GUI variants 1/17/64, removal, reconnect, actual export, evidence, C++ readings, raw edits, 42 geometry cases",out+"verdict.log");exit(0);
 catch
-    mputl("LD4_FAIL: "+strcat(lasterror()," | "),out+"verdict.log");disp(lasterror());exit(1);
+    [messages,errno,errline,errfunc]=lasterror(%f);
+    detail="LD4_FAIL: "+strcat(messages," | ")+" [error="+string(errno)+", function="+errfunc+", line="+string(errline)+"]";
+    mputl(detail,out+"verdict.log");disp(detail);exit(1);
 end
