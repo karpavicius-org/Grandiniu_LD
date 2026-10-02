@@ -429,13 +429,14 @@ endfunction
 function ld4_close()
     global LD4;
     if ~isfield(LD4,"fig") then return; end
-    if ~is_handle_valid(LD4.fig) then return; end
+    if typeof(LD4.fig)<>"handle" then LD4.fig=[]; return; end
+    if ~is_handle_valid(LD4.fig) then LD4.fig=[]; return; end
     if LD4.demoMode then ld4_toggle_solution(); end
-    ld4_save_answers(); bench_autosave("LD4");
-    if isfield(LD4,"autosave_error") then
-        if LD4.autosave_error<>"" then
-            ld4_set_status("Nepavyko išsaugoti juodraščio.","error","Langas paliktas atvertas, kad neprarastumėte darbo."); return;
-        end
+    ld4_save_answers();
+    LD4.autosave_error="";
+    bench_autosave("LD4");
+    if LD4.autosave_error<>"" then
+        ld4_set_status("Nepavyko išsaugoti juodraščio.","error","Langas paliktas atvertas, kad neprarastumėte darbo. "+LD4.autosave_error); return;
     end
     f=LD4.fig;
     delete(f);

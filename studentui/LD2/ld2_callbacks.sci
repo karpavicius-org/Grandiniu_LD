@@ -130,23 +130,27 @@ function ld2_next()
     end
 endfunction
 
+function ld2_restart_apply()
+    global LD2;
+    ld2_clear_dynamic();
+    teacher=LD2.state.teacher_mode;
+    student=LD2.state.student;
+    assessment=LD2.state.assessment; practice=LD2.state.practice_used;
+    LD2.state=ld2_initial_state(LD2.cfg);
+    LD2.state.teacher_mode=teacher;
+    LD2.state.student=student;
+    LD2.state.assessment=assessment; LD2.state.practice_used=practice;
+    ld2_go_step(1,%t);
+    ld2_set_status("Laboratorija pradėta iš naujo.","ok");
+    bench_autosave("LD2");
+endfunction
+
 function ld2_restart()
     global LD2;
     if LD2.example_active then ld2_show_solution(); return; end
     choice=x_choose(["[D01] ATŠAUKTI";"[D02] TAIP, PRADĖTI IŠ NAUJO"], ...
         "Bus išvalyti visi laidai, matavimai ir atsakymai.");
-    if choice==2 then
-        ld2_clear_dynamic();
-        teacher=LD2.state.teacher_mode;
-        student=LD2.state.student;
-        assessment=LD2.state.assessment; practice=LD2.state.practice_used;
-        LD2.state=ld2_initial_state(LD2.cfg);
-        LD2.state.teacher_mode=teacher;
-        LD2.state.student=student;
-        LD2.state.assessment=assessment; LD2.state.practice_used=practice;
-        ld2_go_step(1,%t);
-        ld2_set_status("Laboratorija pradėta iš naujo.","ok");
-    end
+    if choice==2 then ld2_restart_apply(); end
 endfunction
 
 function ld2_terminal_click(id)
