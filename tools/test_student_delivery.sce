@@ -41,7 +41,8 @@ try
         delete(f);
     end
     exec(root+"tests/workflows.sci",-1);
-    bench_ld2_workflow(17,root,%t);bench_ld3_workflow(17,root,%t);
+    mprintf("DELIVERY: LD2 workflow start\n"); bench_ld2_workflow(17,root,%t); mprintf("DELIVERY: LD2 workflow PASS\n");
+    mprintf("DELIVERY: LD3 workflow start\n"); bench_ld3_workflow(17,root,%t); mprintf("DELIVERY: LD3 workflow PASS\n");
     // Capture the two OS-opening callbacks without opening desktop apps in CI.
     function bench_open_local(path)
         global DELIVERY_OPEN;DELIVERY_OPEN=path;

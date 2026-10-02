@@ -281,6 +281,7 @@ function bench_ld3_workflow(n,root,gui)
     LD3=struct("cfg",cfg,"student",student_profile(n,"Automatinė Patikra","TEST","LD3"), ...
         "ui",struct("headless",~gui));
     ld3_start();
+    if gui then mprintf("LD3 V%02d: start PASS\n",n); end
     assert_checktrue(LD3.assessment);
     assert_checkfalse(LD3.practice_used);
     if gui then
@@ -290,6 +291,7 @@ function bench_ld3_workflow(n,root,gui)
         if n==17 then
             // Formal assessment must not reveal the example.
             ld3_toggle_solution(); assert_checkfalse(LD3.demoMode); assert_checkfalse(LD3.practice_used);
+            mprintf("LD3 V17: formal example block PASS\n");
         end
     end
     W=["E_P" "K1";"K2" "A_P";"A_N" "R1A";"R1B" "E_N";"V_P" "R1A";"V_N" "R1B"];
@@ -529,12 +531,14 @@ function bench_ld4_workflow(n,root,gui)
             mprintf("PASS LD4 V17: snapshot restore\n");
         end
         r=bench_report_data("LD4"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
+        mprintf("PASS LD4 V%02d: report data\n",n);
         // Atstatome tikrąjį kelią, kai LD_DATA_DIR prieš tai nebuvo nustatytas.
         if getos()=="Windows" then userdir=getenv("USERPROFILE",SCIHOME); else userdir=getenv("HOME",SCIHOME); end
         old=getenv("LD_DATA_DIR",fullfile(userdir,"Grandiniu_LD_darbai"));
         setenv("LD_DATA_DIR",root+"tests/results/");
         path=bench_export_current("LD4"); setenv("LD_DATA_DIR",old);
         assert_checktrue(path<>""); assert_checktrue(isfile(path));
+        mprintf("PASS LD4 V%02d: export file\n",n);
         if n==17 then
             // Learning mode still checks locally; practice survives restart.
             LD4.assessment=%f; LD4.practice_used=%t; ld4_restart();
@@ -556,7 +560,9 @@ function bench_ld4_workflow(n,root,gui)
         end
         assert_checktrue(isfield(LD4,"autosave_paths"));
         assert_checktrue(size(LD4.autosave_paths,"*")>=1);
+        mprintf("PASS LD4 V%02d: autosave\n",n);
         ld4_close(); assert_checktrue(typeof(LD4.fig)<>"handle");
+        mprintf("PASS LD4 V%02d: close\n",n);
     end
 endfunction
 
