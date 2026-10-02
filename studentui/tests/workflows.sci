@@ -549,11 +549,9 @@ function bench_ld4_workflow(n,root,gui)
         end
         r=bench_report_data("LD4"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
         mprintf("PASS LD4 V%02d: report data\n",n);
-        // Atstatome tikrąjį kelią, kai LD_DATA_DIR prieš tai nebuvo nustatytas.
-        if getos()=="Windows" then userdir=getenv("USERPROFILE",SCIHOME); else userdir=getenv("HOME",SCIHOME); end
-        old=getenv("LD_DATA_DIR",fullfile(userdir,"Grandiniu_LD_darbai"));
-        setenv("LD_DATA_DIR",root+"tests/results/");
-        path=bench_export_current("LD4"); setenv("LD_DATA_DIR",old);
+        // Naudojame tikrąjį perduotą LD_DATA_DIR kelią. Jo neperrašome ir
+        // neatkuriame per setenv, nes Windows Unicode kelias turi išlikti bitų tikslumu.
+        path=bench_export_current("LD4");
         assert_checktrue(path<>""); assert_checktrue(isfile(path));
         mprintf("PASS LD4 V%02d: export file\n",n);
         if n==17 then
@@ -578,7 +576,9 @@ function bench_ld4_workflow(n,root,gui)
         assert_checktrue(isfield(LD4,"autosave_paths"));
         assert_checktrue(size(LD4.autosave_paths,"*")>=1);
         mprintf("PASS LD4 V%02d: autosave\n",n);
-        ld4_close(); assert_checktrue(typeof(LD4.fig)<>"handle");
+        ld4_close();
+        if typeof(LD4.fig)=="handle" then error("LD4 V"+string(n)+" close blocked: "+LD4.autosave_error); end
+        assert_checktrue(typeof(LD4.fig)<>"handle");
         mprintf("PASS LD4 V%02d: close\n",n);
     end
 endfunction

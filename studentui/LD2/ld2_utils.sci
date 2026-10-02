@@ -19,15 +19,19 @@ function v = ld2_safe_number(txt)
     v=bench_safe_number(txt);
 endfunction
 
-function ld2_set_status(msg, kind)
+function ld2_set_status(msg, kind, hint)
     global LD2;
+    if argn(2)<3 then hint=""; end
     LD2.state.status_text=msg;
+    LD2.state.status_hint=hint;
+    shown=msg;
+    if hint<>"" then shown=msg+" "+hint; end
     if isfield(LD2.ui,"headless") then
         if LD2.ui.headless then return; end
     end
     if ~isfield(LD2.ui, "status") then return; end
-    LD2.ui.status.string = msg;
-    LD2.ui.status.tooltipstring = msg;
+    LD2.ui.status.string = shown;
+    LD2.ui.status.tooltipstring = shown;
     select kind
     case "ok" then
         LD2.ui.status.backgroundcolor = [0.84 0.96 0.84];
