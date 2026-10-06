@@ -39,9 +39,17 @@ function r=bench_report_data(lab)
         end
         evidence.realistic=LD1.realistic;
         note="";
+        evidence.automatic_calculation=%f;
+        if isfield(LD1,"automatic_numbers") then
+            evidence.automatic_calculation=LD1.automatic_numbers;
+            if LD1.automatic_numbers then note="Skaitines reikšmes apskaičiuoja ir rodmenis įrašo programa. Studentas sujungia grandinę, keičia varžą ir palygina rezultatus."; end
+        end
         if isfield(LD1,"guided_used") then
             evidence.automatic_setup=LD1.guided_used;
-            if LD1.guided_used then note="Stendą paruošė ir matavimus atliko programa. Skaičiavimus ir palyginimus įvedė studentas."; end
+            if LD1.guided_used then
+                note="Stendą paruošė ir matavimus atliko programa. Skaičiavimus ir palyginimus įvedė studentas.";
+                if evidence.automatic_calculation then note="Stendą paruošė, skaitines reikšmes apskaičiavo ir rodmenis įrašė programa. Studentas palygino rezultatus."; end
+            end
         end
     elseif lab=="LD3" then
         st=LD3.student; cfg=LD3.cfg;

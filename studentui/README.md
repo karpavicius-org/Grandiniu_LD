@@ -5,22 +5,28 @@ vieno etapo užduotis ir atsakymai. LD1–LD12 atsiskaitymo režime **Įrašyti 
 išsaugo jūsų atsakymus. Mokymosi režime **Patikrinti** parodo klaidas.
 Papildomi veiksmai ir režimo pasirinkimas yra skiltyje **Pagalba**.
 
-**LD1:** atsiskaityme studentas pats sujungia grandinę, parenka VR1 varžą ir
-multimetro A / V režimą, įjungia šaltinį ir spaudžia **Matuoti** prietaise.
+**LD1:** studentas pats sujungia grandinę, keičia VR1 varžą ir palygina rezultatus.
+Skaičiavimai užpildomi automatiškai. Multimetro režimas parenkamas pagal etapą;
+prireikus jį galima pakeisti A / V mygtukais.
+Po schema visada matomi **Įjungti grandinę** ir **Įjungti ir matuoti** mygtukai.
+**Įjungti ir matuoti** vienu paspaudimu patikrina jungimą, įjungia šaltinį ir
+įrašo rodmenį. Įjungtoje grandinėje pakeitus varžą rodmuo ir skaičiai atsinaujina
+automatiškai. Išjungus šaltinį jau įrašyti rezultatai išlieka.
 **Schema** pateikia jungimo seką, **Paaiškinimas** – visą etapo užduotį,
 **Teorija** – formules ir matavimo taisykles. Srovę mA vienetais skaičiuokite
 **I = 1000·U/R**, kai varža pateikta Ω.
-Antrame etape srovę galima ir pamatuoti: įjunkite šaltinį, pasirinkite **A (DC)**
-ir spauskite **Matuoti**. Skaičiavimo atsakymą įrašykite patys palyginimui;
-trečiame etape atliekamas atskiras privalomas matavimas.
+Antrame etape įrašyta srovė panaudojama trečio etapo palyginimui – to paties
+bandymo kartoti nereikia. 4 ir 7 etapuose pasirinkite **500 Ω**, stebėkite
+automatiškai atnaujintą rodmenį ir pažymėkite savo palyginimą.
 Visuose grandinės etapuose gnybtai išlaiko vienodą dydį, pavadinimą ir **T** numerį.
 Šviesūs gnybtai žymi užrakintus jungimus, kurių tame etape keisti negalima.
-**Įrašyti ir toliau** išsaugo atsakymą ir perkelia į kitą etapą; **Atgal** leidžia
+**Toliau** išsaugo atsakymą ir perkelia į kitą etapą; **Atgal** leidžia
 jį pataisyti. Tuščias atsakymas nepraleidžiamas, neteisingas skaičius nepakeičiamas
 teisingu. Visuose darbuose darbo sritis yra 1280 × 720 px, mygtukų vietos
 etapuose nekinta. Mažesniame ekrane naudojamos slinkties juostos, kontaktai nemažinami.
 Nesujungta grandinė ir trūkstamas matavimas neleidžia palikti etapo.
-Rankinio atsiskaitymo LD1-1 rubrika skiria iki **22 balų**.
+LD1-1 rubrika skiria iki **22 balų**. Ataskaitoje nurodoma, kad skaitines
+reikšmes apskaičiuoja programa, o jungimą ir palyginimus atlieka studentas.
 **Pavyzdys** ir **Pagalba → Automatinis / rankinis stendo valdymas** po patvirtinimo
 perjungia bandymą į mokymąsi. Jo ataskaita neįtraukiama į pažymių suvestinę;
 senos automatinės LD1-2 ataskaitos išlieka suderinamos su 15 balų rubrika.

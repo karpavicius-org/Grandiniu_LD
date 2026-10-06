@@ -41,5 +41,5 @@ for result in graded['results']:
     maximum=15 if result['rubric_version']=='LD1-2' else 22
     expected=maximum-1 if result['file'].startswith('wrong-') else maximum
     assert result['status']=='graded' and (result['points'],result['max_points'])==(expected,maximum),result
-summary=dict(status='PASS',platform=os.name,gui_variants=[1,17,64],gui_stages=9,geometry_cases=9,client_size=[1280,720],fixed_window=True,actual_reports=4,incorrect_answers_preserved=3,manual_regression=True,stage2_optional_measurement=True,uniform_contact_labels=True,os_mouse_injection=False)
+summary=dict(status='PASS',platform=os.name,gui_variants=[1,17,64],gui_stages=9,geometry_cases=9,client_size=[1280,720],fixed_window=True,actual_reports=4,incorrect_answers_preserved=3,manual_regression=True,automatic_numeric_results=True,live_resistance_measurements=True,stage2_measurement_reused=True,stage_choices_reset=True,uniform_contact_labels=True,os_mouse_injection=False)
 (out/'acceptance.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8');print(json.dumps(summary))

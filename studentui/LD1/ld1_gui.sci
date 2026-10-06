@@ -624,6 +624,12 @@ function ld1_create_gui_classic()
         "position",[0.62 0.035 0.16 0.14],"string","Taip","fontsize",9,"groupname","yesno","value",0);
     LD1.ui.no=uicontrol(af,"style","radiobutton","units","normalized", ..
         "position",[0.80 0.035 0.16 0.14],"string","Ne","fontsize",9,"groupname","yesno","value",0);
+    // Swing groups retain their selected button when every value is set to zero.
+    // Select an invisible neutral option to clear the previous stage visibly too.
+    LD1.ui.typeNone=uicontrol(af,"style","radiobutton","units","normalized", ...
+        "position",[0 0 0.01 0.01],"visible","off","groupname","ctype","value",1);
+    LD1.ui.yesNoNone=uicontrol(af,"style","radiobutton","units","normalized", ...
+        "position",[0 0 0.01 0.01],"visible","off","groupname","yesno","value",1);
 
     // 4) Patvirtinimas ir navigacija.
     LD1.ui.checkStep=ld1_button(ctrl,[0.035 0.060 0.93 0.035], ..
@@ -664,6 +670,7 @@ function ld1_hide_all_answers()
     ld1_show(LD1.ui.typeSeries,%f); ld1_show(LD1.ui.typeParallel,%f); ld1_show(LD1.ui.typeMixed,%f);
     ld1_show(LD1.ui.yesNoQuestion,%f);
     ld1_show(LD1.ui.yes,%f); ld1_show(LD1.ui.no,%f);
+    LD1.ui.typeNone.value=1; LD1.ui.yesNoNone.value=1;
     LD1.ui.typeSeries.value=0; LD1.ui.typeParallel.value=0; LD1.ui.typeMixed.value=0;
     LD1.ui.yes.value=0; LD1.ui.no.value=0;
 endfunction

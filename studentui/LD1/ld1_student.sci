@@ -13,7 +13,7 @@ function ld1_student_main(root)
     end
     [ok,st,cfg]=student_enroll("LD1");
     if ~ok then return; end
-    LD1=struct("base",root,"cfg",cfg,"student",st,"assessment",%t,"guided",%f,"practice_used",%f);
+    LD1=struct("base",root,"cfg",cfg,"student",st,"assessment",%t,"guided",%f,"practice_used",%f,"automatic_numbers",%t);
     student_remember(st);
     ld1_start();
     LD1.autosave_enabled=%t;
@@ -68,12 +68,25 @@ function ld1_create_gui()
     LD1.ui.header.foregroundcolor=[0.13 0.19 0.23];
     LD1.ui.header.fontunits="pixels"; LD1.ui.header.fontsize=22;
     LD1.ui.navFrame.visible="off";
-    LD1.ui.circuitFrame.position=[0.025 0.12 0.655 0.77];
+    LD1.ui.circuitFrame.position=[0.025 0.15 0.655 0.74];
     LD1.ui.circuitFrame.relief="flat";
     LD1.ui.ctrlFrame.position=[0.70 0.12 0.275 0.77];
     LD1.ui.ctrlFrame.backgroundcolor=[1 1 1]; LD1.ui.ctrlFrame.relief="flat";
     // Keep the circuit layout; restore the controls used by the instructions.
     for h=matrix(LD1.ui.standFrame.children,1,-1); h.visible="off"; end
+    // These controls survive circuit redraws and stay in one visible place.
+    LD1.ui.actionBar=student_frame(LD1.fig,[0.025 0.105 0.655 0.04],[1 1 1]);
+    LD1.ui.actionBar.tag="LD1-actions";
+    LD1.ui.power.parent=LD1.ui.actionBar;
+    LD1.ui.power.position=[0.395 0 0.255 1]; LD1.ui.power.visible="on";
+    LD1.ui.measure.parent=LD1.ui.actionBar;
+    LD1.ui.measure.position=[0.665 0 0.31 1]; LD1.ui.measure.visible="on";
+    LD1.ui.wiringGuide.parent=LD1.ui.actionBar; LD1.ui.wiringGuide.position=[0.20 0 0.18 1];
+    LD1.ui.undoWire.parent=LD1.ui.actionBar; LD1.ui.undoWire.position=[0 0 0.18 1];
+    ld1_button_string(LD1.ui.wiringGuide,"Schema"); ld1_button_string(LD1.ui.undoWire,"Atšaukti");
+    LD1.ui.measure.backgroundcolor=[0.08 0.39 0.37]; LD1.ui.measure.foregroundcolor=[1 1 1];
+    LD1.ui.power.fontweight="bold"; LD1.ui.measure.fontweight="bold";
+    LD1.ui.power.relief="flat"; LD1.ui.measure.relief="flat";
     LD1.ui.standFrame.position=[0.07 0.48 0.86 0.175];
     LD1.ui.standFrame.relief="flat"; LD1.ui.standFrame.backgroundcolor=[0.95 0.97 0.97];
     student_text(LD1.ui.standFrame,[0 0.70 0.25 0.26],"VR1, Ω",13,%t,[0.95 0.97 0.97]);
@@ -99,6 +112,7 @@ function ld1_create_gui()
     LD1.ui.answerFrame.relief="flat"; LD1.ui.answerFrame.backgroundcolor=[1 1 1];
     for h=LD1.ui.answerFrame.children'
         h.fontunits="pixels"; h.fontsize=14; h.backgroundcolor=[1 1 1];
+        if h.string=="JŪSŲ ATSAKYMAS" then LD1.ui.answerTitle=h; end
     end
     for k=1:3
         yy=0.65-(k-1)*0.18;
@@ -111,12 +125,14 @@ function ld1_create_gui()
     for k=1:3
         choices(k).position=[0 0.65-(k-1)*0.20 1 0.17];
         choices(k).callback="ld1_student_answer_changed()";
+        choices(k).tag="choice-type-"+string(k);
     end
     LD1.ui.yesNoQuestion.position=[0 0.18 1 0.10];
     LD1.ui.yesNoQuestion.fontsize=12;
     LD1.ui.yes.position=[0 0 0.46 0.17]; LD1.ui.no.position=[0.5 0 0.46 0.17];
     LD1.ui.yes.callback="ld1_student_answer_changed()";
     LD1.ui.no.callback="ld1_student_answer_changed()";
+    LD1.ui.yes.tag="choice-yes"; LD1.ui.no.tag="choice-no";
     LD1.ui.checkStep.position=[0.07 0.085 0.86 0.075];
     LD1.ui.checkStep.callback="ld1_student_primary()";
     LD1.ui.checkStep.fontunits="pixels"; LD1.ui.checkStep.fontsize=15;
@@ -159,6 +175,17 @@ function ld1_set_instruction(title,lines)
         "Pakeiskite VR1, pvz., į 500 Ω [B03] arba slankikliu [V01], tada vėl MATUOTI [B06]. Ar UAB pasikeitė?"; ...
         "Įterpkite ampermetrą prieš mazgą A. VR1 = 0 Ω. I1 = 1000·E/R3; I2 = 1000·E/R2 (mA). Išmatuokite ir palyginkite sumą."; ...
         "Čia surinkti jūsų skaičiavimai ir matavimai. Neatliktus etapus rasite per Pagalba → Etapai."];
+    automatic=%f; if isfield(LD1,"automatic_numbers") then automatic=LD1.automatic_numbers; end
+    if automatic then
+        titles(2)="Stebėkite srovę"; titles(3)="Palyginkite srovę"; titles(4)="Pakeiskite varžą"; titles(6)="Patikrinkite įtampą";
+        tips(2)="Rbendr = R1 + VR1; I = 1000·E/Rbendr (mA). Skaičiai užpildomi automatiškai. Spauskite Įjungti ir matuoti stendo apačioje.";
+        tips(3)="Apskaičiuota: "+LD1.stepQ(2,2)+" mA. Palyginkite su ampermetro rodmeniu. 2 etapo matavimas išlieka – kartoti nereikia. Pasirinkite Taip arba Ne.";
+        tips(4)="Pasirinkite 500 Ω. Įjungtoje grandinėje srovė ir skaičiavimai atsinaujina automatiškai. Ar išmatuota ir skaičiuota srovė sutampa?";
+        tips(5)="Sujunkite dvi šakas ir voltmetrą pagal Schema. V (DC) jau parinkta. Pasirinkite grandinės tipą.";
+        tips(6)="Bendra varža apskaičiuojama automatiškai. Įjungti ir matuoti – stendo apačioje. Ar voltmetro įtampa sutampa su šaltinio įtampa?";
+        tips(7)="Prieš pakeitimą: "+ld1_num(LD1.stepMeas(6),3)+" V. Pasirinkite 500 Ω. Nauja įtampa įrašoma automatiškai. Ar įtampa pakito?";
+        tips(8)="Prijunkite tik du laidus: šaltinio + T01 → ampermetro + T11; COM T12 → ATARGET. Spauskite Įjungti ir matuoti. Šakų srovės ir suma apskaičiuojamos automatiškai.";
+    end
     if ld1_guided() then
         titles(1)="Atpažinkite grandinę"; titles(5)="Atpažinkite dvi šakas";
         tips=["Grandinė jau sujungta. Apžiūrėkite schemą ir pasirinkite jos tipą."; ...
@@ -181,6 +208,12 @@ function ld1_set_instruction(title,lines)
         tip=strsubst(tip,"ATARGET",ld1_terminal_button_text(LD1.kclTargetA)+" ["+ld1_terminal_code(LD1.kclTargetA)+"]");
     end
     LD1.ui.instructionLine(1).string=student_wrap(tip,37);
+    if automatic & ~LD1.demoMode & ~ld1_guided() then
+        LD1.studentDetail=[tip;"";"Skaitines reikšmes apskaičiuoja programa. Srovė: I = 1000·U/R (mA)."; ...
+            "Nuosekliai: Rbendr = R1 + VR1. Lygiagrečiai: Rbendr = R3·(R2+VR1)/(R3+R2+VR1)."; ...
+            "Įjungtoje grandinėje rodmenys atsinaujina pakeitus VR1. Jie išsaugomi automatiškai."; ...
+            "Studentas sujungia grandinę ir pažymi savo palyginimą. Palyginimo riba – 5 %."];
+    end
     if ld1_guided() & LD1.step==3 then
         LD1.ui.instructionLine(1).string=student_wrap("Jūsų skaičiuota I: "+LD1.stepQ(2,2)+" mA. Srovė jau išmatuota ir rodoma ampermetre. Ar reikšmės sutampa 5 % ribose?",37);
     end
@@ -223,11 +256,30 @@ function ld1_student_sync()
     LD1.ui.instructionFrame.position=[0.07 0.74 0.86 0.235];
     LD1.ui.next.visible="off";
     LD1.ui.checkStep.enable="on";
+    ld1_show(LD1.ui.power,LD1.step<9); ld1_show(LD1.ui.measure,LD1.step<9);
+    ld1_show(LD1.ui.wiringGuide,LD1.step<9); ld1_show(LD1.ui.undoWire,LD1.step<9);
+    ld1_enable(LD1.ui.wiringGuide,%t);
+    ld1_enable(LD1.ui.undoWire,~LD1.powerOn & ~LD1.demoMode & ~ld1_guided() & or(LD1.step==[1 5 8]));
+    ld1_enable(LD1.ui.power,~LD1.demoMode); ld1_enable(LD1.ui.measure,~LD1.demoMode);
+    powerCaption="Įjungti grandinę"; measureCaption="Įjungti ir matuoti";
+    if LD1.powerOn then
+        powerCaption="Išjungti grandinę"; measureCaption="Matuoti";
+        if ~isnan(LD1.lastMeasurement) then measureCaption="Matuoti dar kartą"; end
+    end
+    ld1_button_string(LD1.ui.power,powerCaption); ld1_button_string(LD1.ui.measure,measureCaption);
+    LD1.ui.power.backgroundcolor=[1.00 0.87 0.62]; LD1.ui.power.foregroundcolor=[0.15 0.20 0.22];
+    if LD1.powerOn then LD1.ui.power.backgroundcolor=[0.73 0.92 0.78]; end
+    if isfield(LD1.ui,"answerTitle") then
+        LD1.ui.answerTitle.string="JŪSŲ ATSAKYMAS";
+        if isfield(LD1,"automatic_numbers") then
+            if LD1.automatic_numbers & or(LD1.step==[2 4 6 8]) then LD1.ui.answerTitle.string="SKAIČIUOJAMA AUTOMATIŠKAI"; end
+        end
+    end
     if LD1.demoMode then
         ld1_button_string(LD1.ui.checkStep,"Grįžti į savo darbą");
         LD1.ui.studentProgress.string="Pavyzdys · "+string(LD1.step)+" / 9";
     elseif LD1.step==9 then ld1_button_string(LD1.ui.checkStep,"Išsaugoti ataskaitą");
-    elseif isfield(LD1,"assessment") & LD1.assessment then ld1_button_string(LD1.ui.checkStep,"Įrašyti ir toliau →");
+    elseif isfield(LD1,"assessment") & LD1.assessment then ld1_button_string(LD1.ui.checkStep,"Toliau →");
     elseif LD1.done(LD1.step) then ld1_button_string(LD1.ui.checkStep,"Toliau →");
     else ld1_button_string(LD1.ui.checkStep,"Patikrinti");
     end
@@ -312,11 +364,8 @@ function ld1_student_source(pos)
     student_text(fr,[0.09 0.70 0.82 0.20],"ŠALTINIS",13,%t,bg);
     volts="0 V DC"; if LD1.powerOn then volts=string(LD1.cfg.E)+" V DC"; end
     LD1.ui.sourceDisplay=student_text(fr,[0.09 0.43 0.82 0.22],volts,20,%t,bg);
-    caption="Įjungti"; if LD1.powerOn then caption="Išjungti"; end
-    LD1.ui.power=student_button(fr,[0.09 0.10 0.82 0.25],caption,"ld1_toggle_power()");
-    ld1_register_button(LD1.ui.power,"ld1_toggle_power()");
-    LD1.ui.power.enable="on";
-    if LD1.demoMode | LD1.step==1 | LD1.step==5 then LD1.ui.power.enable="off"; end
+    state="Išjungta"; if LD1.powerOn then state="Įjungta"; end
+    student_text(fr,[0.09 0.10 0.82 0.22],state,14,%t,bg);
 endfunction
 
 function ld1_student_resistor(pos,name,value,variable)
@@ -345,11 +394,9 @@ function ld1_student_meter(pos)
     if ~isnan(LD1.lastMeasurement) then reading=ld1_num(LD1.lastMeasurement,3)+" "+LD1.lastMeasurementUnit; end
     LD1.ui.meterDisplay=student_text(fr,[0.07 0.40 0.86 0.28],reading,20,%t,bg);
     LD1.ui.meterDisplay.horizontalalignment="center";
-    LD1.ui.measure=student_button(fr,[0.07 0.08 0.86 0.25],"Matuoti","ld1_measure()",%t);
-    ld1_register_button(LD1.ui.measure,"ld1_measure()");
-    LD1.ui.measure.string="<html><center>[B06] Matuoti</center></html>";
-    LD1.ui.measure.fontsize=12;
-    if LD1.step==1 | LD1.step==5 | LD1.demoMode then LD1.ui.measure.visible="off"; end
+    state="Rodmuo dar neįrašytas";
+    if ~isnan(LD1.lastMeasurement) then state="Rodmuo įrašytas"; end
+    student_text(fr,[0.07 0.06 0.86 0.25],student_wrap(state,16),12,%f,bg);
 endfunction
 
 function ld1_draw_series_board()
@@ -397,11 +444,11 @@ function ld1_build_panel(kind)
         xs=[32 50.5 73.5 91];
         for k=1:4
             ld1_set_xy("NODE_A"+string(k),xs(k),83);
-            ld1_set_xy("NODE_B"+string(k),xs(k),11.2);
+            ld1_set_xy("NODE_B"+string(k),xs(k),10.8);
         end
         ld1_set_xy("R3_1",50.5,64); ld1_set_xy("R3_2",50.5,36);
-        ld1_set_xy("R2_1",73.5,74); ld1_set_xy("R2_2",73.5,54);
-        ld1_set_xy("VR1_1",73.5,45.2); ld1_set_xy("VR1_2",73.5,20);
+        ld1_set_xy("R2_1",73.5,73.8); ld1_set_xy("R2_2",73.5,54);
+        ld1_set_xy("VR1_1",73.5,44.8); ld1_set_xy("VR1_2",73.5,20);
         ld1_set_parallel_meter_layout(LD1.step==8);
     end
     ld1_redraw_panel();
@@ -437,22 +484,44 @@ function ld1_redraw_panel()
     end
     drawing=LD1.fig.immediate_drawing; LD1.fig.immediate_drawing="off";
     ld1_redraw_panel_classic();
-    h=student_button(LD1.ui.circuitFrame,[0.27 0.02 0.24 0.052],"Schema","ld1_show_wiring_guide()");
-    ld1_register_button(h,"ld1_show_wiring_guide()"); ld1_track_board_handle(h);
-    LD1.ui.checkWiring=student_button(LD1.ui.circuitFrame,[0.525 0.02 0.45 0.052],"Tikrinti sujungimą","ld1_check_wiring()");
-    ld1_register_button(LD1.ui.checkWiring,"ld1_check_wiring()"); ld1_track_board_handle(LD1.ui.checkWiring);
     if ~ld1_guided() & (LD1.step==1 | LD1.step==5 | LD1.step==8) then
-        h=student_button(LD1.ui.circuitFrame,[0.025 0.02 0.23 0.052],"Atšaukti laidą","ld1_remove_last_wire()");
-        ld1_register_button(h,"ld1_remove_last_wire()");
-        ld1_track_board_handle(h);
-        if LD1.demoMode then h.visible="off"; end
         if LD1.pendingTerminal=="" then tip="Laidas: spauskite du gnybtus.";
         else tip="Dabar pasirinkite antrą gnybtą."; end
-        ld1_board_text([0.025 0.075 0.94 0.026],tip,12,%f);
+        ld1_board_text([0.025 0.02 0.94 0.04],tip,12,%f);
     end
     ld1_student_sync();
+    ld1_student_auto_numbers();
     ld1_ui_font(LD1.ui.circuitFrame);
     LD1.fig.immediate_drawing=drawing;
+endfunction
+
+function ld1_student_auto_numbers()
+    global LD1;
+    if ~isfield(LD1,"automatic_numbers") then return; end
+    if ~LD1.automatic_numbers | LD1.demoMode then return; end
+    values=[];
+    select LD1.step
+    case 2 then values=[LD1.cfg.R1+LD1.VR1 1000*LD1.cfg.E/(LD1.cfg.R1+LD1.VR1)];
+    case 4 then values=[LD1.cfg.R1+LD1.VR1 1000*LD1.cfg.E/(LD1.cfg.R1+LD1.VR1)];
+    case 6 then values=LD1.cfg.R3*(LD1.cfg.R2+LD1.VR1)/(LD1.cfg.R3+LD1.cfg.R2+LD1.VR1);
+    case 8 then
+        i1=1000*LD1.cfg.E/LD1.cfg.R3; i2=1000*LD1.cfg.E/(LD1.cfg.R2+LD1.VR1);
+        values=[i1 i2 i1+i2];
+    end
+    if values==[] then return; end
+    if ~isfield(LD1,"automatic_number_values") then LD1.automatic_number_values=emptystr(9,3); end
+    for k=1:size(values,"*")
+        h=LD1.ui.qEdit(k); previous=LD1.automatic_number_values(LD1.step,k);
+        // Keep an explicit student correction; refresh values generated by the program.
+        if h.string=="" | h.string==previous then
+            text=msprintf("%.3f",values(k));
+            if values(k)==round(values(k)) then text=msprintf("%.0f",values(k)); end
+            text=strsubst(text,".",",");
+            h.string=text; LD1.stepQ(LD1.step,k)=text;
+            LD1.automatic_number_values(LD1.step,k)=text;
+        end
+        h.tooltipstring="Apskaičiuota automatiškai. Galite įrašyti savo skaičiavimą palyginimui.";
+    end
 endfunction
 
 function ok=ld1_enter_learning()
@@ -472,7 +541,7 @@ endfunction
 
 function ld1_student_mode()
     global LD1;
-    selected=x_choose(["Atsiskaitymas · pats jungiu ir matuoju";"Mokymasis · tikrinimas ir pavyzdžiai"],"Darbo režimas");
+    selected=x_choose(["Atsiskaitymas · jungiu ir palyginu";"Mokymasis · tikrinimas ir pavyzdžiai"],"Darbo režimas");
     if selected==0 then return; end
     if selected==2 then
         if ~ld1_enter_learning() then return; end
@@ -483,7 +552,7 @@ function ld1_student_mode()
         ld1_restart(); return;
     else
         LD1.assessment=%t;
-        ld1_set_status("Atsiskaitymas: patys sujunkite grandinę ir atlikite matavimus.","info","Įrašyti ir toliau išsaugo jūsų atsakymus.");
+        ld1_set_status("Atsiskaitymas: sujunkite grandinę ir palyginkite rezultatus.","info","Skaičiai įrašomi automatiškai. Toliau išsaugo jūsų atsakymus.");
     end
     ld1_save_step_inputs(); bench_autosave("LD1"); ld1_student_sync();
 endfunction

@@ -49,7 +49,7 @@ function ok=ld1_inputs_present()
     if LD1.step==4 then expectedVR=500; end
     if LD1.step==8 then expectedVR=0; end
     if LD1.step==7 then
-        if LD1.VR1==1000 then ld1_set_status("Pakeiskite VR1 prieš matuodami.","warn","Pasirinkite, pvz., 500 Ω, tada spauskite Matuoti."); return; end
+        if LD1.VR1==1000 then ld1_set_status("Pakeiskite VR1.","warn","Pasirinkite 500 Ω. Įjungtoje grandinėje įtampa atsinaujins automatiškai."); return; end
     elseif LD1.VR1<>expectedVR then
         ld1_set_status("Šiam etapui nustatykite VR1 = "+string(expectedVR)+" Ω.","warn","Naudokite varžos mygtukus arba slankiklį."); return;
     end
@@ -72,7 +72,7 @@ function ok=ld1_inputs_present()
         end
     end
     if or(LD1.step==[3 4 6 7 8]) & isnan(LD1.stepMeas(LD1.step)) then
-        ld1_set_status("Trūksta matavimo.","error","Įjunkite šaltinį ir spauskite Matuoti pačiame prietaise."); return;
+        ld1_set_status("Rodmuo dar neįrašytas.","error","Spauskite Įjungti ir matuoti stendo apačioje – atskiro įjungimo nereikia."); return;
     end
     ok=%t;
 endfunction

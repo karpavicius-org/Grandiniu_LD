@@ -58,6 +58,14 @@ function ui_answers(values)
         LD1.ui.qEdit(k).string=strsubst(msprintf("%.12g",values(k)),".",",");
     end
 endfunction
+function ui_auto_numbers(values)
+    global LD1;
+    for k=1:size(values,"*")
+        assert_checkequal(LD1.ui.qEdit(k).visible,"on");
+        actual=evstr(strsubst(LD1.ui.qEdit(k).string,",","."));
+        assert_checktrue(abs(actual-values(k))<=0.00051);
+    end
+endfunction
 function capture_ld1(name)
     global LD1;
     if getos()=="Darwin" then return; end
@@ -75,6 +83,7 @@ try
         assert_checkfalse(LD1.guided); assert_checktrue(LD1.assessment);
         screen=get(0,"screensize_px"); assert_checkequal(LD1.fig.axes_size,min([1280 720],max([320 240],screen(3:4)-[40 120]))); assert_checkequal(LD1.fig.resize,"off");
         LD1.autosave_enabled=%f; cfg=LD1.cfg;
+        assert_checkequal(LD1.ui.typeSeries.value+LD1.ui.typeParallel.value+LD1.ui.typeMixed.value,0);
         primary_position=LD1.ui.checkStep.position; back_position=LD1.ui.prev.position;
         assert_checkequal(size(LD1.wires,1),0);
         LD1.ui.typeSeries.value=1; ui_primary(); assert_checkequal(LD1.step,1);
@@ -87,25 +96,28 @@ try
         ui_primary(); assert_checkequal(LD1.step,1); // Missing choice stays visible.
         for step=1:8
             assert_checkequal(LD1.step,step);
+            if or(step==[3 4 6 7 8]) then assert_checkequal(LD1.ui.yes.value+LD1.ui.no.value,0); end
+            if step==5 then assert_checkequal(LD1.ui.typeSeries.value+LD1.ui.typeParallel.value+LD1.ui.typeMixed.value,0); end
             if step==1 then ui_wire(ld1_series_canonical_wires()); LD1.ui.typeSeries.value=1;
             elseif step==2 then
-                ui_primary(); assert_checkequal(LD1.step,2);
                 wires=LD1.wires; ld1_terminal_click("SRC_P"); assert_checkequal(LD1.wires,wires);
                 ui_visible(LD1.ui.power); ui_visible(LD1.ui.measure);
                 assert_checkequal(LD1.ui.power.enable,"on"); assert_checkequal(LD1.ui.measure.enable,"on");
                 if number<>17 then
-                    ui_button(LD1.ui.power); ui_button(LD1.ui.measure);
+                    ui_button(LD1.ui.measure);
                     assert_checkalmostequal(LD1.stepMeas(2),cfg.E/(cfg.R1+1000)*1000,1e-9,1e-9);
                 else
                     assert_checktrue(isnan(LD1.stepMeas(2))); // The calculation can advance without optional measurement.
                 end
-                assert_checkequal(LD1.ui.qEdit(2).string,""); // Measuring does not silently answer the calculation.
-                ui_answers([cfg.R1+1000 cfg.E/(cfg.R1+1000)*1000]);
-            elseif step==3 then
+                ui_auto_numbers([cfg.R1+1000 cfg.E/(cfg.R1+1000)*1000]);
                 if number==1 then LD1.autosave_enabled=%t; end
-                LD1.ui.yes.value=1; ui_primary(); assert_checkequal(LD1.step,3);
-                if ~LD1.powerOn then ui_button(LD1.ui.power); end
-                ui_button(LD1.ui.measure);
+            elseif step==3 then
+                if number==17 then
+                    LD1.ui.yes.value=1; ui_primary(); assert_checkequal(LD1.step,3);
+                    ui_button(LD1.ui.measure);
+                else
+                    assert_checkequal(LD1.stepMeas(3),LD1.stepMeas(2));
+                end
                 if number==1 then
                     assert_checkequal(LD1.autosave_error,"");
                     disk=bench_read_snapshot(LD1.autosave_paths($),"LD1");
@@ -115,25 +127,28 @@ try
                 assert_checkalmostequal(LD1.stepMeas(3),cfg.E/(cfg.R1+1000)*1000,1e-9,1e-9);
                 LD1.ui.yes.value=1;
             elseif step==4 then
-                assert_checkequal(LD1.VR1,1000); ui_button(LD1.ui.vr500); ui_button(LD1.ui.measure);
+                assert_checkequal(LD1.VR1,1000); ui_button(LD1.ui.vr500);
                 assert_checkequal(LD1.VR1,500);
-                ui_answers([cfg.R1+500 cfg.E/(cfg.R1+500)*1000]); LD1.ui.yes.value=1;
+                ui_auto_numbers([cfg.R1+500 cfg.E/(cfg.R1+500)*1000]);
+                assert_checkalmostequal(LD1.stepMeas(4),cfg.E/(cfg.R1+500)*1000,1e-9,1e-9); LD1.ui.yes.value=1;
             elseif step==5 then
-                ui_wire(ld1_parallel_voltage_canonical_wires()); ui_button(LD1.ui.modeV); LD1.ui.typeParallel.value=1;
+                assert_checkequal(LD1.meterMode,"V");
+                ui_wire(ld1_parallel_voltage_canonical_wires()); LD1.ui.typeParallel.value=1;
             elseif step==6 then
-                ui_button(LD1.ui.power); ui_button(LD1.ui.measure);
-                ui_answers(cfg.R3*(cfg.R2+1000)/(cfg.R3+cfg.R2+1000)); LD1.ui.yes.value=1;
+                ui_button(LD1.ui.measure);
+                ui_auto_numbers(cfg.R3*(cfg.R2+1000)/(cfg.R3+cfg.R2+1000)); LD1.ui.yes.value=1;
             elseif step==7 then
                 ui_primary(); assert_checkequal(LD1.step,7);
-                ui_button(LD1.ui.vr500); ui_button(LD1.ui.measure);
+                ui_button(LD1.ui.vr500);
+                assert_checkalmostequal(LD1.stepMeas(7),cfg.E,1e-9,1e-9);
                 assert_checkequal(LD1.VR1,500); LD1.ui.no.value=1; LD1.ui.yes.value=0;
             elseif step==8 then
                 assert_checkequal(size(LD1.wires,1),6);
                 ui_wire(["SRC_P" "M_P";"M_N" LD1.kclTargetA]);
-                ui_button(LD1.ui.modeA); ui_button(LD1.ui.vr0);
-                ui_button(LD1.ui.power); ui_button(LD1.ui.measure);
+                assert_checkequal(LD1.meterMode,"A"); assert_checkequal(LD1.VR1,0);
+                ui_button(LD1.ui.measure);
                 assert_checkequal(size(LD1.wires,1),8);
-                i1=cfg.E/cfg.R3*1000; i2=cfg.E/cfg.R2*1000; ui_answers([i1 i2 i1+i2]);
+                i1=cfg.E/cfg.R3*1000; i2=cfg.E/cfg.R2*1000; ui_auto_numbers([i1 i2 i1+i2]);
                 LD1.ui.yes.value=1; LD1.ui.no.value=0;
             end
             ui_contacts();
@@ -168,6 +183,7 @@ try
         end
         ui_primary(); assert_checktrue(size(strindex(LD1.ui.statusMain.string,"Ataskaita išsaugota"),"*")>0);
         report=bench_report_data("LD1"); assert_checkfalse(report.evidence.automatic_setup);
+        assert_checktrue(report.evidence.automatic_calculation);
         assert_checkfalse(report.practice_used);
         summary_snapshot=bench_snapshot("LD1"); bench_restore_snapshot(summary_snapshot);
         assert_checkequal(LD1.step,9); assert_checkequal(length(LD1.ui.resultCards),5);
