@@ -256,6 +256,14 @@ function ld2_student_primary()
     ld2_save_answers();
     if LD2.example_active then ld2_show_solution();
     elseif LD2.state.assessment then
+        // Jei 12 etapas jau užbaigtas ir visi etapai įskaityti, pirminis mygtukas
+        // yra ataskaitos eksportas. Nekartojame transientinių matavimo būsenų
+        // validacijos po renderio / sesijos atkūrimo: pakeistas atsakymas ar
+        // laidai patys nuima atitinkamo etapo completed žymą.
+        if LD2.state.step==12 & and(LD2.state.completed==1) then
+            bench_export_current("LD2");
+            return;
+        end
         if ~ld2_assessment_ready() then bench_autosave("LD2"); return; end
         LD2.state.completed(LD2.state.step)=1; LD2.state.skipped(LD2.state.step)=0;
         bench_autosave("LD2");

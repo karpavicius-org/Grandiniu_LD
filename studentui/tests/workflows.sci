@@ -211,6 +211,10 @@ function bench_ld2_workflow(n,root,gui)
         ld2_show_solution(); assert_checkfalse(LD2.example_active); assert_checkfalse(LD2.state.practice_used);
         mprintf("PASS LD2 V17: formal example block\n");
         bench_ld2_primary();
+        if isempty(strindex(LD2.ui.status.string,"Ataskaita išsaugota")) then
+            mprintf("LD2 export diagnostic: "+LD2.state.status_text+" | "+LD2.state.status_hint+"\n");
+        end
+        assert_checktrue(strindex(LD2.state.status_text,"Ataskaita išsaugota")<>[]);
         assert_checktrue(strindex(LD2.ui.status.string,"Ataskaita išsaugota")<>[]);
         mprintf("PASS LD2 V17: formal report export\n");
         ld2_write_exports(root+"tests/results/");
