@@ -10,6 +10,11 @@ multimetro A / V režimą, įjungia šaltinį ir spaudžia **Matuoti** prietaise
 **Schema** pateikia jungimo seką, **Paaiškinimas** – visą etapo užduotį,
 **Teorija** – formules ir matavimo taisykles. Srovę mA vienetais skaičiuokite
 **I = 1000·U/R**, kai varža pateikta Ω.
+Antrame etape srovę galima ir pamatuoti: įjunkite šaltinį, pasirinkite **A (DC)**
+ir spauskite **Matuoti**. Skaičiavimo atsakymą įrašykite patys palyginimui;
+trečiame etape atliekamas atskiras privalomas matavimas.
+Visuose grandinės etapuose gnybtai išlaiko vienodą dydį, pavadinimą ir **T** numerį.
+Šviesūs gnybtai žymi užrakintus jungimus, kurių tame etape keisti negalima.
 **Įrašyti ir toliau** išsaugo atsakymą ir perkelia į kitą etapą; **Atgal** leidžia
 jį pataisyti. Tuščias atsakymas nepraleidžiamas, neteisingas skaičius nepakeičiamas
 teisingu. Visuose darbuose darbo sritis yra 1280 × 720 px, mygtukų vietos
@@ -251,8 +256,8 @@ o pradiniai LD1 ir LD2 šaltiniai išlaikyti atskirai.
 Sąsaja yra `student_style.sci`, `student_profile.sci`, `LD1/ld1_student.sci`,
 `LD2/ld2_student.sci`. Skaičiavimų ir etapų tikrintuvai išlaikyti.
 
-Tikrinama su Scilab 2026.1.0 Linux. Windows vaizdas šioje aplinkoje netikrintas.
-Šiame kompiuteryje rastas Scilab yra `/tmp`; išvalius laikiną katalogą reikės
-įdiegto Scilab arba naujo programos kelio.
+Automatinės priėmimo patikros skirtos Windows, Linux ir macOS su Scilab 2026.1.0.
+LD1 studento sąsaja taip pat patikrinta vietinėje Windows aplinkoje su Scilab 2025.0.0,
+įskaitant šaltinio ir matavimo mygtukų paspaudimus pele.
 Aktualios šios sąsajos patikros laikomos šio paketo `tests` kataloge.
 Pradinių paketų auditai nevertina vėlesnių sąsajos pakeitimų.

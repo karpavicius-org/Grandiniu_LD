@@ -11,14 +11,12 @@ try
     W=ld1_series_canonical_wires();
     for k=1:size(W,1); ld1_terminal_click(W(k,1)); ld1_terminal_click(W(k,2)); end
     LD1.ui.typeSeries.value=1; ld1_student_primary();
-    LD1.ui.qEdit(1).string=string(cfg.R1+1000);
-    LD1.ui.qEdit(2).string=string(1000*cfg.E/(cfg.R1+1000)); ld1_student_primary();
-    assert_checkequal(LD1.step,3); assert_checktrue(isnan(LD1.stepMeas(3)));
+    assert_checkequal(LD1.step,2); assert_checktrue(isnan(LD1.stepMeas(2)));
     original_ld1_measure=ld1_measure;
     function ld1_measure()
         global LD1;
         original_ld1_measure();
-        mputl(toJSON(struct("power",LD1.powerOn,"measurement",LD1.stepMeas(3),"expected",1000*LD1.cfg.E/(LD1.cfg.R1+1000))),getenv("LD1_MOUSE_OUT")+"/reading.json");
+        mputl(toJSON(struct("step",LD1.step,"power",LD1.powerOn,"measurement",LD1.stepMeas(2),"expected",1000*LD1.cfg.E/(LD1.cfg.R1+1000))),getenv("LD1_MOUSE_OUT")+"/reading.json");
     endfunction
     exec(getenv("LD1_MOUSE_SOURCE")+"/tools/ergonomics.sci",-1);
     fd=mopen(out+"geometry.tsv","wt"); geometry_dump(LD1.fig,"mouse",fd); mclose(fd);

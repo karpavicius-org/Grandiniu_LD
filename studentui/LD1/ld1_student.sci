@@ -151,7 +151,7 @@ function ld1_set_instruction(title,lines)
     titles=["Sujunkite grandinę";"Apskaičiuokite";"Išmatuokite srovę";"Pakartokite bandymą"; ...
         "Sujunkite dvi šakas";"Išmatuokite įtampą";"Pakeiskite varžą";"Bendra srovė";"Jūsų rezultatai"];
     tips=["Sujunkite šaltinį, R1, VR1 ir ampermetrą į vieną kilpą. Tiksli jungimo seka – Schema. Pasirinkite grandinės tipą."; ...
-        "VR1 = 1000 Ω. Rbendr = R1 + VR1; I = 1000·E/Rbendr (mA). Įrašykite savo skaičiavimus. Matuoti nereikia."; ...
+        "VR1 = 1000 Ω. Rbendr = R1 + VR1; I = 1000·E/Rbendr (mA). Srovę galite pamatuoti: įjunkite šaltinį ir spauskite Matuoti. Įrašykite savo skaičiavimus."; ...
         "Įjunkite 10 V [B01], režimas A (DC) [B07], spauskite MATUOTI [B06] ir palyginkite rodmenį su savo skaičiavimu."; ...
         "VR1 = 500 Ω [B03]. Apskaičiuokite Rbendr [A04.01] ir I (mA) [A04.02], tada MATUOTI [B06] ir palyginkite."; ...
         "Sujunkite R3 ir R2+VR1 šakas tarp A ir B. Voltmetrą prijunkite tarp A ir B, pasirinkite V (DC). Jungimo seka – Schema."; ...
@@ -316,7 +316,7 @@ function ld1_student_source(pos)
     LD1.ui.power=student_button(fr,[0.09 0.10 0.82 0.25],caption,"ld1_toggle_power()");
     ld1_register_button(LD1.ui.power,"ld1_toggle_power()");
     LD1.ui.power.enable="on";
-    if LD1.demoMode | LD1.step==1 | LD1.step==2 | LD1.step==5 then LD1.ui.power.enable="off"; end
+    if LD1.demoMode | LD1.step==1 | LD1.step==5 then LD1.ui.power.enable="off"; end
 endfunction
 
 function ld1_student_resistor(pos,name,value,variable)
@@ -349,7 +349,7 @@ function ld1_student_meter(pos)
     ld1_register_button(LD1.ui.measure,"ld1_measure()");
     LD1.ui.measure.string="<html><center>[B06] Matuoti</center></html>";
     LD1.ui.measure.fontsize=12;
-    if LD1.step==1 | LD1.step==2 | LD1.step==5 | LD1.demoMode then LD1.ui.measure.visible="off"; end
+    if LD1.step==1 | LD1.step==5 | LD1.demoMode then LD1.ui.measure.visible="off"; end
 endfunction
 
 function ld1_draw_series_board()

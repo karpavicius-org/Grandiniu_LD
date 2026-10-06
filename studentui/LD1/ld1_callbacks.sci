@@ -313,7 +313,7 @@ function ld1_show_wiring_guide()
              "";
              "Turi būti 4 laidai ir viena uždara nuosekli kilpa."];
     case 2 then
-        txt=["2 ETAPAS – JUNGIMAS NEKEIČIAMAS";"Naudokite 1 etapo nuoseklią schemą.";"VR1 = 1000 Ω [B04]. Šiame etape tik skaičiuojama."];
+        txt=["2 ETAPAS – JUNGIMAS NEKEIČIAMAS";"Naudokite 1 etapo nuoseklią schemą.";"VR1 = 1000 Ω [B04]. Srovę galite pamatuoti: įjunkite šaltinį [B01], pasirinkite A (DC) [B07] ir spauskite MATUOTI [B06]."];
     case 3 then
         txt=["3 ETAPAS – SROVĖS MATAVIMAS";"Jungimas toks pats kaip 1 etape.";"Multimetras A (DC) [B07], nuosekliai. Įjunkite 10 V [B01] ir spauskite MATUOTI [B06]."];
     case 4 then
@@ -532,6 +532,7 @@ endfunction
 function ld1_terminal_click(id)
     global LD1;
     if ld1_guided() | LD1.demoMode then return; end
+    if ~ld1_terminal_should_show(id) then return; end
     if LD1.powerOn then ld1_set_status("Prieš keisdami laidus išjunkite maitinimą.","warn",""); return; end
     if LD1.pendingTerminal=="" then
         LD1.pendingTerminal=id;
@@ -780,7 +781,7 @@ endfunction
 function ld1_measure()
     global LD1;
     // Prieš matavimą tikriname konkretaus etapo topologiją ir pateikiame pataisymo veiksmą.
-    if LD1.step==3 | LD1.step==4 then
+    if LD1.step==2 | LD1.step==3 | LD1.step==4 then
         [wok,wmsg,wfix]=ld1_validate_series_topology();
         if ~wok then ld1_invalidate_measurement(); LD1.ui.meterDisplay.string="KLAIDA"; ld1_set_status(wmsg,"error",wfix); return; end
     elseif LD1.step==6 | LD1.step==7 then
@@ -1546,7 +1547,7 @@ function ld1_set_step(n)
             "Jungimo nekeiskite. VR1 = 1000 Ω [B04].";
             "Apskaičiuokite Rbendr = R1 + VR1 ir įrašykite į [A02.01].";
             "Apskaičiuokite I [mA] = 1000·E / Rbendr ir įrašykite į [A02.02].";
-            "Šiame etape matuoti nereikia."]);
+            "Srovę galite pamatuoti pasitikrinimui: įjunkite šaltinį [B01] ir spauskite MATUOTI [B06]."]);
         ld1_show_numeric_field(1,"Rbendr, Ω"); ld1_show_numeric_field(2,"I skaič., mA");
         ld1_set_status("Apskaičiuokite teorines reikšmes.","info","Jei grįžote iš vėlesnio etapo, ankstesni įrašai bus atkurti automatiškai.");
     case 3 then

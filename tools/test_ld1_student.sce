@@ -37,6 +37,20 @@ function ui_primary()
     assert_checkequal(LD1.ui.checkStep.visible,"on"); assert_checkequal(LD1.ui.checkStep.enable,"on");
     execstr(LD1.ui.checkStep.callback);
 endfunction
+function ui_contacts()
+    global LD1;
+    for id=matrix(LD1.term.active,1,-1)
+        index=find(LD1.term.handleIds==id); assert_checkequal(size(index,"*"),1);
+        h=LD1.term.handles(index(1)); ui_visible(h);
+        assert_checkequal(h.tag,ld1_terminal_code(id));
+        assert_checkequal(h.string,"<html><center>"+ld1_terminal_button_text(id)+"<br>"+ld1_terminal_code(id)+"</center></html>");
+        assert_checkequal(h.horizontalalignment,"center");
+        assert_checkequal(h.relief,"flat");
+        bounds=h.position(3:4).*student_size(h.parent); assert_checkalmostequal(bounds,[36 40],1e-9,1e-9);
+        expected="off"; if ld1_terminal_should_show(id) & ~ld1_guided() then expected="on"; end
+        assert_checkequal(h.enable,expected);
+    end
+endfunction
 function ui_answers(values)
     global LD1;
     for k=1:size(values,"*")
@@ -76,11 +90,22 @@ try
             if step==1 then ui_wire(ld1_series_canonical_wires()); LD1.ui.typeSeries.value=1;
             elseif step==2 then
                 ui_primary(); assert_checkequal(LD1.step,2);
+                wires=LD1.wires; ld1_terminal_click("SRC_P"); assert_checkequal(LD1.wires,wires);
+                ui_visible(LD1.ui.power); ui_visible(LD1.ui.measure);
+                assert_checkequal(LD1.ui.power.enable,"on"); assert_checkequal(LD1.ui.measure.enable,"on");
+                if number<>17 then
+                    ui_button(LD1.ui.power); ui_button(LD1.ui.measure);
+                    assert_checkalmostequal(LD1.stepMeas(2),cfg.E/(cfg.R1+1000)*1000,1e-9,1e-9);
+                else
+                    assert_checktrue(isnan(LD1.stepMeas(2))); // The calculation can advance without optional measurement.
+                end
+                assert_checkequal(LD1.ui.qEdit(2).string,""); // Measuring does not silently answer the calculation.
                 ui_answers([cfg.R1+1000 cfg.E/(cfg.R1+1000)*1000]);
             elseif step==3 then
                 if number==1 then LD1.autosave_enabled=%t; end
                 LD1.ui.yes.value=1; ui_primary(); assert_checkequal(LD1.step,3);
-                ui_button(LD1.ui.power); ui_button(LD1.ui.measure);
+                if ~LD1.powerOn then ui_button(LD1.ui.power); end
+                ui_button(LD1.ui.measure);
                 if number==1 then
                     assert_checkequal(LD1.autosave_error,"");
                     disk=bench_read_snapshot(LD1.autosave_paths($),"LD1");
@@ -111,11 +136,12 @@ try
                 i1=cfg.E/cfg.R3*1000; i2=cfg.E/cfg.R2*1000; ui_answers([i1 i2 i1+i2]);
                 LD1.ui.yes.value=1; LD1.ui.no.value=0;
             end
+            ui_contacts();
             if number==1 then
                 for dimension=1:size(sizes,1)
                     execstr(LD1.fig.resizefcn);
                     geometry_dump(LD1.fig,msprintf("LD1-E%d-%dx%d",step,sizes(dimension,1),sizes(dimension,2)),fd);
-                    if dimension==1 & or(step==[1 3 8]) then
+                    if dimension==1 & or(step==[1 2 3 8]) then
                         beforeW=LD1.wires; capture_ld1("E"+string(step));
                         if ~isequal(beforeW,LD1.wires) then error("Capture changed wires: "+LD1.ui.statusMain.string); end
                     end

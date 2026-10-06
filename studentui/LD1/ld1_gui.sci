@@ -203,8 +203,7 @@ function ld1_draw_wire(p1,p2,color)
 endfunction
 
 function tf = ld1_terminal_should_show(id)
-    // Kontekstinis stendas: rodome tik tuos lizdus, kuriuos studentui šiame etape reikia liesti.
-    // Tai mažina vizualinę apkrovą ir apsaugo jau patikrintas jungtis nuo atsitiktinio sugadinimo.
+    // Visi kontaktai matomi ir pažymėti; čia sprendžiama tik ar juos galima keisti.
     global LD1;
     tf=%f;
     if isfield(LD1,"demoMode") & LD1.demoMode then
@@ -226,18 +225,13 @@ function tf = ld1_terminal_should_show(id)
 endfunction
 
 function ld1_create_locked_terminal(id)
-    // Mažas pilkas, nepaspaudžiamas lizdo žymuo. Jis išlaiko aiškų elektrinį
-    // ryšį su laidu, bet nekonkuruoja su šiame etape aktyviais kontaktais.
+    // Išlaikome tą patį dydį, gnybto pavadinimą ir T kodą užrakintame etape.
     global LD1;
-    xy=ld1_get_xy(id);
-    if isnan(xy(1)) then return; end
-    x=xy(1)/100; y=xy(2)/100;
-    w=0.014; h=0.020;
-    if id=="M_N" then w=0.020; end
-    ht=uicontrol(LD1.ui.circuitFrame,"style","text","units","normalized", ..
-        "position",[x-w/2 y-h/2 w h],"string","", ..
-        "backgroundcolor",[0.55 0.60 0.66],"foregroundcolor",[1 1 1]);
-    ld1_track_board_handle(ht);
+    ld1_create_terminal(id);
+    ht=LD1.term.handles($);
+    ht.backgroundcolor=[0.87 0.92 0.93]; ht.foregroundcolor=[0.13 0.23 0.25];
+    ht.enable="off";
+    ht.tooltipstring=ht.tooltipstring+" · Sujungimas šiame etape užrakintas.";
 endfunction
 
 function ld1_create_terminal(id)
@@ -267,6 +261,9 @@ function ld1_create_terminal(id)
         tcode=ld1_terminal_code(id);
     end
     ht=student_terminal(LD1.ui.circuitFrame,[x y],ld1_terminal_button_text(id),tcode,cb,tname,bg);
+    // Native button border insets otherwise clip COM and T codes in the 36 px contact.
+    ht.relief="flat";
+    ht.horizontalalignment="center"; ht.verticalalignment="middle";
     ht.foregroundcolor=fg;
     if ld1_guided() then ht.enable="off"; end
     LD1.term.handles($+1)=ht;
@@ -380,9 +377,6 @@ function ld1_redraw_panel_classic()
     ports=[]; sz=student_size(LD1.ui.circuitFrame);
     for id=matrix(LD1.term.active,1,-1)
         wh=[36 40];
-        if ~ld1_terminal_should_show(id) then
-            wh=[0.014 0.020].*sz; if id=="M_N" then wh(1)=0.020*sz(1); end
-        end
         ports($+1,:)=[ld1_get_xy(id)/100 wh];
     end
     LD1.ui.circuitFrame.user_data=struct("ports",ports);

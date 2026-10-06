@@ -17,7 +17,8 @@ assert os.name=='nt','This smoke test uses the Windows desktop.'
 repo=Path(__file__).resolve().parents[1]; out=a.output.resolve(); out.mkdir(parents=True)
 env=dict(os.environ,LD1_MOUSE_SOURCE=repo.as_posix(),LD1_MOUSE_OUT=out.as_posix(),LD_DATA_DIR=(out/'Ataskaitos').as_posix())
 user=c.windll.user32; user.SetProcessDPIAware()
-process=subprocess.Popen([str(a.scilab.resolve().parent/'WScilex.exe'),'-nb','-f',str(repo/'tools/test_ld1_mouse.sce')],env=env)
+scihome=out/'scihome'; scihome.mkdir()
+process=subprocess.Popen([str(a.scilab.resolve().parent/'WScilex.exe'),'-nb','-scihome',str(scihome),'-f',str(repo/'tools/test_ld1_mouse.sce')],env=env)
 
 def await_file(name,timeout=120):
     deadline=time.monotonic()+timeout
@@ -48,6 +49,7 @@ try:
         user.SetCursorPos(*target); user.mouse_event(2,0,0,0,0); user.mouse_event(4,0,0,0,0); time.sleep(1)
     await_file('reading.json',30)
     reading=json.loads((out/'reading.json').read_text(encoding='utf-8'))
+    assert reading['step']==2,reading
     assert reading['power'] and math.isclose(reading['measurement'],reading['expected'],rel_tol=1e-8),reading
     try:
         import PIL
