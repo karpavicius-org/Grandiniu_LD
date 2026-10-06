@@ -134,6 +134,7 @@ endfunction
 
 function bench_mode(lab)
     global LD1 LD2 LD3 LD4 LD5 LD6 LD7 LD8 LD9 LD10 LD11 LD12;
+    if lab=="LD1" then ld1_student_mode(); return; end
     selected=x_choose(["Atsiskaitymas · atsakymus tikrina dėstytojo programa"; ...
         "Mokymasis · galima tikrinti atsakymus ir matyti pavyzdžius"],"Darbo režimas");
     if selected==0 then return;end

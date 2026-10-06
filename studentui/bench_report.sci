@@ -415,7 +415,12 @@ function path=bench_export_current(lab)
 
     // Nuo šios vietos HTML jau yra išsaugotas. UI patvirtinimo langas yra
     // antrinis patogumo sluoksnis ir jo gedimas negali atšaukti eksporto.
-    if lab=="LD1" then ld1_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
+    if lab=="LD1" then
+        if LD1.assessment & ~LD1.practice_used then
+            ld1_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
+        else
+            ld1_set_status("Mokymosi ataskaita išsaugota: "+path,"ok","Atsiskaitymui pradėkite naują darbą per Pagalba → Režimas.");
+        end
     elseif lab=="LD3" then
         if LD3.assessment & ~LD3.practice_used then
             ld3_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
@@ -454,6 +459,7 @@ function path=bench_export_current(lab)
     else ld2_set_status("Ataskaita išsaugota: "+path+". Persiųskite šį HTML failą dėstytojui.","ok"); end
 
     learning_report=%f;
+    if lab=="LD1" then learning_report=(~LD1.assessment | LD1.practice_used); end
     if lab=="LD3" then learning_report=(~LD3.assessment | LD3.practice_used); end
     if lab=="LD4" then learning_report=(~LD4.assessment | LD4.practice_used); end
     if lab=="LD5" then learning_report=(~LD5.assessment | LD5.practice_used); end

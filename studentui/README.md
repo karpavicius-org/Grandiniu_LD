@@ -5,17 +5,23 @@ vieno etapo užduotis ir atsakymai. LD1–LD12 atsiskaitymo režime **Įrašyti 
 išsaugo jūsų atsakymus. Mokymosi režime **Patikrinti** parodo klaidas.
 Papildomi veiksmai ir režimo pasirinkimas yra skiltyje **Pagalba**.
 
-**LD1:** stendas automatiškai sujungia grandinę, parenka varžą ir įrašo matavimą.
-Studentas pasirenka grandinės tipą, įrašo savo skaičiavimus ir palygina rodmenis.
+**LD1:** atsiskaityme studentas pats sujungia grandinę, parenka VR1 varžą ir
+multimetro A / V režimą, įjungia šaltinį ir spaudžia **Matuoti** prietaise.
+**Schema** pateikia jungimo seką, **Paaiškinimas** – visą etapo užduotį,
+**Teorija** – formules ir matavimo taisykles. Srovę mA vienetais skaičiuokite
+**I = 1000·U/R**, kai varža pateikta Ω.
 **Įrašyti ir toliau** išsaugo atsakymą ir perkelia į kitą etapą; **Atgal** leidžia
 jį pataisyti. Tuščias atsakymas nepraleidžiamas, neteisingas skaičius nepakeičiamas
 teisingu. Visuose darbuose darbo sritis yra 1280 × 720 px, mygtukų vietos
 etapuose nekinta. Mažesniame ekrane naudojamos slinkties juostos, kontaktai nemažinami.
-Rankinį jungimą galima pasirinkti per **Pagalba → Daugiau → Automatinis / rankinis
-stendo valdymas**. Ataskaitoje nurodoma, kad naudotas automatinis paruošimas.
-Automatinio LD1 vertinime skiriama iki **15 balų už studento atsakymus** (LD1-2);
-automatinis jungimas ir matavimai papildomų balų nesuteikia. Senos LD1-1 ataskaitos
-išlieka suderinamos su ankstesne 22 balų rubrika.
+Nesujungta grandinė ir trūkstamas matavimas neleidžia palikti etapo.
+Rankinio atsiskaitymo LD1-1 rubrika skiria iki **22 balų**.
+**Pavyzdys** ir **Pagalba → Automatinis / rankinis stendo valdymas** po patvirtinimo
+perjungia bandymą į mokymąsi. Jo ataskaita neįtraukiama į pažymių suvestinę;
+senos automatinės LD1-2 ataskaitos išlieka suderinamos su 15 balų rubrika.
+Naujam atsiskaitymui rinkitės **Pagalba → Atsiskaitymo / mokymosi režimas → Atsiskaitymas**
+ir patvirtinkite naują darbą. Laidai, atsakymai, VR1 ir matavimai automatiškai
+saugomi juodraštyje; tęsti galima per **Pagalba → Atverti juodraštį**.
 
 **LD3 – Omo dėsnio veikimas realioje grandinėje:** pradedama atsiskaitymo režimu.
 **Įrašyti ir toliau** išsaugo studento raw atsakymą; teisingumą vertina dėstytojo

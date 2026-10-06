@@ -190,6 +190,12 @@ void grade_dc(Grader& g,const Json& r,const Bank& b) {
             auto it=g.answers.find(step==3?"s2.q2":"s4.q2");double own=0;
             if(it!=g.answers.end() && parse_number(text(it->second.at("raw"),2048),own)&&own>0) ref=own;
         }
+        if(step==8) {
+            auto a=g.answers.find("s8.q1"),second=g.answers.find("s8.q2");double x=0,y=0;
+            if(a!=g.answers.end() && second!=g.answers.end() &&
+               parse_number(text(a->second.at("raw"),2048),x) &&
+               parse_number(text(second->second.at("raw"),2048),y) && x+y>0) ref=x+y;
+        }
         if(step==7 && std::isfinite(base)) ref=base;
         bool match=near(v,ref,.05,0);
         double expected=step==7?(match?2:1):(match?1:2);

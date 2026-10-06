@@ -30,13 +30,29 @@ function ld1_guided_prepare()
         if isnan(LD1.stepMeas(n)) then ld1_measure(); end
     end
     ld1_set_instruction("",[]);
-    ld1_set_status("Stendas paruoštas automatiškai.","info","Įrašykite atsakymą ir spauskite Įrašyti ir toliau.");
+    ld1_set_status("Mokymosi stendas paruoštas automatiškai.","info","Įrašykite atsakymą ir spauskite Patikrinti. Tada galėsite tęsti.");
 endfunction
 
 function ok=ld1_inputs_present()
     // Check completeness only. Incorrect numerical answers remain the student's.
     global LD1;
     ok=%f;
+    if LD1.step<=4 then
+        [wok,wmsg,wfix]=ld1_validate_series_topology();
+    elseif LD1.step<=7 then
+        [wok,wmsg,wfix]=ld1_validate_parallel_voltage_topology();
+    else
+        [wok,wmsg,wfix]=ld1_validate_parallel_total_current_topology();
+    end
+    if ~wok then ld1_set_status(wmsg,"error",wfix); return; end
+    expectedVR=1000;
+    if LD1.step==4 then expectedVR=500; end
+    if LD1.step==8 then expectedVR=0; end
+    if LD1.step==7 then
+        if LD1.VR1==1000 then ld1_set_status("Pakeiskite VR1 prieš matuodami.","warn","Pasirinkite, pvz., 500 Ω, tada spauskite Matuoti."); return; end
+    elseif LD1.VR1<>expectedVR then
+        ld1_set_status("Šiam etapui nustatykite VR1 = "+string(expectedVR)+" Ω.","warn","Naudokite varžos mygtukus arba slankiklį."); return;
+    end
     for k=1:3
         h=LD1.ui.qEdit(k);
         if h.visible=="on" then
@@ -56,7 +72,7 @@ function ok=ld1_inputs_present()
         end
     end
     if or(LD1.step==[3 4 6 7 8]) & isnan(LD1.stepMeas(LD1.step)) then
-        ld1_set_status("Trūksta matavimo.","error","Paspauskite Matuoti arba Pagalba → Atkurti šio etapo stendą."); return;
+        ld1_set_status("Trūksta matavimo.","error","Įjunkite šaltinį ir spauskite Matuoti pačiame prietaise."); return;
     end
     ok=%t;
 endfunction
@@ -64,10 +80,15 @@ endfunction
 function ld1_toggle_guided()
     global LD1;
     if LD1.demoMode then return; end
+    if ~ld1_guided() then
+        if ~ld1_enter_learning() then return; end
+        LD1.practice_used=%t;
+    end
     ld1_save_step_inputs(); LD1.guided=~ld1_guided();
     ld1_guided_prepare(); ld1_set_instruction("",[]);
     if LD1.step<9 then ld1_redraw_panel(); end
     if ~LD1.guided then ld1_set_status("Rankinis valdymas įjungtas. Duomenys išliko.","info","Automatinį paruošimą galite grąžinti per Pagalbą."); end
+    ld1_save_step_inputs(); bench_autosave("LD1");
 endfunction
 
 function ld1_resize(id)
@@ -112,7 +133,9 @@ endfunction
 
 function ld1_ui_font(parent)
     for h=matrix(parent.children,1,-1)
-        if h.type=="uicontrol" then h.fontname="SansSerif"; ld1_ui_font(h); end
+        if h.type=="uicontrol" then
+            h.fontname="SansSerif"; h.fontsize=max(15,h.fontsize); ld1_ui_font(h);
+        end
     end
 endfunction
 
@@ -127,15 +150,17 @@ function ld1_results_cards(t)
         end
     end
     LD1.ui.resultCards=list();
-    for k=2:5
+    for k=2:size(t,1)
         bg=[0.95 0.97 0.97];
-        fr=student_frame(LD1.ui.circuitFrame,[0.025 0.61-(k-2)*0.18 0.95 0.16],bg);
+        fr=student_frame(LD1.ui.circuitFrame,[0.025 0.64-(k-2)*0.15 0.95 0.13],bg);
         ld1_track_board_handle(fr); LD1.ui.resultCards($+1)=fr;
         student_text(fr,[0.02 0.68 0.65 0.26],t(k,1),14,%t,bg);
         student_text(fr,[0.70 0.68 0.28 0.26],t(k,5),12,%f,bg);
         student_text(fr,[0.02 0.07 0.33 0.57],student_wrap(t(k,2),30),12,%f,bg);
-        student_text(fr,[0.38 0.07 0.29 0.57],student_wrap("Skaičiuota: "+t(k,3),26),12,%f,bg);
-        student_text(fr,[0.70 0.07 0.28 0.57],student_wrap("Išmatuota: "+t(k,4),26),12,%f,bg);
+        left="Skaičiuota: "; right="Išmatuota: ";
+        if k==5 then left="Prieš: "; right="Po pakeitimo: "; end
+        student_text(fr,[0.38 0.07 0.29 0.57],student_wrap(left+t(k,3),26),12,%f,bg);
+        student_text(fr,[0.70 0.07 0.28 0.57],student_wrap(right+t(k,4),26),12,%f,bg);
         ld1_ui_font(fr);
     end
 endfunction

@@ -307,6 +307,13 @@ function bench_restore_snapshot(session)
         if session.lab=="LD1" then
             step=session.state.step;
             LD1.cfg=session.cfg;LD1.student=session.student;
+            if ~isfield(session.state,"stepVR") then session.state.stepVR=%nan*ones(1,9); end
+            if ~isfield(session.state,"guided") then session.state.guided=%f; end
+            if ~isfield(session.state,"practice_used") then session.state.practice_used=%f; end
+            if ~isfield(session.state,"assessment") then session.state.assessment=%f; end
+            if isfield(session.state,"guided_used") then
+                if session.state.guided_used then session.state.assessment=%f; session.state.practice_used=%t; end
+            end
             // Rendering a stage can change transient controls; reapply saved
             // values afterwards, with power off and the original raw answers.
             LD1.step=0;

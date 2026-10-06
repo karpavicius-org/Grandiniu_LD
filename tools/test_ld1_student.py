@@ -1,5 +1,6 @@
 """Internal feedback: real LD1 student GUI, native grading and pixel geometry."""
 import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -17,6 +18,7 @@ runtime=out/'Studento stendas Žąsė'
 shutil.copytree(repo/'studentui',runtime,ignore=shutil.ignore_patterns('results','__pycache__','*.html','*.sod'))
 (runtime/'tests/results').mkdir(parents=True)
 env=dict(os.environ,LD1_TEST_RUNTIME=runtime.as_posix(),LD1_TEST_OUT=out.as_posix(),LD1_TEST_SOURCE=repo.as_posix(),LD_DATA_DIR=(out/'Ataskaitos').as_posix())
+env['LD1_CAPTURE_WINDOWS']='1' if importlib.util.find_spec('PIL') else '0'
 exe=a.scilab.resolve(); flags=['-nw']
 if os.name=='nt': exe=exe.parent/'WScilex.exe'; flags=[]
 with (out/'scilab.log').open('wb') as log:

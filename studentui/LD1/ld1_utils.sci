@@ -57,6 +57,7 @@ function ld1_show(h, tf)
 endfunction
 
 function ld1_enable(h, tf)
+    if ~is_handle_valid(h) then return; end
     if tf then h.enable = "on"; else h.enable = "off"; end
 endfunction
 
