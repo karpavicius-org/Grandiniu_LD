@@ -22,6 +22,49 @@ function ld3_student_main(root)
     bench_autosave("LD3");
 endfunction
 
+function ld3_student_details()
+    global LD3;
+    if LD3.demoMode then
+        ld3_set_status("Pirmiausia grįžkite į savo darbą.","info","");
+        return;
+    end
+    pick=messagebox([student_caption(LD3.student);student_parameter_lines("LD3",LD3.cfg)], ...
+        "Studentas ir priskirtos reikšmės","info",["Grįžti" "Keisti duomenis"],"modal");
+    if pick<>2 then return; end
+    [ok,st,cfg]=student_enroll("LD3",LD3.student);
+    if ~ok then return; end
+    if st.number<>LD3.student.number then
+        pick=messagebox("Kitas variantas pradės naują darbą. Dabartinis darbas pirmiausia bus išsaugotas.", ...
+            "Keisti variantą?","question",["Atšaukti" "Pradėti naują"],"modal");
+        if pick<>2 then return; end
+    end
+    ld3_apply_profile(st,cfg);
+endfunction
+
+function ld3_apply_profile(st,cfg)
+    global LD3;
+    ld3_save_answers();
+    changed=st.number<>LD3.student.number;
+    assessment=LD3.assessment; practice=LD3.practice_used;
+    if changed then
+        bench_autosave("LD3");
+        if isfield(LD3,"autosave_error") then
+            if LD3.autosave_error<>"" then return; end
+        end
+        ld3_init_state();
+        LD3.cfg=cfg; LD3.student=st;
+        LD3.assessment=assessment; LD3.practice_used=practice;
+        LD3.autosave_paths=emptystr(0,1); LD3.autosave_error="";
+    else
+        LD3.cfg=cfg; LD3.student=st;
+    end
+    student_remember(st);
+    if isfield(LD3,"ui") then
+        if ~isfield(LD3.ui,"headless") | ~LD3.ui.headless then ld3_render_stage(); end
+    end
+    bench_autosave("LD3");
+endfunction
+
 function ld3_start()
     global LD3;
     // Darbo pradžia inicializuoja būseną (kaip ld1_start): cfg/student išlieka.

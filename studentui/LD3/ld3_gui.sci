@@ -192,7 +192,6 @@ function ld3_build_gui()
     LD3.ui.studentPrimary=ld3_button(right,[0.07 0.085 0.86 0.075],"Tikrinti","ld3_student_primary()",15,[0.08 0.39 0.37]);
     controls($+1)=LD3.ui.studentPrimary;
     controls($+1)=ld3_button(right,[0.07 0.015 0.37 0.045],"← Atgal","ld3_jump_step(LD3.step-1)",12);
-    controls($+1)=ld3_button(right,[0.48 0.015 0.45 0.045],"Žemėlapis","ld3_show_stand_map()",12);
     LD3.ui.controls=controls; LD3.ui.dynamic=controls;
     LD3.ui.statusMain=student_text(f,[0.025 0.055 0.95 0.035],"",13,%t,[0.94 0.96 0.96]);
     LD3.ui.statusFix=student_text(f,[0.025 0.020 0.95 0.035],"",12,%f,[0.94 0.96 0.96]);
@@ -216,7 +215,7 @@ function ld3_show_actions()
         if extra==1 then bench_export_current("LD3");
         elseif extra==2 then bench_mode("LD3"); ld3_student_sync(); bench_autosave("LD3"); end
     case 4 then
-        ld3_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD3.student);"";student_parameter_lines("LD3",LD3.cfg)]);
+        ld3_student_details();
     case 5 then
         extra=x_choose(["Parodyti pavyzdį / mano darbą";"Pradėti darbą iš naujo"],"Daugiau veiksmų");
         if extra==1 then ld3_toggle_solution();

@@ -443,6 +443,18 @@ function bench_ld3_workflow(n,root,gui)
         end
         assert_checktrue(isfield(LD3,"autosave_paths"));
         assert_checktrue(size(LD3.autosave_paths,"*")>=1);
+        // To paties varianto duomenų taisymas nepraranda darbo.
+        before=LD3.done;
+        st=student_profile(n,"Pataisytas Vardas","TEST-2","LD3");
+        ld3_apply_profile(st,cfg);
+        assert_checkequal(LD3.done,before); assert_checkequal(LD3.student.name,"Pataisytas Vardas");
+        // Kitas variantas pradeda švarų darbą, bet išsaugo pasirinktą režimą.
+        st=student_profile(modulo(n,64)+1,"Kitas Studentas","TEST","LD3");
+        ld3_apply_profile(st,ld3_variant_config(st.number));
+        assert_checkequal(LD3.step,1); assert_checkfalse(or(LD3.done));
+        assert_checkequal(size(LD3.journal,1),0);
+        assert_checktrue(LD3.assessment); assert_checkfalse(LD3.practice_used);
+        mprintf("PASS LD3 V17: student data and variant change\n");
         ld3_close();
         assert_checkfalse(is_handle_valid(LD3.fig));
     end
