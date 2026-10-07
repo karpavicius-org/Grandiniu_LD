@@ -11,7 +11,7 @@ function [ok, reason] = ld3_wiring_valid(wires)
     ok = %f; reason = "";
     canon = ld3_canonical_wires();
     if ~isfield(LD3, "wires") | LD3.wires == [] then
-        reason = "Grandinė nesujungta: pradėkite nuo [B04] KAIP SUJUNGTI ir [T01]–[T10] gnybtų.";
+        reason = "Grandinė dar nesujungta. Jei reikia, atverkite Pagalba → Kaip sujungti.";
         return;
     end
     if size(LD3.wires, 1) > 6 then
@@ -25,8 +25,7 @@ function [ok, reason] = ld3_wiring_valid(wires)
             if and(par == canon(k,:)) | and(par == canon(k, [2 1])) then rasta = %t; end
         end
         if ~rasta then
-            reason = "Trūksta laido " + canon(k,1) + "–" + canon(k,2) + ...
-                     " (" + ld3_terminal_code(canon(k,1)) + "–" + ld3_terminal_code(canon(k,2)) + ").";
+            reason = "Trūksta jungties: " + ld3_terminal_name(canon(k,1)) + " → " + ld3_terminal_name(canon(k,2)) + ".";
             return;
         end
     end
@@ -38,15 +37,15 @@ function [u, i, ok, msg] = ld3_measure_values()
     global LD3;
     u = %nan; i = %nan; ok = %f; msg = "";
     if ~LD3.powerOn then
-        msg = "Maitinimas išjungtas: įjunkite [B01] MAITINIMAS.";
+        msg = "Maitinimas išjungtas. Pirmiausia įjunkite maitinimą.";
         return;
     end
     if ~LD3.switchOn then
-        msg = "Jungiklis atidarytas: uždarykite [B02] JUNGLIS.";
+        msg = "Jungiklis atidarytas. Uždarykite jungiklį.";
         return;
     end
     if LD3.voltage <= 0 then
-        msg = "Įtampa 0 V: nustatykite ją mygtuku [B10] U1, [B11] U2 ar [B12] U3.";
+        msg = "Įtampa nenustatyta. Pasirinkite U1, U2 arba U3.";
         return;
     end
     [wok, wwhy] = ld3_wiring_valid(LD3.wires);

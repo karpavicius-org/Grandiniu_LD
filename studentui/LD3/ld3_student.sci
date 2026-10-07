@@ -9,11 +9,17 @@ function ld3_student_main(root)
             if is_handle_valid(LD3.fig) then show_window(LD3.fig); return; end
         end
     end
-    bench_core_require();
+    try bench_core_require(); catch
+        messagebox(["LD3 nepavyko paleisti.";strcat(lasterror()," "); ...
+            "Išskleiskite visą paketą į vieną aplanką ir paleiskite STENDAS.sce per grafinį Scilab."], ...
+            "LD3 paleidimas","error");
+        return;
+    end
     [ok,st,cfg]=student_enroll("LD3");
     if ~ok then return; end
     LD3=struct("root",root,"cfg",cfg,"student",st);
     student_remember(st); ld3_start();
+    bench_autosave("LD3");
 endfunction
 
 function ld3_start()
@@ -35,22 +41,25 @@ function ld3_start()
         ld3_build_gui();
     end
     if ~isfield(LD3,"autosave_enabled") then LD3.autosave_enabled=needgui; end
-    ld3_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite matavimo grandinę.","info","Atsiskaitymo režimas. Seką rasite: Pagalba → [B04] Kaip sujungti.");
+    ld3_set_status("Pradėkite nuo grandinės sujungimo.","info","Atsiskaitymo režimas. Jei reikia, atverkite Pagalba → Kaip sujungti.");
 endfunction
 
 function ld3_student_primary()
     global LD3;
     if LD3.demoMode then ld3_toggle_solution(); return; end
     ld3_save_answers();
-    if LD3.step == 6 & LD3.done(6) then
+    if LD3.step==6 & LD3.done(6) then
+        if ~and(LD3.done) then
+            ld3_set_status("Dar yra neužbaigtų ankstesnių etapų.","error","Grįžkite prie neužbaigto etapo ir jį užfiksuokite.");
+            return;
+        end
         bench_export_current("LD3");
         return;
     end
-    // Vienas paspaudimas: patikrinti ir, pavykus, iškart pereiti (LD2 semantika).
     if ~LD3.done(LD3.step) then
         ld3_check_step(~LD3.assessment);
     end
-    if LD3.done(LD3.step) & LD3.step < 6 then
+    if LD3.done(LD3.step) & LD3.step<6 then
         ld3_next_step();
     end
     ld3_student_sync(); bench_autosave("LD3");
@@ -76,7 +85,7 @@ function ld3_student_sync()
         elseif LD3.done(LD3.step) then
             LD3.ui.studentPrimary.string = "TOLIAU →";
         elseif LD3.assessment then
-            LD3.ui.studentPrimary.string = "ĮRAŠYTI IR TOLIAU →";
+            LD3.ui.studentPrimary.string = "TOLIAU →";
         else
             LD3.ui.studentPrimary.string = "TIKRINTI";
         end

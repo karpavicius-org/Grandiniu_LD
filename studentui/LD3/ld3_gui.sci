@@ -8,7 +8,6 @@ function h=ld3_button(p,pos,label,cb,fs,bg)
     catch
         code="";
     end
-    if code<>"" then label="["+code+"] "+label; end
     h=student_button(p,pos,"<html><center>"+label+"</center></html>",cb);
     h.tag=code; h.tooltipstring=hint; h.fontsize=fs; h.backgroundcolor=bg;
     if sum(bg)<1.5 then h.foregroundcolor=[1 1 1]; end
@@ -179,8 +178,8 @@ function ld3_build_gui()
     controls($+1)=ld3_button(p,[0.755 0.15 0.21 0.06],"Matuoti","ld3_measure()",13,[0.08 0.39 0.37]);
     LD3.ui.instructionLine(1)=student_text(right,[0.07 0.64 0.86 0.31],"",14,%f);
     LD3.ui.instructionLine(1).verticalalignment="top";
-    labels=["[A02.01] I1 teorinė, mA";"[A04.01] R1, Ω";"[A04.02] R2, Ω";"[A04.03] R3, Ω"; ...
-        "[A04.04] Rvid, Ω";"[A05.01] R iš nuolydžio, Ω";"[A06.01] Tiesinė? 1 Taip / 2 Ne";"[A06.02] R pastovi? 1 Taip / 2 Ne"];
+    labels=["I1 teorinė, mA";"R1, Ω";"R2, Ω";"R3, Ω"; ...
+        "R vidurkis, Ω";"R iš nuolydžio, Ω";"Ar I(U) tiesinė? 1 Taip / 2 Ne";"Ar R pastovi? 1 Taip / 2 Ne"];
     LD3.ui.answerEdits=[]; LD3.ui.answerLabels=[];
     for k=1:8
         LD3.ui.answerLabels($+1)=student_text(right,[0.07 0.5 0.53 0.075],student_wrap(labels(k),22),14,%f);
@@ -203,22 +202,26 @@ endfunction
 
 function ld3_show_actions()
     global LD3;
-    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
-        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD3 · Pagalba");
+    choice=x_choose(["Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
+        "Ataskaita ir režimas";"Mano duomenys";"Daugiau veiksmų"],"LD3 · Pagalba");
     select choice
-    case 1 then bench_open_snapshot("LD3");
-    case 2 then ld3_show_wiring_guide();
-    case 3 then bench_export_current("LD3");
-    case 4 then bench_mode("LD3"); ld3_student_sync(); bench_autosave("LD3");
-    case 6 then ld3_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD3.student);"";student_parameter_lines("LD3",LD3.cfg)]);
+    case 1 then
+        extra=x_choose(["Kaip sujungti";"Stendo žemėlapis"],"Šio etapo pagalba");
+        if extra==1 then ld3_show_wiring_guide(); elseif extra==2 then ld3_show_stand_map(); end
+    case 2 then
+        extra=x_choose(["Tęsti automatinį juodraštį";"Atkurti šio etapo stendą"],"Tęsti arba atkurti darbą");
+        if extra==1 then bench_open_snapshot("LD3"); elseif extra==2 then ld3_restore_stage(); end
+    case 3 then
+        extra=x_choose(["Išsaugoti ataskaitą";"Atsiskaitymo / mokymosi režimas"],"Ataskaita ir režimas");
+        if extra==1 then bench_export_current("LD3");
+        elseif extra==2 then bench_mode("LD3"); ld3_student_sync(); bench_autosave("LD3"); end
+    case 4 then
+        ld3_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD3.student);"";student_parameter_lines("LD3",LD3.cfg)]);
     case 5 then
-        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD3 · Daugiau veiksmų");
-        select extra
-        case 1 then ld3_show_stand_map();
-        case 2 then ld3_toggle_solution();
-        case 3 then ld3_restore_stage();
-        case 4 then
-            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD3","question",["Pradėti" "Grįžti"],"modal")==1 then ld3_restart(); end
+        extra=x_choose(["Parodyti pavyzdį / mano darbą";"Pradėti darbą iš naujo"],"Daugiau veiksmų");
+        if extra==1 then ld3_toggle_solution();
+        elseif extra==2 then
+            if messagebox("Pradėti darbą iš naujo? Laidai, matavimai ir atsakymai bus išvalyti.","LD3","question",["Pradėti" "Grįžti"],"modal")==1 then ld3_restart(); end
         end
     end
 endfunction

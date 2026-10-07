@@ -330,7 +330,11 @@ function bench_ld3_workflow(n,root,gui)
     if gui then
         assert_checktrue(LD3.autosave_enabled);
         if isfield(LD3.ui,"figure") then LD3.ui.figure.figure_name="PATIKRA · LD3 · variantas "+string(n);
-        elseif isfield(LD3,"fig") then LD3.fig.figure_name="PATIKRA · LD3 · variantas "+string(n); end
+        elseif isfield(LD3,"fig") then
+            LD3.fig.figure_name="PATIKRA · LD3 · variantas "+string(n);
+            assert_checkequal(LD3.fig.closerequestfcn,"ld3_close()");
+        end
+        assert_checktrue(strindex(LD3.ui.answerLabels(1).string,"[A")==[]);
         if n==17 then
             // Formal assessment must not reveal the example.
             ld3_toggle_solution(); assert_checkfalse(LD3.demoMode); assert_checkfalse(LD3.practice_used);
@@ -358,9 +362,15 @@ function bench_ld3_workflow(n,root,gui)
                 assert_checktrue(LD3.done(2)); assert_checkequal(LD3.step,3);
                 assert_checkequal(LD3.answers(2,1),"0");
                 assert_checktrue(strindex(LD3.ui.statusMain.string,"Tikimasi")==[]); assert_checktrue(strindex(LD3.ui.statusFix.string,"Tikimasi")==[]);
+                // Neskaitinis tekstas yra formato klaida, bet etalonas neatskleidžiamas.
+                ld3_jump_step(2);
+                LD3.ui.answerEdits(1).string="raw-wrong"; execstr(LD3.ui.answerEdits(1).callback);
+                bench_ld3_primary();
+                assert_checkfalse(LD3.done(2)); assert_checkequal(LD3.step,2);
+                assert_checktrue(strindex(LD3.ui.statusMain.string,"skaičius")<>[]);
+                assert_checktrue(strindex(LD3.ui.statusMain.string,"Tikimasi")==[]);
                 // Restore a correct raw answer so the exported acceptance fixture
                 // remains a perfect report.
-                ld3_jump_step(2);
                 LD3.ui.answerEdits(1).string=msprintf("%.12g",u(1)/cfg.R*1000);
                 execstr(LD3.ui.answerEdits(1).callback);
                 assert_checkfalse(LD3.done(2));
@@ -406,13 +416,21 @@ function bench_ld3_workflow(n,root,gui)
             assert_checkequal(LD3.answers(5,1),keep);
             assert_checktrue(LD3.assessment); assert_checkfalse(LD3.powerOn); assert_checkfalse(LD3.switchOn);
         end
+        // Galutinė ataskaita negali apeiti ankstesnio neužbaigto etapo.
+        LD3.done(5)=%f; LD3.step=6; ld3_render_stage();
+        bench_ld3_primary();
+        assert_checktrue(strindex(LD3.ui.statusMain.string,"ankstesnių etapų")<>[]);
+        LD3.done(5)=%t; ld3_render_stage();
         bench_ld3_primary();
         assert_checktrue(strindex(LD3.ui.statusMain.string,"Ataskaita išsaugota")<>[]);
         if n==17 then
-            // Learning still performs local correctness checks, restart keeps
-            // the practice marker, and the example is then available.
+            // Naujas bandymas po mokymosi turi būti švarus formalus atsiskaitymas.
             LD3.assessment=%f; LD3.practice_used=%t; ld3_restart();
-            assert_checkfalse(LD3.assessment); assert_checktrue(LD3.practice_used);
+            assert_checktrue(LD3.assessment); assert_checkfalse(LD3.practice_used);
+            assert_checkequal(LD3.step,1); assert_checkequal(size(LD3.journal,1),0);
+            assert_checktrue(size(LD3.autosave_paths,"*")>=1);
+            // Toliau sąmoningai persijungiame į mokymąsi ir tikriname vietinį grįžtamąjį ryšį.
+            LD3.assessment=%f; LD3.practice_used=%t; ld3_student_sync();
             for k=1:size(W,1); bench_ld3_click(W(k,1)); bench_ld3_click(W(k,2)); end
             bench_ld3_primary(); assert_checkequal(LD3.step,2);
             bench_ld3_action("ld3_toggle_power()"); bench_ld3_action("ld3_toggle_switch()");
