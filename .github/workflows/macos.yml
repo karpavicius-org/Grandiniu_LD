@@ -13,7 +13,8 @@ jobs:
           - os: macos-15-intel
             arch: x86_64
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    # The full Scilab GUI and delivery checks exceed 30 minutes on Intel.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
