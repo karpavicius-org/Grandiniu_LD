@@ -653,17 +653,18 @@ function bench_ld4_workflow(n,root,gui)
         assert_checktrue(size(LD4.autosave_paths,"*")>=1);
         mprintf("PASS LD4 V%02d: autosave\n",n);
         // To paties varianto duomenų taisymas nepraranda darbo.
-        before=LD4.done;
+        before=LD4.done; beforeAssessment=LD4.assessment; beforePractice=LD4.practice_used;
         st=student_profile(n,"Pataisytas Vardas","TEST-2","LD4");
         ld4_apply_profile(st,cfg);
         assert_checkequal(LD4.done,before); assert_checkequal(LD4.student.name,"Pataisytas Vardas");
+        assert_checkequal(LD4.assessment,beforeAssessment); assert_checkequal(LD4.practice_used,beforePractice);
         // Kitas variantas pradeda švarų darbą ir išsaugo pasirinktą režimą.
         st=student_profile(modulo(n,64)+1,"Kitas Studentas","TEST","LD4");
         ld4_apply_profile(st,ld4_variant_config(st.number));
         assert_checkequal(LD4.step,1); assert_checkfalse(or(LD4.done));
         assert_checkequal(size(LD4.journal,1),0);
-        assert_checkfalse(LD4.assessment); assert_checktrue(LD4.practice_used);
-        mprintf("PASS LD4 V17: student data and variant change\n");
+        assert_checkequal(LD4.assessment,beforeAssessment); assert_checkequal(LD4.practice_used,beforePractice);
+        mprintf("PASS LD4 V%02d: student data and variant change\n",n);
         ld4_close();
         if typeof(LD4.fig)=="handle" then error("LD4 V"+string(n)+" close blocked: "+LD4.autosave_error); end
         assert_checktrue(typeof(LD4.fig)<>"handle");
