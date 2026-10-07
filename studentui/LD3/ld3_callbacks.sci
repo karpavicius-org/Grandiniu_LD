@@ -4,14 +4,14 @@
 
 function ld3_terminal_click(id)
     global LD3;
-    if LD3.demoMode then ld3_set_status("Pavyzdyje laidai jau sujungti.","info","Grįžkite paspaudę [B07]."); return; end
+    if LD3.demoMode then ld3_set_status("Pavyzdyje laidai jau sujungti.","info","Grįžkite į savo darbą per Pagalbą."); return; end
     if LD3.step ~= 1 & ~LD3.done(1) then
         ld3_set_status("Pirmiausia užbaikite 1 etapo sujungimą.","error","Mygtuku ← Atgal grįžkite į 1 etapą.");
         return;
     end
     if LD3.pending == "" then
         LD3.pending = id;
-        ld3_set_status("Pasirinktas [T" + part(ld3_terminal_code(id), 2:3) + "] " + ld3_terminal_name(id) + ".","info","Dabar spauskite antrąjį sujungiamo gnybtą.");
+        ld3_set_status("Pasirinktas "+ld3_terminal_name(id)+".","info","Dabar spauskite antrąjį sujungiamo gnybtą.");
     else
         if id == LD3.pending then
             LD3.pending = "";
@@ -25,7 +25,7 @@ function ld3_terminal_click(id)
         end
         if uses >= 2 then
             LD3.pending = "";
-            ld3_set_status("Gnybtas [T" + part(ld3_terminal_code(id), 2:3) + "] jau su dviem laidais.","error","Zondus prispauskite ant rezistoriaus gnybtų; čia vietos nėra.");
+            ld3_set_status("Šis gnybtas jau turi du laidus.","error","Pasirinkite kitą schemoje nurodytą gnybtą.");
             return;
         end
         LD3.wires($+1, :) = [LD3.pending, id];
@@ -33,7 +33,7 @@ function ld3_terminal_click(id)
         ld3_set_status("Laidas pridėtas (" + string(size(LD3.wires,1)) + "/6).","ok","");
         if size(LD3.wires, 1) >= 6 then
             [wok, wwhy] = ld3_wiring_valid(LD3.wires);
-            if wok then ld3_set_status("Sujungimas teisingas! Galima tikrinti 1 etapą.","ok","Spauskite apatinį TIKRINTI mygtuką."); end
+            if wok then ld3_set_status("Sujungimas užbaigtas.","ok","Spauskite Toliau."); end
         end
     end
     if isfield(LD3, "ui") then
@@ -46,9 +46,9 @@ function ld3_toggle_power()
     global LD3;
     LD3.powerOn = ~LD3.powerOn;
     if LD3.powerOn then
-        ld3_set_status("[B01] Maitinimas įJUNGTAS.","ok","Dabar uždarykite jungiklį [B02].");
+        ld3_set_status("Maitinimas įjungtas.","ok","Dabar uždarykite jungiklį.");
     else
-        ld3_set_status("[B01] Maitinimas iŠJUNGTAS.","info","Įtampa nustatoma mygtukais [B10]–[B12].");
+        ld3_set_status("Maitinimas išjungtas.","info","Įtampą pasirinkite vienu iš U1, U2 arba U3 mygtukų.");
     end
     ld3_render_wires(); bench_autosave("LD3");
 endfunction
@@ -56,11 +56,11 @@ endfunction
 function ld3_toggle_switch()
     global LD3;
     if ~LD3.powerOn then
-        ld3_set_status("Negalima jungti be maitinimo.","error","Pirmiausia [B01] MAITINIMAS.");
+        ld3_set_status("Negalima uždaryti jungiklio be maitinimo.","error","Pirmiausia įjunkite maitinimą.");
         return;
     end
     LD3.switchOn = ~LD3.switchOn;
-    if LD3.switchOn then ld3_set_status("[B02] Jungiklis UŽDARYTAS.","ok","Nustatykite įtampą [B10]–[B12] ir matuokite [B03]."); end
+    if LD3.switchOn then ld3_set_status("Jungiklis uždarytas.","ok","Pasirinkite U1, U2 arba U3 ir spauskite Matuoti."); end
     ld3_render_wires(); bench_autosave("LD3");
 endfunction
 
@@ -97,7 +97,7 @@ function ld3_measure()
         if abs(LD3.journal(m,1) - u) < 1e-9 then jeigu = %f; end
     end
     if ~jeigu then
-        ld3_set_status("Šis įtampos taškas jau užfiksuotas.","error","Nustatykite kitą reikšmę mygtuku [B11] ar [B12].");
+        ld3_set_status("Šis įtampos taškas jau užfiksuotas.","error","Pasirinkite kitą U reikšmę.");
         return;
     end
     if size(LD3.journal, 1) >= 3 then
@@ -107,7 +107,7 @@ function ld3_measure()
     LD3.journal($+1, :) = [u, i];
     LD3.lastMeasurement = i;
     ld3_set_status(msprintf("Užfiksuota: U = %g V, I = %.2f mA (%d/3 taškai).", u, i, size(LD3.journal,1)), "ok", ...
-        msprintf("Rodmuo matomas [V02] lange ir matavimų sąraše."));
+        msprintf("Rodmuo įrašytas į matavimų sąrašą."));
     if isfield(LD3, "ui") then
         if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_journal(); ld3_render_wires(); end
     end
@@ -124,92 +124,92 @@ endfunction
 function ld3_check_step(check_answers)
     global LD3;
     if argn(2)<1 then check_answers=%t; end
-    n = LD3.step;
-    if LD3.done(n) then ld3_set_status("Etapas jau atliktas.","ok","Spauskite TOLIAU."); return; end
+    n=LD3.step;
+    if LD3.done(n) then ld3_set_status("Etapas jau atliktas.","ok","Spauskite Toliau."); return; end
     select n
     case 1 then
-        [wok, wwhy] = ld3_wiring_valid(LD3.wires);
-        if ~wok then ld3_set_status(wwhy, "error", "Seką rasite: Pagalba → [B04] Kaip sujungti."); return; end
-        LD3.done(1) = %t;
-        ld3_set_status("1 etapas baigtas: stendas sujungtas teisingai.","ok","[E02] atveria teorinę prognozę.");
+        [wok,wwhy]=ld3_wiring_valid(LD3.wires);
+        if ~wok then ld3_set_status(wwhy,"error","Jei reikia, atverkite Pagalba → Kaip sujungti."); return; end
+        LD3.done(1)=%t;
+        ld3_set_status("Grandinė sujungta ir 1 etapas užfiksuotas.","ok","Spauskite Toliau.");
     case 2 then
-        if stripblanks(LD3.answers(2,1))=="" then
-            ld3_set_status("Įrašykite teorinę srovę [A02.01], mA.","error","Atsakymą vertins dėstytojo programa."); return;
-        end
+        raw=stripblanks(LD3.answers(2,1));
+        if raw=="" then ld3_set_status("Įrašykite teorinę srovę I1, mA.","error","Atsakymo teisingumą vertins dėstytojo programa."); return; end
+        v=ld3_parse_number(raw);
+        if isnan(v) then ld3_set_status("Teorinė srovė turi būti skaičius.","error","Tinka kablelis arba taškas; formulės ir vieneto į lauką nerašykite."); return; end
         if check_answers then
-            v = ld3_parse_number(LD3.answers(2,1));
-            e = LD3.cfg.U1 / LD3.cfg.R * 1000;
-            if isnan(v) then ld3_set_status("Įrašykite skaitinę teorinę srovę [A02.01], mA.","error","I = U1 / R · 1000."); return; end
-            if ~ld3_close_enough(v, e) then
-                ld3_set_status("Teorinė srovė [A02.01] netiksli.","error",msprintf("Tikimasi ≈ %.2f mA (I = U1/R·1000).", e)); return; end
+            e=LD3.cfg.U1/LD3.cfg.R*1000;
+            if ~ld3_close_enough(v,e) then ld3_set_status("Teorinė srovė netiksli.","error",msprintf("Tikimasi ≈ %.2f mA.",e)); return; end
         end
-        if size(LD3.journal,1) < 1 then
-            ld3_set_status("Trūksta pirmo matavimo.","error","Spauskite [B10] U1 ir [B03] MATUOTI."); return; end
-        LD3.done(2) = %t;
-        ld3_set_status("2 etapas baigtas.","ok","[E03] — dar du taškai.");
+        if size(LD3.journal,1)<1 then ld3_set_status("Trūksta pirmo matavimo.","error","Pasirinkite U1 ir spauskite Matuoti."); return; end
+        LD3.done(2)=%t;
+        ld3_set_status("2 etapas užfiksuotas.","ok","Spauskite Toliau.");
     case 3 then
-        if size(LD3.journal,1) < 3 then
-            truksta = 3 - size(LD3.journal,1);
-            ld3_set_status("Trūksta " + string(truksta) + " matavimo taškų.","error","Nustatykite [B11] U2 / [B12] U3 ir [B03] MATUOTI."); return; end
-        LD3.done(3) = %t;
-        ld3_set_status("3 etapas baigtas: trys taškai užfiksuoti.","ok","[E04] — skaičiavimai.");
+        if size(LD3.journal,1)<3 then
+            truksta=3-size(LD3.journal,1);
+            ld3_set_status("Trūksta "+string(truksta)+" matavimo taškų.","error","Pamatuokite likusias U2 ir U3 reikšmes."); return;
+        end
+        LD3.done(3)=%t;
+        ld3_set_status("Trys matavimo taškai užfiksuoti.","ok","Spauskite Toliau.");
     case 4 then
-        exp = ld3_expected_answers();
-        for k = 1:4
-            if stripblanks(LD3.answers(4,k))=="" then
-                ld3_set_status(msprintf("Įrašykite [%s].", ld3_answer_code(4,k)), "error", "Atsakymą vertins dėstytojo programa."); return;
-            end
+        exp=ld3_expected_answers();
+        labels=["R1";"R2";"R3";"R vidurkis"];
+        for k=1:4
+            raw=stripblanks(LD3.answers(4,k));
+            if raw=="" then ld3_set_status("Įrašykite "+labels(k)+", Ω.","error","Atsakymo teisingumą vertins dėstytojo programa."); return; end
+            v=ld3_parse_number(raw);
+            if isnan(v) then ld3_set_status(labels(k)+" turi būti skaičius.","error","Tinka kablelis arba taškas; vieneto į lauką nerašykite."); return; end
             if check_answers then
-                v = ld3_parse_number(LD3.answers(4,k));
-                if isnan(v) then
-                    ld3_set_status(msprintf("Įrašykite skaičių [%s].", ld3_answer_code(4,k)), "error", "R = U / I (I mA → dalyti iš 1000)."); return; end
-                if ~ld3_close_enough(v, ld3_parse_number(exp(4,k))) then
-                    ld3_set_status(msprintf("[%s] netikslus.", ld3_answer_code(4,k)), "error", ...
-                        msprintf("Tikimasi ≈ %s.", exp(4,k))); return; end
+                if ~ld3_close_enough(v,ld3_parse_number(exp(4,k))) then
+                    ld3_set_status(labels(k)+" reikšmė netiksli.","error",msprintf("Tikimasi ≈ %s Ω.",exp(4,k))); return;
+                end
             end
         end
-        LD3.done(4) = %t;
-        ld3_set_status("4 etapas baigtas.","ok","[E05] — I(U) charakteristika.");
+        LD3.done(4)=%t;
+        ld3_set_status("4 etapas užfiksuotas.","ok","Spauskite Toliau.");
     case 5 then
-        if stripblanks(LD3.answers(5,1))=="" then
-            ld3_set_status("Įrašykite R iš nuolydžio [A05.01], Ω.","error","Atsakymą vertins dėstytojo programa."); return;
-        end
+        raw=stripblanks(LD3.answers(5,1));
+        if raw=="" then ld3_set_status("Įrašykite R iš nuolydžio, Ω.","error","Atsakymo teisingumą vertins dėstytojo programa."); return; end
+        v=ld3_parse_number(raw);
+        if isnan(v) then ld3_set_status("R iš nuolydžio turi būti skaičius.","error","Tinka kablelis arba taškas; vieneto į lauką nerašykite."); return; end
         if check_answers then
-            v = ld3_parse_number(LD3.answers(5,1));
-            e = LD3.cfg.R;
-            if isnan(v) then ld3_set_status("Įrašykite skaitinę R reikšmę [A05.01], Ω.","error","R = ΔU / ΔI (I mA → ΔI/1000)."); return; end
-            if ~ld3_close_enough(v, e) then
-                ld3_set_status("[A05.01] netikslus.","error",msprintf("Tikimasi ≈ %g Ω.", e)); return; end
+            e=LD3.cfg.R;
+            if ~ld3_close_enough(v,e) then ld3_set_status("R iš nuolydžio netiksli.","error",msprintf("Tikimasi ≈ %g Ω.",e)); return; end
         end
-        LD3.done(5) = %t;
-        ld3_set_status("5 etapas baigtas.","ok","[E06] — išvados.");
+        LD3.done(5)=%t;
+        ld3_set_status("5 etapas užfiksuotas.","ok","Spauskite Toliau.");
     case 6 then
         for k=1:2
-            if stripblanks(LD3.answers(6,k))=="" then
-                ld3_set_status(msprintf("Įrašykite [%s].",ld3_answer_code(6,k)),"error","1 – Taip, 2 – Ne."); return;
+            raw=stripblanks(LD3.answers(6,k));
+            if raw<>"1" & raw<>"2" then
+                ld3_set_status("Abiem išvadoms pasirinkite 1 arba 2.","error","1 – Taip, 2 – Ne."); return;
             end
         end
         if check_answers then
-            if LD3.answers(6,1) ~= "1" then ld3_set_status("[A06.01]: atsakymas neteisingas.","error","Palyginkite tris matavimų taškus [V02] sąraše."); return; end
-            if LD3.answers(6,2) ~= "1" then ld3_set_status("[A06.02]: atsakymas neteisingas.","error","Palyginkite [A04.01]–[A04.03]."); return; end
+            if LD3.answers(6,1)<>"1" then ld3_set_status("Pirma išvada neteisinga.","error","Palyginkite tris I(U) matavimo taškus."); return; end
+            if LD3.answers(6,2)<>"1" then ld3_set_status("Antra išvada neteisinga.","error","Palyginkite tris apskaičiuotas R reikšmes."); return; end
         end
-        LD3.done(6) = %t;
-        ld3_set_status("6 etapas baigtas: darbas atliktas!","ok","[B08] ATASKAITA DĖSTYTOJUI sukuria HTML ataskaitą.");
+        LD3.done(6)=%t;
+        ld3_set_status("Darbas užfiksuotas.","ok","Spauskite Išsaugoti ataskaitą.");
     end
-    if isfield(LD3, "ui") then
-        if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_stage(); end
+    if isfield(LD3,"ui") then
+        if ~isfield(LD3.ui,"headless") | ~LD3.ui.headless then ld3_render_stage(); end
     end
-    if ~check_answers then ld3_set_status(string(n)+" etapo atsakymai įrašyti.","ok","Teisingumą vertins dėstytojo programa."); end
+    if ~check_answers then ld3_set_status(string(n)+" etapo duomenys įrašyti.","ok","Teisingumą vertins dėstytojo programa."); end
 endfunction
 
 function ld3_next_step()
     global LD3;
-    if LD3.step >= 6 then return; end
+    if LD3.step>=6 then return; end
     if ~LD3.done(LD3.step) then
-        LD3.skipped(LD3.step) = %t;
-        ld3_set_status("Etapas praleistas (pažymėtas geltonai).","info","Grįžti galima [E] mygtukais.");
+        if LD3.assessment then
+            ld3_set_status("Atsiskaityme neužbaigto etapo praleisti negalima.","warn","Užbaikite dabartinį etapą.");
+            return;
+        end
+        LD3.skipped(LD3.step)=%t;
+        ld3_set_status("Etapas praleistas.","info","Galite prie jo grįžti vėliau.");
     end
-    ld3_set_step(LD3.step + 1);
+    ld3_set_step(LD3.step+1);
 endfunction
 
 function ld3_set_step(n)
@@ -230,15 +230,15 @@ endfunction
 
 function s = ld3_step_instruction(n)
     global LD3;
-    cfg = LD3.cfg;
+    cfg=LD3.cfg;
     select n
-    case 1 then s = "Sujunkite stendą: [T01]→[T03], [T04]→[T05], [T06]→[T07], [T08]→[T02] (galvos kontūras), o voltmetro zondai [T09]→[T07], [T10]→[T08] lygiagrečiai R1. Maitinimas [B01] dar išjungtas.";
-    case 2 then s = msprintf("Apskaičiuokite teorinę srovę I1 = U1/R·1000 (U1=%d V, R=%d Ω) ir įrašykite [A02.01]. Tada [B01] maitinimas, [B02] jungiklis, [B10] U1, [B03] MATUOTI.", cfg.U1, cfg.R);
-    case 3 then s = msprintf("Spauskite [B11] U2=%d V → [B03]; tada [B12] U3=%d V → [B03]. Užfiksuoti visi 3 taškai.", cfg.U2, cfg.U3);
-    case 4 then s = "Apskaičiuokite ir įrašykite [A04.01]–[A04.03] (R=U/I iš kiekvieno taško) ir vidurkį [A04.04].";
-    case 5 then s = "Charakteristikos I(U) taškai rodomi stende. Apskaičiuokite R iš nuolydžio: R=(U3−U1)/((I3−I1)/1000) → [A05.01].";
-    case 6 then s = "Atsakykite [A06.01] (ar I(U) tiesinė?) ir [A06.02] (ar R pastovi?) – 1 Taip, 2 Ne. Tada Pagalba → [B08] Ataskaita.";
-    else s = "";
+    case 1 then s="Sujunkite nuoseklią grandinę šaltinis → jungiklis → ampermetras → R1 → šaltinis. Voltmetrą prijunkite lygiagrečiai R1. Maitinimas turi būti išjungtas.";
+    case 2 then s=msprintf("Apskaičiuokite teorinę srovę I1 = U1/R·1000, kai U1=%d V ir R=%d Ω. Įrašykite rezultatą, tada įjunkite maitinimą, uždarykite jungiklį, pasirinkite U1 ir spauskite Matuoti.",cfg.U1,cfg.R);
+    case 3 then s=msprintf("Pamatuokite dar du taškus: pasirinkite U2=%d V ir Matuoti, tada U3=%d V ir Matuoti. Matavimų sąraše turi būti 3 taškai.",cfg.U2,cfg.U3);
+    case 4 then s="Iš kiekvieno matavimo apskaičiuokite R = U/I ir įrašykite R1, R2, R3 bei jų vidurkį.";
+    case 5 then s="Pagal pirmą ir trečią tašką apskaičiuokite R iš I(U) charakteristikos nuolydžio: R = ΔU / ΔI.";
+    case 6 then s="Padarykite dvi išvadas: ar I(U) charakteristika tiesinė ir ar apskaičiuota R išlieka pastovi. 1 – Taip, 2 – Ne.";
+    else s="";
     end
 endfunction
 
@@ -324,7 +324,7 @@ function ld3_text_window(title, lines)
     uicontrol(f, "style", "listbox", "units", "normalized", "position", [0.02 0.10 0.96 0.84], ...
               "string", lines, "fontname", "DejaVu Sans", "fontunits", "pixels", "fontsize", 12);
     uicontrol(f, "style", "pushbutton", "units", "normalized", "position", [0.35 0.02 0.3 0.06], ...
-              "string", "[H01] Uždaryti", "tag", "H01", "callback", "close()");
+              "string", "Uždaryti", "tag", "H01", "callback", "close()");
 endfunction
 
 function ld3_toggle_solution()
@@ -367,7 +367,7 @@ function ld3_toggle_solution()
     for k = 1:4 do LD3.answers(4,k) = e(4,k); end
     LD3.answers(5,1) = e(5,1);
     LD3.answers(6,1) = "1"; LD3.answers(6,2) = "1";
-    ld3_set_status("PAVYZDYS rodomas (neišsaugojama kaip jūsų atsakymai).","info","Grįžkite [B07].");
+    ld3_set_status("Rodomas mokymosi pavyzdys. Jūsų darbas nepakeistas.","info","Per Pagalbą grįžkite į savo darbą.");
     if isfield(LD3, "ui") then
         if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_stage(); end
     end
@@ -387,13 +387,20 @@ endfunction
 
 function ld3_restart()
     global LD3;
-    cfg = LD3.cfg; st = LD3.student;
-    ld3_init_state();
-    LD3.cfg = cfg; LD3.student = st;
-    if isfield(LD3, "ui") then
-        if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_stage(); end
+    ld3_save_answers();
+    bench_autosave("LD3");
+    if isfield(LD3,"autosave_error") then
+        if LD3.autosave_error<>"" then return; end
     end
-    ld3_set_status("Darbas pradėtas iš naujo.","info","Variantas, studentas, režimas ir mokymosi žyma išliko.");
+    cfg=LD3.cfg; st=LD3.student;
+    ld3_init_state();
+    LD3.cfg=cfg; LD3.student=st;
+    LD3.assessment=%t; LD3.practice_used=%f;
+    LD3.autosave_paths=emptystr(0,1); LD3.autosave_error="";
+    if isfield(LD3,"ui") then
+        if ~isfield(LD3.ui,"headless") | ~LD3.ui.headless then ld3_render_stage(); end
+    end
+    ld3_set_status("Pradėtas naujas atsiskaitymo bandymas.","ok","Ankstesnio bandymo juodraščiai palikti atskirai.");
     bench_autosave("LD3");
 endfunction
 
