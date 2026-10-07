@@ -29,6 +29,16 @@ function ld1_set_status(msg, kind, fix)
     if argn(2) < 3 then fix = ""; end
     if ~isfield(LD1, "ui") then return; end
     if ~isfield(LD1.ui, "statusMain") then return; end
+    if exists("ld1_measurement_workflow")==1 then
+        if ld1_measurement_workflow() then
+            for code=1:30
+                tag=msprintf(" [B%02d]",code); msg=strsubst(msg,tag,""); fix=strsubst(fix,tag,"");
+            end
+            fix=strsubst(fix,"Išjunkite maitinimą","Spauskite Išjungti, jei bandymas įjungtas");
+            fix=strsubst(fix,"IŠVALYTI LAIDUS ir KAIP SUJUNGTI","Atšaukti laidą ir Jungimo pagalba");
+            fix=strsubst(fix,"ATKURTI ETAPO STENDĄ","Pagalba → Atkurti stendą (mokymasis)");
+        end
+    end
 
     LD1.ui.statusMain.string = msg;
     LD1.ui.statusFix.string = fix;

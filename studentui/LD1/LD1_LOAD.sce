@@ -10,4 +10,5 @@ for ld1_file=["ld1_ids.sci" "ld1_config.sci" "ld1_utils.sci" "ld1_circuit.sci" "
     exec(LD1_ROOT+ld1_file,-1);
 end
 exec(LD1_ROOT+"ld1_assist.sci",-1);
+exec(LD1_ROOT+"ld1_measurement.sci",-1);
 funcprot(ld1_saved_funcprot);

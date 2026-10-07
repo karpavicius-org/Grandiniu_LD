@@ -471,7 +471,11 @@ void write_feedback(int nr, const std::string& display, const ld::Json& v) {
         std::string unit = it.value("unit", std::string());
         std::string expected = it.contains("expected") && !it["expected"].is_null()
                                    ? it["expected"].dump() : std::string();
-        if (status == "correct") {
+        if (it.value("automatic",false)) {
+            o << "[duomenys] " << label << " — " << comment;
+            if (it.contains("given") && !it["given"].is_null()) o << " Rodmuo: " << it["given"].dump() << " " << unit;
+            o << "\n";
+        } else if (status == "correct") {
             o << "[+] " << label << "\n";
         } else if (status == "missing") {
             o << "[ ] " << label << " — atsakymas neįvestas. " << comment << "\n";
@@ -490,7 +494,7 @@ void write_feedback(int nr, const std::string& display, const ld::Json& v) {
         }
     }
     if (v.contains("note") && v["note"].is_string() && !v["note"].get<std::string>().empty())
-        o << "\nStudento pastaba: " << v["note"].get<std::string>() << "\n";
+        o << (v.value("rubric_version",std::string())=="LD1-3"?"\nProgramos pastaba: ":"\nStudento pastaba: ") << v["note"].get<std::string>() << "\n";
     std::ofstream f(p, std::ios::binary | std::ios::trunc);
     f << o.str();
 }

@@ -61,9 +61,8 @@ endfunction
 function ui_auto_numbers(values)
     global LD1;
     for k=1:size(values,"*")
-        assert_checkequal(LD1.ui.qEdit(k).visible,"on");
-        actual=evstr(strsubst(LD1.ui.qEdit(k).string,",","."));
-        assert_checktrue(abs(actual-values(k))<=0.00051);
+        assert_checkequal(LD1.ui.qEdit(k).visible,"off");
+        assert_checkequal(LD1.ui.qEdit(k).string,"");
     end
 endfunction
 function capture_ld1(name)
@@ -77,11 +76,11 @@ function capture_ld1(name)
 endfunction
 try
     exec(getenv("LD1_TEST_SOURCE")+"/tools/ergonomics.sci",-1);
-    fd=mopen(out+"geometry.tsv","wt"); sizes=[1280 720];
+    fd=mopen(out+"geometry.tsv","wt"); sizes=[1280 640];
     for number=[1 17 64]
         LD1=struct(); LD1_TEST_NUMBER=number; exec(root+"LD1/LD1.sce",-1);
         assert_checkfalse(LD1.guided); assert_checktrue(LD1.assessment);
-        screen=get(0,"screensize_px"); assert_checkequal(LD1.fig.axes_size,min([1280 720],max([320 240],screen(3:4)-[40 120]))); assert_checkequal(LD1.fig.resize,"off");
+        screen=get(0,"screensize_px"); assert_checkequal(LD1.fig.axes_size,min([1280 640],max([320 240],screen(3:4)-[40 120]))); assert_checkequal(LD1.fig.resize,"off");
         LD1.autosave_enabled=%f; cfg=LD1.cfg;
         assert_checkequal(LD1.ui.typeSeries.value+LD1.ui.typeParallel.value+LD1.ui.typeMixed.value,0);
         primary_position=LD1.ui.checkStep.position; back_position=LD1.ui.prev.position;
@@ -94,30 +93,28 @@ try
             assert_checkequal(size(added,"*"),1); delete(scf(added(1))); show_window(LD1.fig);
         end
         ui_primary(); assert_checkequal(LD1.step,1); // Missing choice stays visible.
+        ui_button(LD1.ui.wiringGuide); assert_checktrue(LD1.wiring_help);
+        assert_checkequal(ld1_measurement_hint_pair(),["SRC_P" "R1_1"]);
+        assert_checkequal(size(LD1.wires,1),0); // Guidance highlights; the student still connects.
         for step=1:8
             assert_checkequal(LD1.step,step);
-            if or(step==[3 4 6 7 8]) then assert_checkequal(LD1.ui.yes.value+LD1.ui.no.value,0); end
+            if or(step==[3 6 8]) then assert_checkequal(LD1.ui.yes.value+LD1.ui.no.value,0); end
+            if or(step==[4 7]) then assert_checkequal(LD1.ui.typeSeries.value+LD1.ui.typeParallel.value+LD1.ui.typeMixed.value,0); end
             if step==5 then assert_checkequal(LD1.ui.typeSeries.value+LD1.ui.typeParallel.value+LD1.ui.typeMixed.value,0); end
             if step==1 then ui_wire(ld1_series_canonical_wires()); LD1.ui.typeSeries.value=1;
             elseif step==2 then
                 wires=LD1.wires; ld1_terminal_click("SRC_P"); assert_checkequal(LD1.wires,wires);
-                ui_visible(LD1.ui.power); ui_visible(LD1.ui.measure);
-                assert_checkequal(LD1.ui.power.enable,"on"); assert_checkequal(LD1.ui.measure.enable,"on");
-                if number<>17 then
-                    ui_button(LD1.ui.measure);
-                    assert_checkalmostequal(LD1.stepMeas(2),cfg.E/(cfg.R1+1000)*1000,1e-9,1e-9);
-                else
-                    assert_checktrue(isnan(LD1.stepMeas(2))); // The calculation can advance without optional measurement.
-                end
+                assert_checkequal(LD1.ui.power.visible,"off"); ui_visible(LD1.ui.measure);
+                assert_checkequal(LD1.ui.measure.enable,"on");
+                ui_primary(); assert_checkequal(LD1.step,2); // Measurements are required; no numerical input.
+                ui_button(LD1.ui.measure);
+                assert_checkalmostequal(LD1.stepMeas(2),cfg.E/(cfg.R1+1000)*1000,1e-9,1e-9);
+                assert_checkalmostequal(LD1.seriesProbes(2,:),[1 1]*LD1.stepMeas(2),1e-9,1e-9);
                 ui_auto_numbers([cfg.R1+1000 cfg.E/(cfg.R1+1000)*1000]);
                 if number==1 then LD1.autosave_enabled=%t; end
             elseif step==3 then
-                if number==17 then
-                    LD1.ui.yes.value=1; ui_primary(); assert_checkequal(LD1.step,3);
-                    ui_button(LD1.ui.measure);
-                else
-                    assert_checkequal(LD1.stepMeas(3),LD1.stepMeas(2));
-                end
+                assert_checkequal(LD1.stepMeas(3),LD1.stepMeas(2));
+                assert_checkequal(LD1.seriesProbes(3,:),LD1.seriesProbes(2,:));
                 if number==1 then
                     assert_checkequal(LD1.autosave_error,"");
                     disk=bench_read_snapshot(LD1.autosave_paths($),"LD1");
@@ -130,7 +127,7 @@ try
                 assert_checkequal(LD1.VR1,1000); ui_button(LD1.ui.vr500);
                 assert_checkequal(LD1.VR1,500);
                 ui_auto_numbers([cfg.R1+500 cfg.E/(cfg.R1+500)*1000]);
-                assert_checkalmostequal(LD1.stepMeas(4),cfg.E/(cfg.R1+500)*1000,1e-9,1e-9); LD1.ui.yes.value=1;
+                assert_checkalmostequal(LD1.stepMeas(4),cfg.E/(cfg.R1+500)*1000,1e-9,1e-9); LD1.ui.typeSeries.value=1;
             elseif step==5 then
                 assert_checkequal(LD1.meterMode,"V");
                 ui_wire(ld1_parallel_voltage_canonical_wires()); LD1.ui.typeParallel.value=1;
@@ -141,7 +138,7 @@ try
                 ui_primary(); assert_checkequal(LD1.step,7);
                 ui_button(LD1.ui.vr500);
                 assert_checkalmostequal(LD1.stepMeas(7),cfg.E,1e-9,1e-9);
-                assert_checkequal(LD1.VR1,500); LD1.ui.no.value=1; LD1.ui.yes.value=0;
+                assert_checkequal(LD1.VR1,500); LD1.ui.typeMixed.value=1;
             elseif step==8 then
                 assert_checkequal(size(LD1.wires,1),6);
                 ui_wire(["SRC_P" "M_P";"M_N" LD1.kclTargetA]);
@@ -149,6 +146,7 @@ try
                 ui_button(LD1.ui.measure);
                 assert_checkequal(size(LD1.wires,1),8);
                 i1=cfg.E/cfg.R3*1000; i2=cfg.E/cfg.R2*1000; ui_auto_numbers([i1 i2 i1+i2]);
+                assert_checkalmostequal(LD1.branchProbes(8,:),[i1 i2],1e-7,1e-8);
                 LD1.ui.yes.value=1; LD1.ui.no.value=0;
             end
             ui_contacts();
@@ -165,7 +163,7 @@ try
             ui_primary();
             if LD1.step<>step+1 then error("V"+string(number)+" E"+string(step)+": "+LD1.ui.statusMain.string+" | "+LD1.ui.statusFix.string); end
             assert_checktrue(LD1.recorded(step));
-            screen=get(0,"screensize_px"); assert_checkequal(LD1.fig.axes_size,min([1280 720],max([320 240],screen(3:4)-[40 120])));
+            screen=get(0,"screensize_px"); assert_checkequal(LD1.fig.axes_size,min([1280 640],max([320 240],screen(3:4)-[40 120])));
             assert_checkequal(LD1.ui.checkStep.position,primary_position);
             assert_checkequal(LD1.ui.prev.position,back_position);
             mprintf("UI LD1 V%02d E%d PASS\n",number,step);
@@ -183,24 +181,27 @@ try
         end
         ui_primary(); assert_checktrue(size(strindex(LD1.ui.statusMain.string,"Ataskaita išsaugota"),"*")>0);
         report=bench_report_data("LD1"); assert_checkfalse(report.evidence.automatic_setup);
-        assert_checktrue(report.evidence.automatic_calculation);
+        assert_checkfalse(report.evidence.automatic_calculation); assert_checktrue(report.evidence.automatic_measurement);
+        assert_checkequal(report.rubric_version,"LD1-3"); assert_checkequal(length(report.answers),7);
         assert_checkfalse(report.practice_used);
         summary_snapshot=bench_snapshot("LD1"); bench_restore_snapshot(summary_snapshot);
         assert_checkequal(LD1.step,9); assert_checkequal(length(LD1.ui.resultCards),5);
         for h=LD1.ui.resultCards; assert_checktrue(is_handle_valid(h)); assert_checkequal(h.visible,"on"); end
-        ld1_set_step(2); LD1.ui.qEdit(1).string="99999,0"; ui_primary(); assert_checkequal(LD1.step,3);
-        assert_checkequal(LD1.stepQ(2,1),"99999,0"); // Wrong answers are not replaced by a solution.
+        ld1_set_step(4); LD1.ui.typeSeries.value=0; LD1.ui.typeParallel.value=1; ui_primary(); assert_checkequal(LD1.step,5);
+        assert_checkequal(LD1.stepType(4),2); // Incorrect conclusions remain the student's.
         report=bench_report_data("LD1"); mputl(toJSON(report),out+msprintf("wrong-V%02d.json",number));
-        LD1.ui.yes.value=1; ui_primary(); assert_checkequal(LD1.step,4);
+        ui_primary(); assert_checkequal(LD1.step,6);
         assert_checkequal(LD1.stepMeas,before);
         snapshot=bench_snapshot("LD1"); ld1_restart(); bench_restore_snapshot(snapshot);
-        assert_checkequal(LD1.stepQ(2,1),"99999,0"); assert_checkequal(LD1.stepMeas,before);
+        assert_checkequal(LD1.stepType(4),2); assert_checkequal(LD1.stepMeas,before);
         LD1_TEST_LEARNING=2;
         raw=LD1.stepQ; ui_button(LD1.ui.example); assert_checktrue(LD1.demoMode);
         ui_primary(); assert_checkfalse(LD1.demoMode);
         assert_checkequal(LD1.stepQ,raw); assert_checkequal(LD1.stepMeas,before);
         assert_checkfalse(LD1.assessment); assert_checktrue(LD1.practice_used);
         ld1_toggle_guided(); assert_checktrue(LD1.guided); assert_checkequal(LD1.stepMeas,before);
+        LD1.ui.yes.value=0; LD1.ui.no.value=1; ui_primary(); assert_checkequal(LD1.step,6); assert_checkfalse(LD1.done(6));
+        LD1.ui.yes.value=1; LD1.ui.no.value=0; ui_primary(); assert_checktrue(LD1.done(6));
         ld1_toggle_guided(); assert_checkfalse(LD1.guided); ui_visible(LD1.ui.measure);
         ld1_set_step(9); raw=LD1.stepQ; before=LD1.stepMeas;
         ui_button(LD1.ui.example); assert_checktrue(LD1.demoMode); ui_primary();
@@ -214,7 +215,7 @@ try
     mclose(fd);
     // Original manual workflow must still work, through its actual controls.
     exec(root+"tests/workflows.sci",-1); bench_ld1_workflow(17,root);
-    mputl("PASS: 3 actual LD1 student entries; 9 stages; visible manual wiring, VR1, meter and Measure; raw answers; report button; saved results; draft restore; learning isolation; fixed 1280x720 window, 9 geometry cases",out+"verdict.log"); exit(0);
+    mputl("PASS: 3 LD1 measurement entries; 9 stages; real solver probes; manual wiring; no numeric input; conclusions preserved; report; draft restore; learning isolation; 1280x640 geometry; legacy workflow",out+"verdict.log"); exit(0);
 catch
     [detail,code,line,fun]=lasterror();
     mputl(["FAIL: "+strcat(detail," | ");"line "+string(line)+" in "+fun],out+"verdict.log"); disp(detail); exit(1);

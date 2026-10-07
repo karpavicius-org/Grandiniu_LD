@@ -71,6 +71,9 @@ function ld1_button_string(h,txt)
     // Nebetaliojantiems valdikliams (pvz., seni įvykiai po lentojimo) – nedarome nieko.
     if ~is_handle_valid(h) then return; end
     c=string(h.tag);
+    if exists("ld1_measurement_workflow")==1 then
+        if ld1_measurement_workflow() then h.string=txt; return; end
+    end
     if length(c)==3 then
         if part(c,1)=="B" then txt="["+c+"] "+txt; end
     end
@@ -245,7 +248,12 @@ function ld1_create_terminal(id)
     cb="ld1_terminal_click("""+id+""")";
 
     // 8 etape dvi reikalingos poros pažymimos spalvomis.
-    if LD1.step==8 & (id=="SRC_P" | id=="M_P") then
+    hint=ld1_measurement_hint_pair();
+    if LD1.pendingTerminal==id then
+        bg=[1.00 0.82 0.28]; fg=[0.08 0.08 0.08];
+    elseif or(hint==id) then
+        bg=[1.00 0.82 0.28]; fg=[0.08 0.08 0.08];
+    elseif LD1.step==8 & (id=="SRC_P" | id=="M_P") then
         bg=[0.95 0.55 0.15]; fg=[0.08 0.08 0.08];
     elseif LD1.step==8 & (id=="M_N" | id==LD1.kclTargetA) then
         bg=[0.58 0.38 0.78]; fg=[1 1 1];

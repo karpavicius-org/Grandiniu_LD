@@ -25,7 +25,7 @@ function ld1_guided_prepare()
     if or(n==[4 7]) then LD1.VR1=500; end
     if n==8 then LD1.VR1=0; end
     LD1.ui.vrSlider.value=LD1.VR1; ld1_update_actual_values();
-    if or(n==[3 4 6 7 8]) then
+    if or(n==[3 4 6 7 8]) | (n==2 & ld1_measurement_workflow()) then
         LD1.powerOn=%t;
         if isnan(LD1.stepMeas(n)) then ld1_measure(); end
     end
@@ -36,6 +36,7 @@ endfunction
 function ok=ld1_inputs_present()
     // Check completeness only. Incorrect numerical answers remain the student's.
     global LD1;
+    if ld1_measurement_workflow() then ok=ld1_measurement_inputs_present(); return; end
     ok=%f;
     if LD1.step<=4 then
         [wok,wmsg,wfix]=ld1_validate_series_topology();
@@ -159,6 +160,9 @@ function ld1_results_cards(t)
         student_text(fr,[0.02 0.07 0.33 0.57],student_wrap(t(k,2),30),12,%f,bg);
         left="Skaičiuota: "; right="Išmatuota: ";
         if k==5 then left="Prieš: "; right="Po pakeitimo: "; end
+        if ld1_measurement_workflow() then
+            left=""; right="";
+        end
         student_text(fr,[0.38 0.07 0.29 0.57],student_wrap(left+t(k,3),26),12,%f,bg);
         student_text(fr,[0.70 0.07 0.28 0.57],student_wrap(right+t(k,4),26),12,%f,bg);
         ld1_ui_font(fr);

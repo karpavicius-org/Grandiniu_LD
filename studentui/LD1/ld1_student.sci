@@ -13,7 +13,7 @@ function ld1_student_main(root)
     end
     [ok,st,cfg]=student_enroll("LD1");
     if ~ok then return; end
-    LD1=struct("base",root,"cfg",cfg,"student",st,"assessment",%t,"guided",%f,"practice_used",%f,"automatic_numbers",%t);
+    LD1=struct("base",root,"cfg",cfg,"student",st,"assessment",%t,"guided",%f,"practice_used",%f,"automatic_numbers",%f,"measurement_workflow",%t);
     student_remember(st);
     ld1_start();
     LD1.autosave_enabled=%t;
@@ -158,11 +158,27 @@ function ld1_create_gui()
     LD1.ui.studentIdentity=student_text(LD1.fig,[0.03 0.895 0.94 0.025],"",12,%f,[0.965 0.973 0.977]);
     if isfield(LD1,"student") then LD1.ui.studentIdentity.string=student_caption(LD1.student); end
     ld1_ui_font(LD1.fig);
-    student_finish_window(LD1.fig); LD1.fig.visible="on";
+    if ld1_measurement_workflow() then
+        LD1.ui.measure.callback="ld1_student_run()";
+        LD1.ui.measure.position=[0.60 0 0.39 1];
+        LD1.ui.wiringGuide.position=[0.21 0 0.36 1];
+        LD1.ui.power.visible="off";
+        LD1.ui.standFrame.position=[0.07 0.48 0.86 0.19];
+        LD1.ui.prev.position=[0.07 0.015 0.25 0.05];
+        LD1.ui.standMap.position=[0.34 0.015 0.35 0.05];
+        LD1.ui.studentHelp.position=[0.71 0.015 0.22 0.05];
+        LD1.ui.measureRows=list();
+        for k=1:3
+            LD1.ui.measureRows(k)=student_text(LD1.ui.answerFrame,[0 0.64-(k-1)*0.18 1 0.17],"",15,%f);
+        end
+        screen=get(0,"screensize_px"); student_finish_window(LD1.fig,screen(3:4),[1280 640]);
+    else student_finish_window(LD1.fig); end
+    LD1.fig.visible="on";
 endfunction
 
 function ld1_set_instruction(title,lines)
     global LD1;
+    if ld1_measurement_workflow() then ld1_measurement_instruction(); return; end
     if lines<>[] then LD1.studentDetail=lines; end
     titles=["Sujunkite grandinę";"Apskaičiuokite";"Išmatuokite srovę";"Pakartokite bandymą"; ...
         "Sujunkite dvi šakas";"Išmatuokite įtampą";"Pakeiskite varžą";"Bendra srovė";"Jūsų rezultatai"];
@@ -223,6 +239,9 @@ endfunction
 
 function ld1_student_explanation()
     global LD1;
+    if ld1_measurement_workflow() then
+        ld1_show_text_window("LD1 · etapo paaiškinimas",LD1.studentDetail); return;
+    end
     rows=[LD1.studentDetail;"";"Sroves mA vienetais skaičiuokite: I = 1000·U/R, kai R pateikta Ω."; ...
         "Skaitinių atsakymų tolerancija – 1 %. Palyginimų riba – 5 %."; ...
         "Schema rodo jungimo seką. Teorija – dėsnius ir matavimo taisykles."; ...
@@ -248,6 +267,12 @@ function ld1_student_sync()
     if ~is_handle_valid(LD1.fig) then return; end
     if ~isfield(LD1,"ui") then return; end
     if ~isfield(LD1.ui,"studentReady") then return; end
+    if ld1_measurement_workflow() then ld1_measurement_sync(); return; end
+    LD1.ui.measure.callback="ld1_measure()";
+    if isfield(LD1.ui,"measureRows") then
+        for h=LD1.ui.measureRows; h.visible="off"; end
+        LD1.ui.answerTitle.visible="on"; LD1.ui.answerTitle.position=[0 0.84 1 0.13];
+    end
     modeName="Mokymasis";
     if LD1.assessment & ~LD1.practice_used then modeName="Atsiskaitymas"; end
     LD1.fig.figure_name="LD1 · "+modeName+" · Nuolatinės srovės stendas";
@@ -297,6 +322,7 @@ function ld1_student_primary()
         LD1.recorded(LD1.step)=%t;
         ld1_set_step(LD1.step+1); bench_autosave("LD1");
     elseif LD1.done(LD1.step) then ld1_next_step();
+    elseif ld1_measurement_workflow() then ld1_measurement_check_step();
     else ld1_check_step(); end
     ld1_student_sync();
 endfunction
@@ -372,11 +398,14 @@ function ld1_student_resistor(pos,name,value,variable)
     global LD1;
     bg=[0.97 0.97 0.95]; fr=student_frame(LD1.ui.circuitFrame,pos,bg); ld1_track_board_handle(fr);
     fr.tag="component:"+name;
+    if ld1_measurement_workflow() & pos(4)<0.12 then
+        student_text(fr,[0.05 0.10 0.90 0.80],name+" · "+string(value)+" Ω",15,%t,bg); return;
+    end
     student_text(fr,[0.09 0.57 0.82 0.30],name,17,%t,bg);
     h=student_text(fr,[0.09 0.16 0.82 0.30],string(value)+" Ω",16,%f,bg);
     if variable then
         LD1.ui.vrText=h;
-        if LD1.step==7 & ~LD1.demoMode & ~ld1_guided() then
+        if LD1.step==7 & ~LD1.demoMode & ~ld1_guided() & ~ld1_measurement_workflow() then
             h.position=[0.09 0.36 0.82 0.24];
             hb=student_button(fr,[0.09 0.06 0.82 0.26],"500 Ω","ld1_set_vr(500)");
             ld1_register_button(hb,"ld1_set_vr(500)");
@@ -401,24 +430,31 @@ endfunction
 
 function ld1_draw_series_board()
     global LD1;
-    ld1_board_text([0.04 0.89 0.9 0.055],"Nuoseklioji grandinė",17,%t);
+    title="Nuoseklioji grandinė"; if ld1_measurement_workflow() then title="Pirmasis bandymas"; end
+    ld1_board_text([0.04 0.89 0.9 0.055],title,17,%t);
     ld1_student_source([0.04 0.39 0.18 0.25]);
     ld1_student_resistor([0.40 0.68 0.20 0.14],"R1",LD1.cfg.R1,%f);
-    ld1_student_resistor([0.72 0.43 0.23 0.22],"VR1",LD1.VR1,%t);
+    pos=[0.72 0.43 0.23 0.22]; if ld1_measurement_workflow() then pos=[0.72 0.44 0.23 0.20]; end
+    ld1_student_resistor(pos,"VR1",LD1.VR1,%t);
     ld1_student_meter([0.33 0.17 0.34 0.20]);
 endfunction
 
 function ld1_draw_parallel_board()
     global LD1;
-    ld1_board_text([0.04 0.92 0.9 0.045],"Lygiagrečioji grandinė",17,%t);
+    title="Lygiagrečioji grandinė"; if ld1_measurement_workflow() then title="Dviejų šakų bandymas"; end
+    ld1_board_text([0.04 0.92 0.9 0.045],title,17,%t);
     ld1_board_segment(0.30,0.83,0.92,0.83,[0.41 0.49 0.51]);
-    ld1_board_segment(0.30,0.112,0.92,0.112,[0.41 0.49 0.51]);
+    ld1_board_segment(0.30,0.108,0.92,0.108,[0.41 0.49 0.51]);
     ld1_board_text([0.94 0.845 0.04 0.04],"A",16,%t);
     ld1_board_text([0.94 0.09 0.04 0.04],"B",16,%t);
     ld1_student_source([0.035 0.37 0.18 0.25]);
-    ld1_student_resistor([0.43 0.41 0.15 0.19],"R3",LD1.cfg.R3,%f);
-    ld1_student_resistor([0.65 0.58 0.17 0.12],"R2",LD1.cfg.R2,%f);
-    ld1_student_resistor([0.65 0.24 0.17 0.17],"VR1",LD1.VR1,%t);
+    p3=[0.43 0.41 0.15 0.19]; p2=[0.65 0.58 0.17 0.12]; pv=[0.65 0.24 0.17 0.17];
+    if ld1_measurement_workflow() then
+        p3=[0.43 0.412 0.15 0.18]; p2=[0.65 0.588 0.17 0.09]; pv=[0.65 0.26 0.17 0.125];
+    end
+    ld1_student_resistor(p3,"R3",LD1.cfg.R3,%f);
+    ld1_student_resistor(p2,"R2",LD1.cfg.R2,%f);
+    ld1_student_resistor(pv,"VR1",LD1.VR1,%t);
     if LD1.step==8 then ld1_student_meter([0.035 0.70 0.205 0.19]);
     else ld1_student_meter([0.84 0.36 0.145 0.26]); end
 endfunction
@@ -449,6 +485,9 @@ function ld1_build_panel(kind)
         ld1_set_xy("R3_1",50.5,64); ld1_set_xy("R3_2",50.5,36);
         ld1_set_xy("R2_1",73.5,73.8); ld1_set_xy("R2_2",73.5,54);
         ld1_set_xy("VR1_1",73.5,44.8); ld1_set_xy("VR1_2",73.5,20);
+        if ld1_measurement_workflow() then
+            ld1_set_xy("R2_1",73.5,72.7); ld1_set_xy("VR1_1",73.5,43.6); ld1_set_xy("VR1_2",73.5,21.1);
+        end
         ld1_set_parallel_meter_layout(LD1.step==8);
     end
     ld1_redraw_panel();
@@ -497,6 +536,7 @@ endfunction
 
 function ld1_student_auto_numbers()
     global LD1;
+    if ld1_measurement_workflow() then return; end
     if ~isfield(LD1,"automatic_numbers") then return; end
     if ~LD1.automatic_numbers | LD1.demoMode then return; end
     values=[];

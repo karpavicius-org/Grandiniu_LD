@@ -48,6 +48,8 @@ function ld1_init_state()
     if ~isfield(LD1,"guided") then LD1.guided=%f;end
     if ~isfield(LD1,"practice_used") then LD1.practice_used=%f;end
     if ~isfield(LD1,"automatic_numbers") then LD1.automatic_numbers=%f;end
+    if ~isfield(LD1,"measurement_workflow") then LD1.measurement_workflow=%f;end
+    LD1.seriesProbes=%nan*ones(9,2); LD1.branchProbes=%nan*ones(9,2); LD1.wiring_help=%f;
     LD1.automatic_number_values=emptystr(9,3);
     LD1.panel="series";
     LD1.powerOn=%f;
@@ -155,6 +157,9 @@ function ld1_invalidate_measurement()
     if isfield(LD1,"stepMeas") & LD1.step>=1 & LD1.step<=9 then
         LD1.stepMeas(LD1.step)=%nan;
         LD1.stepMeasUnit(LD1.step)="";
+        if ld1_measurement_workflow() then
+            LD1.seriesProbes(LD1.step,:)=%nan; LD1.branchProbes(LD1.step,:)=%nan;
+        end
     end
     ld1_refresh_meter_idle_display();
 endfunction
@@ -305,6 +310,9 @@ endfunction
 
 function ld1_show_wiring_guide()
     global LD1;
+    if ld1_measurement_workflow() then
+        LD1.wiring_help=~LD1.wiring_help; ld1_redraw_panel(); ld1_measurement_hint_status(); return;
+    end
     select LD1.step
     case 1 then
         txt=["1 ETAPAS – NUOSEKLI GRANDINĖ";
@@ -751,7 +759,7 @@ function ld1_vr_changed()
     ld1_update_actual_values();
     ld1_invalidate_measurement();
     ld1_redraw_panel();
-    if LD1.powerOn & ~LD1.demoMode then
+    if ~LD1.demoMode & (LD1.powerOn | (ld1_measurement_workflow() & or(LD1.step==[4 7]))) then
         ld1_measure();
     else
         ld1_set_status("VR1 = "+string(v)+" Ω.","info","Paspauskite Įjungti ir matuoti stendo apačioje. Rodmuo bus įrašytas automatiškai.");
@@ -804,7 +812,7 @@ function ld1_measure()
     end
     // One visible action validates the wiring, powers the source and records a reading.
     wasOn=LD1.powerOn; LD1.powerOn=%t;
-    [v,u,ok,msg]=ld1_meter_read();
+    [v,u,ok,msg,sol]=ld1_meter_read();
     if ~ok then
         LD1.powerOn=wasOn;
         ld1_invalidate_measurement();
@@ -818,6 +826,7 @@ function ld1_measure()
     LD1.lastMeasurementStep=LD1.step;
     LD1.stepMeas(LD1.step)=v;
     LD1.stepMeasUnit(LD1.step)=u;
+    if ld1_measurement_workflow() then ld1_capture_probes(sol); end
     LD1.ui.meterDisplay.string=ld1_num(v,3)+" "+u;
     ld1_set_instruction("",[]);
     ld1_redraw_panel();
@@ -1310,6 +1319,23 @@ endfunction
 
 function ld1_show_help()
     global LD1;
+    if ld1_measurement_workflow() then
+        txt=["LD1 · matavimo taisyklės ir papildoma teorija";""; ...
+            "Šiame darbe jungiate grandinę, matuojate ir pasirenkate išvadas. Skaičių įvesti nereikia."; ...
+            "Įjungti ir matuoti patikrina laidus, įjungia šaltinį ir išsaugo rodmenis. Išjungti leidžia taisyti laidus."; ...
+            "Jungimo pagalba paryškina kontaktų porą. Laidą prijungiate paspausdami abu kontaktus."; ...
+            "Ampermetras jungiamas nuosekliai; voltmetras – tarp mazgų A ir B."; ...
+            "Virtualūs matavimo taškai papildomai nuskaito sroves iš to paties jūsų sujungtos grandinės modelio."; ...
+            "Vienoje šakoje srovė visur vienoda. Palyginkite R1 ir VR1 rodmenis."; ...
+            "Dviejų šakų bandyme R3 sudaro vieną šaką, o R2 ir VR1 – kitą. Šakos sujungtos tarp tų pačių A ir B mazgų."; ...
+            "Idealus 10 V šaltinis palaiko tą pačią įtampą keičiant apkrovą. Šakų srovės tuo metu gali keistis."; ...
+            "Prieš išsišakojimą ampermetro srovė lygi šakų srovių sumai. Sumą pateikia programa.";""; ...
+            "Papildomos formulės: I = U/R; nuosekliai Rbendr = R1 + VR1; mazge I = I1 + I2."; ...
+            "Jos paaiškina rodmenų ryšį; šio laboratorinio atlikimui skaičiavimų įvesti nereikia.";""; ...
+            "Toliau išsaugo jūsų atsakymą; Atgal leidžia jį pataisyti. Duomenys saugomi juodraštyje."; ...
+            "Pavyzdys ir automatinis stendo paruošimas perjungia bandymą į mokymąsi. Mokymosi ataskaita nepatenka į pažymių žurnalą."];
+        ld1_show_text_window("LD1 · teorija",txt); return;
+    end
     txt=["LD1 – TEORIJA IR STENDO ATMINTINĖ";
          "";
          "STENDO VALDYMAS";
@@ -1528,6 +1554,15 @@ function ld1_set_step(n)
 
     if n<=4 & LD1.panel<>"series" then ld1_switch_panel("series"); end
     if n>=5 & n<=8 & LD1.panel<>"parallel" then ld1_switch_panel("parallel"); end
+    if ld1_measurement_workflow() then
+        // A return across experiments restores the student's own wiring, including
+        // voltage probes replaced by the stage-8 ammeter. Never generate wires here.
+        if n<=4 & oldStep>4 & size(LD1.report_wires(1),1)>0 then
+            LD1.wires=LD1.report_wires(1);
+        elseif n>=5 & n<=7 & (oldStep<=4 | oldStep>=8) & size(LD1.report_wires(5),1)>0 then
+            LD1.wires=LD1.report_wires(5); LD1.kclPrepared=%f;
+        end
+    end
     ld1_prepare_step_common();
     if n==1 | n==5 then
         ld1_set_wiring_edit_mode("full");
@@ -1661,6 +1696,7 @@ function ld1_set_step(n)
         if LD1.stepVR(2)==LD1.VR1 & LD1.report_meter(2)==LD1.meterMode & isequal(LD1.report_wires(2),LD1.wires) & ~isnan(LD1.stepMeas(2)) then
             LD1.stepMeas(3)=LD1.stepMeas(2); LD1.stepMeasUnit(3)=LD1.stepMeasUnit(2);
             LD1.lastMeasurement=LD1.stepMeas(3); LD1.lastMeasurementUnit=LD1.stepMeasUnit(3); LD1.lastMeasurementStep=3;
+            if ld1_measurement_workflow() then LD1.seriesProbes(3,:)=LD1.seriesProbes(2,:); end
         end
     end
     ld1_guided_prepare();
@@ -1675,6 +1711,17 @@ function ld1_set_step(n)
     if n==3 & ~isnan(LD1.lastMeasurement) then
         ld1_set_instruction("",[]);
         ld1_set_status("Srovės rodmuo jau įrašytas.","ok","To paties bandymo kartoti nereikia. Palyginkite skaičiavimą su rodmeniu ir rinkitės Taip arba Ne.");
+    end
+    if ld1_measurement_workflow() then
+        if ld1_guided() & n<9 then
+            ld1_set_status("Mokymosi stendas paruoštas automatiškai.","info","Pasirinkite savo išvadą ir spauskite Patikrinti.");
+        elseif n==1 | n==5 | n==8 then
+            ld1_set_status("Sujunkite grandinę pagal schemą.","info","Jungimo pagalba paryškina kontaktus; laidus prijungiate patys.");
+        elseif n<9 & isnan(LD1.stepMeas(n)) then
+            ld1_set_status("Bandymas paruoštas.","info","Spauskite Įjungti ir matuoti; rodmenys įsirašys patys.");
+        elseif n<9 then
+            ld1_set_status("Rodmenys įrašyti.","ok","Palyginkite pateiktus rodmenis ir pasirinkite savo išvadą.");
+        else ld1_set_status("Darbo rodmenys ir atsakymai surinkti.","info","Išsaugokite HTML ataskaitą dėstytojui."); end
     end
 endfunction
 function yes = ld1_yes_selected()
@@ -1814,6 +1861,7 @@ function ld1_update_results_table(showExample)
     // tik Pagalba → Pavyzdys režime ir rodo idealų pilną variantą.
     global LD1;
     if argn(2)<1 then showExample=%f; end
+    if ld1_measurement_workflow() then ld1_measurement_results(showExample); return; end
     r=LD1.res;
 
     if showExample then

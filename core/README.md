@@ -28,7 +28,9 @@ LD11, bankas `LD11-64-A-2026`, rubrika `LD11-1`: 20 vienodo svorio kriterijų �
 
 LD12, bankas `LD12-64-A-2026`, rubrika `LD12-1`: 14 vienodo svorio kriterijų – 10 atsakymų (Uf žvaigždėje ir trikampyje, fazinės srovės, Il = √3·If, P = √3·Ul·Il ir 3·Uf·If, išvados), 2 realiai studento užfiksuotos fazinės srovės (po vieną simetrinei žvaigždei ir trikampiui) ir 2 sujungimo įrodymai. Kitų simetrinių fazių reikšmės ir trikampio linijinė srovė nebegeneruojamos kaip tariami matavimai; linijinė srovė vertinama kaip studento skaičiavimo atsakymas. Fizika — `ld::ac` kind 6: simetrinė trifazė MNA su šaltiniais Ul/√3 ∠0°/−120°/+120°; trikampio galia lygi tris kartus žvaigždės (tos pačios varžos). Tolerancijos: 1 % įtampoms, 2 % srovėms ir galioms; pasirinkimai tikslūs.
 
-`LD1-2` (automatinis stendo paruošimas): 15 studento atsakymų kriterijų. Penki matavimai ir du sujungimai išlieka diagnostikoje, tačiau turi 0 balų svorį.
+`LD1-3` (matavimų eiga): 9 studento veiksmų kriterijai – 2 rankiniai sujungimai ir 7 išvados. Skaičiavimų atsakymų nėra. Devyni multimetro ir automatinių virtualių matavimo taškų rodmenys išlieka diagnostikoje su 0 balų svoriu. Palyginimai remiasi užfiksuotais rodmenimis (5 % riba); trūkstant rodmenų išvada neįskaitoma. Keičiant VR1 klausiama krypties: padidėjo / sumažėjo / nepakito. 5 etape vertinamas dviejų šakų tarpusavio jungimas. Mokomajam automatiniam stendui už jungimus balų neskiriama; jo rezultatas nepatenka į pažymių žurnalą.
+
+`LD1-2` (ankstesnis automatinis stendo paruošimas): 15 studento atsakymų kriterijų. Penki matavimai ir du sujungimai išlieka diagnostikoje, tačiau turi 0 balų svorį. Ankstesnių ataskaitų rubrikos nekeičiamos.
 
 `LD1-1`: 22 vienodo svorio kriterijai — 8 skaičiavimai, 2 grandinių tipai, 5 matavimai, 5 palyginimai, 2 sujungimai. `LD2-1`: 50 kriterijų — 33 skaitiniai atsakymai, 8 baziniai matavimai, 3 sujungimai, rezonanso paieška, 3 ekstremumų tyrimai, pusės galios tyrimas ir dažninė lentelė. LD3-1 turi 15 kriterijų (Omo dėsnio darbas). Instrukcijos / įvadinis etapas taškų neduoda.
 

@@ -6,15 +6,15 @@ išsaugo jūsų atsakymus. Mokymosi režime **Patikrinti** parodo klaidas.
 Papildomi veiksmai ir režimo pasirinkimas yra skiltyje **Pagalba**.
 
 **LD1:** studentas pats sujungia grandinę, keičia VR1 varžą ir palygina rezultatus.
-Skaičiavimai užpildomi automatiškai. Multimetro režimas parenkamas pagal etapą;
-prireikus jį galima pakeisti A / V mygtukais.
-Po schema visada matomi **Įjungti grandinę** ir **Įjungti ir matuoti** mygtukai.
+Skaičių ir formulių įvesti nereikia. Multimetro režimas parenkamas pagal etapą.
+Po schema matomas vienas bandymo valdymo mygtukas: **Įjungti ir matuoti** arba **Išjungti**.
 **Įjungti ir matuoti** vienu paspaudimu patikrina jungimą, įjungia šaltinį ir
-įrašo rodmenį. Įjungtoje grandinėje pakeitus varžą rodmuo ir skaičiai atsinaujina
+įrašo rodmenį. Pakeitus varžą rodmuo atsinaujina
 automatiškai. Išjungus šaltinį jau įrašyti rezultatai išlieka.
-**Schema** pateikia jungimo seką, **Paaiškinimas** – visą etapo užduotį,
-**Teorija** – formules ir matavimo taisykles. Srovę mA vienetais skaičiuokite
-**I = 1000·U/R**, kai varža pateikta Ω.
+**Jungimo pagalba** paryškina kitą kontaktų porą; laidą prijungiate patys.
+**Paaiškinimas** pateikia etapo užduotį, **Teorija** – papildomas formules ir matavimo taisykles.
+Virtualūs matavimo taškai tame pačiame sujungtos grandinės modelyje automatiškai
+užfiksuoja sroves per R1 ir VR1 bei abiejose šakose. Šakų sumą pateikia programa.
 Antrame etape įrašyta srovė panaudojama trečio etapo palyginimui – to paties
 bandymo kartoti nereikia. 4 ir 7 etapuose pasirinkite **500 Ω**, stebėkite
 automatiškai atnaujintą rodmenį ir pažymėkite savo palyginimą.
@@ -22,14 +22,16 @@ Visuose grandinės etapuose gnybtai išlaiko vienodą dydį, pavadinimą ir **T*
 Šviesūs gnybtai žymi užrakintus jungimus, kurių tame etape keisti negalima.
 **Toliau** išsaugo atsakymą ir perkelia į kitą etapą; **Atgal** leidžia
 jį pataisyti. Tuščias atsakymas nepraleidžiamas, neteisingas skaičius nepakeičiamas
-teisingu. Visuose darbuose darbo sritis yra 1280 × 720 px, mygtukų vietos
+teisingu. LD1 darbo sritis yra 1280 × 640 px (kitų darbų – 1280 × 720 px), mygtukų vietos
 etapuose nekinta. Mažesniame ekrane naudojamos slinkties juostos, kontaktai nemažinami.
 Nesujungta grandinė ir trūkstamas matavimas neleidžia palikti etapo.
-LD1-1 rubrika skiria iki **22 balų**. Ataskaitoje nurodoma, kad skaitines
-reikšmes apskaičiuoja programa, o jungimą ir palyginimus atlieka studentas.
+LD1-3 rubrika skiria iki **9 balų**: du už studento jungimus ir septynis už
+atsakymus apie jungimą ir matavimus. Automatiniai matavimo duomenys balų nedidina.
+Ataskaitoje aiškiai nurodoma rodmenų kilmė. 5 etape klausiama, kaip sujungtos
+dvi šakos; visa grandinė turi ir nuoseklių, ir lygiagrečių elementų.
 **Pavyzdys** ir **Pagalba → Automatinis / rankinis stendo valdymas** po patvirtinimo
 perjungia bandymą į mokymąsi. Jo ataskaita neįtraukiama į pažymių suvestinę;
-senos automatinės LD1-2 ataskaitos išlieka suderinamos su 15 balų rubrika.
+Senos LD1-1 ir automatinės LD1-2 ataskaitos išlieka suderinamos su savo rubrikomis.
 Naujam atsiskaitymui rinkitės **Pagalba → Atsiskaitymo / mokymosi režimas → Atsiskaitymas**
 ir patvirtinkite naują darbą. Laidai, atsakymai, VR1 ir matavimai automatiškai
 saugomi juodraštyje; tęsti galima per **Pagalba → Atverti juodraštį**.

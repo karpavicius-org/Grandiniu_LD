@@ -372,6 +372,7 @@ function r=bench_report_data(lab)
         if isfield(evidence,"automatic_setup") then
             if evidence.automatic_setup then r.lab_revision="2";r.rubric_version="LD1-2";end
         end
+        if ld1_measurement_workflow() then r=ld1_measurement_report(r); end
     end
 endfunction
 
