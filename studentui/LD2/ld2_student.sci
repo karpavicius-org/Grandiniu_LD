@@ -411,8 +411,8 @@ function ld2_component_box(parent,pos,main,sub,bg)
         reading=strsubst(ld2_amp_display_text()," mA",ascii(10)+"mA");
         ld2_text(fr,[0.04 0.34 0.92 0.36],reading,12,%t,"center",[0.93 0.96 0.96],[0.13 0.19 0.23]);
         if step==4 | step==7 | step>=9 then
-            h=ld2_button_reg(fr,[0.06 0.06 0.88 0.24],"Matuoti I","ld2_measure_current()",%t,%f,12); ld2_track(h);
-            h.string="Matuoti I";
+            h=ld2_button_reg(fr,[0.06 0.06 0.88 0.24],"Matuoti","ld2_measure_current()",%t,%f,10.5); ld2_track(h);
+            h.string="Matuoti";
         end
     elseif main=="V~ VOLTMETRAS" then
         if ~(step==4 | step==7 | step>=9) then return; end
