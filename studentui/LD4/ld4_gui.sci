@@ -8,7 +8,6 @@ function h=ld4_button(p,pos,label,cb,fs,bg)
     catch
         code="";
     end
-    if code<>"" then label="["+code+"] "+label; end
     h=student_button(p,pos,"<html><center>"+label+"</center></html>",cb);
     h.tag=code; h.tooltipstring=hint; h.fontsize=fs; h.backgroundcolor=bg;
     if sum(bg)<1.5 then h.foregroundcolor=[1 1 1]; end
@@ -201,9 +200,9 @@ function ld4_build_gui()
     controls($+1)=ld4_button(p,[0.80 0.20 0.18 0.06],"Matuoti","ld4_measure()",13,[0.08 0.39 0.37]);
     LD4.ui.instructionLine(1)=student_text(right,[0.07 0.64 0.86 0.31],"",14,%f);
     LD4.ui.instructionLine(1).verticalalignment="top";
-    labels=["[A02.01] I1 teorinė, mA";"[A04.01] R1m, Ω";"[A04.02] R2m, Ω";"[A04.03] δ1, %"; ...
-        "[A04.04] δ2, %";"[A05.01] R1 nuolydis, Ω";"[A05.02] R2 nuolydis, Ω";"[A05.03] G2, mS"; ...
-        "[A06.01] Rs, Ω";"[A07.01] Tiesinė? 1 Taip / 2 Ne";"[A07.02] δ ≤ 5%? 1 Taip / 2 Ne"];
+    labels=["I1 teorinė, mA";"R1 iš matavimų, Ω";"R2 iš matavimų, Ω";"R1 nuokrypis, %"; ...
+        "R2 nuokrypis, %";"R1 iš nuolydžio, Ω";"R2 iš nuolydžio, Ω";"G2, mS"; ...
+        "R1 + R2 iš matavimo, Ω";"Ar abi I(U) tiesinės? 1 Taip / 2 Ne";"Ar nuokrypis ≤ 5 %? 1 Taip / 2 Ne"];
     LD4.ui.answerEdits=[]; LD4.ui.answerLabels=[];
     for k=1:11
         LD4.ui.answerLabels($+1)=student_text(right,[0.07 0.5 0.53 0.075],student_wrap(labels(k),22),14,%f);
@@ -216,7 +215,6 @@ function ld4_build_gui()
     LD4.ui.studentPrimary=ld4_button(right,[0.07 0.085 0.86 0.075],"Tikrinti","ld4_student_primary()",15,[0.08 0.39 0.37]);
     controls($+1)=LD4.ui.studentPrimary;
     controls($+1)=ld4_button(right,[0.07 0.015 0.37 0.045],"← Atgal","ld4_jump_step(LD4.step-1)",12);
-    controls($+1)=ld4_button(right,[0.48 0.015 0.45 0.045],"Žemėlapis","ld4_show_stand_map()",12);
     LD4.ui.controls=controls; LD4.ui.dynamic=controls;
     LD4.ui.statusMain=student_text(f,[0.025 0.055 0.95 0.035],"",13,%t,[0.94 0.96 0.96]);
     LD4.ui.statusFix=student_text(f,[0.025 0.020 0.95 0.035],"",12,%f,[0.94 0.96 0.96]);
@@ -226,22 +224,26 @@ endfunction
 
 function ld4_show_actions()
     global LD4;
-    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
-        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD4 · Pagalba");
+    choice=x_choose(["Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
+        "Ataskaita ir režimas";"Mano duomenys";"Daugiau veiksmų"],"LD4 · Pagalba");
     select choice
-    case 1 then bench_open_snapshot("LD4");
-    case 2 then ld4_show_wiring_guide();
-    case 3 then bench_export_current("LD4");
-    case 4 then bench_mode("LD4"); ld4_render_stage(); bench_autosave("LD4");
-    case 6 then ld4_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD4.student);"";student_parameter_lines("LD4",LD4.cfg)]);
+    case 1 then
+        extra=x_choose(["Kaip sujungti";"Stendo žemėlapis"],"Šio etapo pagalba");
+        if extra==1 then ld4_show_wiring_guide(); elseif extra==2 then ld4_show_stand_map(); end
+    case 2 then
+        extra=x_choose(["Tęsti automatinį juodraštį";"Atkurti šio etapo stendą"],"Tęsti arba atkurti darbą");
+        if extra==1 then bench_open_snapshot("LD4"); elseif extra==2 then ld4_restore_stage(); end
+    case 3 then
+        extra=x_choose(["Išsaugoti ataskaitą";"Atsiskaitymo / mokymosi režimas"],"Ataskaita ir režimas");
+        if extra==1 then ld4_export_report();
+        elseif extra==2 then bench_mode("LD4"); ld4_render_stage(); bench_autosave("LD4"); end
+    case 4 then
+        ld4_student_details();
     case 5 then
-        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD4 · Daugiau veiksmų");
-        select extra
-        case 1 then ld4_show_stand_map();
-        case 2 then ld4_toggle_solution();
-        case 3 then ld4_restore_stage();
-        case 4 then
-            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD4","question",["Pradėti" "Grįžti"],"modal")==1 then ld4_restart(); end
+        extra=x_choose(["Parodyti pavyzdį / mano darbą";"Pradėti darbą iš naujo"],"Daugiau veiksmų");
+        if extra==1 then ld4_toggle_solution();
+        elseif extra==2 then
+            if messagebox("Pradėti darbą iš naujo? Laidai, matavimai ir atsakymai bus išvalyti.","LD4","question",["Pradėti" "Grįžti"],"modal")==1 then ld4_restart(); end
         end
     end
 endfunction

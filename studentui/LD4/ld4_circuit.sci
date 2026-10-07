@@ -29,7 +29,7 @@ function [ok, reason] = ld4_wiring_valid(wires)
     m = ld4_wire_mode();
     canon = ld4_canonical_wires(m);
     if wires == [] then
-        reason = "Grandinė nesujungta: seką rodys [B04] KAIP SUJUNGTI.";
+        reason = "Grandinė dar nesujungta. Jei reikia, atverkite Pagalba → Kaip sujungti.";
         return;
     end
     if size(wires, 1) <> size(canon, 1) then
@@ -43,8 +43,7 @@ function [ok, reason] = ld4_wiring_valid(wires)
             if and(par == canon(k,:)) | and(par == canon(k, [2 1])) then rasta = %t; end
         end
         if ~rasta then
-            reason = "Trūksta laido " + canon(k,1) + "–" + canon(k,2) + ...
-                     " (" + ld4_terminal_code(canon(k,1)) + "–" + ld4_terminal_code(canon(k,2)) + ").";
+            reason = "Trūksta jungties: " + ld4_terminal_name(canon(k,1)) + " → " + ld4_terminal_name(canon(k,2)) + ".";
             return;
         end
     end
@@ -64,9 +63,9 @@ endfunction
 function [u, i, ok, msg] = ld4_measure_values()
     global LD4;
     u = %nan; i = %nan; ok = %f; msg = "";
-    if ~LD4.powerOn then msg = "Maitinimas išjungtas: įjunkite [B01]."; return; end
-    if ~LD4.switchOn then msg = "Jungiklis atidarytas: uždarykite [B02]."; return; end
-    if LD4.voltage <= 0 then msg = "Įtampa 0 V: nustatykite mygtuku [B10]/[B11]/[B12]."; return; end
+    if ~LD4.powerOn then msg = "Maitinimas išjungtas. Pirmiausia įjunkite maitinimą."; return; end
+    if ~LD4.switchOn then msg = "Jungiklis atidarytas. Uždarykite jungiklį."; return; end
+    if LD4.voltage <= 0 then msg = "Įtampa nenustatyta. Pasirinkite U1, U2 arba U3."; return; end
     [wok, wwhy] = ld4_wiring_valid(LD4.wires);
     if ~wok then msg = wwhy; return; end
     bench_core_require();
