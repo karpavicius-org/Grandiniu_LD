@@ -405,8 +405,8 @@ void grade_ld4(Grader& g,const Json& r,const Bank& b) {
     bool w6=ld4_wiring(w.at("s6").at("pairs"),3,ok6);
     g.add("s1.wiring","1 etapas: faktiškai sujungta R1 matavimo grandinė",w1,
           "Trūksta teisingo R1 grandinės sujungimo įrodymo.",ok1?"":"missing_evidence");
-    g.add("s6.wiring","6 etapas (nuoseklus): R1 ir R2 eilėje — laidu R1B → R2A, zondai [T11]→[T07], [T12]→[T10]",w6,
-          ok6?"Nuosekliam jungimui sujunkite R1B su R2A; grąžinamasis iš R2B į šaltinį; zondai ant viso R1+R2 junginio galų.":"Sujungimo įrodymo duomenys sugadinti.",ok6?"":"missing_evidence");
+    g.add("s6.wiring","6 etapas (nuoseklus): R1 ir R2 sujungti eilėje, voltmetras prijungtas per visą R1 + R2 porą",w6,
+          ok6?"Nuosekliam jungimui R1 išėjimą sujunkite su R2 įėjimu; grąžinamąjį laidą junkite iš R2 į šaltinį; voltmetrą prijunkite prie visos R1 + R2 poros galų.":"Sujungimo įrodymo duomenys sugadinti.",ok6?"":"missing_evidence");
 }
 bool ld5_wiring(const Json& pairs,bool& valid) {
     static const char* cs[][2]={{"E_P","K1"},{"K2","A_P"},{"A_N","R1A"},{"R1B","RVA"},{"RVB","E_N"},{"V_P","RVA"},{"V_N","RVB"}};
