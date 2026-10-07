@@ -91,9 +91,13 @@ function ld2_step_button(step)
     elseif step<=LD2.state.step | LD2.state.completed(step)==1 | LD2.state.skipped(step)==1 then
         ld2_go_step(step,%f);
     else
-        ld2_show_error("Negalima peršokti kelių neaplankytų etapų įprastu režimu.", ...
-            ["Pažymėkite DĖSTYTOJO / PERŽIŪROS REŽIMAS."; ...
-             "Arba naudokite TOLIAU ir pasirinkite PEREITI NEBAIGUS."]);
+        if LD2.state.assessment then
+            ld2_show_error("Šio etapo dar nepasiekėte.", ...
+                ["Užbaikite dabartinį etapą ir spauskite Toliau."]);
+        else
+            ld2_show_error("Šio etapo dar nepasiekėte.", ...
+                ["Užbaikite dabartinį etapą arba per Toliau pasirinkite pereiti nebaigus."]);
+        end
     end
 endfunction
 
@@ -135,6 +139,11 @@ endfunction
 
 function ld2_restart_apply()
     global LD2;
+    ld2_save_answers();
+    bench_autosave("LD2");
+    if isfield(LD2,"autosave_error") then
+        if LD2.autosave_error<>"" then return; end
+    end
     ld2_clear_dynamic();
     teacher=LD2.state.teacher_mode;
     student=LD2.state.student;
@@ -143,8 +152,9 @@ function ld2_restart_apply()
     LD2.state.student=student;
     LD2.state.assessment=%t;
     LD2.state.practice_used=%f;
+    LD2.autosave_paths=emptystr(0,1); LD2.autosave_error="";
     ld2_go_step(1,%t);
-    ld2_set_status("Pradėtas naujas atsiskaitymo bandymas.","ok","Ankstesnio darbo duomenys išvalyti; automatinis juodraštis kuriamas iš naujo.");
+    ld2_set_status("Pradėtas naujas atsiskaitymo bandymas.","ok","Ankstesnio bandymo juodraščiai palikti atskirai; naujam bandymui kuriamas naujas juodraštis.");
     bench_autosave("LD2");
 endfunction
 
@@ -327,8 +337,8 @@ function ld2_measure_current()
     [ok,missing]=ld2_validate_main(phase);
     if ~ok then
         ld2_show_error("A~ negali matuoti, nes nuosekli grandinė neužbaigta.", ...
-            ["Prijunkite: "+ld2_terminal_name(missing(1,1))+" → "+ld2_terminal_name(missing(1,2))+"."; ...
-             "Po to patikrinkite sujungimą."]);
+            ["Grįžkite į šios grandinės sujungimo etapą."; ...
+             "Trūksta: "+ld2_terminal_name(missing(1,1))+" → "+ld2_terminal_name(missing(1,2))+"."]);
         return;
     end
     if ~LD2.state.power then
@@ -360,7 +370,7 @@ function ld2_measure_voltage()
     [mainok,missing]=ld2_validate_main(phase);
     if ~mainok then
         ld2_show_error("V~ negali matuoti, nes pagrindinė grandinė neužbaigta.", ...
-            ["Pirmiausia grįžkite į sujungimo etapą arba įjunkite dėstytojo režimą."; ...
+            ["Pirmiausia grįžkite į šios grandinės sujungimo etapą."; ...
              "Trūksta: "+ld2_terminal_name(missing(1,1))+" → "+ld2_terminal_name(missing(1,2))+"."]);
         return;
     end

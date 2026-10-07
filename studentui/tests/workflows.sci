@@ -134,7 +134,10 @@ function bench_ld2_workflow(n,root,gui)
         "ui",struct("headless",~gui,"suppress_render",%f,"dynamic",[],"answer_edits",[],"answer_step",0,"test_no_dialogs",%t), ...
         "example_active",%f,"example_backup",struct());
     LD2.state.student=student_profile(n,"Automatinė Patikra","TEST","LD2");
-    if gui then ld2_build_gui(); LD2.ui.figure.figure_name="PATIKRA · LD2 · variantas "+string(n); end
+    if gui then
+        ld2_build_gui(); LD2.ui.figure.figure_name="PATIKRA · LD2 · variantas "+string(n);
+        assert_checkequal(LD2.ui.figure.closerequestfcn,"ld2_student_close()");
+    end
     ld2_go_step(1,%f);
     rc=ld2_rc_values(cfg.E_RC,cfg.F_RC,cfg.R8,cfg.C2);
     rl=ld2_rl_values(cfg.E_RL,cfg.F_RL,cfg.R9,cfg.L1);
@@ -249,7 +252,12 @@ function bench_ld2_workflow(n,root,gui)
         mprintf("PASS LD2 V17: learning example close\n");
         ld2_restart_apply(); assert_checktrue(LD2.state.assessment); assert_checkfalse(LD2.state.practice_used);
         assert_checkequal(LD2.state.step,1); assert_checkequal(length(LD2.state.measurements),0);
-        mprintf("PASS LD2 V17: restart creates clean assessment\n");
+        assert_checktrue(isfield(LD2,"autosave_paths")); assert_checkequal(size(LD2.autosave_paths,"*"),0);
+        mprintf("PASS LD2 V17: restart creates clean assessment and autosave chain\n");
+        ld2_step_button(5); assert_checkequal(LD2.state.step,1);
+        assert_checktrue(strindex(LD2.state.status_text,"dar nepasiekėte")<>[]);
+        assert_checktrue(strindex(LD2.state.status_text,"DĖSTYTOJO")==[]);
+        mprintf("PASS LD2 V17: future-stage navigation is student-facing\n");
         ld2_restore_session(session);
         mprintf("PASS LD2 V17: second session restore\n");
         st=student_profile(n,"Pataisytas Vardas","TEST-2","LD2"); ld2_apply_profile(st,cfg);
@@ -260,7 +268,8 @@ function bench_ld2_workflow(n,root,gui)
         mprintf("PASS LD2 V17: new variant profile\n");
         assert_checkequal(length(LD2.state.measurements),0); assert_checkequal(LD2.state.step,1);
         assert_checktrue(LD2.state.assessment); assert_checkfalse(LD2.state.practice_used);
-        delete(LD2.ui.figure);
+        ld2_student_close(); assert_checkfalse(is_handle_valid(LD2.ui.figure));
+        mprintf("PASS LD2 V17: close autosave path\n");
     end
 endfunction
 

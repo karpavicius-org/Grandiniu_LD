@@ -19,7 +19,12 @@ function ld2_student_main(root)
             end
         end
     end
-    bench_core_require();
+    try bench_core_require(); catch
+        messagebox(["LD2 nepavyko paleisti.";strcat(lasterror()," "); ...
+            "Išskleiskite visą paketą į vieną aplanką ir paleiskite STENDAS.sce per grafinį Scilab."], ...
+            "LD2 paleidimas","error");
+        return;
+    end
     [ok,st,cfg]=student_enroll("LD2");
     if ~ok then return; end
     LD2=struct("root",root,"cfg",cfg,"state",ld2_initial_state(cfg), ...
@@ -28,6 +33,7 @@ function ld2_student_main(root)
     student_remember(st);
     ld2_build_gui(); ld2_go_step(1,%f);
     LD2.autosave_enabled=%t;
+    bench_autosave("LD2");
 endfunction
 
 function ld2_student_details()
@@ -50,15 +56,36 @@ endfunction
 function ld2_apply_profile(st,cfg)
     global LD2;
     ld2_save_answers();
+    changed=st.number<>LD2.state.student.number;
     assessment=LD2.state.assessment; practice=LD2.state.practice_used;
-    if st.number<>LD2.state.student.number then
+    if changed then
+        bench_autosave("LD2");
+        if isfield(LD2,"autosave_error") then
+            if LD2.autosave_error<>"" then return; end
+        end
         ld2_clear_dynamic();
         LD2.cfg=cfg; LD2.state=ld2_initial_state(cfg);
         LD2.state.assessment=assessment; LD2.state.practice_used=practice;
+        LD2.autosave_paths=emptystr(0,1); LD2.autosave_error="";
     end
     LD2.state.student=st;
     ld2_render_step();
     student_remember(st);
+    if changed then bench_autosave("LD2"); end
+endfunction
+
+function ld2_student_close()
+    global LD2;
+    if typeof(LD2)<>"st" then return; end
+    if ~isfield(LD2,"ui") | ~isfield(LD2.ui,"figure") then return; end
+    if ~is_handle_valid(LD2.ui.figure) then return; end
+    if LD2.example_active then ld2_show_solution(); end
+    ld2_save_answers();
+    bench_autosave("LD2");
+    if isfield(LD2,"autosave_error") then
+        if LD2.autosave_error<>"" then return; end
+    end
+    delete(LD2.ui.figure);
 endfunction
 
 function ld2_edit_parameters()
@@ -70,6 +97,7 @@ function ld2_build_gui()
     global LD2;
     f=figure("resize","off","default_axes","off","dockable","off","menubar","none","toolbar","none","visible","off");
     f.figure_name="LD2 · Kintamosios srovės stendas"; f.axes_size=[1280 720];
+    f.closerequestfcn="ld2_student_close()";
     f.figure_position=[10 10]; f.infobar_visible="off"; f.background=color(246,248,249);
     LD2.ui.figure=f; LD2.ui.dynamic=[]; LD2.ui.answer_edits=[]; LD2.ui.answer_step=0;
     LD2.ui.choice_yes=[]; LD2.ui.choice_no=[]; LD2.ui.term_handles=struct("dummy",0);
