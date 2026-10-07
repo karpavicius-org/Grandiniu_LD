@@ -91,9 +91,13 @@ function ld2_step_button(step)
     elseif step<=LD2.state.step | LD2.state.completed(step)==1 | LD2.state.skipped(step)==1 then
         ld2_go_step(step,%f);
     else
-        ld2_show_error("Negalima peršokti kelių neaplankytų etapų įprastu režimu.", ...
-            ["Pažymėkite DĖSTYTOJO / PERŽIŪROS REŽIMAS."; ...
-             "Arba naudokite TOLIAU ir pasirinkite PEREITI NEBAIGUS."]);
+        if LD2.state.assessment then
+            ld2_show_error("Šio etapo dar nepasiekėte.", ...
+                ["Užbaikite dabartinį etapą ir spauskite Toliau."]);
+        else
+            ld2_show_error("Šio etapo dar nepasiekėte.", ...
+                ["Užbaikite dabartinį etapą arba per Toliau pasirinkite pereiti nebaigus."]);
+        end
     end
 endfunction
 
@@ -122,8 +126,11 @@ function ld2_next()
         ld2_go_step(step+1,LD2.state.teacher_mode);
         return;
     end
-    choice=x_choose(["[D01] LIKTI IR BAIGTI";"[D02] PEREITI NEBAIGUS"], ...
-        "Etapas dar nepatikrintas. Ką daryti?");
+    if LD2.state.assessment then
+        ld2_set_status("Atsiskaityme neužbaigto etapo praleisti negalima.","warn","Užbaikite dabartinį etapą arba grįžkite į ankstesnį.");
+        return;
+    end
+    choice=x_choose(["LIKTI IR BAIGTI";"PEREITI NEBAIGUS"],"Etapas dar nepatikrintas. Ką daryti?");
     if choice==2 then
         LD2.state.skipped(step)=1;
         ld2_go_step(step+1,%f);
@@ -132,24 +139,30 @@ endfunction
 
 function ld2_restart_apply()
     global LD2;
+    ld2_save_answers();
+    bench_autosave("LD2");
+    if isfield(LD2,"autosave_error") then
+        if LD2.autosave_error<>"" then return; end
+    end
     ld2_clear_dynamic();
     teacher=LD2.state.teacher_mode;
     student=LD2.state.student;
-    assessment=LD2.state.assessment; practice=LD2.state.practice_used;
     LD2.state=ld2_initial_state(LD2.cfg);
     LD2.state.teacher_mode=teacher;
     LD2.state.student=student;
-    LD2.state.assessment=assessment; LD2.state.practice_used=practice;
+    LD2.state.assessment=%t;
+    LD2.state.practice_used=%f;
+    LD2.autosave_paths=emptystr(0,1); LD2.autosave_error="";
     ld2_go_step(1,%t);
-    ld2_set_status("Laboratorija pradėta iš naujo.","ok");
+    ld2_set_status("Pradėtas naujas atsiskaitymo bandymas.","ok","Ankstesnio bandymo juodraščiai palikti atskirai; naujam bandymui kuriamas naujas juodraštis.");
     bench_autosave("LD2");
 endfunction
 
 function ld2_restart()
     global LD2;
     if LD2.example_active then ld2_show_solution(); return; end
-    choice=x_choose(["[D01] ATŠAUKTI";"[D02] TAIP, PRADĖTI IŠ NAUJO"], ...
-        "Bus išvalyti visi laidai, matavimai ir atsakymai.");
+    choice=x_choose(["ATŠAUKTI";"PRADĖTI IŠ NAUJO"], ...
+        "Bus išvalyti visi laidai, matavimai ir atsakymai. Naujas darbas prasidės atsiskaitymo režimu.");
     if choice==2 then ld2_restart_apply(); end
 endfunction
 
@@ -324,8 +337,8 @@ function ld2_measure_current()
     [ok,missing]=ld2_validate_main(phase);
     if ~ok then
         ld2_show_error("A~ negali matuoti, nes nuosekli grandinė neužbaigta.", ...
-            ["Prijunkite: "+ld2_terminal_name(missing(1,1))+" → "+ld2_terminal_name(missing(1,2))+"."; ...
-             "Po to patikrinkite sujungimą."]);
+            ["Grįžkite į šios grandinės sujungimo etapą."; ...
+             "Trūksta: "+ld2_terminal_name(missing(1,1))+" → "+ld2_terminal_name(missing(1,2))+"."]);
         return;
     end
     if ~LD2.state.power then
@@ -357,7 +370,7 @@ function ld2_measure_voltage()
     [mainok,missing]=ld2_validate_main(phase);
     if ~mainok then
         ld2_show_error("V~ negali matuoti, nes pagrindinė grandinė neužbaigta.", ...
-            ["Pirmiausia grįžkite į sujungimo etapą arba įjunkite dėstytojo režimą."; ...
+            ["Pirmiausia grįžkite į šios grandinės sujungimo etapą."; ...
              "Trūksta: "+ld2_terminal_name(missing(1,1))+" → "+ld2_terminal_name(missing(1,2))+"."]);
         return;
     end
@@ -683,8 +696,13 @@ function ok=ld2_assessment_ready()
     ok=%f; step=LD2.state.step;
     [labels,n]=ld2_answer_spec(step);
     for k=1:n
-        if stripblanks(LD2.state.answers_text(step,k))=="" then
-            ld2_set_status("Užpildykite ["+msprintf("A%02d.%02d",step,k)+"].","error","Atsakymo teisingumą vertins dėstytojo programa.");
+        raw=stripblanks(LD2.state.answers_text(step,k));
+        if raw=="" then
+            ld2_set_status("Užpildykite "+labels(k)+".","error","Atsakymo teisingumą vertins dėstytojo programa.");
+            return;
+        end
+        if isnan(ld2_safe_number(raw)) then
+            ld2_set_status("Įrašykite skaičių: "+labels(k)+".","error","Tinka kablelis arba taškas. Formulės ir vienetai į lauką nerašomi.");
             return;
         end
     end
@@ -692,21 +710,21 @@ function ok=ld2_assessment_ready()
     case 1 then ok=%t;
     case 2 then
         [ok,missing]=ld2_validate_main("RC");
-        if ~ok then ld2_set_status("RC grandinė dar nesujungta.","error","Užbaikite laidus pagal šio etapo schemą."); end
+        if ~ok then ld2_set_status("RC grandinė dar nesujungta.","error","Užbaikite laidus pagal schemą kairėje."); end
     case 3 then ok=%t;
     case 4 then
         ok=~isnan(LD2.state.rc_I) & ~isnan(LD2.state.rc_UR) & ~isnan(LD2.state.rc_UC) & ~isnan(LD2.state.rc_UE);
-        if ~ok then ld2_set_status("Trūksta RC matavimo.","error","Užfiksuokite I, UR, UC ir E."); end
+        if ~ok then ld2_set_status("Trūksta RC matavimo.","error","Užfiksuokite I, UR, UC ir šaltinio įtampą."); end
     case 5 then
         [ok,missing]=ld2_validate_main("RL");
-        if ~ok then ld2_set_status("RL grandinė dar nesujungta.","error","Užbaikite laidus pagal šio etapo schemą."); end
+        if ~ok then ld2_set_status("RL grandinė dar nesujungta.","error","Užbaikite laidus pagal schemą kairėje."); end
     case 6 then ok=%t;
     case 7 then
         ok=~isnan(LD2.state.rl_I) & ~isnan(LD2.state.rl_UR) & ~isnan(LD2.state.rl_UL) & ~isnan(LD2.state.rl_UE);
-        if ~ok then ld2_set_status("Trūksta RL matavimo.","error","Užfiksuokite I, UR, UL ir E."); end
+        if ~ok then ld2_set_status("Trūksta RL matavimo.","error","Užfiksuokite I, UR, UL ir šaltinio įtampą."); end
     case 8 then
         [ok,missing]=ld2_validate_main("RLC");
-        if ~ok then ld2_set_status("RLC grandinė dar nesujungta.","error","Užbaikite laidus pagal šio etapo schemą."); end
+        if ~ok then ld2_set_status("RLC grandinė dar nesujungta.","error","Užbaikite laidus pagal schemą kairėje."); end
     case 9 then
         if size(LD2.state.res_f,"*")<3 then
             ld2_set_status("Rezonanso paieškai reikia bent trijų matavimo taškų.","error","Užfiksuokite taškus abipus stebimo maksimumo."); return;
@@ -726,6 +744,10 @@ function ok=ld2_assessment_ready()
         ok=~isnan(LD2.state.f1_meas) & ~isnan(LD2.state.f2_meas) & LD2.state.f2_meas>LD2.state.f1_meas;
         if ~ok then ld2_set_status("Trūksta f1 ir f2 matavimų.","error","Užfiksuokite abu dažnius skirtingose rezonanso pusėse."); end
     case 12 then
+        if ~and(LD2.state.completed(1:11)==1) then
+            ld2_set_status("Dar yra neužfiksuotų ankstesnių etapų.","error","Per Pagalba → Tęsti arba atkurti darbą → Etapai grįžkite prie neužbaigtų etapų.");
+            return;
+        end
         expected=0:1000:LD2.cfg.F_MAX;
         ok=size(LD2.state.sweep_f,"*")==size(expected,"*");
         if ok then ok=and(LD2.state.sweep_f==expected); end

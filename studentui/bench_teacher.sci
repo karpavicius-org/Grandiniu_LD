@@ -36,7 +36,9 @@ function bench_teacher()
         [p,status]=bench_batch_call(command,folder,destination);
         if status<0 then error("Nepavyko užbaigti rezultatų įrašymo."); end
         if is_handle_valid(f) then delete(f); end
-        bench_report_saved(fullfile(destination,"vertinimai.html"),"Vertinimas baigtas");
+        title="Vertinimas baigtas";
+        if BENCH_TEACHER_CANCEL then title="Vertinimas sustabdytas"; end
+        bench_report_saved(fullfile(destination,"vertinimai.html"),title);
     catch
         if is_handle_valid(f) then delete(f); end
         messagebox(lasterror(),"Vertinimo klaida","error");

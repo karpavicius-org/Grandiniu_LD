@@ -71,8 +71,12 @@ public:
         // Take the input inventory before creating the output directory. No student
         // file is modified. Symlink directories are included as review entries.
         for(fs::recursive_directory_iterator it(input),end;it!=end;++it) {
-            if(fs::is_symlink(it->symlink_status())) {it.disable_recursion_pending();files.push_back(it->path());}
-            else if(!it->is_directory()) files.push_back(it->path());
+            const auto st=it->symlink_status();
+            if(fs::is_symlink(st)) {it.disable_recursion_pending();files.push_back(it->path());}
+            else if(it->is_directory()) {
+                const auto name=it->path().filename().u8string();
+                if(name.rfind("Vertinimai-",0)==0) {it.disable_recursion_pending();continue;}
+            } else files.push_back(it->path());
             if(files.size()>10000) throw std::runtime_error("batch_file_limit");
         }
         std::sort(files.begin(),files.end());

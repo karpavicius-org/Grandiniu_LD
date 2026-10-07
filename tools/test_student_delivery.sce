@@ -61,7 +61,17 @@ try
         if h.string=="Atverti ataskaitų aplanką" then execstr(h.callback);assert_checkequal(DELIVERY_OPEN,fileparts(BENCH_LAST_REPORT));end
     end
     assert_checkequal(buttons,3);delete(BENCH_REPORT_WINDOW);
-    mputl("PASS: twelve fixed windows; small-screen scrolling; LD2/LD3 full GUI; report and folder buttons",out+"verdict.log");exit(0);
+    // Sustabdytas dėstytojo vertinimas turi būti aiškiai įvardytas kaip dalinis.
+    bench_report_saved(fullfile(bench_documents(),"dalinis.html"),"Vertinimas sustabdytas");
+    partial=%f;
+    for h=matrix(BENCH_REPORT_WINDOW.children,1,-1)
+        if h.style=="text" then
+            txt=strcat(matrix(h.string,-1,1)," ");
+            if strindex(txt,"daliniai rezultatai")<>[] then partial=%t; end
+        end
+    end
+    assert_checktrue(partial);delete(BENCH_REPORT_WINDOW);
+    mputl("PASS: twelve fixed windows; small-screen scrolling; LD2/LD3 full GUI; report/folder buttons; partial grading status",out+"verdict.log");exit(0);
 catch
     [messages,errno,errline,errfunc]=lasterror(%f);
     problem=strcat(messages," | ");

@@ -112,19 +112,25 @@ endfunction
 function ld2_show_summary_window()
     global LD2;
     rows=emptystr(0,1);
+    if LD2.state.assessment then
+        rows=["Atsiskaitymas: ĮRAŠYTA reiškia, kad etapas užfiksuotas. Atsakymo teisingumą vertins dėstytojo programa.";" "];
+    else
+        rows=["Mokymasis: PATIKRINTA reiškia, kad etapas patikrintas šiame stende.";" "];
+    end
     for step=1:12
-        if LD2.state.completed(step)==1 then result="PATIKRINTA";
+        if LD2.state.completed(step)==1 then
+            if LD2.state.assessment then result="ĮRAŠYTA"; else result="PATIKRINTA"; end
         elseif LD2.state.skipped(step)==1 then result="PRALEISTA";
         else result="NEATLIKTA"; end
-        rows($+1,1)=ld2_step_title(step)+" — "+result;
+        rows($+1,1)=string(step)+". "+ld2_step_title(step)+" — "+result;
         [labels,n]=ld2_answer_spec(step);
         for j=1:n
             raw=LD2.state.answers_text(step,j);
             if raw=="" then raw="NEĮVESTA"; end
-            rows($+1,1)="    Studento įvestis: "+labels(j)+" = "+raw;
+            rows($+1,1)="    "+labels(j)+" = "+raw;
         end
     end
-    ld2_text_window("LD2 – įvesčių ir etapų suvestinė",rows);
+    ld2_text_window("LD2 – darbo suvestinė",rows);
 endfunction
 
 function ld2_show_journal()
