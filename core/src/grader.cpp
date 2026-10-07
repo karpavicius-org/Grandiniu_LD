@@ -190,6 +190,12 @@ void grade_dc(Grader& g,const Json& r,const Bank& b) {
             auto it=g.answers.find(step==3?"s2.q2":"s4.q2");double own=0;
             if(it!=g.answers.end() && parse_number(text(it->second.at("raw"),2048),own)&&own>0) ref=own;
         }
+        if(step==8) {
+            auto a=g.answers.find("s8.q1"),second=g.answers.find("s8.q2");double x=0,y=0;
+            if(a!=g.answers.end() && second!=g.answers.end() &&
+               parse_number(text(a->second.at("raw"),2048),x) &&
+               parse_number(text(second->second.at("raw"),2048),y) && x+y>0) ref=x+y;
+        }
         if(step==7 && std::isfinite(base)) ref=base;
         bool match=near(v,ref,.05,0);
         double expected=step==7?(match?2:1):(match?1:2);
@@ -201,6 +207,48 @@ void grade_dc(Grader& g,const Json& r,const Bank& b) {
     for(int s:{1,5}) g.add("s"+std::to_string(s)+".wiring",wire_label.at(s),
         ld1_wiring(r.at("evidence").at("wiring").at("s"+std::to_string(s)),s==1),
         "Patikrinkite šaltinio, rezistorių ir matuoklio sujungimą. Vertinama išsaugota topologija.");
+}
+// LD1-3 evaluates manual wiring and seven interpretations of recorded readings.
+// Solver observations remain visible diagnostics, never student-earned points.
+void grade_dc_measurement(Grader& g,const Json& r,const Bank& b) {
+    parameters(r,{{"E",10},{"R1",b.r1},{"R2",b.r2},{"R3",b.r3}});
+    const double i=10000/(b.r1+1000),j=10000/(b.r1+500),a=10000/b.r3,c=10000/b.r2;
+    const auto measured=[&](const std::string& id,const std::string& label,double expected,const std::string& unit) {
+        double value=g.measured(id,label,expected,unit,.05);
+        auto& item=g.items.back();item["points"]=0;item["max_points"]=0;item["automatic"]=true;
+        item["comment"]="Programos užfiksuotas matavimo duomuo; balų neskiriama. "+item.at("comment").get<std::string>();
+        return value;
+    };
+    const double baseline=measured("s3.measure","3 etapas: ampermetro srovė prieš keičiant VR1",i,"mA");
+    const double after=measured("s4.measure","4 etapas: ampermetro srovė po VR1 = 500 Ω",j,"mA");
+    const double voltage=measured("s6.measure","6 etapas: voltmetro įtampa tarp A ir B",10,"V");
+    const double voltage_after=measured("s7.measure","7 etapas: voltmetro įtampa po VR1 = 500 Ω",10,"V");
+    const double total=measured("s8.measure","8 etapas: ampermetro bendroji srovė",a+c,"mA");
+    const double r1=measured("s3.r1","3 etapas: automatinio matavimo taško srovė per R1",i,"mA");
+    const double vr1=measured("s3.vr1","3 etapas: automatinio matavimo taško srovė per VR1",i,"mA");
+    const double r3=measured("s8.r3","8 etapas: automatinio matavimo taško srovė R3 šakoje",a,"mA");
+    const double r2=measured("s8.r2","8 etapas: automatinio matavimo taško srovė R2 + VR1 šakoje",c,"mA");
+    g.answer("s1.type","1 etapas: kaip sujungti R1 ir VR1",1,"choice","Rezistoriai vienoje šakoje sujungti nuosekliai.",0,0);
+    g.answer("s5.type","5 etapas: kaip tarpusavyje sujungtos dvi šakos",2,"choice","Abi šakos prijungtos tarp tų pačių mazgų A ir B.",0,0);
+    const auto choice=[&](const std::string& id,const std::string& label,double expected,bool available,const std::string& hint) {
+        g.answer(id,label,expected,"choice",hint,0,0);
+        if(!available) {auto& item=g.items.back();item["points"]=0;item["status"]="missing_evidence";item["comment"]="Išvadai patikrinti trūksta užfiksuotų matavimų.";}
+    };
+    const auto same=[](double x,double y){return near(x,y,.05,0);};
+    const auto direction=[&](double x,double y){return same(x,y)?3:(y>x?1:2);};
+    choice("s3.compare","3 etapas: ar srovės per R1 ir VR1 vienodos",same(r1,vr1)?1:2,std::isfinite(r1)&&std::isfinite(vr1),"Palyginkite du srovės rodmenis: 1 – Taip, 2 – Ne.");
+    choice("s4.change","4 etapas: kaip pasikeitė srovė sumažinus VR1",direction(baseline,after),std::isfinite(baseline)&&std::isfinite(after),"Palyginkite Prieš ir Po: 1 – padidėjo, 2 – sumažėjo, 3 – nepakito.");
+    choice("s6.compare","6 etapas: ar UAB sutampa su šaltinio įtampa",same(voltage,10)?1:2,std::isfinite(voltage),"Palyginkite šaltinio ir voltmetro įtampas: 1 – Taip, 2 – Ne.");
+    choice("s7.change","7 etapas: kaip pasikeitė įtampa pakeitus VR1",direction(voltage,voltage_after),std::isfinite(voltage)&&std::isfinite(voltage_after),"Palyginkite Prieš ir Po: 1 – padidėjo, 2 – sumažėjo, 3 – nepakito.");
+    choice("s8.compare","8 etapas: ar bendroji srovė lygi dviejų šakų srovių sumai",same(total,r3+r2)?1:2,std::isfinite(total)&&std::isfinite(r3)&&std::isfinite(r2),"Palyginkite ampermetro srovę ir programos pateiktą šakų sumą: 1 – Taip, 2 – Ne.");
+    for(int step:{1,5}) {
+        g.add("s"+std::to_string(step)+".wiring",step==1?"1 etapas: studento sujungta vienos šakos grandinė":"5 etapas: studento sujungtos dvi šakos tarp A ir B",
+              ld1_wiring(r.at("evidence").at("wiring").at("s"+std::to_string(step)),step==1),"Patikrinkite išsaugotą grandinės topologiją.");
+        if(r.at("evidence").value("automatic_setup",false)) {
+            auto& item=g.items.back();item["points"]=0;item["max_points"]=0;item["automatic"]=true;
+            item["comment"]="Mokymosi režime grandinę paruošė programa; už jungimą balų neskiriama.";
+        }
+    }
 }
 struct Point {double f,u;};
 std::vector<Point> points(const Json& rows,const Bank& b,const std::string& target,bool& valid) {
@@ -856,8 +904,10 @@ Json grade(const Json& r) {
     auto lab=text(r.at("lab_id"));require(lab=="LD1"||lab=="LD2"||lab=="LD3"||lab=="LD4"||lab=="LD5"||lab=="LD6"||lab=="LD7"||lab=="LD8"||lab=="LD9"||lab=="LD10"||lab=="LD11"||lab=="LD12","unsupported_lab");
     const bool sources_revision=lab=="LD6"&&r.at("lab_revision")=="2"&&r.at("rubric_version")=="LD6-2"&&r.at("bank_id")=="LD6-64-B-2026";
     const bool guided_revision=lab=="LD1"&&r.at("lab_revision")=="2"&&r.at("rubric_version")=="LD1-2"&&r.at("bank_id")=="LD1-64-A-2026";
-    require(sources_revision||guided_revision||(r.at("lab_revision")=="1"&&r.at("rubric_version")==lab+"-1"&&r.at("bank_id")==lab+"-64-A-2026"),"unsupported_version");
+    const bool measurement_revision=lab=="LD1"&&r.at("lab_revision")=="3"&&r.at("rubric_version")=="LD1-3"&&r.at("bank_id")=="LD1-64-A-2026";
+    require(sources_revision||guided_revision||measurement_revision||(r.at("lab_revision")=="1"&&r.at("rubric_version")==lab+"-1"&&r.at("bank_id")==lab+"-64-A-2026"),"unsupported_version");
     if(guided_revision) require(r.at("evidence").value("automatic_setup",false),"automatic_setup_required");
+    if(measurement_revision) require(r.at("evidence").value("measurement_workflow",false)&&r.at("evidence").value("automatic_measurement",false),"measurement_workflow_required");
     require(r.at("variant").is_number_integer(),"variant_type");
     require(r.at("variant")>=1 && r.at("variant")<=64,"variant_range");
     int variant=r.at("variant").get<int>();auto b=bank(variant);
@@ -872,7 +922,7 @@ Json grade(const Json& r) {
     auto id=text(r.at("submission_id"),128);require(!id.empty(),"submission_identity");
     require(r.at("mode")=="learning"||r.at("mode")=="assessment","mode");
     text(r.at("note"),32000);
-    Grader g(r);if(lab=="LD1") grade_dc(g,r,b);else if(lab=="LD2") grade_ac(g,r,b);else if(lab=="LD3") grade_ld3(g,r,b);else if(lab=="LD4") grade_ld4(g,r,b);else if(lab=="LD5") grade_ld5(g,r,b);else if(lab=="LD7") grade_ld7(g,r,b);else if(lab=="LD8") grade_ld8(g,r,b);else if(lab=="LD9") grade_ld9(g,r,b);else if(lab=="LD10") grade_ld10(g,r,b);else if(lab=="LD11") grade_ld11(g,r,b);else if(lab=="LD12") grade_ld12(g,r,b);else if(sources_revision) grade_ld6_sources(g,r,b);else grade_ld6(g,r,b);g.finish();
+    Grader g(r);if(measurement_revision) grade_dc_measurement(g,r,b);else if(lab=="LD1") grade_dc(g,r,b);else if(lab=="LD2") grade_ac(g,r,b);else if(lab=="LD3") grade_ld3(g,r,b);else if(lab=="LD4") grade_ld4(g,r,b);else if(lab=="LD5") grade_ld5(g,r,b);else if(lab=="LD7") grade_ld7(g,r,b);else if(lab=="LD8") grade_ld8(g,r,b);else if(lab=="LD9") grade_ld9(g,r,b);else if(lab=="LD10") grade_ld10(g,r,b);else if(lab=="LD11") grade_ld11(g,r,b);else if(lab=="LD12") grade_ld12(g,r,b);else if(sources_revision) grade_ld6_sources(g,r,b);else grade_ld6(g,r,b);g.finish();
     int points=0,maximum=0;
     for(auto& item:g.items) {
         auto key=item.at("id").get<std::string>();

@@ -32,13 +32,14 @@ function bench_ld1_workflow(n,root)
             if step==1 then W=ld1_series_canonical_wires(); else W=ld1_parallel_voltage_canonical_wires(); end
             for k=1:size(W,1); bench_ld1_click(W(k,1)); bench_ld1_click(W(k,2)); end
             if step==1 then LD1.ui.typeSeries.value=1; execstr(LD1.ui.typeSeries.callback);
-            else LD1.ui.typeParallel.value=1; execstr(LD1.ui.typeParallel.callback); end
+            else bench_button(LD1.ui.modeV); LD1.ui.typeParallel.value=1; execstr(LD1.ui.typeParallel.callback); end
         elseif step==2 then
             bench_ld1_answers([cfg.R1+1000 cfg.E/(cfg.R1+1000)*1000]);
         elseif step==3 then
             bench_button(LD1.ui.power); bench_button(LD1.ui.measure);
             LD1.ui.yes.value=1; execstr(LD1.ui.yes.callback);
         elseif step==4 then
+            bench_button(LD1.ui.vr500);
             bench_ld1_answers([cfg.R1+500 cfg.E/(cfg.R1+500)*1000]);
             bench_button(LD1.ui.measure); LD1.ui.yes.value=1; execstr(LD1.ui.yes.callback);
         elseif step==6 then
@@ -49,6 +50,7 @@ function bench_ld1_workflow(n,root)
             ld1_set_vr(500); bench_button(LD1.ui.measure);
             LD1.ui.no.value=1; LD1.ui.yes.value=0; execstr(LD1.ui.no.callback);
         elseif step==8 then
+            bench_button(LD1.ui.modeA); bench_button(LD1.ui.vr0);
             bench_ld1_click("SRC_P"); bench_ld1_click("M_P");
             bench_ld1_click("M_N"); bench_ld1_click(LD1.kclTargetA);
             i1=cfg.E/cfg.R3*1000; i2=cfg.E/cfg.R2*1000;

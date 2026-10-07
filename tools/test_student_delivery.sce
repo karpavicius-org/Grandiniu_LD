@@ -9,8 +9,10 @@ function n=messagebox(varargin)
     n=1;
 endfunction
 try
-    screen=get(0,"screensize_px");expected=min([1280 720],max([320 240],screen(3:4)-[40 120]));
+    screen=get(0,"screensize_px");
     for lab=1:12
+        canvas=[1280 720]; if lab==1 then canvas=[1280 640]; end
+        expected=min(canvas,max([320 240],screen(3:4)-[40 120]));
         exec(root+"LD"+string(lab)+"/LD"+string(lab)+".sce",-1);
         select lab
         case 1 then f=LD1.fig;
@@ -28,17 +30,20 @@ try
         end
         assert_checkequal(f.axes_size,expected);assert_checkequal(f.resize,"off");
         delete(f);
-        mprintf("LD%d: vienodas pastovus langas PASS\n",lab);
+        mprintf("LD%d: pastovus %dx%d darbo laukas PASS\n",lab,canvas(1),canvas(2));
     end
     for screen=[1024 768;900 600]'
-        f=figure("dockable","off","resize","off","default_axes","off","menubar","none","toolbar","none","visible","off","axes_size",[1280 720]);
-        f.infobar_visible="off";
-        b=student_button(f,[.70 .10 .275 .08],"Toliau","");
-        student_finish_window(f,screen');
-        assert_checkequal(f.axes_size,screen'-[40 120]);
-        assert_checkequal(student_size(b.parent),[1280 720]);
-        assert_checkequal(b.parent.parent.scrollable,"on");assert_checkequal(b.position,[.70 .10 .275 .08]);
-        delete(f);
+        for canvas=[1280 640;1280 720]'
+            f=figure("dockable","off","resize","off","default_axes","off","menubar","none","toolbar","none","visible","off","axes_size",canvas');
+            f.infobar_visible="off";
+            b=student_button(f,[.70 .10 .275 .08],"Toliau","");
+            if canvas(2)==640 then student_finish_window(f,screen',canvas');
+            else student_finish_window(f,screen'); end
+            assert_checkequal(f.axes_size,min(canvas',screen'-[40 120]));
+            assert_checkequal(student_size(b.parent),canvas');
+            assert_checkequal(b.parent.parent.scrollable,"on");assert_checkequal(b.position,[.70 .10 .275 .08]);
+            delete(f);
+        end
     end
     exec(root+"tests/workflows.sci",-1);
     mprintf("DELIVERY: LD2 workflow start\n"); bench_ld2_workflow(17,root,%t); mprintf("DELIVERY: LD2 workflow PASS\n");

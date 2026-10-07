@@ -195,9 +195,9 @@ function out = ld1_solve_network()
     out.message="Grandinės modelis išspręstas.";
 endfunction
 
-function [value, unit, ok, msg] = ld1_meter_read()
+function [value, unit, ok, msg, sol] = ld1_meter_read()
     global LD1;
-    value=%nan; unit=""; ok=%f; msg="";
+    value=%nan; unit=""; ok=%f; msg=""; sol=struct("ok",%f);
 
     if ld1_terminal_wire_count("M_P")==0 | ld1_terminal_wire_count("M_N")==0 then
         msg="Multimetras neprijungtas: prijunkite abu jo gnybtus.";

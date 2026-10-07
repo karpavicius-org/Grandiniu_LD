@@ -1,10 +1,11 @@
 // Shared native Scilab styling for both student benches.
-function student_finish_window(f,screen)
+function student_finish_window(f,screen,design)
     // One fixed canvas in every lab. A smaller screen scrolls the canvas;
     // stage transitions never move controls or shrink contact targets.
     if argn(2)<2 then s=get(0,"screensize_px"); screen=s(3:4); end
     f.resize="off";
-    design=[1280 720]; available=max([320 240],screen-[40 120]);
+    if argn(2)<3 then design=[1280 720]; end
+    available=max([320 240],screen-[40 120]);
     viewport=min(design,available); f.figure_position=[10 10];
     if or(viewport<design) then
         roots=f.children;

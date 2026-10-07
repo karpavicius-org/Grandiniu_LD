@@ -5,17 +5,36 @@ vieno etapo užduotis ir atsakymai. LD1–LD12 atsiskaitymo režime **Įrašyti 
 išsaugo jūsų atsakymus. Mokymosi režime **Patikrinti** parodo klaidas.
 Papildomi veiksmai ir režimo pasirinkimas yra skiltyje **Pagalba**.
 
-**LD1:** stendas automatiškai sujungia grandinę, parenka varžą ir įrašo matavimą.
-Studentas pasirenka grandinės tipą, įrašo savo skaičiavimus ir palygina rodmenis.
-**Įrašyti ir toliau** išsaugo atsakymą ir perkelia į kitą etapą; **Atgal** leidžia
+**LD1:** studentas pats sujungia grandinę, keičia VR1 varžą ir palygina rezultatus.
+Skaičių ir formulių įvesti nereikia. Multimetro režimas parenkamas pagal etapą.
+Po schema matomas vienas bandymo valdymo mygtukas: **Įjungti ir matuoti** arba **Išjungti**.
+**Įjungti ir matuoti** vienu paspaudimu patikrina jungimą, įjungia šaltinį ir
+įrašo rodmenį. Pakeitus varžą rodmuo atsinaujina
+automatiškai. Išjungus šaltinį jau įrašyti rezultatai išlieka.
+**Jungimo pagalba** paryškina kitą kontaktų porą; laidą prijungiate patys.
+**Paaiškinimas** pateikia etapo užduotį, **Teorija** – papildomas formules ir matavimo taisykles.
+Virtualūs matavimo taškai tame pačiame sujungtos grandinės modelyje automatiškai
+užfiksuoja sroves per R1 ir VR1 bei abiejose šakose. Šakų sumą pateikia programa.
+Antrame etape įrašyta srovė panaudojama trečio etapo palyginimui – to paties
+bandymo kartoti nereikia. 4 ir 7 etapuose pasirinkite **500 Ω**, stebėkite
+automatiškai atnaujintą rodmenį ir pažymėkite savo palyginimą.
+Visuose grandinės etapuose gnybtai išlaiko vienodą dydį, pavadinimą ir **T** numerį.
+Šviesūs gnybtai žymi užrakintus jungimus, kurių tame etape keisti negalima.
+**Toliau** išsaugo atsakymą ir perkelia į kitą etapą; **Atgal** leidžia
 jį pataisyti. Tuščias atsakymas nepraleidžiamas, neteisingas skaičius nepakeičiamas
-teisingu. Visuose darbuose darbo sritis yra 1280 × 720 px, mygtukų vietos
+teisingu. LD1 darbo sritis yra 1280 × 640 px (kitų darbų – 1280 × 720 px), mygtukų vietos
 etapuose nekinta. Mažesniame ekrane naudojamos slinkties juostos, kontaktai nemažinami.
-Rankinį jungimą galima pasirinkti per **Pagalba → Daugiau → Automatinis / rankinis
-stendo valdymas**. Ataskaitoje nurodoma, kad naudotas automatinis paruošimas.
-Automatinio LD1 vertinime skiriama iki **15 balų už studento atsakymus** (LD1-2);
-automatinis jungimas ir matavimai papildomų balų nesuteikia. Senos LD1-1 ataskaitos
-išlieka suderinamos su ankstesne 22 balų rubrika.
+Nesujungta grandinė ir trūkstamas matavimas neleidžia palikti etapo.
+LD1-3 rubrika skiria iki **9 balų**: du už studento jungimus ir septynis už
+atsakymus apie jungimą ir matavimus. Automatiniai matavimo duomenys balų nedidina.
+Ataskaitoje aiškiai nurodoma rodmenų kilmė. 5 etape klausiama, kaip sujungtos
+dvi šakos; visa grandinė turi ir nuoseklių, ir lygiagrečių elementų.
+**Pavyzdys** ir **Pagalba → Automatinis / rankinis stendo valdymas** po patvirtinimo
+perjungia bandymą į mokymąsi. Jo ataskaita neįtraukiama į pažymių suvestinę;
+Senos LD1-1 ir automatinės LD1-2 ataskaitos išlieka suderinamos su savo rubrikomis.
+Naujam atsiskaitymui rinkitės **Pagalba → Atsiskaitymo / mokymosi režimas → Atsiskaitymas**
+ir patvirtinkite naują darbą. Laidai, atsakymai, VR1 ir matavimai automatiškai
+saugomi juodraštyje; tęsti galima per **Pagalba → Atverti juodraštį**.
 
 **LD3 – Omo dėsnio veikimas realioje grandinėje:** pradedama atsiskaitymo režimu.
 **Įrašyti ir toliau** išsaugo studento raw atsakymą; teisingumą vertina dėstytojo
@@ -245,8 +264,8 @@ o pradiniai LD1 ir LD2 šaltiniai išlaikyti atskirai.
 Sąsaja yra `student_style.sci`, `student_profile.sci`, `LD1/ld1_student.sci`,
 `LD2/ld2_student.sci`. Skaičiavimų ir etapų tikrintuvai išlaikyti.
 
-Tikrinama su Scilab 2026.1.0 Linux. Windows vaizdas šioje aplinkoje netikrintas.
-Šiame kompiuteryje rastas Scilab yra `/tmp`; išvalius laikiną katalogą reikės
-įdiegto Scilab arba naujo programos kelio.
+Automatinės priėmimo patikros skirtos Windows, Linux ir macOS su Scilab 2026.1.0.
+LD1 studento sąsaja taip pat patikrinta vietinėje Windows aplinkoje su Scilab 2025.0.0,
+įskaitant šaltinio ir matavimo mygtukų paspaudimus pele.
 Aktualios šios sąsajos patikros laikomos šio paketo `tests` kataloge.
 Pradinių paketų auditai nevertina vėlesnių sąsajos pakeitimų.

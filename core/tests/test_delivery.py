@@ -54,6 +54,17 @@ with tempfile.TemporaryDirectory(prefix='LD pristatymas Žąsė ') as tmp:
         write(attempts/(name+'.html'),r)
     data,_=run(grader,attempts,root/'attempt-verdicts')
     assert [r['file'] for r in data['results'] if r['selected_for_summary']]==['assessment.html']
+    reasoning=root/'reasoning';reasoning.mkdir()
+    for agrees in [False,True]:
+        r=fixture('LD1',17,'own-kcl-'+str(agrees))
+        for answer in r['answers']:
+            if answer['id']=='s8.q1':answer['raw']='99999'
+            if answer['id']=='s8.compare':answer['raw']='1' if agrees else '2'
+        write(reasoning/(str(agrees)+'.html'),r)
+    data,_=run(grader,reasoning,root/'reasoning-verdicts')
+    for result in data['results']:
+        comparison=next(i for i in result['items'] if i['id']=='s8.compare')
+        assert comparison['points']==(0 if result['file']=='True.html' else 1),result
     bad,nb=ints(str(root/'nonexistent.html'));status=c.c_int(0)
     lib.ld_open_local(bad,c.byref(nb),c.byref(status));assert status.value<0
 print('PASS: 64 guided variants, legacy reports, readable exports, zero automatic points, practice excluded')

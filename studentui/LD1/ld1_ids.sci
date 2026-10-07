@@ -116,7 +116,7 @@ function [ids,callbacks,labels,hints] = ld1_button_registry()
            "Nustato VR1 į 500 Ω; reikalinga 4 ir 7 etapuose.";
            "Nustato VR1 į 1000 Ω; pradinė 2, 3, 5 ir 6 etapų reikšmė.";
            "Parodo dabartinio etapo tikslią jungimo seką su kontaktų T numeriais.";
-           "Apskaičiuoja ir užfiksuoja multimetro rodmenį šiam etapui.";
+           "Patikrina jungimą, įjungia grandinę ir įrašo multimetro rodmenį.";
            "Ampermetro režimas: multimetras jungiamas NUOSEKLIAI su srove.";
            "Voltmetro režimas: multimetras jungiamas LYGIAGREČIAI su įtampa.";
            "Patikrina laidų topologiją ir būsenos juostoje parašo, kaip taisyti.";
@@ -124,7 +124,7 @@ function [ids,callbacks,labels,hints] = ld1_button_registry()
            "Pašalina visus laidus; veikia tik 1 ir 5 etapuose.";
            "Grąžina dabartinio etapo stendą į saugią pradinę būseną.";
            "Atveria visų T, B, E, A ir V numerių žinyną.";
-           "Patikrina etapo atsakymus ir pažymi etapą kaip atliktą.";
+           "Išsaugo etapo duomenis ir tęsia darbą; suvestinėje išsaugo ataskaitą.";
            "Grįžta vienu etapu atgal neištrinant įrašų.";
            "Pereina prie kito etapo; nebaigtą etapą galima sąmoningai praleisti.";
            "Parodo pilnai teisingą dabartinio etapo variantą; grįžus jūsų darbas lieka.";

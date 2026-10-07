@@ -45,7 +45,11 @@ std::string answer_text(const ld::Json& a) {
     auto raw=a.at("raw").get<std::string>(); if(raw.empty()) return "Neįvesta";
     if(a.at("unit")=="choice") {
         auto id=a.at("id").get<std::string>();
-        if(id.find(".type")!=std::string::npos) {
+        if(id.find(".change")!=std::string::npos) {
+            if(raw=="1") return "Padidėjo";
+            if(raw=="2") return "Sumažėjo";
+            if(raw=="3") return "Nepakito";
+        } else if(id.find(".type")!=std::string::npos) {
             if(raw=="1") return "Nuosekli";
             if(raw=="2") return "Lygiagreti";
             if(raw=="3") return "Mišri";
@@ -69,13 +73,27 @@ std::string report_html(const Json& r) {
     doc+="<p>"+std::string(r.at("mode")=="assessment"?"Atsiskaitymas":"Mokymasis")+". ";
     if(r.value("practice_used",false)) doc+="Naudota mokymosi pagalba; dėstytojui reikalinga atskira peržiūra. ";
     if(r.at("rubric_version")=="LD1-2") doc+="Vertinami 15 studento atsakymų. Už automatinius matavimus ir jungimus balai neskiriami. ";
+    if(r.at("rubric_version")=="LD1-3") doc+="Vertinami studento jungimai ir septyni atsakymai apie matavimus. Automatiniai matavimo duomenys balų nedidina. Šakų srovės užfiksuotos virtualiuose matavimo taškuose, naudojant tą patį sujungtos grandinės modelį. ";
     doc+="</p><h2>Priskirtos reikšmės</h2><table><tr><th>Dydis</th><th>Reikšmė</th></tr>";
     for(auto it=r.at("parameters").begin();it!=r.at("parameters").end();++it) doc+="<tr><td>"+esc(it.key())+"</td><td>"+esc(numeric(it.value()))+" "+parameter_unit(it.key())+"</td></tr>";
     doc+="</table><h2>Jūsų atsakymai</h2><table><tr><th>Užduotis</th><th>Atsakymas</th><th>Vienetas</th></tr>";
     for(auto& a:r.at("answers")) doc+="<tr><td>"+esc(label(a.at("id")))+"</td><td>"+esc(answer_text(a))+"</td><td>"+esc(unit(a.at("unit")))+"</td></tr>";
     doc+="</table><h2>Matavimai</h2><table><tr><th>Matavimas</th><th>Rodmuo</th><th>Vienetas</th></tr>";
     for(auto& a:r.at("observations")) doc+="<tr><td>"+esc(label(a.at("id")))+"</td><td>"+(a.at("value").is_null()?"Neišmatuota":esc(numeric(a.at("value"))))+"</td><td>"+esc(unit(a.at("unit")))+"</td></tr>";
-    doc+="</table><h2>Pastabos</h2><pre>"+esc(r.at("note"))+"</pre><p>Persiųskite šį vieną HTML failą dėstytojui. Juodraščio siųsti nereikia.</p>";
+    doc+="</table>";
+    if(r.at("rubric_version")=="LD1-3") {
+        const std::map<std::string,std::string> contacts={{"SRC_P","Šaltinis +"},{"SRC_N","Šaltinis −"},{"M_P","Multimetras +"},{"M_N","Multimetras COM"}};
+        const auto contact=[&](const std::string& id) {
+            auto found=contacts.find(id);if(found!=contacts.end()) return found->second;
+            if(id.rfind("NODE_",0)==0) return "Mazgas "+id.substr(5);
+            auto pos=id.find('_');return pos==std::string::npos?id:id.substr(0,pos)+" · kontaktas "+id.substr(pos+1);
+        };
+        doc+="<h2>Išsaugoti sujungimai</h2><p>"+std::string(r.at("evidence").value("automatic_setup",false)?"Stendą paruošė programa mokymosi režime.":"Laidus sujungė studentas.")+"</p><table><tr><th>Etapas</th><th>Jungtis</th></tr>";
+        for(const auto& stage:{"s1","s5"}) for(const auto& pair:r.at("evidence").at("wiring").at(stage).at("pairs"))
+            doc+="<tr><td>"+std::string(stage==std::string("s1")?"1":"5")+"</td><td>"+esc(contact(pair.at(0)))+" ↔ "+esc(contact(pair.at(1)))+"</td></tr>";
+        doc+="</table>";
+    }
+    doc+="<h2>Pastabos</h2><pre>"+esc(r.at("note"))+"</pre><p>Persiųskite šį vieną HTML failą dėstytojui. Juodraščio siųsti nereikia.</p>";
     std::string payload=r.dump(),safe;
     for(char c:payload) {if(c=='<') safe+="\\u003c";else safe+=c;}
     return doc+"<script type=\"application/json\" id=\"ld-data\">"+safe+"</script></html>";

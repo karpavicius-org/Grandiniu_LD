@@ -20,5 +20,5 @@ graded=[r for r in reports['results'] if r['status']=='graded'];assert len(grade
 assert all(r['points']==r['max_points'] for r in graded),graded
 ld3=next(r for r in graded if r['lab_id']=='LD3')
 assert ld3['mode']=='assessment' and ld3['selected_for_summary'] and not ld3['practice_used'],ld3
-summary=dict(status='PASS',platform=sys.platform,labs=list(range(1,13)),canvas=[1280,720],small_screens=[[1024,768],[900,600]],scrollable=True,report_buttons=3,ld2_ld3_workflows=True)
+summary=dict(status='PASS',platform=sys.platform,labs=list(range(1,13)),canvases=dict(LD1=[1280,640],other_labs=[1280,720]),small_screens=[[1024,768],[900,600]],scrollable=True,report_buttons=3,ld2_ld3_workflows=True)
 (out/'acceptance.json').write_text(json.dumps(summary,indent=2)+'\n');print(verdict);print(json.dumps(summary))

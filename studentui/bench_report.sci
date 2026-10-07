@@ -39,9 +39,17 @@ function r=bench_report_data(lab)
         end
         evidence.realistic=LD1.realistic;
         note="";
+        evidence.automatic_calculation=%f;
+        if isfield(LD1,"automatic_numbers") then
+            evidence.automatic_calculation=LD1.automatic_numbers;
+            if LD1.automatic_numbers then note="Skaitines reikšmes apskaičiuoja ir rodmenis įrašo programa. Studentas sujungia grandinę, keičia varžą ir palygina rezultatus."; end
+        end
         if isfield(LD1,"guided_used") then
             evidence.automatic_setup=LD1.guided_used;
-            if LD1.guided_used then note="Stendą paruošė ir matavimus atliko programa. Skaičiavimus ir palyginimus įvedė studentas."; end
+            if LD1.guided_used then
+                note="Stendą paruošė ir matavimus atliko programa. Skaičiavimus ir palyginimus įvedė studentas.";
+                if evidence.automatic_calculation then note="Stendą paruošė, skaitines reikšmes apskaičiavo ir rodmenis įrašė programa. Studentas palygino rezultatus."; end
+            end
         end
     elseif lab=="LD3" then
         st=LD3.student; cfg=LD3.cfg;
@@ -364,6 +372,7 @@ function r=bench_report_data(lab)
         if isfield(evidence,"automatic_setup") then
             if evidence.automatic_setup then r.lab_revision="2";r.rubric_version="LD1-2";end
         end
+        if ld1_measurement_workflow() then r=ld1_measurement_report(r); end
     end
 endfunction
 
@@ -415,7 +424,12 @@ function path=bench_export_current(lab)
 
     // Nuo šios vietos HTML jau yra išsaugotas. UI patvirtinimo langas yra
     // antrinis patogumo sluoksnis ir jo gedimas negali atšaukti eksporto.
-    if lab=="LD1" then ld1_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
+    if lab=="LD1" then
+        if LD1.assessment & ~LD1.practice_used then
+            ld1_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
+        else
+            ld1_set_status("Mokymosi ataskaita išsaugota: "+path,"ok","Atsiskaitymui pradėkite naują darbą per Pagalba → Režimas.");
+        end
     elseif lab=="LD3" then
         if LD3.assessment & ~LD3.practice_used then
             ld3_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
@@ -454,6 +468,7 @@ function path=bench_export_current(lab)
     else ld2_set_status("Ataskaita išsaugota: "+path+". Persiųskite šį HTML failą dėstytojui.","ok"); end
 
     learning_report=%f;
+    if lab=="LD1" then learning_report=(~LD1.assessment | LD1.practice_used); end
     if lab=="LD3" then learning_report=(~LD3.assessment | LD3.practice_used); end
     if lab=="LD4" then learning_report=(~LD4.assessment | LD4.practice_used); end
     if lab=="LD5" then learning_report=(~LD5.assessment | LD5.practice_used); end
