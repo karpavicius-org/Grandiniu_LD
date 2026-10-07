@@ -453,7 +453,8 @@ function bench_ld3_workflow(n,root,gui)
         ld3_apply_profile(st,ld3_variant_config(st.number));
         assert_checkequal(LD3.step,1); assert_checkfalse(or(LD3.done));
         assert_checkequal(size(LD3.journal,1),0);
-        assert_checktrue(LD3.assessment); assert_checkfalse(LD3.practice_used);
+        // Varianto keitimas išsaugo studento pasirinktą mokymosi / atsiskaitymo režimą.
+        assert_checkfalse(LD3.assessment); assert_checktrue(LD3.practice_used);
         mprintf("PASS LD3 V17: student data and variant change\n");
         ld3_close();
         assert_checkfalse(is_handle_valid(LD3.fig));
