@@ -56,6 +56,7 @@ function bench_report_saved(path,title)
     f.infobar_visible="off"; BENCH_REPORT_WINDOW=f;
     instruction="Persiųskite dėstytojui vieną HTML failą.";
     if title=="Vertinimas baigtas" then instruction="Pažymiai, komentarai ir CSV lentelė paruošti."; end
+    if title=="Vertinimas sustabdytas" then instruction="Vertinimas sustabdytas. Išsaugoti tik jau apdorotų failų daliniai rezultatai."; end
     if title=="Mokymosi ataskaita išsaugota" then instruction="Savikontrolės ataskaita; į pažymių suvestinę ji neįtraukiama."; end
     uicontrol(f,"style","text","units","normalized","position",[.05 .67 .9 .25],"string","<html>"+title+"<br>"+instruction+"</html>","fontunits","pixels","fontsize",16);
     uicontrol(f,"style","edit","units","normalized","position",[.05 .39 .9 .21],"string",path,"max",2,"min",0,"fontunits","pixels","fontsize",13);

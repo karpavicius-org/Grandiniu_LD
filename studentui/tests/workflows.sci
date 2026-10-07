@@ -201,14 +201,24 @@ function bench_ld2_workflow(n,root,gui)
         mprintf("PASS LD2 V17: postflow baseline\n");
         ld2_go_step(3,%f); LD2.state.completed(3)=0;
         mprintf("PASS LD2 V17: reopened step 3\n");
-        LD2.ui.answer_edits(1).string="raw-wrong"; execstr(LD2.ui.answer_edits(1).callback);
-        mprintf("PASS LD2 V17: raw edit callback\n");
+        LD2.ui.answer_edits(1).string="0"; execstr(LD2.ui.answer_edits(1).callback);
+        mprintf("PASS LD2 V17: numeric wrong edit callback\n");
         bench_ld2_primary();
-        mprintf("PASS LD2 V17: assessment primary\n");
+        mprintf("PASS LD2 V17: assessment numeric wrong accepted\n");
         assert_checkequal(LD2.state.step,4); assert_checkequal(LD2.state.completed(3),1);
-        assert_checkequal(LD2.state.answers_text(3,1),"raw-wrong");
-        mprintf("PASS LD2 V17: assessment raw\n");
+        assert_checkequal(LD2.state.answers_text(3,1),"0");
+        // Neskaitinis tekstas yra pilnumo / formato klaida, bet neatskleidžia etalono.
+        ld2_go_step(3,%f); LD2.state.completed(3)=0;
+        LD2.ui.answer_edits(1).string="raw-wrong"; execstr(LD2.ui.answer_edits(1).callback);
+        bench_ld2_primary();
+        assert_checkequal(LD2.state.step,3); assert_checkequal(LD2.state.completed(3),0);
+        assert_checktrue(strindex(LD2.state.status_text,"skaičių")<>[]);
+        mprintf("PASS LD2 V17: assessment rejects nonnumeric text without answer key\n");
         // Restore the fully correct state and verify formal example blocking/export.
+        LD2.state=clean; LD2.state.assessment=%t; LD2.state.practice_used=%f; LD2.state.completed(11)=0; LD2.state.step=12; ld2_render_step();
+        assert_checkfalse(ld2_assessment_ready());
+        assert_checktrue(strindex(LD2.state.status_text,"ankstesnių etapų")<>[]);
+        mprintf("PASS LD2 V17: final export blocked by unfinished prior stage\n");
         LD2.state=clean; LD2.state.assessment=%t; LD2.state.practice_used=%f; ld2_render_step();
         ld2_show_solution(); assert_checkfalse(LD2.example_active); assert_checkfalse(LD2.state.practice_used);
         mprintf("PASS LD2 V17: formal example block\n");
@@ -231,14 +241,15 @@ function bench_ld2_workflow(n,root,gui)
         mprintf("PASS LD2 V17: formal session restore\n");
         assert_checktrue(and(LD2.state.completed==1)); assert_checktrue(LD2.state.assessment);
         assert_checkfalse(LD2.state.power);
-        // Learning/example marks practice permanently; restart keeps both mode and practice.
+        // Mokymosi bandymas lieka mokomasis. IŠ NAUJO pradeda švarų formalų bandymą.
         LD2.state.assessment=%f; LD2.state.practice_used=%t;
         ld2_show_solution(); assert_checktrue(LD2.example_active);
         mprintf("PASS LD2 V17: learning example open\n");
         bench_ld2_primary(); assert_checkfalse(LD2.example_active); assert_checktrue(LD2.state.practice_used);
         mprintf("PASS LD2 V17: learning example close\n");
-        ld2_restart_apply(); assert_checkfalse(LD2.state.assessment); assert_checktrue(LD2.state.practice_used);
-        mprintf("PASS LD2 V17: restart state\n");
+        ld2_restart_apply(); assert_checktrue(LD2.state.assessment); assert_checkfalse(LD2.state.practice_used);
+        assert_checkequal(LD2.state.step,1); assert_checkequal(length(LD2.state.measurements),0);
+        mprintf("PASS LD2 V17: restart creates clean assessment\n");
         ld2_restore_session(session);
         mprintf("PASS LD2 V17: second session restore\n");
         st=student_profile(n,"Pataisytas Vardas","TEST-2","LD2"); ld2_apply_profile(st,cfg);

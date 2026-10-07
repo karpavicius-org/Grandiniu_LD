@@ -160,10 +160,10 @@ function codes=ld2_all_codes()
 endfunction
 
 function h=ld2_button_reg(p,pos,txt,cb,primary,withprefix,fs,bg)
-    // Studento stendo mygtukas pagal registrą: [Bxx] priešdelis, tag ir
-    // tooltip iš registro. h.callback lieka NEPAKITES – testai jį naudoja.
+    // Studento stendo mygtukas pagal registrą: techninis [Bxx] kodas lieka tag ir
+    // tooltip, bet pagrindiniame studento lange pagal nutylėjimą nerodomas.
     if argn(2)<5 then primary=%f; end
-    if argn(2)<6 then withprefix=%t; end
+    if argn(2)<6 then withprefix=%f; end
     h=student_button(p,pos,txt,cb,primary);
     registered=%f;
     try
@@ -172,7 +172,7 @@ function h=ld2_button_reg(p,pos,txt,cb,primary,withprefix,fs,bg)
     catch
     end
     if registered then
-        if withprefix then h.string="["+code+"] "+txt; end
+        // Techninis kodas studentui nerodomas; jis lieka tag ir tooltip diagnostikai.
         h.tag=code;
         h.tooltipstring="["+code+"] "+label+". "+hint;
     end

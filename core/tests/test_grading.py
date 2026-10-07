@@ -363,6 +363,11 @@ def main(exe):
             assert (v["points"],v["max_points"])==expected[v["file"]],v
         replay,_=run(exe,source,root/"Pakartota")
         assert data==replay,"Nondeterministic replay"
+        # Ankstesni dėstytojo Vertinimai-* aplankai nėra naujos studentų ataskaitos.
+        old_results=source/"Vertinimai-senas";old_results.mkdir()
+        (old_results/"vertinimai.html").write_text("<!doctype html><h1>Senas dėstytojo rezultatas</h1>",encoding="utf-8")
+        replay_with_old,_=run(exe,source,root/"Pakartota su senais rezultatais")
+        assert data==replay_with_old,"Vertinimai-* aplankas pateko į naują įvestį"
         assert seconds<60,seconds
         adversarial=root/"Blogi failai";adversarial.mkdir();base=fixture("LD2",17,"good")
         mutations={
@@ -454,6 +459,6 @@ def main(exe):
             assert r["max_points"]==27,r
         print(json.dumps(dict(status="PASS",full_reports=650,seconds=round(seconds,3),adversarial_files=17,
                               deterministic_replay=True,conflicting_ids=True,multiple_attempts=True,utf8_paths=True,
-                              ld3_batch=True)))
+                              ld3_batch=True,previous_result_folders_ignored=True)))
 
 if __name__=="__main__":main(Path(sys.argv[1]).resolve())
