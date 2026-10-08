@@ -721,7 +721,11 @@ function bench_ld5_workflow(n,root,gui)
     assert_checkfalse(LD5.practice_used);
     if gui then
         assert_checktrue(LD5.autosave_enabled);
-        if isfield(LD5,"fig") then LD5.fig.figure_name="PATIKRA · LD5 · variantas "+string(n); end
+        if isfield(LD5,"fig") then
+            LD5.fig.figure_name="PATIKRA · LD5 · variantas "+string(n);
+            assert_checkequal(LD5.fig.closerequestfcn,"ld5_close()");
+        end
+        assert_checktrue(strindex(LD5.ui.answerLabels(1).string,"[A")==[]);
         if n==17 then
             ld5_toggle_solution(); assert_checkfalse(LD5.demoMode); assert_checkfalse(LD5.practice_used);
         end
@@ -752,8 +756,14 @@ function bench_ld5_workflow(n,root,gui)
                 assert_checktrue(LD5.done(2)); assert_checkequal(LD5.step,3);
                 assert_checkequal(LD5.answers(2,1),"0");
                 assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")==[]); assert_checktrue(strindex(LD5.ui.statusFix.string,"Tikimasi")==[]);
-                // Put the correct raw value back so acceptance exports remain perfect.
+                // Neskaitinis tekstas yra formato klaida, bet etalonas neatskleidžiamas.
                 ld5_jump_step(2);
+                LD5.ui.answerEdits(1).string="raw-wrong"; execstr(LD5.ui.answerEdits(1).callback);
+                bench_ld5_primary();
+                assert_checkfalse(LD5.done(2)); assert_checkequal(LD5.step,2);
+                assert_checktrue(strindex(LD5.ui.statusMain.string,"skaičius")<>[]);
+                assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")==[]);
+                // Put the correct raw value back so acceptance exports remain perfect.
                 LD5.ui.answerEdits(1).string=msprintf("%.12g",u2);
                 execstr(LD5.ui.answerEdits(1).callback);
                 assert_checkfalse(LD5.done(2));
@@ -798,15 +808,25 @@ function bench_ld5_workflow(n,root,gui)
             assert_checkequal(LD5.answers(5,1),keep);
             assert_checktrue(LD5.assessment); assert_checkfalse(LD5.powerOn); assert_checkfalse(LD5.switchOn);
         end
+        // Formalios ataskaitos negalima eksportuoti su neužbaigtu ankstesniu etapu.
+        LD5.done(5)=%f; LD5.step=6; ld5_render_stage();
+        path=ld5_export_report(); assert_checkequal(path,"");
+        assert_checktrue(strindex(LD5.ui.statusMain.string,"neužbaigtų")<>[]);
+        LD5.done(5)=%t; ld5_render_stage();
         r=bench_report_data("LD5"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
         before=size(listfiles(bench_documents()+"/*.html"),"*");
-        bench_ld5_primary();
+        path=ld5_export_report();
+        assert_checktrue(path<>""); assert_checktrue(isfile(path));
         assert_checkequal(size(listfiles(bench_documents()+"/*.html"),"*"),before+1);
         assert_checktrue(strindex(LD5.ui.statusMain.string,"Ataskaita išsaugota")<>[]);
         if n==17 then
-            // Learning mode still checks locally; practice survives restart.
+            // Naujas bandymas po mokymosi turi būti švarus formalus atsiskaitymas.
             LD5.assessment=%f; LD5.practice_used=%t; ld5_restart();
-            assert_checkfalse(LD5.assessment); assert_checktrue(LD5.practice_used);
+            assert_checktrue(LD5.assessment); assert_checkfalse(LD5.practice_used);
+            assert_checkequal(LD5.step,1); assert_checkequal(size(LD5.journal,1),0);
+            assert_checktrue(size(LD5.autosave_paths,"*")>=1);
+            // Toliau sąmoningai persijungiame į mokymąsi ir tikriname vietinį grįžtamąjį ryšį.
+            LD5.assessment=%f; LD5.practice_used=%t; ld5_student_sync();
             for k=1:size(W,1); bench_ld5_click(W(k,1)); bench_ld5_click(W(k,2)); end
             bench_ld5_primary(); assert_checkequal(LD5.step,2);
             bench_ld5_action("ld5_toggle_power()"); bench_ld5_action("ld5_toggle_switch()");
@@ -819,6 +839,19 @@ function bench_ld5_workflow(n,root,gui)
         end
         assert_checktrue(isfield(LD5,"autosave_paths"));
         assert_checktrue(size(LD5.autosave_paths,"*")>=1);
+        // To paties varianto duomenų taisymas nepraranda darbo.
+        beforeDone=LD5.done; beforeAssessment=LD5.assessment; beforePractice=LD5.practice_used;
+        st=student_profile(n,"Pataisytas Vardas","TEST-2","LD5");
+        ld5_apply_profile(st,cfg);
+        assert_checkequal(LD5.done,beforeDone); assert_checkequal(LD5.student.name,"Pataisytas Vardas");
+        assert_checkequal(LD5.assessment,beforeAssessment); assert_checkequal(LD5.practice_used,beforePractice);
+        // Kitas variantas pradeda švarų darbą ir išsaugo pasirinktą režimą.
+        st=student_profile(modulo(n,64)+1,"Kitas Studentas","TEST","LD5");
+        ld5_apply_profile(st,ld5_variant_config(st.number));
+        assert_checkequal(LD5.step,1); assert_checkfalse(or(LD5.done));
+        assert_checkequal(size(LD5.journal,1),0);
+        assert_checkequal(LD5.assessment,beforeAssessment); assert_checkequal(LD5.practice_used,beforePractice);
+        mprintf("PASS LD5 V%02d: student data and variant change\n",n);
         ld5_close(); assert_checkfalse(is_handle_valid(LD5.fig));
     end
 endfunction
