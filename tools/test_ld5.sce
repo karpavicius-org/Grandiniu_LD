@@ -85,18 +85,29 @@ try
     assert_checkequal(LD5.ui.answerEdits(1).string,"6,3521");
     assert_checkequal(LD5.journal,journal); assert_checkequal(LD5.position,position);
     assert_checktrue(LD5.assessment); assert_checkfalse(LD5.powerOn); assert_checkfalse(LD5.switchOn);
-    // Formal assessment preserves invalid raw text and advances without revealing the key.
+    // Formal assessment accepts a wrong numeric value without revealing the key.
     LD5.done(2)=%f; LD5.step=2; ld5_render_stage();
-    LD5.ui.answerEdits(1).string="1+2";
+    LD5.ui.answerEdits(1).string="0";
     bench_ld5_primary(); assert_checkequal(LD5.step,3); assert_checktrue(LD5.done(2));
-    assert_checkequal(LD5.answers(2,1),"1+2"); assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")==[]); assert_checktrue(strindex(LD5.ui.statusFix.string,"Tikimasi")==[]);
-    // Learning mode still performs local validation.
-    ld5_jump_step(2); LD5.assessment=%f; LD5.practice_used=%t; LD5.done(2)=%f; ld5_render_stage();
-    LD5.ui.answerEdits(1).string="1+2"; bench_ld5_primary();
+    assert_checkequal(LD5.answers(2,1),"0");
+    assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")==[]);
+    assert_checktrue(strindex(LD5.ui.statusFix.string,"Tikimasi")==[]);
+    // Nonnumeric text is a format/completeness error even in formal assessment.
+    ld5_jump_step(2); LD5.done(2)=%f; ld5_render_stage();
+    LD5.ui.answerEdits(1).string="1+2"; execstr(LD5.ui.answerEdits(1).callback);
+    bench_ld5_primary(); assert_checkequal(LD5.step,2); assert_checkfalse(LD5.done(2));
+    assert_checktrue(strindex(LD5.ui.statusMain.string,"skaičius")<>[]);
+    assert_checktrue(strindex(LD5.ui.statusMain.string,"Tikimasi")==[]);
+    // Learning mode still performs local correctness validation.
+    LD5.assessment=%f; LD5.practice_used=%t; LD5.done(2)=%f; ld5_render_stage();
+    exp=ld5_expected_answers();
+    LD5.ui.answerEdits(1).string=msprintf("%.12g",exp(2,1)*0.5); execstr(LD5.ui.answerEdits(1).callback);
+    bench_ld5_primary();
     assert_checkequal(LD5.step,2); assert_checkfalse(LD5.done(2));
-    assert_checktrue(strindex(LD5.ui.statusMain.string,"Įrašykite skaitinę")<>[]);
-    assert_checktrue(strindex(LD5.ui.statusFix.string,"U2 = E·RVd/(R1+RVd)")<>[]);
-    exp=ld5_expected_answers(); LD5.ui.answerEdits(1).string=strsubst(msprintf("%.12g",exp(2,1)),".",",");
+    assert_checktrue(strindex(LD5.ui.statusMain.string,"netiksli")<>[]);
+    assert_checktrue(strindex(LD5.ui.statusFix.string,"Tikimasi")<>[]);
+    LD5.ui.answerEdits(1).string=strsubst(msprintf("%.12g",exp(2,1)),".",",");
+    execstr(LD5.ui.answerEdits(1).callback);
     bench_ld5_primary(); assert_checkequal(LD5.step,3); assert_checktrue(LD5.done(2));
     LD5.assessment=%t; LD5.practice_used=%f;
     ld5_set_step(6); ld5_next_step(); assert_checkequal(LD5.step,6);
