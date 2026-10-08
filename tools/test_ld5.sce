@@ -141,9 +141,11 @@ try
             end
         end
         for q=1:2
-            for raw=["1,0" "2" "" "1+0"]
+            // Išvadų laukeliai yra pasirinkimai: tik literalus 1 arba 2.
+            // Teisingas atsakymas šiame LD yra 1; formulės ir dešimtainės formos čia netinka.
+            for raw=["1" "2" "" "1+0"]
                 LD5.answers=original; LD5.step=6; LD5.done(6)=%f; LD5.answers(6,q)=raw;
-                ld5_check_step(); accepted=LD5.done(6); assert_checkequal(accepted,raw=="1,0");
+                ld5_check_step(); accepted=LD5.done(6); assert_checkequal(accepted,raw=="1");
                 cases($+1)=struct("report",bench_report_data("LD5"),"accepted",accepted);
             end
         end
