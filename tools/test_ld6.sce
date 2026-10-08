@@ -65,6 +65,14 @@ try
         geometry_dump(LD6.fig,"LD6-resize-"+string(dimension),descriptor);
     end
     mclose(descriptor);
+    // 6 etapo išvadų tekstai turi tilpti be ankšto vienos eilutės laukelio.
+    LD6.step=6; ld6_render_stage();
+    for k=10:11
+        pos=LD6.ui.answerLabels(k).position;
+        assert_checktrue(pos(3)>=0.59); assert_checktrue(pos(4)>=0.10);
+        editpos=LD6.ui.answerEdits(k).position;
+        assert_checktrue(editpos(3)<=0.22);
+    end
     report=bench_report_data("LD6");
     for stage=[1 3 4 5]; assert_checkequal(length(report.evidence.wiring("s"+string(stage)).pairs),0); end
     LD6.cfg=ld6_variant_config(64); LD6.student=student_profile(64,"Patikra Žąsė","TEST","LD6");

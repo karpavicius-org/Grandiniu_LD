@@ -175,8 +175,18 @@ function ld6_render_stage()
         [st,sl]=ld6_answer_slot(k); h=LD6.ui.answerEdits(k); lab=LD6.ui.answerLabels(k);
         h.visible="off"; lab.visible="off";
         if st==LD6.step then
-            yy=0.55-row*0.10; row=row+1;
-            lab.position=[0.07 yy 0.53 0.075]; h.position=[0.63 yy 0.30 0.075];
+            if LD6.step==6 then
+                // Išvadų tekstai ilgesni, o atsakymas tik vienas skaitmuo.
+                // Duodame tekstui daugiau pločio/aukščio, kad nereikėtų slinkties rodyklių.
+                yy=0.53-row*0.14;
+                lab.position=[0.07 yy 0.59 0.11];
+                h.position=[0.72 yy+0.015 0.21 0.075];
+            else
+                yy=0.55-row*0.10;
+                lab.position=[0.07 yy 0.53 0.075];
+                h.position=[0.63 yy 0.30 0.075];
+            end
+            row=row+1;
             h.string=LD6.answers(st,sl); h.visible="on"; lab.visible="on";
             h.enable="on"; if LD6.demoMode then h.enable="off"; end
         end
