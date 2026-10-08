@@ -33,7 +33,7 @@ function [ok,reason]=ld6_wiring_valid(wires)
             if and(wires(row,:)==canonical(index,:)) | and(wires(row,:)==canonical(index,[2 1])) then present=%t; end
         end
         if ~present then
-            reason="Trūksta laido ["+ld6_terminal_code(canonical(index,1))+"]–["+ld6_terminal_code(canonical(index,2))+"].";
+            reason="Trūksta jungties: "+ld6_terminal_name(canonical(index,1))+" → "+ld6_terminal_name(canonical(index,2))+".";
             return;
         end
     end
@@ -59,8 +59,8 @@ endfunction
 function [voltage,current,ok,message,branches]=ld6_measure_values()
     global LD6;
     voltage=%nan; current=%nan; branches=[%nan %nan]; ok=%f; message="";
-    if ~LD6.powerOn then message="Įjunkite maitinimą [B01]."; return; end
-    if ~LD6.switchOn then message="Uždarykite jungiklį [B02]."; return; end
+    if ~LD6.powerOn then message="Pirmiausia įjunkite maitinimą."; return; end
+    if ~LD6.switchOn then message="Uždarykite jungiklį."; return; end
     [valid,message]=ld6_wiring_valid(LD6.wires);
     if ~valid then return; end
     bench_core_require(); cfg=LD6.cfg;

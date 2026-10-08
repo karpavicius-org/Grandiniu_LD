@@ -8,7 +8,6 @@ function h=ld6_button(p,pos,label,cb,fs,bg)
     catch
         code="";
     end
-    if code<>"" then label="["+code+"] "+label; end
     h=student_button(p,pos,"<html><center>"+label+"</center></html>",cb);
     h.tag=code; h.tooltipstring=hint; h.fontsize=fs; h.backgroundcolor=bg;
     if sum(bg)<1.5 then h.foregroundcolor=[1 1 1]; end
@@ -228,10 +227,10 @@ function ld6_build_gui()
     controls($+1)=ld6_button(p,[0.80 0.20 0.18 0.06],"Matuoti","ld6_measure()",13,[0.08 0.39 0.37]);
     LD6.ui.instructionLine(1)=student_text(right,[0.07 0.64 0.86 0.31],"",14,%f);
     LD6.ui.instructionLine(1).verticalalignment="top";
-    labels=["[A02.01] E1: I, mA";"[A04.01] Nuos.: U, V";"[A04.02] Nuos.: I, mA"; ...
-        "[A04.03] Prieš.: U, V";"[A04.04] Prieš.: I, mA";"[A05.01] Lygiagr.: U, V"; ...
-        "[A05.02] Apkrovos I, mA";"[A05.03] E1 srovė, mA";"[A05.04] E2 srovė, mA"; ...
-        "[A06.01] Nuosekliai?";"[A06.02] Lygiagrečiai?"];
+    labels=["Tik E1: apkrovos I, mA";"Nuosekliai: apkrovos U, V";"Nuosekliai: apkrovos I, mA"; ...
+        "Priešpriešiais: apkrovos U, V";"Priešpriešiais: apkrovos I, mA";"Lygiagrečiai: apkrovos U, V"; ...
+        "Lygiagrečiai: apkrovos I, mA";"Lygiagrečiai: E1 srovė, mA";"Lygiagrečiai: E2 srovė, mA"; ...
+        "Ar nuosekliai EV sudedamos su ženklais? 1 Taip / 2 Ne";"Ar lygiagrečiai U = E1 + E2? 1 Taip / 2 Ne"];
     LD6.ui.answerEdits=[]; LD6.ui.answerLabels=[];
     for k=1:11
         LD6.ui.answerLabels($+1)=student_text(right,[0.07 0.5 0.53 0.075],student_wrap(labels(k),22),14,%f);
@@ -244,7 +243,6 @@ function ld6_build_gui()
     LD6.ui.studentPrimary=ld6_button(right,[0.07 0.085 0.86 0.075],"Tikrinti","ld6_student_primary()",15,[0.08 0.39 0.37]);
     controls($+1)=LD6.ui.studentPrimary;
     controls($+1)=ld6_button(right,[0.07 0.015 0.37 0.045],"← Atgal","ld6_jump_step(LD6.step-1)",12);
-    controls($+1)=ld6_button(right,[0.48 0.015 0.45 0.045],"Žemėlapis","ld6_show_stand_map()",12);
     LD6.ui.controls=controls; LD6.ui.dynamic=controls;
     LD6.ui.statusMain=student_text(f,[0.025 0.055 0.95 0.035],"",13,%t,[0.94 0.96 0.96]);
     LD6.ui.statusFix=student_text(f,[0.025 0.020 0.95 0.035],"",12,%f,[0.94 0.96 0.96]);
@@ -255,22 +253,26 @@ endfunction
 
 function ld6_show_actions()
     global LD6;
-    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
-        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD6 · Pagalba");
+    choice=x_choose(["Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
+        "Ataskaita ir režimas";"Mano duomenys";"Daugiau veiksmų"],"LD6 · Pagalba");
     select choice
-    case 1 then bench_open_snapshot("LD6");
-    case 2 then ld6_show_wiring_guide();
-    case 3 then bench_export_current("LD6");
-    case 4 then bench_mode("LD6"); ld6_render_stage(); bench_autosave("LD6");
-    case 6 then ld6_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD6.student);"";student_parameter_lines("LD6",LD6.cfg)]);
+    case 1 then
+        extra=x_choose(["Kaip sujungti";"Stendo žemėlapis"],"Šio etapo pagalba");
+        if extra==1 then ld6_show_wiring_guide(); elseif extra==2 then ld6_show_stand_map(); end
+    case 2 then
+        extra=x_choose(["Tęsti automatinį juodraštį";"Atkurti šio etapo stendą"],"Tęsti arba atkurti darbą");
+        if extra==1 then bench_open_snapshot("LD6"); elseif extra==2 then ld6_restore_stage(); end
+    case 3 then
+        extra=x_choose(["Išsaugoti ataskaitą";"Atsiskaitymo / mokymosi režimas"],"Ataskaita ir režimas");
+        if extra==1 then ld6_export_report();
+        elseif extra==2 then bench_mode("LD6"); ld6_render_stage(); bench_autosave("LD6"); end
+    case 4 then
+        ld6_student_details();
     case 5 then
-        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD6 · Daugiau veiksmų");
-        select extra
-        case 1 then ld6_show_stand_map();
-        case 2 then ld6_toggle_solution();
-        case 3 then ld6_restore_stage();
-        case 4 then
-            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD6","question",["Pradėti" "Grįžti"],"modal")==1 then ld6_restart(); end
+        extra=x_choose(["Parodyti pavyzdį / mano darbą";"Pradėti darbą iš naujo"],"Daugiau veiksmų");
+        if extra==1 then ld6_toggle_solution();
+        elseif extra==2 then
+            if messagebox("Pradėti darbą iš naujo? Laidai, matavimai ir atsakymai bus išvalyti.","LD6","question",["Pradėti" "Grįžti"],"modal")==1 then ld6_restart(); end
         end
     end
 endfunction

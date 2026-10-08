@@ -495,10 +495,11 @@ void grade_ld6_sources(Grader& grader,const Json& report,const Bank& variant) {
     const double currents[]={9000/(load+10),(9+variant.e2)*1000/(load+20),
         (9-variant.e2)*1000/(load+20),(9+variant.e2)/2*1000/(load+5)};
     double volts[4];
+    const char* mode_names[]={"tik E1","šaltiniai nuosekliai","šaltiniai priešpriešiais","šaltiniai lygiagrečiai"};
     for(int mode=0;mode<4;++mode) {
         volts[mode]=currents[mode]*load/1000;
-        grader.measured("u"+std::to_string(mode+1),"Matavimas: U, režimas "+std::to_string(mode+1),volts[mode],"V",0,.005);
-        grader.measured("i"+std::to_string(mode+1),"Matavimas: I, režimas "+std::to_string(mode+1),currents[mode],"mA",.02);
+        grader.measured("u"+std::to_string(mode+1),std::string("Matavimas (")+mode_names[mode]+"): apkrovos U",volts[mode],"V",0,.005);
+        grader.measured("i"+std::to_string(mode+1),std::string("Matavimas (")+mode_names[mode]+"): apkrovos I",currents[mode],"mA",.02);
     }
     const double first=(9-volts[3])/10*1000,second=(variant.e2-volts[3])/10*1000;
     grader.measured("parallel_i1","Lygiagrečiai: E1 atiduodama srovė",first,"mA",.02);
@@ -515,13 +516,19 @@ void grade_ld6_sources(Grader& grader,const Json& report,const Bank& variant) {
     grader.answer("s6.q1","Ar nuosekliai EV sudedamos su ženklais?",1,"choice","1 – Taip, 2 – Ne.",0,0);
     grader.answer("s6.q2","Ar lygiagrečiai E1 ir E2 įtampos sudedamos?",2,"choice","Lygiagretaus jungimo įtampa nėra E1+E2.",0,0);
     const int stages[]={1,3,4,5};
+    const char* wiring_labels[]={
+        "1 etapas: sujungta grandinė tik su šaltiniu E1",
+        "3 etapas: šaltiniai sujungti nuosekliai",
+        "4 etapas: šaltiniai sujungti priešpriešiais",
+        "5 etapas: šaltiniai sujungti lygiagrečiai"
+    };
     for(int mode=1;mode<=4;++mode) {
         const auto stage="s"+std::to_string(stages[mode-1]);
         bool valid=true,correct=false;
         try {correct=ld6_wiring(report.at("evidence").at("wiring").at(stage).at("pairs"),valid,mode);}
         catch(const std::exception&) {valid=false;}
-        grader.add(stage+".wiring","Patikrintas sujungimas: režimas "+std::to_string(mode),correct,
-            valid?"Patikrinkite šaltinių poliškumą ir zondus prie R.":"Trūksta tinkamo sujungimo įrodymo.",valid?"":"missing_evidence");
+        grader.add(stage+".wiring",wiring_labels[mode-1],correct,
+            valid?"Patikrinkite šaltinių poliškumą, ampermetro vietą ir voltmetro zondus prie apkrovos R.":"Trūksta tinkamo sujungimo įrodymo.",valid?"":"missing_evidence");
     }
 }
 bool ld7_wiring(const Json& pairs,bool& valid,int mode=1) {

@@ -919,7 +919,11 @@ function bench_ld6_workflow(number,root,gui)
     assert_checktrue(LD6.assessment); assert_checkfalse(LD6.practice_used);
     if gui then
         assert_checktrue(LD6.autosave_enabled);
-        if isfield(LD6,"fig") then LD6.fig.figure_name="PATIKRA · LD6 · variantas "+string(number); end
+        if isfield(LD6,"fig") then
+            LD6.fig.figure_name="PATIKRA · LD6 · variantas "+string(number);
+            assert_checkequal(LD6.fig.closerequestfcn,"ld6_close()");
+        end
+        assert_checktrue(strindex(LD6.ui.answerLabels(1).string,"[A")==[]);
         if number==17 then
             ld6_toggle_solution(); assert_checkfalse(LD6.demoMode); assert_checkfalse(LD6.practice_used);
         end
@@ -940,14 +944,19 @@ function bench_ld6_workflow(number,root,gui)
         case 5 then
             bench_ld6_answers(step,[parallel parallel/cfg.R*1000 (cfg.E1-parallel)/cfg.r1*1000 (cfg.E2-parallel)/cfg.r2*1000]);
             if gui & number==17 then
-                // Formal assessment stores non-empty raw text without local correctness disclosure.
-                LD6.ui.answerEdits(6).string="1+2";
+                // Formal assessment accepts a wrong numeric value without revealing the key.
+                LD6.ui.answerEdits(6).string="0"; execstr(LD6.ui.answerEdits(6).callback);
                 bench_ld6_primary();
                 assert_checktrue(LD6.done(5)); assert_checkequal(LD6.step,6);
-                assert_checkequal(LD6.answers(5,1),"1+2");
+                assert_checkequal(LD6.answers(5,1),"0");
                 assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")==[]);
+                // Nonnumeric text is a format/completeness error.
+                ld6_jump_step(5); LD6.done(5)=%f;
+                LD6.ui.answerEdits(6).string="1+2"; execstr(LD6.ui.answerEdits(6).callback);
+                bench_ld6_primary();
+                assert_checkfalse(LD6.done(5)); assert_checkequal(LD6.step,5);
+                assert_checktrue(strindex(LD6.ui.statusMain.string,"skaičių")<>[]);
                 // Restore the correct answer so the acceptance export remains perfect.
-                ld6_jump_step(5);
                 values=ld6_reference(4); bench_ld6_answers(5,values);
                 bench_ld6_primary();
                 assert_checktrue(LD6.done(5)); assert_checkequal(LD6.step,6);
@@ -968,24 +977,47 @@ function bench_ld6_workflow(number,root,gui)
             assert_checkequal(LD6.answers(5,1),keep);
             assert_checktrue(LD6.assessment); assert_checkfalse(LD6.powerOn); assert_checkfalse(LD6.switchOn);
         end
+        // Formalios ataskaitos negalima eksportuoti su neužbaigtu ankstesniu etapu.
+        LD6.done(5)=%f; LD6.step=6; ld6_render_stage();
+        path=ld6_export_report(); assert_checkequal(path,"");
+        assert_checktrue(strindex(LD6.ui.statusMain.string,"neužbaigtų")<>[]);
+        LD6.done(5)=%t; ld6_render_stage();
         r=bench_report_data("LD6"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
         before=size(listfiles(bench_documents()+"/*.html"),"*");
-        bench_ld6_primary();
+        path=ld6_export_report();
+        assert_checktrue(path<>""); assert_checktrue(isfile(path));
         assert_checkequal(size(listfiles(bench_documents()+"/*.html"),"*"),before+1);
         assert_checktrue(strindex(LD6.ui.statusMain.string,"Ataskaita išsaugota")<>[]);
         if number==17 then
-            // Learning mode still validates answers locally and allows the example.
+            // Naujas bandymas po mokymosi turi būti švarus formalus atsiskaitymas.
             LD6.assessment=%f; LD6.practice_used=%t; ld6_restart();
-            assert_checkfalse(LD6.assessment); assert_checktrue(LD6.practice_used);
+            assert_checktrue(LD6.assessment); assert_checkfalse(LD6.practice_used);
+            assert_checkequal(LD6.step,1); assert_checkequal(size(LD6.journal,1),0);
+            assert_checktrue(size(LD6.autosave_paths,"*")>=1);
+            // Toliau sąmoningai persijungiame į mokymąsi ir tikriname vietinį grįžtamąjį ryšį.
+            LD6.assessment=%f; LD6.practice_used=%t; ld6_student_sync();
             bench_ld6_connect(1); bench_ld6_primary(); assert_checkequal(LD6.step,2);
             bench_ld6_action("ld6_toggle_power()"); bench_ld6_action("ld6_toggle_switch()"); bench_ld6_action("ld6_measure()");
-            LD6.ui.answerEdits(1).string="1+2"; bench_ld6_primary();
+            LD6.ui.answerEdits(1).string="0"; execstr(LD6.ui.answerEdits(1).callback); bench_ld6_primary();
             assert_checkfalse(LD6.done(2)); assert_checkequal(LD6.step,2);
             assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")<>[]);
             ld6_toggle_solution(); assert_checktrue(LD6.demoMode); assert_checktrue(LD6.practice_used);
             ld6_toggle_solution(); assert_checkfalse(LD6.demoMode);
         end
         assert_checktrue(isfield(LD6,"autosave_paths")); assert_checktrue(size(LD6.autosave_paths,"*")>=1);
+        // To paties varianto duomenų taisymas nepraranda darbo.
+        beforeDone=LD6.done; beforeAssessment=LD6.assessment; beforePractice=LD6.practice_used;
+        st=student_profile(number,"Pataisytas Vardas","TEST-2","LD6");
+        ld6_apply_profile(st,cfg);
+        assert_checkequal(LD6.done,beforeDone); assert_checkequal(LD6.student.name,"Pataisytas Vardas");
+        assert_checkequal(LD6.assessment,beforeAssessment); assert_checkequal(LD6.practice_used,beforePractice);
+        // Kitas variantas pradeda švarų darbą ir išsaugo pasirinktą režimą.
+        st=student_profile(modulo(number,64)+1,"Kitas Studentas","TEST","LD6");
+        ld6_apply_profile(st,ld6_variant_config(st.number));
+        assert_checkequal(LD6.step,1); assert_checkfalse(or(LD6.done));
+        assert_checkequal(size(LD6.journal,1),0);
+        assert_checkequal(LD6.assessment,beforeAssessment); assert_checkequal(LD6.practice_used,beforePractice);
+        mprintf("PASS LD6 V%02d: student data and variant change\n",number);
         ld6_close(); assert_checkfalse(is_handle_valid(LD6.fig));
     end
 endfunction
