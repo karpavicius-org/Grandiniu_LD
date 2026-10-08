@@ -9,11 +9,71 @@ function ld5_student_main(root)
             if is_handle_valid(LD5.fig) then show_window(LD5.fig); return; end
         end
     end
-    bench_core_require();
+    try bench_core_require(); catch
+        messagebox(["LD5 nepavyko paleisti.";strcat(lasterror()," "); ...
+            "Išskleiskite visą paketą į vieną aplanką ir paleiskite STENDAS.sce per grafinį Scilab."], ...
+            "LD5 paleidimas","error");
+        return;
+    end
     [ok,st,cfg]=student_enroll("LD5");
     if ~ok then return; end
     LD5=struct("root",root,"cfg",cfg,"student",st);
     student_remember(st); ld5_start();
+    bench_autosave("LD5");
+endfunction
+
+function ld5_student_details()
+    global LD5;
+    if LD5.demoMode then
+        ld5_set_status("Pirmiausia grįžkite į savo darbą.","info","");
+        return;
+    end
+    pick=messagebox([student_caption(LD5.student);student_parameter_lines("LD5",LD5.cfg)], ...
+        "Studentas ir priskirtos reikšmės","info",["Grįžti" "Keisti duomenis"],"modal");
+    if pick<>2 then return; end
+    [ok,st,cfg]=student_enroll("LD5",LD5.student);
+    if ~ok then return; end
+    if st.number<>LD5.student.number then
+        pick=messagebox("Kitas variantas pradės naują darbą. Dabartinis darbas pirmiausia bus išsaugotas.", ...
+            "Keisti variantą?","question",["Atšaukti" "Pradėti naują"],"modal");
+        if pick<>2 then return; end
+    end
+    ld5_apply_profile(st,cfg);
+endfunction
+
+function ld5_apply_profile(st,cfg)
+    global LD5;
+    ld5_save_answers();
+    changed=st.number<>LD5.student.number;
+    assessment=LD5.assessment; practice=LD5.practice_used;
+    if changed then
+        bench_autosave("LD5");
+        if isfield(LD5,"autosave_error") then
+            if LD5.autosave_error<>"" then return; end
+        end
+        ld5_init_state();
+        LD5.cfg=cfg; LD5.student=st;
+        LD5.assessment=assessment; LD5.practice_used=practice;
+        LD5.autosave_paths=emptystr(0,1); LD5.autosave_error="";
+    else
+        LD5.cfg=cfg; LD5.student=st;
+    end
+    student_remember(st);
+    if isfield(LD5,"ui") then
+        if ~isfield(LD5.ui,"headless") | ~LD5.ui.headless then ld5_render_stage(); end
+    end
+    bench_autosave("LD5");
+endfunction
+
+function path=ld5_export_report()
+    global LD5;
+    path="";
+    ld5_save_answers();
+    if LD5.assessment & ~and(LD5.done) then
+        ld5_set_status("Dar yra neužbaigtų etapų.","error","Užbaikite visus 6 etapus ir tada išsaugokite ataskaitą.");
+        return;
+    end
+    path=bench_export_current("LD5");
 endfunction
 
 function ld5_start()
@@ -35,22 +95,21 @@ function ld5_start()
         ld5_build_gui();
     end
     if ~isfield(LD5,"autosave_enabled") then LD5.autosave_enabled=needgui; end
-    ld5_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite matavimo grandinę.","info","Atsiskaitymo režimas. Seką rasite: Pagalba → [B04] Kaip sujungti.");
+    ld5_set_status("Pradėkite nuo įtampos daliklio grandinės sujungimo.","info","Atsiskaitymo režimas. Jei reikia, atverkite Pagalba → Kaip sujungti.");
 endfunction
 
 function ld5_student_primary()
     global LD5;
     if LD5.demoMode then ld5_toggle_solution(); return; end
     ld5_save_answers();
-    if LD5.step == 6 & and(LD5.done) then
-        bench_export_current("LD5");
+    if LD5.step==6 & LD5.done(6) then
+        ld5_export_report();
         return;
     end
-    // Vienas paspaudimas: patikrinti ir, pavykus, iškart pereiti (LD2 semantika).
     if ~LD5.done(LD5.step) then
         ld5_check_step(~LD5.assessment);
     end
-    if LD5.done(LD5.step) & LD5.step < 6 then
+    if LD5.done(LD5.step) & LD5.step<6 then
         ld5_next_step();
     end
     ld5_student_sync(); bench_autosave("LD5");
@@ -78,7 +137,7 @@ function ld5_student_sync()
         elseif LD5.done(LD5.step) then
             LD5.ui.studentPrimary.string = "TOLIAU →";
         elseif LD5.assessment then
-            LD5.ui.studentPrimary.string = "ĮRAŠYTI IR TOLIAU →";
+            LD5.ui.studentPrimary.string = "TOLIAU →";
         else
             LD5.ui.studentPrimary.string = "TIKRINTI";
         end

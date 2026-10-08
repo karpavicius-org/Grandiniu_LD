@@ -16,10 +16,10 @@ endfunction
 function [u, i, ok, msg] = ld5_measure_values()
     global LD5;
     u = %nan; i = %nan; ok = %f; msg = "";
-    if ~LD5.powerOn then msg = "Maitinimas išjungtas: įjunkite [B01]."; return; end
-    if ~LD5.switchOn then msg = "Jungiklis atidarytas: uždarykite [B02]."; return; end
-    if ~ld5_valid_index(LD5.position,3) then msg = "Padėtis nenustatyta: [B10]/[B11]/[B12]."; return; end
-    if ~isfield(LD5, "wires") | LD5.wires == [] then msg = "Grandinė nesujungta: [B04] KAIP SUJUNGTI."; return; end
+    if ~LD5.powerOn then msg = "Maitinimas išjungtas. Pirmiausia įjunkite maitinimą."; return; end
+    if ~LD5.switchOn then msg = "Jungiklis atidarytas. Uždarykite jungiklį."; return; end
+    if ~ld5_valid_index(LD5.position,3) then msg = "Potenciometro padėtis nenustatyta. Pasirinkite P1, P2 arba P3."; return; end
+    if ~isfield(LD5, "wires") | LD5.wires == [] then msg = "Grandinė dar nesujungta. Jei reikia, atverkite Pagalba → Kaip sujungti."; return; end
     [wok, wwhy] = ld5_wiring_valid(LD5.wires);
     if ~wok then msg = wwhy; return; end
     rvd = ld5_rv_at(LD5.position);
@@ -35,7 +35,7 @@ function [ok, reason] = ld5_wiring_valid(wires)
     ok = %f; reason = "";
     canon = ld5_canonical_wires();
     if wires == [] then
-        reason = "Grandinė nesujungta: seką rodys [B04] KAIP SUJUNGTI."; return;
+        reason = "Grandinė dar nesujungta. Jei reikia, atverkite Pagalba → Kaip sujungti."; return;
     end
     if type(wires)<>10 | size(wires,2)<>2 then
         reason="Netinkami sujungimo duomenys."; return;
@@ -50,8 +50,7 @@ function [ok, reason] = ld5_wiring_valid(wires)
             if and(par == canon(k,:)) | and(par == canon(k, [2 1])) then rasta = %t; end
         end
         if ~rasta then
-            reason = "Trūksta laido " + canon(k,1) + "–" + canon(k,2) + ...
-                     " (" + ld5_terminal_code(canon(k,1)) + "–" + ld5_terminal_code(canon(k,2)) + ").";
+            reason = "Trūksta jungties: " + ld5_terminal_name(canon(k,1)) + " → " + ld5_terminal_name(canon(k,2)) + ".";
             return;
         end
     end

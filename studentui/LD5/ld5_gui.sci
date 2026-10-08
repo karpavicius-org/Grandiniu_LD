@@ -8,7 +8,6 @@ function h=ld5_button(p,pos,label,cb,fs,bg)
     catch
         code="";
     end
-    if code<>"" then label="["+code+"] "+label; end
     h=student_button(p,pos,"<html><center>"+label+"</center></html>",cb);
     h.tag=code; h.tooltipstring=hint; h.fontsize=fs; h.backgroundcolor=bg;
     if sum(bg)<1.5 then h.foregroundcolor=[1 1 1]; end
@@ -211,9 +210,9 @@ function ld5_build_gui()
     controls($+1)=ld5_button(p,[0.80 0.20 0.18 0.06],"Matuoti","ld5_measure()",13,[0.08 0.39 0.37]);
     LD5.ui.instructionLine(1)=student_text(right,[0.07 0.64 0.86 0.31],"",14,%f);
     LD5.ui.instructionLine(1).verticalalignment="top";
-    labels=["[A02.01] U2 teorinė, V";"[A04.01] U1t, V";"[A04.02] U3t, V";"[A04.03] ΔU, V"; ...
-        "[A04.04] diapazonas, %";"[A05.01] I2, mA";"[A05.02] dalis, %"; ...
-        "[A06.01] Sklandus?";"[A06.02] Dalikio dėsnis?"];
+    labels=["U2 teorinė, V";"U1 teorinė, V";"U3 teorinė, V";"Reguliavimo diapazonas ΔU, V"; ...
+        "Diapazonas nuo E, %";"Srovė I2, mA";"Aktyvios RV dalies santykis, %"; ...
+        "Ar įtampa reguliuojama sklandžiai? 1 Taip / 2 Ne";"Ar dalikio dėsnis galioja? 1 Taip / 2 Ne"];
     LD5.ui.answerEdits=[]; LD5.ui.answerLabels=[];
     for k=1:9
         LD5.ui.answerLabels($+1)=student_text(right,[0.07 0.5 0.53 0.075],student_wrap(labels(k),22),14,%f);
@@ -226,7 +225,6 @@ function ld5_build_gui()
     LD5.ui.studentPrimary=ld5_button(right,[0.07 0.085 0.86 0.075],"Tikrinti","ld5_student_primary()",15,[0.08 0.39 0.37]);
     controls($+1)=LD5.ui.studentPrimary;
     controls($+1)=ld5_button(right,[0.07 0.015 0.37 0.045],"← Atgal","ld5_jump_step(LD5.step-1)",12);
-    controls($+1)=ld5_button(right,[0.48 0.015 0.45 0.045],"Žemėlapis","ld5_show_stand_map()",12);
     LD5.ui.controls=controls; LD5.ui.dynamic=controls;
     LD5.ui.statusMain=student_text(f,[0.025 0.055 0.95 0.035],"",13,%t,[0.94 0.96 0.96]);
     LD5.ui.statusFix=student_text(f,[0.025 0.020 0.95 0.035],"",12,%f,[0.94 0.96 0.96]);
@@ -236,22 +234,26 @@ endfunction
 
 function ld5_show_actions()
     global LD5;
-    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
-        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD5 · Pagalba");
+    choice=x_choose(["Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
+        "Ataskaita ir režimas";"Mano duomenys";"Daugiau veiksmų"],"LD5 · Pagalba");
     select choice
-    case 1 then bench_open_snapshot("LD5");
-    case 2 then ld5_show_wiring_guide();
-    case 3 then bench_export_current("LD5");
-    case 4 then bench_mode("LD5"); ld5_render_stage(); bench_autosave("LD5");
-    case 6 then ld5_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD5.student);"";student_parameter_lines("LD5",LD5.cfg)]);
+    case 1 then
+        extra=x_choose(["Kaip sujungti";"Stendo žemėlapis"],"Šio etapo pagalba");
+        if extra==1 then ld5_show_wiring_guide(); elseif extra==2 then ld5_show_stand_map(); end
+    case 2 then
+        extra=x_choose(["Tęsti automatinį juodraštį";"Atkurti šio etapo stendą"],"Tęsti arba atkurti darbą");
+        if extra==1 then bench_open_snapshot("LD5"); elseif extra==2 then ld5_restore_stage(); end
+    case 3 then
+        extra=x_choose(["Išsaugoti ataskaitą";"Atsiskaitymo / mokymosi režimas"],"Ataskaita ir režimas");
+        if extra==1 then ld5_export_report();
+        elseif extra==2 then bench_mode("LD5"); ld5_render_stage(); bench_autosave("LD5"); end
+    case 4 then
+        ld5_student_details();
     case 5 then
-        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD5 · Daugiau veiksmų");
-        select extra
-        case 1 then ld5_show_stand_map();
-        case 2 then ld5_toggle_solution();
-        case 3 then ld5_restore_stage();
-        case 4 then
-            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD5","question",["Pradėti" "Grįžti"],"modal")==1 then ld5_restart(); end
+        extra=x_choose(["Parodyti pavyzdį / mano darbą";"Pradėti darbą iš naujo"],"Daugiau veiksmų");
+        if extra==1 then ld5_toggle_solution();
+        elseif extra==2 then
+            if messagebox("Pradėti darbą iš naujo? Laidai, matavimai ir atsakymai bus išvalyti.","LD5","question",["Pradėti" "Grįžti"],"modal")==1 then ld5_restart(); end
         end
     end
 endfunction
