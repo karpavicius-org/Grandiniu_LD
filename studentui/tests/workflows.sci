@@ -514,7 +514,11 @@ function bench_ld4_workflow(n,root,gui)
     assert_checkfalse(LD4.practice_used);
     if gui then
         assert_checktrue(LD4.autosave_enabled);
-        if isfield(LD4,"fig") then LD4.fig.figure_name="PATIKRA · LD4 · variantas "+string(n); end
+        if isfield(LD4,"fig") then
+            LD4.fig.figure_name="PATIKRA · LD4 · variantas "+string(n);
+            assert_checkequal(LD4.fig.closerequestfcn,"ld4_close()");
+        end
+        assert_checktrue(strindex(LD4.ui.answerLabels(1).string,"[A")==[]);
         if n==17 then
             ld4_toggle_solution(); assert_checkfalse(LD4.demoMode); assert_checkfalse(LD4.practice_used);
         end
@@ -542,8 +546,14 @@ function bench_ld4_workflow(n,root,gui)
                 assert_checkequal(LD4.answers(2,1),"0");
                 assert_checktrue(strindex(LD4.ui.statusMain.string,"Tikimasi")==[]); assert_checktrue(strindex(LD4.ui.statusFix.string,"Tikimasi")==[]);
                 assert_checkfalse(LD4.powerOn); assert_checkfalse(LD4.switchOn);
-                // Restore the correct raw answer so the exported acceptance report is perfect.
+                // Neskaitinis tekstas yra formato klaida, bet etalonas neatskleidžiamas.
                 ld4_jump_step(2);
+                LD4.ui.answerEdits(1).string="raw-wrong"; execstr(LD4.ui.answerEdits(1).callback);
+                bench_ld4_primary();
+                assert_checkfalse(LD4.done(2)); assert_checkequal(LD4.step,2);
+                assert_checktrue(strindex(LD4.ui.statusMain.string,"skaičius")<>[]);
+                assert_checktrue(strindex(LD4.ui.statusMain.string,"Tikimasi")==[]);
+                // Restore the correct raw answer so the exported acceptance report is perfect.
                 LD4.ui.answerEdits(1).string=msprintf("%.12g",u(1)/cfg.R1nom*1000);
                 execstr(LD4.ui.answerEdits(1).callback);
                 assert_checkfalse(LD4.done(2));
@@ -604,18 +614,27 @@ function bench_ld4_workflow(n,root,gui)
             assert_checktrue(LD4.assessment); assert_checkfalse(LD4.powerOn); assert_checkfalse(LD4.switchOn);
             mprintf("PASS LD4 V17: snapshot restore\n");
         end
+        // Formalios ataskaitos negalima eksportuoti su neužbaigtu ankstesniu etapu.
+        LD4.done(6)=%f; LD4.step=7; ld4_render_stage();
+        path=ld4_export_report(); assert_checkequal(path,"");
+        assert_checktrue(strindex(LD4.ui.statusMain.string,"neužbaigtų")<>[]);
+        LD4.done(6)=%t; ld4_render_stage();
         r=bench_report_data("LD4"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
         mprintf("PASS LD4 V%02d: report data\n",n);
         // Naudojame tikrąjį perduotą LD_DATA_DIR kelią. Jo neperrašome ir
         // neatkuriame per setenv, nes Windows Unicode kelias turi išlikti bitų tikslumu.
-        path=bench_export_current("LD4");
+        path=ld4_export_report();
         assert_checktrue(path<>""); assert_checktrue(isfile(path));
         mprintf("PASS LD4 V%02d: export file\n",n);
         if n==17 then
-            // Learning mode still checks locally; practice survives restart.
+            // Naujas bandymas po mokymosi turi būti švarus formalus atsiskaitymas.
             LD4.assessment=%f; LD4.practice_used=%t; ld4_restart();
-            assert_checkfalse(LD4.assessment); assert_checktrue(LD4.practice_used);
-            mprintf("PASS LD4 V17: learning restart\n");
+            assert_checktrue(LD4.assessment); assert_checkfalse(LD4.practice_used);
+            assert_checkequal(LD4.step,1); assert_checkequal(size(LD4.journal,1),0);
+            assert_checktrue(size(LD4.autosave_paths,"*")>=1);
+            mprintf("PASS LD4 V17: clean assessment restart\n");
+            // Toliau sąmoningai persijungiame į mokymąsi ir tikriname vietinį grįžtamąjį ryšį.
+            LD4.assessment=%f; LD4.practice_used=%t; ld4_student_sync();
             for k=1:size(W,1); bench_ld4_click(W(k,1)); bench_ld4_click(W(k,2)); end
             bench_ld4_primary(); assert_checkequal(LD4.step,2);
             bench_ld4_action("ld4_toggle_power()"); bench_ld4_action("ld4_toggle_switch()");
@@ -633,6 +652,19 @@ function bench_ld4_workflow(n,root,gui)
         assert_checktrue(isfield(LD4,"autosave_paths"));
         assert_checktrue(size(LD4.autosave_paths,"*")>=1);
         mprintf("PASS LD4 V%02d: autosave\n",n);
+        // To paties varianto duomenų taisymas nepraranda darbo.
+        before=LD4.done; beforeAssessment=LD4.assessment; beforePractice=LD4.practice_used;
+        st=student_profile(n,"Pataisytas Vardas","TEST-2","LD4");
+        ld4_apply_profile(st,cfg);
+        assert_checkequal(LD4.done,before); assert_checkequal(LD4.student.name,"Pataisytas Vardas");
+        assert_checkequal(LD4.assessment,beforeAssessment); assert_checkequal(LD4.practice_used,beforePractice);
+        // Kitas variantas pradeda švarų darbą ir išsaugo pasirinktą režimą.
+        st=student_profile(modulo(n,64)+1,"Kitas Studentas","TEST","LD4");
+        ld4_apply_profile(st,ld4_variant_config(st.number));
+        assert_checkequal(LD4.step,1); assert_checkfalse(or(LD4.done));
+        assert_checkequal(size(LD4.journal,1),0);
+        assert_checkequal(LD4.assessment,beforeAssessment); assert_checkequal(LD4.practice_used,beforePractice);
+        mprintf("PASS LD4 V%02d: student data and variant change\n",n);
         ld4_close();
         if typeof(LD4.fig)=="handle" then error("LD4 V"+string(n)+" close blocked: "+LD4.autosave_error); end
         assert_checktrue(typeof(LD4.fig)<>"handle");
