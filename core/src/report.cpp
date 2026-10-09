@@ -66,6 +66,15 @@ std::string report_html(const Json& r) {
     for(auto& item:verdict.at("items")) labels[item.at("id")]=item.at("label");
     labels["f1_meas"]="Apatinis ribinis dažnis"; labels["f2_meas"]="Viršutinis ribinis dažnis";
     labels["f1_u"]="Įtampa ties apatiniu ribiniu dažniu"; labels["f2_u"]="Įtampa ties viršutiniu ribiniu dažniu";
+    if(r.at("rubric_version")=="LD6-3") {
+        const char* modes[]={"Tik E1","Nuosekliai","Priešpriešiais","Lygiagrečiai"};
+        for(int mode=1;mode<=4;++mode) {
+            labels["u"+std::to_string(mode)]=std::string(modes[mode-1])+": apkrovos U";
+            labels["i"+std::to_string(mode)]=std::string(modes[mode-1])+": apkrovos I";
+        }
+        labels["parallel_i1"]="Lygiagrečiai: E1 šaltinio srovė";
+        labels["parallel_i2"]="Lygiagrečiai: E2 šaltinio srovė";
+    }
     auto esc=[](const std::string& s){return html_escape(s);};
     auto label=[&](const std::string& id){auto i=labels.find(id);return i==labels.end()?id:i->second;};
     std::string doc="<!doctype html><html lang=\"lt\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width\"><title>"+esc(r.at("lab_id"))+" ataskaita</title><style>body{font:16px system-ui;max-width:960px;margin:2rem auto;padding:1rem;color:#203237}table{border-collapse:collapse;width:100%}td,th{padding:.6rem;border-bottom:1px solid #ddd;text-align:left}pre{white-space:pre-wrap}h1,h2{color:#17645a}</style>";
@@ -74,6 +83,7 @@ std::string report_html(const Json& r) {
     if(r.value("practice_used",false)) doc+="Naudota mokymosi pagalba; dėstytojui reikalinga atskira peržiūra. ";
     if(r.at("rubric_version")=="LD1-2") doc+="Vertinami 15 studento atsakymų. Už automatinius matavimus ir jungimus balai neskiriami. ";
     if(r.at("rubric_version")=="LD1-3") doc+="Vertinami studento jungimai ir septyni atsakymai apie matavimus. Automatiniai matavimo duomenys balų nedidina. Šakų srovės užfiksuotos virtualiuose matavimo taškuose, naudojant tą patį sujungtos grandinės modelį. ";
+    if(r.at("rubric_version")=="LD6-3") doc+="Vertinami keturi realūs sujungimai, keturi atlikti matavimo režimai, penki teoriniai skaičiavimai ir dvi išvados. Virtualaus stendo parodytų U/I skaičių perrašyti nereikia. ";
     doc+="</p><h2>Priskirtos reikšmės</h2><table><tr><th>Dydis</th><th>Reikšmė</th></tr>";
     for(auto it=r.at("parameters").begin();it!=r.at("parameters").end();++it) doc+="<tr><td>"+esc(it.key())+"</td><td>"+esc(numeric(it.value()))+" "+parameter_unit(it.key())+"</td></tr>";
     doc+="</table><h2>Jūsų atsakymai</h2><table><tr><th>Užduotis</th><th>Atsakymas</th><th>Vienetas</th></tr>";

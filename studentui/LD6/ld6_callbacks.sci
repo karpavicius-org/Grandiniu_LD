@@ -129,43 +129,38 @@ function ld6_check_step(check_answers)
     expected=ld6_expected_answers();
     labels=emptystr(6,8);
     labels(2,1)="E1 apkrovos srovę";
-    labels(4,1)="nuoseklaus jungimo apkrovos įtampą";
-    labels(4,2)="nuoseklaus jungimo apkrovos srovę";
-    labels(4,3)="priešpriešinio jungimo apkrovos įtampą";
-    labels(4,4)="priešpriešinio jungimo apkrovos srovę";
-    labels(5,1)="lygiagretaus jungimo apkrovos įtampą";
-    labels(5,2)="lygiagretaus jungimo apkrovos srovę";
-    labels(5,3)="E1 šaltinio srovę";
-    labels(5,4)="E2 šaltinio srovę";
+    labels(4,1)="nuoseklių šaltinių bendrą EV EΣ";
+    labels(4,2)="priešpriešinių šaltinių bendrą EV EΔ";
+    labels(5,1)="lygiagrečių šaltinių ekvivalentinę EV Eeq";
+    labels(5,2)="lygiagrečių šaltinių ekvivalentinę vidinę varžą req";
     labels(6,1)="pirmą išvadą";
     labels(6,2)="antrą išvadą";
 
-    for index=1:11
+    for index=1:7
         [answer_step,slot]=ld6_answer_slot(index);
         if answer_step<>step then continue; end
         raw=stripblanks(LD6.answers(step,slot));
         if raw=="" then
             ld6_set_status("Įrašykite "+labels(step,slot)+".","error","Atsakymo teisingumą vertins dėstytojo programa."); return;
         end
-
         if step==6 then
             if raw<>"1" & raw<>"2" then
                 ld6_set_status("Abiem išvadoms pasirinkite tik 1 arba 2.","error","1 – Taip, 2 – Ne."); return;
             end
-            if ~check_answers then continue; end
-            if raw<>string(expected(step,slot)) then
-                ld6_set_status("Išvada neteisinga.","error","Palyginkite savo keturių jungimo režimų matavimus."); return;
+            if check_answers then
+                if raw<>string(expected(step,slot)) then
+                    ld6_set_status("Išvada neteisinga.","error","Palyginkite savo keturių jungimo režimų matavimus."); return;
+                end
             end
         else
             value=ld6_parse_number(raw);
             if isnan(value) then
                 ld6_set_status("Įrašykite skaičių: "+labels(step,slot)+".","error","Tinka kablelis arba taškas; formulės ir vieneto į lauką nerašykite."); return;
             end
-            if ~check_answers then continue; end
-            relative=.02; absolute=1e-9;
-            if step==2 | (step==4 & or(slot==[1 3])) | (step==5 & slot==1) then relative=.01; end
-            if ~ld6_close_enough(value,expected(step,slot),relative,absolute) then
-                ld6_set_status("Patikrinkite "+labels(step,slot)+".","error","Skaičiavime įtraukite vidines varžas, mA konversiją ir išlaikykite srovės ženklą."); return;
+            if check_answers then
+                if ~ld6_close_enough(value,expected(step,slot),.01,1e-9) then
+                    ld6_set_status("Patikrinkite "+labels(step,slot)+".","error","Naudokite priskirtas E1, E2, r1 ir r2 reikšmes; išlaikykite ženklą."); return;
+                end
             end
         end
     end
@@ -202,11 +197,11 @@ function text=ld6_step_instruction(step)
     cfg=LD6.cfg;
     select step
     case 1 then text="Sujunkite grandinę tik su šaltiniu E1: E1 → jungiklis → ampermetras → apkrova R → E1. Voltmetrą prijunkite prie R galų. Maitinimas turi būti išjungtas.";
-    case 2 then text=msprintf("Apskaičiuokite E1 apkrovos srovę I = 1000·E1/(R+r1), kai E1=%g V, R=%g Ω ir r1=%g Ω. Tada įjunkite maitinimą, uždarykite jungiklį ir spauskite Matuoti.",cfg.E1,cfg.R,cfg.r1);
-    case 3 then text="Išjunkite maitinimą ir sujunkite šaltinius nuosekliai: E1− su E2+. Tada įjunkite maitinimą, uždarykite jungiklį ir išmatuokite U bei I.";
-    case 4 then text="Išjunkite maitinimą ir sujunkite šaltinius priešpriešiais. Išmatuokite U ir I. Dešinėje įrašykite tiek ankstesnio nuoseklaus, tiek šio priešpriešinio jungimo rezultatus su teisingu ženklu.";
-    case 5 then text="Išjunkite maitinimą ir sujunkite šaltinius lygiagrečiai: + su +, − su −. Išmatuokite apkrovos U ir I bei įrašykite E1 ir E2 sroves. Neigiamas ženklas reiškia srovę į šaltinį.";
-    case 6 then text="Padarykite dvi išvadas: ar nuosekliai EV sudedamos su ženklais ir ar lygiagrečiai apkrovos įtampa lygi E1+E2. 1 – Taip, 2 – Ne.";
+    case 2 then text=msprintf("Apskaičiuokite E1 apkrovos srovę I = 1000·E1/(R+r1), kai E1=%g V, R=%g Ω ir r1=%g Ω. Tada įjunkite maitinimą, uždarykite jungiklį ir spauskite Matuoti. Rodmenų perrašyti nereikia.",cfg.E1,cfg.R,cfg.r1);
+    case 3 then text="Išjunkite maitinimą ir sujunkite šaltinius nuosekliai: E1− su E2+. Tada įjunkite maitinimą, uždarykite jungiklį ir spauskite Matuoti. Rodmenys lieka žurnale.";
+    case 4 then text="Išjunkite maitinimą ir sujunkite šaltinius priešpriešiais. Išmatuokite grandinę. Tada apskaičiuokite šaltinių bendras EV: EΣ = E1 + E2 ir EΔ = E1 − E2. EΔ ženklą išlaikykite.";
+    case 5 then text=msprintf("Išjunkite maitinimą ir sujunkite šaltinius lygiagrečiai: + su +, − su −. Išmatuokite grandinę. Apskaičiuokite Eeq=(E1/r1+E2/r2)/(1/r1+1/r2) ir req=1/(1/r1+1/r2), kai r1=r2=%g Ω. Rodmenų perrašyti nereikia.",cfg.r1);
+    case 6 then text="Pagal keturių režimų matavimus padarykite dvi išvadas: ar nuosekliai EV sudedamos su ženklais ir ar lygiagrečiai apkrovos įtampa lygi E1+E2. 1 – Taip, 2 – Ne.";
     else text="";
     end
 endfunction
@@ -227,7 +222,7 @@ function ld6_save_answers()
 endfunction
 
 function [step,slot]=ld6_answer_slot(index)
-    mapping=[2 1;4 1;4 2;4 3;4 4;5 1;5 2;5 3;5 4;6 1;6 2];
+    mapping=[2 1;4 1;4 2;5 1;5 2;6 1;6 2];
     step=mapping(index,1); slot=mapping(index,2);
 endfunction
 
@@ -255,7 +250,7 @@ function ld6_show_stand_map()
     [ids,callbacks,labels,hints]=ld6_button_registry();
     text=["LD6 · STENDO ŽEMĖLAPIS";"T01/T02 – E1; T03/T04 – E2; T05/T06 – jungiklis.";"T07/T08 – ampermetras; T09/T10 – apkrova R.";"T11/T12 – voltmetras. Ženklai rodo poliškumą.";""];
     for index=1:size(ids,"*"); text($+1)="["+ids(index)+"] "+labels(index); end
-    text=[text;"";"Etapai E01–E06. V02 – keturių režimų žurnalas.";"A02.01 – E1 srovė; A04.01–A04.04 – nuoseklūs jungimai.";"A05.01–A05.04 – lygiagretus jungimas.";"A06.01/A06.02 – išvados."];
+    text=[text;"";"Etapai E01–E06. V02 – keturių režimų žurnalas.";"A02.01 – teorinė E1 srovė; A04.01/A04.02 – EΣ ir EΔ.";"A05.01/A05.02 – Eeq ir req.";"A06.01/A06.02 – išvados."];
     ld6_text_window("Žemėlapis",text);
 endfunction
 

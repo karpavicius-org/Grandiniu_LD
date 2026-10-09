@@ -156,9 +156,13 @@ srovės ženklas reiškia srovę į šaltinį. Pavyzdys formaliame atsiskaityme 
 mokymosi / pavyzdžio žyma po restarto neišnyksta. Laidai, režimas, matavimai ir
 atsakymai automatiškai saugomi vietiniame juodraštyje; tęsti galima per
 **Pagalba → Tęsti išsaugotą darbą**. Atkurtas stendas būna be maitinimo.
-C++ branduolys vertina 25 kriterijus; bankas `LD6-64-B-2026`, ataskaitos
-revizija 2. Pastaba: šiame techniniame stendo numeravime LD6 yra šaltinių jungimas,
-o oficialaus kurso numerių susiejimas turi būti tvarkomas atskiru kurso žemėlapiu.
+C++ branduolys naujoje `LD6-3` rubrikoje vertina 15 kriterijų: 4 sujungimus,
+4 atliktus matavimo režimus, 5 teorinius skaičiavimus ir 2 išvadas. Virtualaus stendo
+parodytų U/I skaičių perrašyti nereikia — jie lieka matavimų žurnale ir ataskaitoje.
+Bankas `LD6-64-B-2026`, ataskaitos revizija 3. Senos `LD6-2` ir `LD6-1`
+ataskaitos dėstytojo programoje lieka vertinamos pagal savo istorines rubrikas.
+Pastaba: šiame techniniame stendo numeravime LD6 yra šaltinių jungimas, o oficialaus
+kurso numerių susiejimas turi būti tvarkomas atskiru kurso žemėlapiu.
 
 Pabaigoje spauskite **Išsaugoti ataskaitą**. Langas pasiūlo **Atverti ataskaitą** arba **Atverti ataskaitų aplanką**.
 Sukurtą vieną HTML failą iš
