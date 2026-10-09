@@ -175,8 +175,8 @@ function ld6_render_stage()
         [st,sl]=ld6_answer_slot(k); h=LD6.ui.answerEdits(k); lab=LD6.ui.answerLabels(k);
         h.visible="off"; lab.visible="off";
         if st==LD6.step then
-            if LD6.step==6 then
-                // Išvadų tekstai ilgesni, o atsakymas tik vienas skaitmuo.
+            if or(LD6.step==[5 6]) then
+                // 5 etapo teorinių dydžių ir 6 etapo išvadų tekstai yra ilgesni.
                 // Duodame tekstui daugiau pločio/aukščio, kad nereikėtų slinkties rodyklių.
                 yy=0.53-row*0.14;
                 lab.position=[0.07 yy 0.59 0.11];
