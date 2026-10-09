@@ -131,8 +131,8 @@ function r=bench_report_data(lab)
         st=LD6.student; cfg=LD6.cfg;
         if isfield(LD6,"assessment") then if LD6.assessment then mode="assessment"; end; end
         if isfield(LD6,"practice_used") then practice=LD6.practice_used; end
-        specs=["2" "1" "mA";"4" "1" "V";"4" "2" "mA";"4" "3" "V";"4" "4" "mA"; ...
-            "5" "1" "V";"5" "2" "mA";"5" "3" "mA";"5" "4" "mA";"6" "1" "choice";"6" "2" "choice"];
+        specs=["2" "1" "mA";"4" "1" "V";"4" "2" "V";"5" "1" "V";"5" "2" "Ohm"; ...
+            "6" "1" "choice";"6" "2" "choice"];
         for k=1:size(specs,1)
             step=bench_safe_number(specs(k,1)); q=bench_safe_number(specs(k,2));
             answers($+1)=bench_answer(msprintf("s%d.q%d",step,q),LD6.answers(step,q),specs(k,3));
@@ -367,7 +367,7 @@ function r=bench_report_data(lab)
         "bank_id",st.bank,"variant",st.number,"submission_id",bench_id(),"mode",mode, ...
         "student",struct("number",st.number,"name",st.name,"group",st.group), ...
         "parameters",params,"answers",answers,"observations",observations,"evidence",evidence,"note",note,"practice_used",practice);
-    if lab=="LD6" then r.lab_revision="2"; r.rubric_version="LD6-2"; end
+    if lab=="LD6" then r.lab_revision="3"; r.rubric_version="LD6-3"; end
     if lab=="LD1" then
         if isfield(evidence,"automatic_setup") then
             if evidence.automatic_setup then r.lab_revision="2";r.rubric_version="LD1-2";end

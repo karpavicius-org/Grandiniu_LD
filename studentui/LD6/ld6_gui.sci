@@ -171,12 +171,12 @@ function ld6_render_stage()
     if isfield(LD6.ui,"headless") then if LD6.ui.headless then return; end; end
     if ~isfield(LD6.ui,"answerEdits") then return; end
     row=0;
-    for k=1:11
+    for k=1:7
         [st,sl]=ld6_answer_slot(k); h=LD6.ui.answerEdits(k); lab=LD6.ui.answerLabels(k);
         h.visible="off"; lab.visible="off";
         if st==LD6.step then
-            if LD6.step==6 then
-                // Išvadų tekstai ilgesni, o atsakymas tik vienas skaitmuo.
+            if or(LD6.step==[5 6]) then
+                // 5 etapo teorinių dydžių ir 6 etapo išvadų tekstai yra ilgesni.
                 // Duodame tekstui daugiau pločio/aukščio, kad nereikėtų slinkties rodyklių.
                 yy=0.53-row*0.14;
                 lab.position=[0.07 yy 0.59 0.11];
@@ -237,12 +237,12 @@ function ld6_build_gui()
     controls($+1)=ld6_button(p,[0.80 0.20 0.18 0.06],"Matuoti","ld6_measure()",13,[0.08 0.39 0.37]);
     LD6.ui.instructionLine(1)=student_text(right,[0.07 0.64 0.86 0.31],"",14,%f);
     LD6.ui.instructionLine(1).verticalalignment="top";
-    labels=["Tik E1: apkrovos I, mA";"Nuosekliai: apkrovos U, V";"Nuosekliai: apkrovos I, mA"; ...
-        "Priešpriešiais: apkrovos U, V";"Priešpriešiais: apkrovos I, mA";"Lygiagrečiai: apkrovos U, V"; ...
-        "Lygiagrečiai: apkrovos I, mA";"Lygiagrečiai: E1 srovė, mA";"Lygiagrečiai: E2 srovė, mA"; ...
+    labels=["Tik E1: teorinė apkrovos I, mA";"Nuosekliai: bendra EV EΣ, V"; ...
+        "Priešpriešiais: bendra EV EΔ, V";"Lygiagrečiai: ekvivalentinė EV Eeq, V"; ...
+        "Lygiagrečiai: ekvivalentinė vidinė req, Ω"; ...
         "Ar nuosekliai EV sudedamos su ženklais? 1 Taip / 2 Ne";"Ar lygiagrečiai U = E1 + E2? 1 Taip / 2 Ne"];
     LD6.ui.answerEdits=[]; LD6.ui.answerLabels=[];
-    for k=1:11
+    for k=1:7
         LD6.ui.answerLabels($+1)=student_text(right,[0.07 0.5 0.53 0.075],student_wrap(labels(k),22),14,%f);
         [st,sl]=ld6_answer_slot(k);
         h=uicontrol(right,"style","edit","units","normalized","position",[0.63 0.5 0.30 0.075], ...

@@ -83,15 +83,20 @@ function ld6_init_state()
         LD6.wires_by_mode(index)=emptystr(0,2); LD6.report_wires(index)=emptystr(0,2);
     end
     LD6.answers=emptystr(6,8); LD6.demoMode=%f; LD6.lastMeasurement=%nan; LD6.pending="";
+    LD6.workflow_revision=3;
     LD6.assessment=assessment; LD6.practice_used=practice;
 endfunction
 
 function expected=ld6_expected_answers()
+    global LD6;
+    cfg=LD6.cfg;
     expected=%nan*ones(6,8);
-    first=ld6_reference(1); series=ld6_reference(2); opposing=ld6_reference(3); parallel=ld6_reference(4);
+    first=ld6_reference(1);
     expected(2,1)=first(2);
-    expected(4,1:4)=[series(1:2) opposing(1:2)];
-    expected(5,1:4)=parallel;
+    expected(4,1)=cfg.E1+cfg.E2;
+    expected(4,2)=cfg.E1-cfg.E2;
+    expected(5,1)=(cfg.E1/cfg.r1+cfg.E2/cfg.r2)/(1/cfg.r1+1/cfg.r2);
+    expected(5,2)=1/(1/cfg.r1+1/cfg.r2);
     expected(6,1:2)=[1 2];
 endfunction
 

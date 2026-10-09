@@ -50,6 +50,26 @@ def fixture_v2(number, identity):
     return report
 
 
+
+def fixture_v3(number, identity):
+    report = fixture_v2(number, identity)
+    p = report['parameters']
+    report.update(lab_revision='3', rubric_version='LD6-3')
+    values = [source_reference([p[key] for key in ['E1', 'E2', 'R', 'r1', 'r2']], mode) for mode in range(1, 5)]
+    eeq = (p['E1']/p['r1'] + p['E2']/p['r2']) / (1/p['r1'] + 1/p['r2'])
+    req = 1 / (1/p['r1'] + 1/p['r2'])
+    answers = [
+        ('s2.q1', values[0][1], 'mA'),
+        ('s4.q1', p['E1'] + p['E2'], 'V'),
+        ('s4.q2', p['E1'] - p['E2'], 'V'),
+        ('s5.q1', eeq, 'V'),
+        ('s5.q2', req, 'Ohm'),
+        ('s6.q1', 1, 'choice'),
+        ('s6.q2', 2, 'choice'),
+    ]
+    report['answers'] = [dict(id=key, raw=format(value, '.17g'), unit=unit) for key, value, unit in answers]
+    return report
+
 def main(executable, library):
     core = ctypes.CDLL(str(library)); scalar = ctypes.c_int
     vector = ctypes.c_double * 5; output_type = ctypes.c_double * 4
@@ -82,34 +102,46 @@ def main(executable, library):
     with tempfile.TemporaryDirectory(prefix='LD6 Žąsė ') as temporary:
         root = Path(temporary); folder = root / 'Darbai'; folder.mkdir(); expected = {}
         for number in range(1, 65):
-            report = fixture_v2(number, f'v{number}')
-            for stage in report['evidence']['wiring'].values():
-                if number % 2: stage['pairs'] = [pair[::-1] for pair in stage['pairs'][::-1]]
-            filename = f'v{number:02d}.html'; write(folder/filename, report); expected[filename] = 25
+            old = fixture_v2(number, f'v2-{number}')
+            current = fixture_v3(number, f'v3-{number}')
+            for report in [old, current]:
+                for stage in report['evidence']['wiring'].values():
+                    if number % 2: stage['pairs'] = [pair[::-1] for pair in stage['pairs'][::-1]]
+            name2 = f'v2-{number:02d}.html'; write(folder/name2, old); expected[name2] = (25, 25)
+            name3 = f'v3-{number:02d}.html'; write(folder/name3, current); expected[name3] = (15, 15)
+
         for stage in [1, 3, 4, 5]:
-            for damage in ['missing', 'duplicate', 'extra_endpoint']:
-                name = f's{stage}-{damage}.html'; report = fixture_v2(1, name)
-                pairs = report['evidence']['wiring'][f's{stage}']['pairs']
-                if damage == 'missing': pairs.clear()
-                elif damage == 'duplicate': pairs[-1] = copy.deepcopy(pairs[0])
-                else: pairs[0].append('R_B')
-                write(folder/name, report); expected[name] = 24
-        for name in ['opposing_sign', 'parallel_sign', 'empty']:
-            report = fixture_v2(64, name); points = 24
-            if name == 'empty':
-                report['answers'] = []; report['observations'] = []; report['evidence']['wiring'] = {}; points = 0
-            else:
-                key = 's4.q4' if name == 'opposing_sign' else 's5.q3'
-                answer = next(item for item in report['answers'] if item['id'] == key)
-                assert float(answer['raw']) < 0; answer['raw'] = str(abs(float(answer['raw'])))
-            filename = name + '.html'; write(folder/filename, report); expected[filename] = points
-        write(folder/'legacy.html', fixture('LD6', 1, 'legacy')); expected['legacy.html'] = 14
+            name = f'v3-s{stage}-missing.html'; report = fixture_v3(1, name)
+            report['evidence']['wiring'][f's{stage}']['pairs'].clear()
+            write(folder/name, report); expected[name] = (14, 15)
+
+        report = fixture_v3(64, 'v3-opposing-theory-sign')
+        answer = next(item for item in report['answers'] if item['id'] == 's4.q2')
+        assert float(answer['raw']) < 0; answer['raw'] = str(abs(float(answer['raw'])))
+        write(folder/'v3-opposing-theory-sign.html', report); expected['v3-opposing-theory-sign.html'] = (14, 15)
+
+        report = fixture_v3(1, 'v3-missing-mode1')
+        report['observations'] = [o for o in report['observations'] if o['id'] != 'u1']
+        write(folder/'v3-missing-mode1.html', report); expected['v3-missing-mode1.html'] = (14, 15)
+
+        report = fixture_v3(64, 'v3-wrong-parallel-branch')
+        next(o for o in report['observations'] if o['id'] == 'parallel_i1')['value'] = 999999
+        write(folder/'v3-wrong-parallel-branch.html', report); expected['v3-wrong-parallel-branch.html'] = (14, 15)
+
+        report = fixture_v3(1, 'v3-empty')
+        report['answers'] = []; report['observations'] = []; report['evidence']['wiring'] = {}
+        write(folder/'v3-empty.html', report); expected['v3-empty.html'] = (0, 15)
+
+        write(folder/'legacy.html', fixture('LD6', 1, 'legacy')); expected['legacy.html'] = (14, 14)
         results, seconds = run(executable, folder, root/'Vertinimas')
         assert len(results['results']) == len(expected)
         for result in results['results']:
-            assert result['status'] == 'graded' and result['points'] == expected[result['file']], result
+            points, maximum = expected[result['file']]
+            assert result['status'] == 'graded' and (result['points'], result['max_points']) == (points, maximum), result
         print(json.dumps(dict(status='PASS', variants=64, mna_cases=258, graded_reports=len(expected),
-                              kirchhoff_and_power_balance=True, legacy_revision=True, seconds=round(seconds, 3))))
+                              rubric_v3=15, historical_v2=25, legacy_v1=14,
+                              no_measurement_retyping=True, grouped_measurements=4,
+                              kirchhoff_and_power_balance=True, seconds=round(seconds, 3))))
 
 
 if __name__ == '__main__': main(Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve())

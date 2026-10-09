@@ -881,7 +881,7 @@ function bench_ld6_answers(step,values)
     global LD6;
     if LD6.ui.headless then ld6_test_answers(step,values); return; end
     value_index=1;
-    for index=1:11
+    for index=1:7
         [answer_step,slot]=ld6_answer_slot(index);
         if answer_step==step then
             LD6.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
@@ -931,6 +931,8 @@ function bench_ld6_workflow(number,root,gui)
     series=(cfg.E1+cfg.E2)/(cfg.R+cfg.r1+cfg.r2);
     opposing=(cfg.E1-cfg.E2)/(cfg.R+cfg.r1+cfg.r2);
     parallel=(cfg.E1/cfg.r1+cfg.E2/cfg.r2)/(1/cfg.R+1/cfg.r1+1/cfg.r2);
+    eeq=(cfg.E1/cfg.r1+cfg.E2/cfg.r2)/(1/cfg.r1+1/cfg.r2);
+    req=1/(1/cfg.r1+1/cfg.r2);
     for step=1:6
         assert_checkequal(LD6.step,step);
         primary_done=%f;
@@ -940,24 +942,24 @@ function bench_ld6_workflow(number,root,gui)
         end
         select step
         case 2 then bench_ld6_answers(step,cfg.E1/(cfg.R+cfg.r1)*1000);
-        case 4 then bench_ld6_answers(step,[series*cfg.R series*1000 opposing*cfg.R opposing*1000]);
+        case 4 then bench_ld6_answers(step,[cfg.E1+cfg.E2 cfg.E1-cfg.E2]);
         case 5 then
-            bench_ld6_answers(step,[parallel parallel/cfg.R*1000 (cfg.E1-parallel)/cfg.r1*1000 (cfg.E2-parallel)/cfg.r2*1000]);
+            bench_ld6_answers(step,[eeq req]);
             if gui & number==17 then
                 // Formal assessment accepts a wrong numeric value without revealing the key.
-                LD6.ui.answerEdits(6).string="0"; execstr(LD6.ui.answerEdits(6).callback);
+                LD6.ui.answerEdits(4).string="0"; execstr(LD6.ui.answerEdits(4).callback);
                 bench_ld6_primary();
                 assert_checktrue(LD6.done(5)); assert_checkequal(LD6.step,6);
                 assert_checkequal(LD6.answers(5,1),"0");
                 assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")==[]);
                 // Nonnumeric text is a format/completeness error.
                 ld6_jump_step(5); LD6.done(5)=%f;
-                LD6.ui.answerEdits(6).string="1+2"; execstr(LD6.ui.answerEdits(6).callback);
+                LD6.ui.answerEdits(4).string="1+2"; execstr(LD6.ui.answerEdits(4).callback);
                 bench_ld6_primary();
                 assert_checkfalse(LD6.done(5)); assert_checkequal(LD6.step,5);
                 assert_checktrue(strindex(LD6.ui.statusMain.string,"skaičių")<>[]);
-                // Restore the correct answer so the acceptance export remains perfect.
-                values=ld6_reference(4); bench_ld6_answers(5,values);
+                // Restore the correct theory answers so the acceptance export remains perfect.
+                bench_ld6_answers(5,[eeq req]);
                 bench_ld6_primary();
                 assert_checktrue(LD6.done(5)); assert_checkequal(LD6.step,6);
                 primary_done=%t;
@@ -983,6 +985,8 @@ function bench_ld6_workflow(number,root,gui)
         assert_checktrue(strindex(LD6.ui.statusMain.string,"neužbaigtų")<>[]);
         LD6.done(5)=%t; ld6_render_stage();
         r=bench_report_data("LD6"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
+        assert_checkequal(r.lab_revision,"3"); assert_checkequal(r.rubric_version,"LD6-3");
+        assert_checkequal(length(r.answers),7); assert_checkequal(length(r.observations),10);
         before=size(listfiles(bench_documents()+"/*.html"),"*");
         path=ld6_export_report();
         assert_checktrue(path<>""); assert_checktrue(isfile(path));

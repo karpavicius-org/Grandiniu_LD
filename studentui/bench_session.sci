@@ -367,6 +367,8 @@ function bench_restore_snapshot(session)
             ld5_set_status("Juodraštis atkurtas: "+student_caption(LD5.student),"ok","Maitinimas išjungtas.");
         elseif session.lab=="LD6" then
             LD6.cfg=session.cfg;LD6.student=session.student;
+            oldWorkflow=~isfield(session.state,"workflow_revision");
+            if ~oldWorkflow then oldWorkflow=session.state.workflow_revision<3; end
             for field=fieldnames(session.state)';LD6(field)=session.state(field);end
             if ~isfield(session.state,"report_wires") then
                 LD6.report_wires=list();
@@ -374,10 +376,23 @@ function bench_restore_snapshot(session)
                 LD6.done(:)=%f;
             end
             if ~isfield(session.state,"assessment") then LD6.assessment=%f;LD6.practice_used=%t;end
+            if oldWorkflow then
+                // LD6-2 4/5 etapų laukuose buvo perrašomi automatiniai U/I rodmenys.
+                // LD6-3 jų neinterpretuoja kaip naujų EΣ/EΔ/Eeq/req atsakymų.
+                LD6.answers(4,1:4)=""; LD6.answers(5,1:4)="";
+                LD6.done([4 5 6])=%f; LD6.workflow_revision=3;
+                // Jei senas darbas jau buvo 5 ar 6 etape, atverkite ties pirmąja
+                // nauja LD6-3 teorine užduotimi, o ne verskite studentą ieškoti jos atgal.
+                if LD6.step>4 then LD6.step=4; end
+            end
             LD6.powerOn=%f;LD6.switchOn=%f;LD6.demoMode=%f;LD6.pending="";
             LD6.lastMeasurement=%nan;LD6.autosave_enabled=~LD6.ui.headless;
             ld6_render_stage();ld6_student_sync();
-            ld6_set_status("Juodraštis atkurtas: "+student_caption(LD6.student),"ok","Maitinimas išjungtas.");
+            if oldWorkflow then
+                ld6_set_status("Senas LD6 juodraštis atkurtas: laidai ir matavimai išsaugoti.","ok","Naujus 4 ir 5 etapų teorinius atsakymus įveskite iš naujo.");
+            else
+                ld6_set_status("Juodraštis atkurtas: "+student_caption(LD6.student),"ok","Maitinimas išjungtas.");
+            end
         elseif session.lab=="LD7" then
             LD7.cfg=session.cfg;LD7.student=session.student;
             for field=fieldnames(session.state)';LD7(field)=session.state(field);end

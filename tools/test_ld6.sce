@@ -57,21 +57,24 @@ try
     end
     // Invoke the registered native resize callback without re-rendering a stage.
     // This checks the callback contract; it does not emulate an OS drag event.
-    LD6.ui.answerEdits(10).string="1,0";
+    LD6.ui.answerEdits(6).string="1";
     for dimension=[1 3 2]
         geometry_size(LD6.fig,sizes(dimension,:));
         assert_checktrue(LD6.fig.resizefcn<>""); execstr(LD6.fig.resizefcn);
-        assert_checkequal(LD6.ui.answerEdits(10).string,"1,0");
+        assert_checkequal(LD6.ui.answerEdits(6).string,"1");
         geometry_dump(LD6.fig,"LD6-resize-"+string(dimension),descriptor);
     end
     mclose(descriptor);
-    // 6 etapo išvadų tekstai turi tilpti be ankšto vienos eilutės laukelio.
-    LD6.step=6; ld6_render_stage();
-    for k=10:11
-        pos=LD6.ui.answerLabels(k).position;
-        assert_checktrue(pos(3)>=0.59); assert_checktrue(pos(4)>=0.10);
-        editpos=LD6.ui.answerEdits(k).position;
-        assert_checktrue(editpos(3)<=0.22);
+    // 5 etapo teoriniai dydžiai ir 6 etapo išvados turi tilpti be slinkties rodyklių.
+    for stage=[5 6]
+        LD6.step=stage; ld6_render_stage();
+        first=4; last=5; if stage==6 then first=6; last=7; end
+        for k=first:last
+            pos=LD6.ui.answerLabels(k).position;
+            assert_checktrue(pos(3)>=0.59); assert_checktrue(pos(4)>=0.10);
+            editpos=LD6.ui.answerEdits(k).position;
+            assert_checktrue(editpos(3)<=0.22);
+        end
     end
     report=bench_report_data("LD6");
     for stage=[1 3 4 5]; assert_checkequal(length(report.evidence.wiring("s"+string(stage)).pairs),0); end
@@ -89,27 +92,29 @@ try
         end
     end
     journal=LD6.journal; ld6_measure(); assert_checkequal(LD6.journal,journal);
-    values=ld6_reference(4); bench_ld6_answers(5,values);
-    LD6.ui.answerEdits(6).string="10,321";
+    eeq=(LD6.cfg.E1/LD6.cfg.r1+LD6.cfg.E2/LD6.cfg.r2)/(1/LD6.cfg.r1+1/LD6.cfg.r2);
+    req=1/(1/LD6.cfg.r1+1/LD6.cfg.r2);
+    bench_ld6_answers(5,[eeq req]);
+    LD6.ui.answerEdits(4).string="10,321"; execstr(LD6.ui.answerEdits(4).callback);
     snapshot_path=bench_save_snapshot("LD6"); snapshot=bench_read_snapshot(snapshot_path,"LD6");
     ld6_restart(); bench_restore_snapshot(snapshot);
-    assert_checkequal(LD6.ui.answerEdits(6).string,"10,321"); assert_checkequal(LD6.journal,journal);
+    assert_checkequal(LD6.ui.answerEdits(4).string,"10,321"); assert_checkequal(LD6.journal,journal);
     assert_checktrue(LD6.assessment); assert_checkfalse(LD6.powerOn); assert_checkfalse(LD6.switchOn);
-    // Formal assessment accepts a wrong numeric value without revealing the key.
-    values=ld6_reference(4); bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string="0"; execstr(LD6.ui.answerEdits(6).callback);
+    // Formal assessment accepts a wrong numeric theory value without revealing the key.
+    theory=[eeq req]; bench_ld6_answers(5,theory); LD6.ui.answerEdits(4).string="0"; execstr(LD6.ui.answerEdits(4).callback);
     bench_ld6_primary(); assert_checkequal(LD6.step,6); assert_checktrue(LD6.done(5));
     assert_checkequal(LD6.answers(5,1),"0"); assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")==[]);
     // Nonnumeric text is a format/completeness error.
     ld6_jump_step(5); LD6.done(5)=%f; ld6_render_stage();
-    bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string="1+2"; execstr(LD6.ui.answerEdits(6).callback);
+    bench_ld6_answers(5,theory); LD6.ui.answerEdits(4).string="1+2"; execstr(LD6.ui.answerEdits(4).callback);
     bench_ld6_primary(); assert_checkfalse(LD6.done(5)); assert_checkequal(LD6.step,5);
     assert_checktrue(strindex(LD6.ui.statusMain.string,"skaičių")<>[]);
-    // Learning mode still validates numeric answers locally.
+    // Learning mode still validates numeric theory answers locally.
     LD6.assessment=%f; LD6.practice_used=%t; LD6.done(5)=%f; ld6_render_stage();
-    bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string="0"; execstr(LD6.ui.answerEdits(6).callback);
+    bench_ld6_answers(5,theory); LD6.ui.answerEdits(4).string="0"; execstr(LD6.ui.answerEdits(4).callback);
     bench_ld6_primary(); assert_checkfalse(LD6.done(5)); assert_checkequal(LD6.step,5);
     assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")<>[]);
-    bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string=strsubst(LD6.ui.answerEdits(6).string,".",","); execstr(LD6.ui.answerEdits(6).callback); bench_ld6_primary();
+    bench_ld6_answers(5,theory); LD6.ui.answerEdits(4).string=strsubst(LD6.ui.answerEdits(4).string,".",","); execstr(LD6.ui.answerEdits(4).callback); bench_ld6_primary();
     assert_checkequal(LD6.step,6); assert_checktrue(LD6.done(5));
     ld6_toggle_solution(); assert_checktrue(LD6.demoMode); assert_checktrue(LD6.practice_used);
     ld6_toggle_solution(); assert_checkfalse(LD6.demoMode);
@@ -117,10 +122,21 @@ try
     ld6_set_step(5); ld6_restore_stage(); assert_checkequal(size(LD6.wires,1),0);
     assert_checkequal(size(ld6_journal_rows(4),1),0); assert_checkfalse(LD6.done(5));
     report=bench_report_data("LD6"); assert_checkequal(length(report.evidence.wiring.s5.pairs),0);
+    assert_checkequal(report.lab_revision,"3"); assert_checkequal(report.rubric_version,"LD6-3");
+    assert_checkequal(length(report.answers),7);
+    // Senas LD6-2 juodraštis: laidai/matavimai lieka, seni perrašyti U/I neperkeliami į naujas teorines užduotis.
+    legacy=bench_snapshot("LD6"); legacy.state.workflow_revision=2; legacy.state.step=6;
+    legacy.state.answers(4,1:4)=["11" "22" "33" "44"]; legacy.state.answers(5,1:4)=["55" "66" "77" "88"];
+    legacy.state.done(4:6)=%t; keepJournal=legacy.state.journal;
+    bench_restore_snapshot(legacy);
+    assert_checkequal(LD6.journal,keepJournal); assert_checkequal(LD6.workflow_revision,3);
+    assert_checkequal(LD6.step,4);
+    assert_checkequal(LD6.answers(4,1:4),emptystr(1,4)); assert_checkequal(LD6.answers(5,1:4),emptystr(1,4));
+    assert_checkfalse(or(LD6.done(4:6)));
     ld6_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD6.fig); delete(window);
     ld6_show_stand_map(); window=gcf(); assert_checktrue(window<>LD6.fig); delete(window);
     ld6_close(); assert_checkfalse(is_handle_valid(LD6.fig));
-    cases=list(); specs=[2 1 .01;4 1 .01;4 2 .02;4 3 .01;4 4 .02;5 1 .01;5 2 .02;5 3 .02;5 4 .02];
+    cases=list(); specs=[2 1 .01;4 1 .01;4 2 .01;5 1 .01;5 2 .01];
     for number=[1 17 64]
         bench_ld6_workflow(number,root,%f); expected=ld6_expected_answers(); original=LD6.answers;
         if number==1 then
@@ -145,7 +161,7 @@ try
         end
     end
     mputl(toJSON(cases),out+"tolerance-cases.json");
-    mputl("LD6_PASS: assessment/learning split; numeric-format guard; 1/2 conclusions; autosave/restore/close; 3 GUI variants; four safely wired modes; signed MNA readings; actual report button; saved wiring evidence; demo isolation; 39 geometry cases including resize callback; grading comparisons",out+"verdict.log"); exit(0);
+    mputl("LD6_PASS: LD6-3; no measurement retyping; 7 meaningful answers; 4 grouped measurement actions; 4 wiring proofs; assessment/learning split; autosave/migration/restore/close; 3 GUI variants; signed MNA readings; grading comparisons",out+"verdict.log"); exit(0);
 catch
     mputl("LD6_FAIL: "+strcat(lasterror()," | "),out+"verdict.log"); disp(lasterror()); exit(1);
 end

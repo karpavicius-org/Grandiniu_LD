@@ -531,6 +531,76 @@ void grade_ld6_sources(Grader& grader,const Json& report,const Bank& variant) {
             valid?"Patikrinkite šaltinių poliškumą, ampermetro vietą ir voltmetro zondus prie apkrovos R.":"Trūksta tinkamo sujungimo įrodymo.",valid?"":"missing_evidence");
     }
 }
+
+void grade_ld6_sources_v3(Grader& grader,const Json& report,const Bank& variant) {
+    parameters(report,{{"E1",9},{"E2",variant.e2},{"R",variant.r1a},{"Rnom",variant.r6n},{"r1",10},{"r2",10}});
+    const double E1=9.0,E2=variant.e2,load=variant.r1a,r1=10.0,r2=10.0;
+    const double currents[]={E1/(load+r1)*1000,
+        (E1+E2)/(load+r1+r2)*1000,
+        (E1-E2)/(load+r1+r2)*1000,
+        (E1/r1+E2/r2)/(1/load+1/r1+1/r2)/load*1000};
+    double volts[4];for(int mode=0;mode<4;++mode) volts[mode]=currents[mode]*load/1000;
+    const double first=(E1-volts[3])/r1*1000,second=(E2-volts[3])/r2*1000;
+    const char* mode_names[]={"tik E1","šaltiniai nuosekliai","šaltiniai priešpriešiais","šaltiniai lygiagrečiai"};
+
+    auto measured_mode=[&](int mode) {
+        const auto suffix=std::to_string(mode+1);
+        const double u=grader.observation("u"+suffix,"V");
+        const double i=grader.observation("i"+suffix,"mA");
+        bool missing=std::isnan(u)||std::isnan(i);
+        bool ok=!missing&&near(u,volts[mode],0,.005)&&near(i,currents[mode],.02,.005);
+        Json given=Json::array({std::isnan(u)?Json(nullptr):Json(u),std::isnan(i)?Json(nullptr):Json(i)});
+        Json expected=Json::array({volts[mode],currents[mode]});
+        if(mode==3) {
+            const double i1=grader.observation("parallel_i1","mA");
+            const double i2=grader.observation("parallel_i2","mA");
+            missing=missing||std::isnan(i1)||std::isnan(i2);
+            ok=ok&&!missing&&near(i1,first,.02,.005)&&near(i2,second,.02,.005);
+            given.push_back(std::isnan(i1)?Json(nullptr):Json(i1));
+            given.push_back(std::isnan(i2)?Json(nullptr):Json(i2));
+            expected.push_back(first);expected.push_back(second);
+        }
+        grader.add("m"+suffix+".measure",std::string("Atliktas matavimas: ")+mode_names[mode],ok,
+            missing?"Trūksta šio režimo matavimo.":"Rodmenys neatitinka priskirtos grandinės; patikrinkite sujungimą ir ženklus.",
+            missing?"missing":"");
+        auto& item=grader.items.back();item["given"]=given;item["expected"]=expected;item["unit"]="U[V], I[mA]";
+    };
+    for(int mode=0;mode<4;++mode) measured_mode(mode);
+
+    grader.answer("s2.q1","Tik E1: teorinė apkrovos srovė I = E1/(R+r1)",currents[0],"mA",
+                  "Įtraukite šaltinio vidinę varžą r1.",.01,1e-9);
+    grader.answer("s4.q1","Nuosekliai: bendra EV EΣ = E1 + E2",E1+E2,"V",
+                  "Nuosekliai vienakrypčių šaltinių EV sudedamos.",.01,1e-9);
+    grader.answer("s4.q2","Priešpriešiais: bendra EV EΔ = E1 − E2",E1-E2,"V",
+                  "Išlaikykite E1−E2 ženklą.",.01,1e-9);
+    const double eeq=(E1/r1+E2/r2)/(1/r1+1/r2);
+    const double req=1/(1/r1+1/r2);
+    grader.answer("s5.q1","Lygiagrečiai: ekvivalentinė EV Eeq",eeq,"V",
+                  "Eeq=(E1/r1+E2/r2)/(1/r1+1/r2).",.01,1e-9);
+    grader.answer("s5.q2","Lygiagrečiai: ekvivalentinė vidinė varža req",req,"Ohm",
+                  "req=1/(1/r1+1/r2).",.01,1e-9);
+    grader.answer("s6.q1","Ar nuosekliai EV sudedamos su ženklais?",1,"choice","1 – Taip, 2 – Ne.",0,0);
+    grader.answer("s6.q2","Ar lygiagrečiai apkrovos U = E1 + E2?",2,"choice",
+                  "Lygiagretaus jungimo įtampa nėra E1+E2.",0,0);
+
+    const int stages[]={1,3,4,5};
+    const char* wiring_labels[]={
+        "1 etapas: sujungta grandinė tik su šaltiniu E1",
+        "3 etapas: šaltiniai sujungti nuosekliai",
+        "4 etapas: šaltiniai sujungti priešpriešiais",
+        "5 etapas: šaltiniai sujungti lygiagrečiai"
+    };
+    for(int mode=1;mode<=4;++mode) {
+        const auto stage="s"+std::to_string(stages[mode-1]);
+        bool valid=true,correct=false;
+        try {correct=ld6_wiring(report.at("evidence").at("wiring").at(stage).at("pairs"),valid,mode);}
+        catch(const std::exception&) {valid=false;}
+        grader.add(stage+".wiring",wiring_labels[mode-1],correct,
+            valid?"Patikrinkite šaltinių poliškumą, ampermetro vietą ir voltmetro zondus prie apkrovos R.":"Trūksta tinkamo sujungimo įrodymo.",
+            valid?"":"missing_evidence");
+    }
+}
+
 bool ld7_wiring(const Json& pairs,bool& valid,int mode=1) {
     std::vector<std::pair<std::string,std::string>> required={{"E_P","K1"},{"K2","A_P"},{"A_N","R_A"},{"V_P","R_A"},{"V_N","R_B"}};
     if(mode==1) required.push_back({"R_B","E_N"});
@@ -909,10 +979,11 @@ Json read_report(const std::filesystem::path& path) {
 Json grade(const Json& r) {
     require(r.at("schema_version").is_number_integer()&&r.at("schema_version")==1,"unsupported_schema");
     auto lab=text(r.at("lab_id"));require(lab=="LD1"||lab=="LD2"||lab=="LD3"||lab=="LD4"||lab=="LD5"||lab=="LD6"||lab=="LD7"||lab=="LD8"||lab=="LD9"||lab=="LD10"||lab=="LD11"||lab=="LD12","unsupported_lab");
-    const bool sources_revision=lab=="LD6"&&r.at("lab_revision")=="2"&&r.at("rubric_version")=="LD6-2"&&r.at("bank_id")=="LD6-64-B-2026";
+    const bool sources_revision2=lab=="LD6"&&r.at("lab_revision")=="2"&&r.at("rubric_version")=="LD6-2"&&r.at("bank_id")=="LD6-64-B-2026";
+    const bool sources_revision3=lab=="LD6"&&r.at("lab_revision")=="3"&&r.at("rubric_version")=="LD6-3"&&r.at("bank_id")=="LD6-64-B-2026";
     const bool guided_revision=lab=="LD1"&&r.at("lab_revision")=="2"&&r.at("rubric_version")=="LD1-2"&&r.at("bank_id")=="LD1-64-A-2026";
     const bool measurement_revision=lab=="LD1"&&r.at("lab_revision")=="3"&&r.at("rubric_version")=="LD1-3"&&r.at("bank_id")=="LD1-64-A-2026";
-    require(sources_revision||guided_revision||measurement_revision||(r.at("lab_revision")=="1"&&r.at("rubric_version")==lab+"-1"&&r.at("bank_id")==lab+"-64-A-2026"),"unsupported_version");
+    require(sources_revision2||sources_revision3||guided_revision||measurement_revision||(r.at("lab_revision")=="1"&&r.at("rubric_version")==lab+"-1"&&r.at("bank_id")==lab+"-64-A-2026"),"unsupported_version");
     if(guided_revision) require(r.at("evidence").value("automatic_setup",false),"automatic_setup_required");
     if(measurement_revision) require(r.at("evidence").value("measurement_workflow",false)&&r.at("evidence").value("automatic_measurement",false),"measurement_workflow_required");
     require(r.at("variant").is_number_integer(),"variant_type");
@@ -929,7 +1000,7 @@ Json grade(const Json& r) {
     auto id=text(r.at("submission_id"),128);require(!id.empty(),"submission_identity");
     require(r.at("mode")=="learning"||r.at("mode")=="assessment","mode");
     text(r.at("note"),32000);
-    Grader g(r);if(measurement_revision) grade_dc_measurement(g,r,b);else if(lab=="LD1") grade_dc(g,r,b);else if(lab=="LD2") grade_ac(g,r,b);else if(lab=="LD3") grade_ld3(g,r,b);else if(lab=="LD4") grade_ld4(g,r,b);else if(lab=="LD5") grade_ld5(g,r,b);else if(lab=="LD7") grade_ld7(g,r,b);else if(lab=="LD8") grade_ld8(g,r,b);else if(lab=="LD9") grade_ld9(g,r,b);else if(lab=="LD10") grade_ld10(g,r,b);else if(lab=="LD11") grade_ld11(g,r,b);else if(lab=="LD12") grade_ld12(g,r,b);else if(sources_revision) grade_ld6_sources(g,r,b);else grade_ld6(g,r,b);g.finish();
+    Grader g(r);if(measurement_revision) grade_dc_measurement(g,r,b);else if(lab=="LD1") grade_dc(g,r,b);else if(lab=="LD2") grade_ac(g,r,b);else if(lab=="LD3") grade_ld3(g,r,b);else if(lab=="LD4") grade_ld4(g,r,b);else if(lab=="LD5") grade_ld5(g,r,b);else if(lab=="LD7") grade_ld7(g,r,b);else if(lab=="LD8") grade_ld8(g,r,b);else if(lab=="LD9") grade_ld9(g,r,b);else if(lab=="LD10") grade_ld10(g,r,b);else if(lab=="LD11") grade_ld11(g,r,b);else if(lab=="LD12") grade_ld12(g,r,b);else if(sources_revision3) grade_ld6_sources_v3(g,r,b);else if(sources_revision2) grade_ld6_sources(g,r,b);else grade_ld6(g,r,b);g.finish();
     int points=0,maximum=0;
     for(auto& item:g.items) {
         auto key=item.at("id").get<std::string>();
