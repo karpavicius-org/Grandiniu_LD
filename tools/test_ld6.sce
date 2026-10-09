@@ -125,11 +125,12 @@ try
     assert_checkequal(report.lab_revision,"3"); assert_checkequal(report.rubric_version,"LD6-3");
     assert_checkequal(length(report.answers),7);
     // Senas LD6-2 juodraštis: laidai/matavimai lieka, seni perrašyti U/I neperkeliami į naujas teorines užduotis.
-    legacy=bench_snapshot("LD6"); legacy.state.workflow_revision=2;
+    legacy=bench_snapshot("LD6"); legacy.state.workflow_revision=2; legacy.state.step=6;
     legacy.state.answers(4,1:4)=["11" "22" "33" "44"]; legacy.state.answers(5,1:4)=["55" "66" "77" "88"];
     legacy.state.done(4:6)=%t; keepJournal=legacy.state.journal;
     bench_restore_snapshot(legacy);
     assert_checkequal(LD6.journal,keepJournal); assert_checkequal(LD6.workflow_revision,3);
+    assert_checkequal(LD6.step,4);
     assert_checkequal(LD6.answers(4,1:4),emptystr(1,4)); assert_checkequal(LD6.answers(5,1:4),emptystr(1,4));
     assert_checkfalse(or(LD6.done(4:6)));
     ld6_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD6.fig); delete(window);

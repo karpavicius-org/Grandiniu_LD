@@ -381,6 +381,9 @@ function bench_restore_snapshot(session)
                 // LD6-3 jų neinterpretuoja kaip naujų EΣ/EΔ/Eeq/req atsakymų.
                 LD6.answers(4,1:4)=""; LD6.answers(5,1:4)="";
                 LD6.done([4 5 6])=%f; LD6.workflow_revision=3;
+                // Jei senas darbas jau buvo 5 ar 6 etape, atverkite ties pirmąja
+                // nauja LD6-3 teorine užduotimi, o ne verskite studentą ieškoti jos atgal.
+                if LD6.step>4 then LD6.step=4; end
             end
             LD6.powerOn=%f;LD6.switchOn=%f;LD6.demoMode=%f;LD6.pending="";
             LD6.lastMeasurement=%nan;LD6.autosave_enabled=~LD6.ui.headless;
