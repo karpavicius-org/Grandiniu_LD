@@ -16,12 +16,12 @@ function ld6_terminal_click(id)
     if ~ld6_wiring_editable() | ~or(ld6_terminal_ids()==id) then return; end
     if LD6.powerOn then
         LD6.pending="";
-        ld6_set_status("Prieš keisdami laidus išjunkite [B01].","error","Maitinimas turi būti išjungtas prieš bet kokį perjungimą.");
+        ld6_set_status("Prieš keisdami laidus išjunkite maitinimą.","error","Maitinimas turi būti išjungtas prieš bet kokį perjungimą.");
         bench_autosave("LD6"); return;
     end
     if LD6.pending=="" then
         LD6.pending=id;
-        ld6_set_status("Pasirinktas ["+ld6_terminal_code(id)+"] "+ld6_terminal_name(id),"info","Spauskite kitą gnybtą. Pakartoję esamo laido galus jį pašalinsite.");
+        ld6_set_status("Pasirinktas "+ld6_terminal_name(id)+".","info","Spauskite kitą gnybtą. Pakartoję esamo laido galus jį pašalinsite.");
     else
         first=LD6.pending; LD6.pending="";
         if first<>id then
@@ -50,16 +50,16 @@ function ld6_toggle_power()
     LD6.powerOn=~LD6.powerOn;
     if ~LD6.powerOn then LD6.switchOn=%f; end
     ld6_render_wires();
-    if LD6.powerOn then ld6_set_status("Maitinimas įjungtas.","ok","Uždarykite jungiklį [B02].");
+    if LD6.powerOn then ld6_set_status("Maitinimas įjungtas.","ok","Uždarykite jungiklį.");
     else ld6_set_status("Maitinimas išjungtas.","info","Galima saugiai keisti šio etapo laidus."); end
     bench_autosave("LD6");
 endfunction
 
 function ld6_toggle_switch()
     global LD6;
-    if ~LD6.powerOn then ld6_set_status("Pirma įjunkite [B01].","error",""); return; end
+    if ~LD6.powerOn then ld6_set_status("Pirmiausia įjunkite maitinimą.","error",""); return; end
     LD6.switchOn=~LD6.switchOn; ld6_render_wires();
-    if LD6.switchOn then ld6_set_status("Jungiklis uždarytas.","ok","Rodmenis įrašykite [B03].");
+    if LD6.switchOn then ld6_set_status("Jungiklis uždarytas.","ok","Spauskite Matuoti.");
     else ld6_set_status("Jungiklis atviras.","info",""); end
     bench_autosave("LD6");
 endfunction
@@ -110,43 +110,82 @@ function ld6_check_step(check_answers)
     if LD6.demoMode then return; end
     ld6_save_answers(); step=LD6.step;
     if ~ld6_valid_index(step,6) then return; end
-    if LD6.done(step) then return; end
+    if LD6.done(step) then ld6_set_status("Etapas jau atliktas.","ok","Spauskite Toliau."); return; end
+
     if step==1 then
-        if LD6.wireMode<>1 then ld6_set_status("Pirma sujunkite E1 grandinę [B10].","error",""); return; end
+        if LD6.wireMode<>1 then ld6_set_status("Pirmiausia pasirinkite E1 režimą.","error",""); return; end
         [valid,message]=ld6_wiring_valid(LD6.wires);
-        if ~valid then ld6_set_status(message,"error","Pagalba → Kaip sujungti."); return; end
+        if ~valid then ld6_set_status(message,"error","Jei reikia, atverkite Pagalba → Kaip sujungti."); return; end
         LD6.report_wires(1)=LD6.wires;
     elseif or(step==[2 3 4 5]) then
         modes=ld6_stage_mode(step); if step==4 then modes=[2 3]; end
         for mode=modes
             if ld6_journal_rows(mode)==[] then
-                ld6_set_status("Trūksta matavimo: "+ld6_mode_name(mode),"error","Sujunkite, įjunkite maitinimą ir spauskite Matuoti."); return;
+                ld6_set_status("Trūksta matavimo: "+ld6_mode_name(mode)+".","error","Sujunkite grandinę, įjunkite maitinimą, uždarykite jungiklį ir spauskite Matuoti."); return;
             end
         end
     end
+
     expected=ld6_expected_answers();
+    labels=emptystr(6,8);
+    labels(2,1)="E1 apkrovos srovę";
+    labels(4,1)="nuoseklaus jungimo apkrovos įtampą";
+    labels(4,2)="nuoseklaus jungimo apkrovos srovę";
+    labels(4,3)="priešpriešinio jungimo apkrovos įtampą";
+    labels(4,4)="priešpriešinio jungimo apkrovos srovę";
+    labels(5,1)="lygiagretaus jungimo apkrovos įtampą";
+    labels(5,2)="lygiagretaus jungimo apkrovos srovę";
+    labels(5,3)="E1 šaltinio srovę";
+    labels(5,4)="E2 šaltinio srovę";
+    labels(6,1)="pirmą išvadą";
+    labels(6,2)="antrą išvadą";
+
     for index=1:11
         [answer_step,slot]=ld6_answer_slot(index);
         if answer_step<>step then continue; end
-        if stripblanks(LD6.answers(step,slot))=="" then
-            ld6_set_status("Įrašykite ["+ld6_answer_code(step,slot)+"].","error","Atsakymą vertins dėstytojo programa."); return;
+        raw=stripblanks(LD6.answers(step,slot));
+        if raw=="" then
+            ld6_set_status("Įrašykite "+labels(step,slot)+".","error","Atsakymo teisingumą vertins dėstytojo programa."); return;
         end
-        if ~check_answers then continue; end
-        value=ld6_parse_number(LD6.answers(step,slot)); relative=.02; absolute=1e-9;
-        if step==2 | (step==4 & or(slot==[1 3])) | (step==5 & slot==1) then relative=.01; end
-        if step==6 then relative=0; absolute=0; end
-        if ~ld6_close_enough(value,expected(step,slot),relative,absolute) then
-            ld6_set_status("Patikrinkite ["+ld6_answer_code(step,slot)+"].","error","Skaičiavime įtraukite vidines varžas, mA konversiją ir išlaikykite srovės ženklą."); return;
+
+        if step==6 then
+            if raw<>"1" & raw<>"2" then
+                ld6_set_status("Abiem išvadoms pasirinkite tik 1 arba 2.","error","1 – Taip, 2 – Ne."); return;
+            end
+            if ~check_answers then continue; end
+            if raw<>string(expected(step,slot)) then
+                ld6_set_status("Išvada neteisinga.","error","Palyginkite savo keturių jungimo režimų matavimus."); return;
+            end
+        else
+            value=ld6_parse_number(raw);
+            if isnan(value) then
+                ld6_set_status("Įrašykite skaičių: "+labels(step,slot)+".","error","Tinka kablelis arba taškas; formulės ir vieneto į lauką nerašykite."); return;
+            end
+            if ~check_answers then continue; end
+            relative=.02; absolute=1e-9;
+            if step==2 | (step==4 & or(slot==[1 3])) | (step==5 & slot==1) then relative=.01; end
+            if ~ld6_close_enough(value,expected(step,slot),relative,absolute) then
+                ld6_set_status("Patikrinkite "+labels(step,slot)+".","error","Skaičiavime įtraukite vidines varžas, mA konversiją ir išlaikykite srovės ženklą."); return;
+            end
         end
     end
+
     LD6.done(step)=%t; ld6_render_stage();
-    if check_answers then ld6_set_status(string(step)+" etapas patikrintas.","ok","");
-    else ld6_set_status(string(step)+" etapo atsakymai įrašyti.","ok","Teisingumą vertins dėstytojo programa."); end
+    if check_answers then ld6_set_status(string(step)+" etapas patikrintas.","ok","Spauskite Toliau.");
+    else ld6_set_status(string(step)+" etapo duomenys įrašyti.","ok","Teisingumą vertins dėstytojo programa."); end
 endfunction
 
 function ld6_next_step()
     global LD6;
-    if LD6.step>=6 | ~LD6.done(LD6.step) then return; end
+    if LD6.step>=6 then return; end
+    if ~LD6.done(LD6.step) then
+        if LD6.assessment then
+            ld6_set_status("Atsiskaityme neužbaigto etapo praleisti negalima.","warn","Užbaikite dabartinį etapą.");
+            return;
+        end
+        LD6.skipped(LD6.step)=%t;
+        ld6_set_status("Etapas praleistas.","info","Galite prie jo grįžti vėliau.");
+    end
     ld6_set_step(LD6.step+1);
 endfunction
 
@@ -162,12 +201,12 @@ function text=ld6_step_instruction(step)
     global LD6;
     cfg=LD6.cfg;
     select step
-    case 1 then text="Sujunkite E1 grandinę be maitinimo. Seką rasite Pagalba → [B04] Kaip sujungti. E2 šiame etape nenaudojamas.";
-    case 2 then text=msprintf("[B10] E1: I = 1000·E1/(R+r1), mA. E1=%g V, R=%g Ω, r1=%g Ω. Įrašykite [A02.01], įjunkite [B01], [B02] ir matuokite [B03].",cfg.E1,cfg.R,cfg.r1);
-    case 3 then text="[B11] Nuosekliai: sujunkite E1− su E2+ be maitinimo; tada [B01], [B02], [B03]. I = 1000·(E1+E2)/(R+r1+r2), mA; U = (I/1000)·R, V.";
-    case 4 then text="[B12] Priešpriešiais: sujunkite abiejų šaltinių minusus be maitinimo; [B01], [B02], [B03]. I = 1000·(E1−E2)/(R+r1+r2), mA; U = (I/1000)·R. Įrašykite abiejų nuoseklių jungimų rezultatus su ženklu.";
-    case 5 then text="[B13] Lygiagrečiai: + su +, − su −. Modelyje r1 ir r2 riboja cirkuliuojančią srovę. U=(E1/r1+E2/r2)/(1/R+1/r1+1/r2). I=1000·U/R; I1=1000·(E1−U)/r1; I2=1000·(E2−U)/r2, mA. Neigiamas ženklas reiškia srovę į šaltinį.";
-    case 6 then text="[A06.01] Ar nuosekliai EV sudedamos su ženklais? [A06.02] Ar lygiagrečiai įtampa lygi E1+E2? 1 – Taip, 2 – Ne. Patikrinę įrašykite ataskaitą.";
+    case 1 then text="Sujunkite grandinę tik su šaltiniu E1: E1 → jungiklis → ampermetras → apkrova R → E1. Voltmetrą prijunkite prie R galų. Maitinimas turi būti išjungtas.";
+    case 2 then text=msprintf("Apskaičiuokite E1 apkrovos srovę I = 1000·E1/(R+r1), kai E1=%g V, R=%g Ω ir r1=%g Ω. Tada įjunkite maitinimą, uždarykite jungiklį ir spauskite Matuoti.",cfg.E1,cfg.R,cfg.r1);
+    case 3 then text="Išjunkite maitinimą ir sujunkite šaltinius nuosekliai: E1− su E2+. Tada įjunkite maitinimą, uždarykite jungiklį ir išmatuokite U bei I.";
+    case 4 then text="Išjunkite maitinimą ir sujunkite šaltinius priešpriešiais. Išmatuokite U ir I. Dešinėje įrašykite tiek ankstesnio nuoseklaus, tiek šio priešpriešinio jungimo rezultatus su teisingu ženklu.";
+    case 5 then text="Išjunkite maitinimą ir sujunkite šaltinius lygiagrečiai: + su +, − su −. Išmatuokite apkrovos U ir I bei įrašykite E1 ir E2 sroves. Neigiamas ženklas reiškia srovę į šaltinį.";
+    case 6 then text="Padarykite dvi išvadas: ar nuosekliai EV sudedamos su ženklais ir ar lygiagrečiai apkrovos įtampa lygi E1+E2. 1 – Taip, 2 – Ne.";
     else text="";
     end
 endfunction
@@ -228,7 +267,7 @@ function ld6_text_window(title,lines)
     uicontrol(window,"style","listbox","units","normalized","position",[.02 .10 .96 .84], ...
         "string",lines,"fontname","SansSerif","fontunits","pixels","fontsize",12);
     uicontrol(window,"style","pushbutton","units","normalized","position",[.35 .02 .30 .06], ...
-        "string","[H01] Uždaryti","tag","H01","callback","close()");
+        "string","Uždaryti","tag","H01","callback","close()");
 endfunction
 
 function ld6_toggle_solution()
@@ -266,7 +305,22 @@ function ld6_restore_stage()
 endfunction
 
 function ld6_restart()
-    ld6_init_state(); ld6_render_stage(); ld6_set_status("Darbas pradėtas iš naujo.","info","Studentas, variantas, režimas ir mokymosi žyma išliko."); bench_autosave("LD6");
+    global LD6;
+    ld6_save_answers();
+    bench_autosave("LD6");
+    if isfield(LD6,"autosave_error") then
+        if LD6.autosave_error<>"" then return; end
+    end
+    cfg=LD6.cfg; st=LD6.student;
+    ld6_init_state();
+    LD6.cfg=cfg; LD6.student=st;
+    LD6.assessment=%t; LD6.practice_used=%f;
+    LD6.autosave_paths=emptystr(0,1); LD6.autosave_error="";
+    if isfield(LD6,"ui") then
+        if ~isfield(LD6.ui,"headless") | ~LD6.ui.headless then ld6_render_stage(); end
+    end
+    ld6_set_status("Pradėtas naujas atsiskaitymo bandymas.","ok","Ankstesnio bandymo juodraščiai palikti atskirai.");
+    bench_autosave("LD6");
 endfunction
 
 function ld6_answers_changed()

@@ -65,6 +65,14 @@ try
         geometry_dump(LD6.fig,"LD6-resize-"+string(dimension),descriptor);
     end
     mclose(descriptor);
+    // 6 etapo išvadų tekstai turi tilpti be ankšto vienos eilutės laukelio.
+    LD6.step=6; ld6_render_stage();
+    for k=10:11
+        pos=LD6.ui.answerLabels(k).position;
+        assert_checktrue(pos(3)>=0.59); assert_checktrue(pos(4)>=0.10);
+        editpos=LD6.ui.answerEdits(k).position;
+        assert_checktrue(editpos(3)<=0.22);
+    end
     report=bench_report_data("LD6");
     for stage=[1 3 4 5]; assert_checkequal(length(report.evidence.wiring("s"+string(stage)).pairs),0); end
     LD6.cfg=ld6_variant_config(64); LD6.student=student_profile(64,"Patikra Žąsė","TEST","LD6");
@@ -87,16 +95,21 @@ try
     ld6_restart(); bench_restore_snapshot(snapshot);
     assert_checkequal(LD6.ui.answerEdits(6).string,"10,321"); assert_checkequal(LD6.journal,journal);
     assert_checktrue(LD6.assessment); assert_checkfalse(LD6.powerOn); assert_checkfalse(LD6.switchOn);
-    // Formal assessment preserves invalid raw text and advances without revealing the key.
-    values=ld6_reference(4); bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string="1+2";
+    // Formal assessment accepts a wrong numeric value without revealing the key.
+    values=ld6_reference(4); bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string="0"; execstr(LD6.ui.answerEdits(6).callback);
     bench_ld6_primary(); assert_checkequal(LD6.step,6); assert_checktrue(LD6.done(5));
-    assert_checkequal(LD6.answers(5,1),"1+2"); assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")==[]);
-    // Learning mode still validates locally.
-    ld6_jump_step(5); LD6.assessment=%f; LD6.practice_used=%t; ld6_render_stage();
-    values=ld6_reference(4); bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string="1+2";
+    assert_checkequal(LD6.answers(5,1),"0"); assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")==[]);
+    // Nonnumeric text is a format/completeness error.
+    ld6_jump_step(5); LD6.done(5)=%f; ld6_render_stage();
+    bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string="1+2"; execstr(LD6.ui.answerEdits(6).callback);
+    bench_ld6_primary(); assert_checkfalse(LD6.done(5)); assert_checkequal(LD6.step,5);
+    assert_checktrue(strindex(LD6.ui.statusMain.string,"skaičių")<>[]);
+    // Learning mode still validates numeric answers locally.
+    LD6.assessment=%f; LD6.practice_used=%t; LD6.done(5)=%f; ld6_render_stage();
+    bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string="0"; execstr(LD6.ui.answerEdits(6).callback);
     bench_ld6_primary(); assert_checkfalse(LD6.done(5)); assert_checkequal(LD6.step,5);
     assert_checktrue(strindex(LD6.ui.statusMain.string,"Patikrinkite")<>[]);
-    bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string=strsubst(LD6.ui.answerEdits(6).string,".",","); bench_ld6_primary();
+    bench_ld6_answers(5,values); LD6.ui.answerEdits(6).string=strsubst(LD6.ui.answerEdits(6).string,".",","); execstr(LD6.ui.answerEdits(6).callback); bench_ld6_primary();
     assert_checkequal(LD6.step,6); assert_checktrue(LD6.done(5));
     ld6_toggle_solution(); assert_checktrue(LD6.demoMode); assert_checktrue(LD6.practice_used);
     ld6_toggle_solution(); assert_checkfalse(LD6.demoMode);
@@ -124,15 +137,15 @@ try
             end
         end
         for slot=1:2
-            for raw=[string(expected(6,slot))+",0" string(3-expected(6,slot)) "" "1+1"]
+            for raw=[string(expected(6,slot)) string(3-expected(6,slot)) "" "1+1"]
                 LD6.answers=original; LD6.step=6; LD6.done(6)=%f; LD6.answers(6,slot)=raw; ld6_check_step();
-                accepted=LD6.done(6); assert_checkequal(accepted,raw==string(expected(6,slot))+",0");
+                accepted=LD6.done(6); assert_checkequal(accepted,raw==string(expected(6,slot)));
                 cases($+1)=struct("report",bench_report_data("LD6"),"accepted",accepted);
             end
         end
     end
     mputl(toJSON(cases),out+"tolerance-cases.json");
-    mputl("LD6_PASS: assessment/learning split; autosave/restore/close; 3 GUI variants; four safely wired modes; signed MNA readings; actual report button; saved wiring evidence; comma/raw input; demo isolation; 39 geometry cases including resize callback; grading comparisons",out+"verdict.log"); exit(0);
+    mputl("LD6_PASS: assessment/learning split; numeric-format guard; 1/2 conclusions; autosave/restore/close; 3 GUI variants; four safely wired modes; signed MNA readings; actual report button; saved wiring evidence; demo isolation; 39 geometry cases including resize callback; grading comparisons",out+"verdict.log"); exit(0);
 catch
     mputl("LD6_FAIL: "+strcat(lasterror()," | "),out+"verdict.log"); disp(lasterror()); exit(1);
 end
