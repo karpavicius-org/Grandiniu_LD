@@ -1190,7 +1190,9 @@ function bench_ld7_workflow(number,root,gui)
             LD7.ui.answerEdits(1).string="1+2"; LD7.ui.answerEdits(2).string=string(cfg.E);
             bench_ld7_primary();
             assert_checkfalse(LD7.done(3)); assert_checkequal(LD7.step,3);
-            assert_checktrue(strindex(LD7.ui.statusMain.string,"Patikrinkite")<>[]);
+            // Both learning and assessment reject malformed numeric syntax,
+            // while learning also provides correctness feedback for valid numbers.
+            assert_checktrue(strindex(LD7.ui.statusMain.string,"Įrašykite skaičių")<>[]);
             ld7_toggle_solution(); assert_checktrue(LD7.demoMode); assert_checktrue(LD7.practice_used);
             ld7_toggle_solution(); assert_checkfalse(LD7.demoMode);
         end
