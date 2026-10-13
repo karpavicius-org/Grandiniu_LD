@@ -113,7 +113,9 @@ function ld7_render_wires()
     if valid then ampText = msprintf("%.3f mA", i); voltText = msprintf("%.4f V", u); end
     if LD7.wireMode == 2 then ampText = "— mA"; end
     if LD7.wireMode == 3 then voltText = "≈0 V"; end
-    rText = "?"; if LD7.done(3) then rText = msprintf("%g Ω", LD7.cfg.r); end
+    rText = "?";
+    // Never display the model answer in formal assessment after an ungraded input.
+    if ~LD7.assessment & LD7.done(3) then rText = msprintf("%g Ω", LD7.cfg.r); end
     eText = "<html><center>" + msprintf("%g V", LD7.cfg.E) + "<br>r = " + rText + "</center></html>";
     rCard = "—";
     if LD7.wireMode == 1 & LD7.position > 0 then
@@ -275,7 +277,7 @@ function ld7_build_gui()
         [st, sl] = ld7_answer_slot(k);
         if st == 6 then
             h = uicontrol(right, "style", "popupmenu", "units", "normalized", "position", [0.63 0.5 0.30 0.075], ...
-                "string", ["Pasirinkite";"Taip";"Ne"], "value", 1, "fontunits", "pixels", "fontsize", 14, ...
+                "string", ["Rinktis";"Taip";"Ne"], "value", 1, "fontunits", "pixels", "fontsize", 14, ...
                 "tag", ld7_answer_code(st, sl), "callback", "ld7_answers_changed()", "backgroundcolor", [0.94 0.96 0.96]);
         else
             h = uicontrol(right, "style", "edit", "units", "normalized", "position", [0.63 0.5 0.30 0.075], ...

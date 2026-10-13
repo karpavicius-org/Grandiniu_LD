@@ -1138,6 +1138,13 @@ function bench_ld7_workflow(number,root,gui)
         end
         if ~primary_done then bench_ld7_primary(); end
         if ~LD7.done(step) then error("LD7 variantas "+string(number)+", etapas "+string(step)); end
+        if gui & step==3 then
+            // In formal assessment r must not be leaked on the source card
+            // just because an ungraded answer was submitted.
+            card=findobj("tag","reading:E");
+            assert_checktrue(card<>[]);
+            assert_checktrue(strindex(card.string,"r = ?")<>[]);
+        end
         if gui then mprintf("PASS LD7 V%02d: etapas %d\n",number,step); end
     end
     assert_checktrue(and(LD7.done)); assert_checkequal(size(LD7.journal,1),7);

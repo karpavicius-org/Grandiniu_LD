@@ -113,10 +113,15 @@ try
     LD7.journal=journal;
     bench_ld7_primary(); assert_checkequal(LD7.step,6); assert_checktrue(LD7.done(5));
     assert_checkequal(length(bench_report_data("LD7").answers),8);
+    mprintf("LD7_GUI_CHECK: special measurements and restored report OK\n");
+    // A worked example is deliberately blocked in assessment. Switch to
+    // learning explicitly before testing the allowed sample, as real students do.
+    LD7.assessment=%f; LD7.practice_used=%t; ld7_render_stage();
     ld7_toggle_solution(); assert_checktrue(LD7.demoMode); assert_checktrue(LD7.practice_used);
     ld7_toggle_solution(); assert_checkfalse(LD7.demoMode);
     LD7.assessment=%t; LD7.practice_used=%f;
     ld7_set_step(5); ld7_restore_stage(); assert_checkequal(size(LD7.wires,1),0);
+    mprintf("LD7_GUI_CHECK: demo returned and restore OK\n");
     assert_checkequal(size(ld7_journal_rows(6),1),0); assert_checkfalse(LD7.done(5));
     report=bench_report_data("LD7"); assert_checkequal(length(report.evidence.wiring.s5te.pairs),0);
     ld7_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD7.fig); delete(window);
@@ -136,6 +141,7 @@ try
     assert_checkequal(LD7.journal,[]);
     assert_checkfalse(or(LD7.done)); assert_checkequal(LD7.cfg.R3,new_cfg.R3);
     assert_checktrue(strindex(LD7.ui.controls(6).string,string(new_cfg.R3)+" Ω")<>[]);
+    mprintf("LD7_GUI_CHECK: profile corrections and new-variant reset OK\n");
     ld7_close(); assert_checkfalse(is_handle_valid(LD7.fig));
     cases=list(); specs=[3 1 .03;3 2 .01;4 1 .02;4 2 .02;4 3 .02];
     for number=[1 17 64]
@@ -162,6 +168,7 @@ try
         end
     end
     mputl(toJSON(cases),out+"tolerance-cases.json");
+    mprintf("LD7_GUI_CHECK: tolerance and true/false decision cases OK\n");
     // Historical LD7-1 draft migrates without losing measured U/I and wiring.
     bench_ld7_workflow(1,root,%f);
     previous=bench_snapshot("LD7");
@@ -178,6 +185,7 @@ try
     assert_checkequal(LD7.report_wires(1),original_wires);
     migrated_report=bench_report_data("LD7");
     assert_checkequal(migrated_report.rubric_version,"LD7-2");
+    mprintf("LD7_GUI_CHECK: historic draft migration OK\n");
     mputl("LD7_PASS: LD7-2 simplified actions; old draft migration; assessment/learning split; autosave/restore/close; 3 GUI variants; safe darbine/TE/virtual-TJ wirings; MNA readings; actual report button; saved wiring evidence; no copied U0/Ik/power; demo isolation; geometry and grading comparisons",out+"verdict.log"); exit(0);
 catch
     mputl("LD7_FAIL: "+strcat(lasterror()," | "),out+"verdict.log"); disp(lasterror()); exit(1);
