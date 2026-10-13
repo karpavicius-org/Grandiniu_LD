@@ -305,7 +305,7 @@ function ld7_show_actions()
     case 2 then ld7_show_wiring_guide();
     case 3 then bench_export_current("LD7");
     case 4 then bench_mode("LD7"); ld7_render_stage(); bench_autosave("LD7");
-    case 6 then ld7_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD7.student);"";student_parameter_lines("LD7",LD7.cfg)]);
+    case 6 then ld7_student_details();
     case 5 then
         extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD7 · Daugiau veiksmų");
         select extra

@@ -121,6 +121,21 @@ try
     report=bench_report_data("LD7"); assert_checkequal(length(report.evidence.wiring.s5te.pairs),0);
     ld7_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD7.fig); delete(window);
     ld7_show_stand_map(); window=gcf(); assert_checktrue(window<>LD7.fig); delete(window);
+    // Correcting a name/group retains the entire experiment.
+    before_journal=LD7.journal; before_answers=LD7.answers;
+    same_cfg=LD7.cfg;
+    ld7_apply_profile(student_profile(64,"Pataisyta Pavardė","KITA","LD7"),same_cfg);
+    assert_checkequal(LD7.journal,before_journal);
+    assert_checkequal(LD7.answers,before_answers);
+    assert_checktrue(strindex(LD7.ui.identity.string,"Pataisyta Pavardė")<>[]);
+    // Changing the variant starts a clean experiment and refreshes the fixed
+    // resistor button labels; old readings must not follow a different variant.
+    new_cfg=ld7_variant_config(1);
+    ld7_apply_profile(student_profile(1,"Pataisyta Pavardė","KITA","LD7"),new_cfg);
+    assert_checkequal(LD7.student.number,1); assert_checkequal(LD7.step,1);
+    assert_checkequal(LD7.journal,[]);
+    assert_checkfalse(or(LD7.done)); assert_checkequal(LD7.cfg.R3,new_cfg.R3);
+    assert_checktrue(strindex(LD7.ui.controls(6).string,string(new_cfg.R3)+" Ω")<>[]);
     ld7_close(); assert_checkfalse(is_handle_valid(LD7.fig));
     cases=list(); specs=[3 1 .03;3 2 .01;4 1 .02;4 2 .02;4 3 .02];
     for number=[1 17 64]
