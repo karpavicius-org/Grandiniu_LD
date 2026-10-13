@@ -84,7 +84,7 @@ function ld8_start()
     if needgui & ~isfield(LD8, "fig") then
         ld8_build_gui();
     end
-    ld8_set_status("Pirmiausia sujunkite tris rezistorius nuosekliai.", "info",
+    ld8_set_status("Pirmiausia sujunkite tris rezistorius nuosekliai.", "info", ...
         "Sujungimo žingsniai: Pagalba → Kaip sujungti. Maitinimą junkite tik užbaigę grandinę.");
 endfunction
 

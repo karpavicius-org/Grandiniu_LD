@@ -137,7 +137,7 @@ function ld8_check_step(check_answers)
         if answer_step <> step then continue; end
         raw = stripblanks(LD8.answers(step,slot));
         if raw=="" then
-            ld8_set_status(msprintf("Trūksta %d atsakymo.",slot),"error",
+            ld8_set_status(msprintf("Trūksta %d atsakymo.",slot),"error", ...
                 "Užpildykite šio etapo lauką; atsakymą dėstytojas įvertins automatiškai."); return;
         end
         if step == 6 then
@@ -149,7 +149,7 @@ function ld8_check_step(check_answers)
             // acceptable raw evidence in assessment, not a submission blocker.
             parsed=ld8_parse_number(raw);
             if isnan(parsed) | isinf(parsed) then
-                ld8_set_status(msprintf("%d atsakymą įrašykite kaip skaičių.",slot),"error",
+                ld8_set_status(msprintf("%d atsakymą įrašykite kaip skaičių.",slot),"error", ...
                     "Naudokite tašką arba kablelį. Vieneto ir formulės į lauką nerašykite."); return;
             end
         end
@@ -158,7 +158,7 @@ function ld8_check_step(check_answers)
         if or(step == [2 3 4]) then relative = .01; end
         if step == 6 then relative = 0; absolute = 0; end
         if ~ld8_close_enough(value, expected(step, slot), relative, absolute) then
-            ld8_set_status(msprintf("Patikrinkite %d atsakymą.",slot), "error",
+            ld8_set_status(msprintf("Patikrinkite %d atsakymą.",slot), "error", ...
                 "Peržiūrėkite šio etapo formulę Pagalba → Teorija ir paaiškinimai."); return;
         end
     end
