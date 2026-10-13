@@ -7,7 +7,7 @@ function values=x_mdialog(varargin)
     if LD8_CANCEL then values=[]; else values=["17";"Patikra Žąsė";"TEST"]; end
 endfunction
 function selected=messagebox(varargin)
-    if varargin(2)<>"Jūsų priskirtos reikšmės" then error("Netikėtas dialogas"); end
+    if ~or(varargin(2)==["Jūsų priskirtos reikšmės" "Studentas ir priskirtos reikšmės"]) then error("Netikėtas dialogas"); end
     selected=1;
 endfunction
 function selected=x_choose(varargin)
@@ -70,12 +70,12 @@ try
     end
     // Invoke the registered native resize callback without re-rendering a stage.
     // This checks the callback contract; it does not emulate an OS drag event.
-    LD8.ui.answerEdits(10).string="1,0";
+    LD8.ui.answerEdits(7).value=2;
     for dimension=1
         assert_checkequal(matrix(LD8.fig.axes_size,1,-1),viewport);
         assert_checkequal(student_size(LD8.ui.circuitFrame.parent),sizes);
         assert_checktrue(LD8.fig.resizefcn<>""); execstr(LD8.fig.resizefcn);
-        assert_checkequal(LD8.ui.answerEdits(10).string,"1,0");
+        assert_checkequal(LD8.ui.answerEdits(7).value,2);
         geometry_dump(LD8.fig,"LD8-resize-"+string(dimension),descriptor);
     end
     mclose(descriptor);
@@ -98,10 +98,10 @@ try
         end
     end
     journal=LD8.journal; bench_ld8_action("ld8_measure()"); assert_checkequal(LD8.journal,journal);
-    ld8_set_step(5); LD8.ui.answerEdits(8).string="10,321";
+    ld8_set_step(5); LD8.ui.answerEdits(5).string="10,321";
     snapshot_path=bench_save_snapshot("LD8"); snapshot=bench_read_snapshot(snapshot_path,"LD8");
     ld8_restart(); bench_restore_snapshot(snapshot);
-    assert_checkequal(LD8.ui.answerEdits(8).string,"10,321"); assert_checkequal(LD8.journal,journal);
+    assert_checkequal(LD8.ui.answerEdits(5).string,"10,321"); assert_checkequal(LD8.journal,journal);
     assert_checktrue(LD8.assessment); assert_checkfalse(LD8.powerOn); assert_checkfalse(LD8.switchOn);
     ld8_toggle_solution(); assert_checkfalse(LD8.demoMode);
     LD8.assessment=%f; LD8.practice_used=%t; ld8_toggle_solution(); assert_checktrue(LD8.demoMode);
@@ -109,40 +109,59 @@ try
     // Restart must not erase the practice marker.
     ld8_restart(); assert_checkfalse(LD8.assessment); assert_checktrue(LD8.practice_used);
     bench_restore_snapshot(snapshot); LD8.assessment=%f; LD8.practice_used=%t;
-    LD8.done(5)=%t; LD8.ui.answerEdits(8).string="1+2"; bench_ld8_primary();
-    assert_checkfalse(LD8.done(5)); assert_checkequal(LD8.step,5); assert_checkequal(LD8.ui.answerEdits(8).string,"1+2");
+    LD8.done(5)=%t; LD8.ui.answerEdits(5).string="1+2"; bench_ld8_primary();
+    assert_checkfalse(LD8.done(5)); assert_checkequal(LD8.step,5);
+    assert_checkequal(LD8.ui.answerEdits(5).string,"1+2");
+    assert_checktrue(strindex(LD8.ui.statusMain.string,"skaičių")<>[]);
     expected=ld8_expected_answers(); bench_ld8_answers(5,expected(5,1:3));
-    LD8.ui.answerEdits(8).string=strsubst(LD8.ui.answerEdits(8).string,".",","); bench_ld8_primary();
+    LD8.ui.answerEdits(5).string=strsubst(LD8.ui.answerEdits(5).string,".",","); bench_ld8_primary();
     assert_checkequal(LD8.step,6); assert_checktrue(LD8.done(5));
     // 5 etapas skaičiuoja iš 3 etapo matavimų: atkūrimas nieko nevalo.
     ld8_set_step(3); ld8_restore_stage(); assert_checkequal(size(LD8.wires,1),0);
     assert_checkequal(size(ld8_journal_rows(2),1),0); assert_checkfalse(LD8.done(3));
     report=bench_report_data("LD8"); assert_checkequal(length(report.evidence.wiring.s3.pairs),0);
     ld8_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD8.fig); delete(window);
+    ld8_show_theory(); window=gcf(); assert_checktrue(window<>LD8.fig); delete(window);
     ld8_show_stand_map(); window=gcf(); assert_checktrue(window<>LD8.fig); delete(window);
-    // Assessment accepts raw wrong answers, but requires a nonempty field.
+    // Assessment rejects empty/nonnumeric input but keeps a wrong numeric answer
+    // for the teacher, without revealing its correctness to the student.
     LD8.assessment=%t; ld8_set_step(5); expected=ld8_expected_answers();
-    bench_ld8_answers(5,expected(5,1:3)); LD8.ui.answerEdits(8).string="";
+    bench_ld8_answers(5,expected(5,1:3)); LD8.ui.answerEdits(5).string="";
     bench_ld8_primary(); assert_checkequal(LD8.step,5); assert_checkfalse(LD8.done(5));
-    LD8.ui.answerEdits(8).string="1+2"; bench_ld8_primary();
-    assert_checkequal(LD8.step,6); assert_checkequal(LD8.answers(5,2),"1+2");
+    LD8.ui.answerEdits(5).string="1+2"; bench_ld8_primary();
+    assert_checkequal(LD8.step,5); assert_checkfalse(LD8.done(5));
+    assert_checktrue(strindex(LD8.ui.statusMain.string,"skaičių")<>[]);
+    LD8.ui.answerEdits(5).string=msprintf("%.17g",expected(5,2)*1.2); bench_ld8_primary();
+    assert_checkequal(LD8.step,6);
+    assert_checkalmostequal(ld8_parse_number(LD8.answers(5,2)),expected(5,2)*1.2,1e-9,1e-9);
     // Close flushes an edit without Enter; actual Help restores the saved work.
-    LD8.ui.answerEdits(10).string="2,0";
+    LD8.ui.answerEdits(7).value=3; // Ne – selection is saved as "2", not a typed number.
     closing=LD8.fig; execstr(closing.closerequestfcn); assert_checkfalse(is_handle_valid(closing));
     ld8_show_actions(); ld8_render_stage(); ld8_render_journal(); // queued events after close
     LD8_DRAFT=LD8.autosave_paths($);
-    saved=bench_read_snapshot(LD8_DRAFT,"LD8"); assert_checkequal(saved.state.answers(6,1),"2,0");
-    assert_checkequal(saved.state.answers(5,2),"1+2");
+    saved=bench_read_snapshot(LD8_DRAFT,"LD8"); assert_checkequal(saved.state.answers(6,1),"2");
+    assert_checkalmostequal(ld8_parse_number(saved.state.answers(5,2)),expected(5,2)*1.2,1e-9,1e-9);
     LD8=struct(); exec(root+"LD8/LD8.sce",-1);
     LD8_CHOICES=1; ld8_test_help();
     assert_checkequal(LD8.step,6); assert_checkequal(LD8.student.number,64);
-    assert_checkequal(LD8.ui.answerEdits(10).string,"2,0");
+    assert_checkequal(LD8.ui.answerEdits(7).value,3);
     assert_checktrue(LD8.assessment); assert_checktrue(LD8.autosave_enabled);
-    LD8_CHOICES=[4 2]; ld8_test_help(); assert_checkfalse(LD8.assessment); assert_checktrue(LD8.practice_used);
-    LD8_CHOICES=[4 1]; ld8_test_help(); assert_checktrue(LD8.assessment); assert_checktrue(LD8.practice_used);
-    LD8_CHOICES=6; ld8_test_help(); window=gcf(); assert_checktrue(window<>LD8.fig); delete(window);
+    LD8_CHOICES=[5 2]; ld8_test_help(); assert_checkfalse(LD8.assessment); assert_checktrue(LD8.practice_used);
+    LD8_CHOICES=[5 1]; ld8_test_help(); assert_checktrue(LD8.assessment); assert_checktrue(LD8.practice_used);
+    LD8_CHOICES=3; ld8_test_help(); window=gcf(); assert_checktrue(window<>LD8.fig); delete(window);
+    LD8_CHOICES=7; ld8_test_help(); assert_checktrue(is_handle_valid(LD8.fig));
+    before_journal=LD8.journal; before_answers=LD8.answers;
+    ld8_apply_profile(student_profile(64,"Pataisyta Pavardė","KITA","LD8"),LD8.cfg);
+    assert_checkequal(LD8.journal,before_journal); assert_checkequal(LD8.answers,before_answers);
+    assert_checktrue(strindex(LD8.ui.identity.string,"Pataisyta Pavardė")<>[]);
+    nextcfg=ld8_variant_config(1);
+    ld8_apply_profile(student_profile(1,"Pataisyta Pavardė","KITA","LD8"),nextcfg);
+    assert_checkequal(LD8.student.number,1); assert_checkequal(LD8.step,1);
+    assert_checkequal(LD8.journal,[]); assert_checkfalse(or(LD8.done));
+    h=findobj("tag","reading:R1"); assert_checktrue(h<>[]);
+    assert_checkequal(h.string,msprintf("%g Ω",nextcfg.R1));
     delete(LD8.fig);
-    cases=list(); specs=[2 1 .01;2 2 .02;3 1 .01;3 2 .02;4 1 .01;4 2 .02;5 1 .02;5 2 .02;5 3 .02];
+    cases=list(); specs=[2 1 .01;3 1 .01;4 1 .01;5 1 .02;5 2 .02;5 3 .02];
     for number=[1 17 64]
         bench_ld8_workflow(number,root,%f); expected=ld8_expected_answers(); original=LD8.answers;
         if number==1 then
@@ -171,15 +190,29 @@ try
             end
         end
         for slot=1:3
-            for raw=[string(expected(6,slot))+",0" string(3-expected(6,slot)) "" "1+1"]
+            for raw=[string(expected(6,slot)) string(3-expected(6,slot)) "" "1+1"]
                 LD8.answers=original; LD8.step=6; LD8.done(6)=%f; LD8.answers(6,slot)=raw; ld8_check_step();
-                accepted=LD8.done(6); assert_checkequal(accepted,raw==string(expected(6,slot))+",0");
+                accepted=LD8.done(6); assert_checkequal(accepted,raw==string(expected(6,slot)));
                 cases($+1)=struct("report",bench_report_data("LD8"),"accepted",accepted);
             end
         end
     end
     mputl(toJSON(cases),out+"tolerance-cases.json");
-    mputl("LD8_PASS: 3 GUI variants; series/parallel/mixed wirings; true MNA readings; actual report button; saved wiring evidence; comma input without Enter; demo isolation; draft restore; 13 fixed-window geometry cases including resize callback; close/autosave and Help restore; assessment and learning modes; 146 grading comparisons",out+"verdict.log"); exit(0);
+    // Legacy LD8-1 draft: never lose any real work, theory or Kirchhoff answers.
+    bench_ld8_workflow(1,root,%f);
+    previous=bench_snapshot("LD8");
+    previous.state.workflow_revision=1; previous.state.answers(2:4,2)="kopijuotas rodmuo";
+    old_journal=LD8.journal; old_wires=LD8.report_wires(2);
+    old_theory=LD8.answers(3,1); old_done=LD8.done;
+    bench_restore_snapshot(previous);
+    assert_checkequal(LD8.workflow_revision,2);
+    assert_checkequal(LD8.journal,old_journal);
+    assert_checkequal(LD8.report_wires(2),old_wires);
+    assert_checkequal(LD8.answers(3,1),old_theory);
+    assert_checkequal(LD8.answers(2:4,2),["";"";""]);
+    assert_checkequal(LD8.done,old_done);
+    assert_checkequal(bench_report_data("LD8").rubric_version,"LD8-2");
+    mputl("LD8_PASS: LD8-2 15 criteria; no Re copy; nine meaningful answers; context theory; three grouped U/I measurements and real wiring; old draft preserved; 3 GUI variants; comma/raw input; saved choices; profile corrections; format validation; 13 geometry cases; grading comparisons",out+"verdict.log"); exit(0);
 catch
     [problem,code,line,fn]=lasterror();
     mputl("LD8_FAIL: "+strcat(problem," | ")+" at "+fn+":"+string(line),out+"verdict.log"); disp(problem); exit(1);

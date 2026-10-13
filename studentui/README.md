@@ -109,19 +109,37 @@ visos keturios įtampos. Skaičiuojami teorinis f0, kokybė Q, įtampų trikampi
 
 **LD8 – varžų nuoseklus, lygiagretus ir mišrus jungimas:** šeši etapai, trys studento
 sujungiamos grandinės: nuoseklioji (R1→R2→R3), lygiagretė (visos varžos tarp tų pačių
-mazgų) ir mišrioji (R1 nuosekliai su lygiagrečiais R2 ir R3). Voltmetro zondai prie
-šaltinio galų; kiekvienoje grandinėje matuojami U ir I, žurnale rodoma Re = U/I.
-Skaičiuojamos teorinės ir eksperimentinės varžos bei lygiagretės grandinės šakų srovės.
-64 variantai: `LD8/VARIANTAI.csv`, bankas `LD8-64-A-2026`, ataskaitos revizija 1.
-Pradedama atsiskaitymo režimu: **Įrašyti ir toliau** išsaugo jūsų atsakymą,
-o jo teisingumą vertina dėstytojo programa (21 kriterijus). Tuščius laukus reikia
-užpildyti. **Pagalba → Mokymosi / atsiskaitymo režimas** leidžia tikrintis;
-naudojus mokymąsi ar pavyzdį, ataskaita pažymima mokomąja ir neįtraukiama į
-pažymių suvestinę. Naują atsiskaitymą pradėkite iš naujo.
-Laidai, matavimai ir atsakymai automatiškai išsaugomi vietiniame juodraštyje;
-uždarant išsaugomas ir dar nepatvirtintas įvedimas. Grįžkite per
-**Pagalba → Tęsti išsaugotą darbą**. Atkurtas stendas visada būna be maitinimo.
-**Pagalba → Studentas ir priskirtos reikšmės** leidžia pakartotinai peržiūrėti duomenis.
+mazgų) ir mišrioji (R1 nuosekliai su lygiagrečiais R2 ir R3). Voltmetras prie šaltinio,
+ampermetras nuosekliai. Studentas kiekvieną režimą pats sujungia ir vieną kartą
+paspaudžia **Matuoti**; U ir I išlieka žurnale ir ataskaitoje automatiškai.
+
+Naujoje **LD8-2** rubrikoje yra **15 kriterijų**: 3 tikri sujungimai, 3 grupiniai
+U/I matavimo veiksmai, 3 teorinių ekvivalentinių varžų skaičiavimai, 3 lygiagrečių
+šakų srovės ir 3 išvados. Atsakymų laukų **9 vietoj 12**: matuotų skaičių ar jau
+programos apskaičiuotos Re perrašyti nebereikia. Žurnalas rodo U ir I,
+bet neatskleidžia teorinės Rt prieš studento skaičiavimą. Matavimo duomenys
+leidžia savarankiškai tikrinti rezultatą su formule **Re = 1000·U/I_mA**.
+
+**Pagalba → Teorija ir paaiškinimai** rodo būtent dabartinio etapo trumpą fizikinių
+formulių ir veiksmų paaiškinimą. **Pagalba → Kaip sujungti** kiekvieną laidą
+aprašo aiškiais gnybtų pavadinimais. Išvadoms pasirenkama **Taip / Ne**;
+neteisingai įrašytas skaičiaus formatas paaiškinamas iškart, bet neteisingas
+fizikinis skaičiavimas atsiskaityme priimamas ir vertinamas dėstytojo.
+
+64 variantai: `LD8/VARIANTAI.csv`, bankas `LD8-64-A-2026`, ataskaitos revizija 2,
+rubrika `LD8-2`. Istorinės `LD8-1` ataskaitos lieka vertinamos pagal 21 kriterijų.
+Senas juodraštis atkuriamas nekeičiant laidų, matavimų, teorinių Rt, šakų srovių
+ir išvadų. Nereikalingi ankstesnių Re kopijavimo laukai tiesiog pašalinami.
+
+Pradedama atsiskaitymo režimu: **Įrašyti ir toliau** išsaugo atsakymą, o
+jo teisingumą vertina dėstytojo programa. **Pagalba → Mokymosi / atsiskaitymo
+režimas** leidžia tikrintis; naudojus mokymąsi ar pavyzdį, ataskaita pažymima
+mokomąja ir neįtraukiama į pažymių suvestinę. Naują atsiskaitymą pradėkite iš naujo.
+Laidai, matavimai ir atsakymai automatiškai išsaugomi vietiniame juodraštyje,
+taip pat uždarant langą. Grįžkite per **Pagalba → Tęsti išsaugotą darbą**.
+Atkurto stendo maitinimas išjungtas. Studento vardą ir grupę galima pataisyti
+neprarandant atlikto darbo; keičiant eilės numerį naujas variantas pradedamas
+tik išsaugojus ankstesnę būseną.
 
 **LD7 – įtampos, srovės ir galios suderinamumas:** pradedama atsiskaitymo režimu.
 Studentas tiria darbinę grandinę E → jungiklis → ampermetras → reostatas R penkiose

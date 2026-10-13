@@ -49,11 +49,11 @@ expected = {}
 for index, case in enumerate(cases):
     name = f'{index:03d}.html'
     write(inputs / name, case['report'])
-    expected[name] = 21 if case['accepted'] else 20
+    expected[name] = 15 if case['accepted'] else 14
 verdicts, _ = run(a.grader.resolve(), inputs, out / 'boundary-grading')
 assert len(verdicts['results']) == len(expected)
 for result in verdicts['results']:
-    assert result['status'] == 'graded' and result['max_points'] == 21, result
+    assert result['status'] == 'graded' and result['max_points'] == 15, result
     assert result['points'] == expected[result['file']], result
     if result['file'] == '001.html':
         assert result['practice_used'] and not result['selected_for_summary'], result
@@ -64,10 +64,10 @@ assert len(reports) == 3 and len(drafts) >= 3
 assert len(actual['results']) == len(reports) + len(drafts)
 for result in reports:
     assert result['mode'] == 'assessment' and result['selected_for_summary'], result
-    assert result['status'] == 'graded' and (result['points'], result['max_points']) == (21, 21), result
+    assert result['status'] == 'graded' and (result['points'], result['max_points']) == (15, 15), result
 for result in drafts:
     assert result['status'] == 'review' and result['reason'] == 'unsupported_file' and result['grade_10'] is None, result
 summary = dict(status='PASS', tolerance_cases=len(expected), actual_gui_reports=3,
-               variants=[1, 17, 64], geometry_cases=13, assessment_reports_selected=True, close_autosave_restore=True, platform=os.name)
+               variants=[1, 17, 64], geometry_cases=13, rubric='LD8-2', total_criteria=15, assessment_reports_selected=True, close_autosave_restore=True, platform=os.name)
 (out / 'acceptance.json').write_text(json.dumps(summary, indent=2)+'\n', encoding='utf-8')
 print(json.dumps(summary))

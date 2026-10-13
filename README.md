@@ -10,7 +10,7 @@ LD10: lygiagretė RLC grandinė tais pačiais trimis dažnio taškais, ampermetr
 
 LD9: nuosekli RLC grandinė trimis dažnio taškais (0,5·f0, f0, 2·f0) ir vienu kilnojamu voltmetru (R, L, C, generatorius); įtampų, varžų ir galių trikampiai bei įtampų rezonansas (UL = UC, kokybė Q); 64 variantai, šeši etapai ir automatinis 28 kriterijų vertinimas.
 
-LD8: trijų rezistorių nuoseklus, lygiagretus ir mišrus jungimas; kiekvienai grandinei matuojami U ir I, skaičiuojamos teorinė ir eksperimentinė ekvivalentinės varžos bei lygiagretės grandinės šakų srovės; 64 variantai, šeši etapai ir automatinis 21 kriterijaus vertinimas.
+LD8: trijų rezistorių nuoseklus, lygiagretus ir mišrus jungimas; kiekvienoje grandinėje studentas pats jungia laidus ir išmatuoja U bei I. Skaičiuojamos trys teorinės ekvivalentinės varžos ir lygiagrečios grandinės šakų srovės; išvados pasirenkamos interaktyviai. 64 variantai, šeši etapai, `LD8-2` 15 prasmingų kriterijų (istorinė `LD8-1` 21 kriterijaus rubrika išsaugota).
 
 LD7: šaltinis E su vidine varža r, reostatas penkiose padėtyse; išorinė charakteristika U(I), galios kreivė P(R), suderinamumo režimas R = r, tuščiosios eigos ir kontroliuojamo virtualaus TJ matavimai; 64 variantai, šeši etapai, LD7-2 rubrika su 18 prasmingų kriterijų (senos LD7-1 ataskaitos vertinamos pagal savo 27 kriterijų rubriką). [LD7 Windows ir Linux priėmimo patikra](audits/ld7-f5dd729/README.md).
 

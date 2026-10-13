@@ -1,6 +1,6 @@
 // ============================================================================
 // LD8 elementų numerių registras. Bankas LD8-64-A-2026.
-// REGISTRY-CODES: T01:T14 B01:B12 E01:E06 A02.01 A02.02 A03.01 A03.02 A04.01 A04.02 A05.01:A05.03 A06.01:A06.03 V02 H01
+// REGISTRY-CODES: T01:T14 B01:B12 E01:E06 A02.01 A03.01 A04.01 A05.01:A05.03 A06.01:A06.03 V02 H01
 // ============================================================================
 
 function ids = ld8_terminal_ids()
@@ -69,7 +69,7 @@ function codes = ld8_all_codes()
     [bids, callbacks, labels, hints] = ld8_button_registry();
     codes = [codes; bids];
     for n = 1:6; codes($+1, 1) = msprintf("E%02d", n); end
-    codes = [codes; "A02.01";"A02.02";"A03.01";"A03.02";"A04.01";"A04.02"; ...
+    codes = [codes; "A02.01";"A03.01";"A04.01"; ...
              "A05.01";"A05.02";"A05.03";"A06.01";"A06.02";"A06.03"];
     codes = [codes; "V02";"H01"];
 endfunction

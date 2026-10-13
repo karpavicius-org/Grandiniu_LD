@@ -192,8 +192,9 @@ function r=bench_report_data(lab)
         st=LD8.student; cfg=LD8.cfg;
         if isfield(LD8,"assessment") then if LD8.assessment then mode="assessment"; end; end
         if isfield(LD8,"practice_used") then practice=LD8.practice_used; end
-        specs=["2" "1" "Ohm";"2" "2" "Ohm";"3" "1" "Ohm";"3" "2" "Ohm"; ...
-               "4" "1" "Ohm";"4" "2" "Ohm";"5" "1" "mA";"5" "2" "mA";"5" "3" "mA"; ...
+        // LD8-2: actual measurements stored automatically; the three copied Re answers are removed.
+        specs=["2" "1" "Ohm";"3" "1" "Ohm";"4" "1" "Ohm"; ...
+               "5" "1" "mA";"5" "2" "mA";"5" "3" "mA"; ...
                "6" "1" "choice";"6" "2" "choice";"6" "3" "choice"];
         for k=1:size(specs,1)
             step=bench_safe_number(specs(k,1)); q=bench_safe_number(specs(k,2));
@@ -370,6 +371,7 @@ function r=bench_report_data(lab)
         "parameters",params,"answers",answers,"observations",observations,"evidence",evidence,"note",note,"practice_used",practice);
     if lab=="LD6" then r.lab_revision="3"; r.rubric_version="LD6-3"; end
     if lab=="LD7" then r.lab_revision="2"; r.rubric_version="LD7-2"; end
+    if lab=="LD8" then r.lab_revision="2"; r.rubric_version="LD8-2"; end
     if lab=="LD1" then
         if isfield(evidence,"automatic_setup") then
             if evidence.automatic_setup then r.lab_revision="2";r.rubric_version="LD1-2";end

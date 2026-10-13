@@ -428,12 +428,25 @@ function bench_restore_snapshot(session)
                 for k=1:3;LD8.report_wires(k)=emptystr(0,2);end
                 LD8.done(:)=%f;
             end
+            // LD8-2 preserves all physical work, 3 valid theoretical Rt values,
+            // branch currents and conclusions. Only the three copied Re fields
+            // disappear; a student never needs to redo previous steps.
+            migrated=~isfield(session.state,"workflow_revision");
+            if ~migrated then migrated=LD8.workflow_revision<2;end
+            if migrated then
+                LD8.answers(2:4,2)="";
+                LD8.workflow_revision=2;
+            end
             LD8.powerOn=%f;LD8.switchOn=%f;LD8.demoMode=%f;LD8.pending="";
             LD8.lastMeasurement=%nan;
             if ~isfield(session.state,"assessment") then LD8.assessment=%f;LD8.practice_used=%t;end
             LD8.autosave_enabled=~LD8.ui.headless;
             ld8_render_stage();
-            ld8_set_status("Juodraštis atkurtas: "+student_caption(LD8.student),"ok","Maitinimas išjungtas.");
+            if migrated then
+                ld8_set_status("Senas LD8 juodraštis atkurtas: laidai, matavimai ir teoriniai atsakymai išsaugoti.","ok","Pakartotinai vesti Re nereikia. Maitinimas išjungtas.");
+            else
+                ld8_set_status("Juodraštis atkurtas: "+student_caption(LD8.student),"ok","Maitinimas išjungtas.");
+            end
         elseif session.lab=="LD9" then
             LD9.cfg=session.cfg;LD9.student=session.student;
             for field=fieldnames(session.state)';LD9(field)=session.state(field);end

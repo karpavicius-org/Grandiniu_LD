@@ -1226,11 +1226,16 @@ function bench_ld8_answers(step,values)
     global LD8;
     if LD8.ui.headless then ld8_test_answers(step,values); return; end
     value_index=1;
-    for index=1:12
+    for index=1:9
         [answer_step,slot]=ld8_answer_slot(index);
         if answer_step==step then
-            LD8.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
-            execstr(LD8.ui.answerEdits(index).callback);
+            h=LD8.ui.answerEdits(index);
+            if h.style=="popupmenu" then
+                h.value=values(value_index)+1; // 1 – Taip, 2 – Ne
+            else
+                h.string=msprintf("%.17g",values(value_index));
+            end
+            execstr(h.callback);
             value_index=value_index+1;
         end
     end
@@ -1266,17 +1271,17 @@ function bench_ld8_workflow(number,root,gui)
             bench_ld8_action("ld8_toggle_power()"); bench_ld8_action("ld8_toggle_switch()"); bench_ld8_action("ld8_measure()");
             bench_ld8_action("ld8_toggle_power()");
         case 2 then
-            bench_ld8_answers(step,[series series]);
+            bench_ld8_answers(step,series);
         case 3 then
             bench_ld8_connect(2);
             bench_ld8_action("ld8_toggle_power()"); bench_ld8_action("ld8_toggle_switch()"); bench_ld8_action("ld8_measure()");
             bench_ld8_action("ld8_toggle_power()");
-            bench_ld8_answers(step,[parallel parallel]);
+            bench_ld8_answers(step,parallel);
         case 4 then
             bench_ld8_connect(3);
             bench_ld8_action("ld8_toggle_power()"); bench_ld8_action("ld8_toggle_switch()"); bench_ld8_action("ld8_measure()");
             bench_ld8_action("ld8_toggle_power()");
-            bench_ld8_answers(step,[mixed mixed]);
+            bench_ld8_answers(step,mixed);
         case 5 then
             bench_ld8_answers(step,[12/cfg.R1*1000 12/cfg.R2*1000 12/cfg.R3*1000]);
         case 6 then

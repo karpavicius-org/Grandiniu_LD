@@ -8,9 +8,11 @@ function h = ld8_button(p, pos, label, cb, fs, bg)
     catch
         code = "";
     end
-    if code <> "" then label = "[" + code + "] " + label; end
+    // Identifiers are retained for automation but do not clutter the student view.
     h = student_button(p, pos, "<html><center>" + label + "</center></html>", cb);
-    h.tag = code; h.tooltipstring = hint; h.fontsize = fs; h.backgroundcolor = bg;
+    h.tag = code; h.tooltipstring = hint;
+    if code <> "" then h.tooltipstring = "[" + code + "] " + hint;end
+    h.fontsize = fs; h.backgroundcolor = bg;
     if sum(bg) < 1.5 then h.foregroundcolor = [1 1 1]; end
 endfunction
 
@@ -178,8 +180,9 @@ function ld8_render_journal()
     for tag = 1:3
         measurements = ld8_journal_rows(tag);
         for k = 1:size(measurements, 1)
-            rows($+1) = msprintf("%s   %.4f V   %.3f mA   Re = %.1f Ω", ...
-                names(tag), measurements(k,1), measurements(k,2), measurements(k,1)/measurements(k,2)*1000);
+            // Do not reveal the theoretical equivalent resistance ahead of the student.
+            rows($+1) = msprintf("%s: U=%.4f V   I=%.3f mA", ...
+                names(tag), measurements(k,1), measurements(k,2));
         end
     end
     if rows == [] then rows = "Matavimų dar nėra."; end
@@ -193,13 +196,20 @@ function ld8_render_stage()
     if ~isfield(LD8.ui, "answerEdits") then return; end
     if ~is_handle_valid(LD8.fig) then return; end
     row = 0;
-    for k = 1:12
+    for k = 1:9
         [st, sl] = ld8_answer_slot(k); h = LD8.ui.answerEdits(k); lab = LD8.ui.answerLabels(k);
         h.visible = "off"; lab.visible = "off";
         if st == LD8.step then
             yy = 0.56 - row*0.095; row = row + 1;
             lab.position = [0.07 yy 0.53 0.075]; h.position = [0.63 yy 0.30 0.075];
-            h.string = LD8.answers(st, sl); h.visible = "on"; lab.visible = "on";
+            if h.style=="popupmenu" then
+                saved=LD8.answers(st,sl); h.value=1;
+                if saved=="1" then h.value=2;
+                elseif saved=="2" then h.value=3;end
+            else
+                h.string=LD8.answers(st,sl);
+            end
+            h.visible = "on"; lab.visible = "on";
             h.enable = "on"; if LD8.demoMode then h.enable = "off"; end
         end
     end
@@ -250,18 +260,22 @@ function ld8_build_gui()
     controls($+1) = ld8_button(p, [0.40 0.36 0.18 0.06], "Matuoti", "ld8_measure()", 13, [0.08 0.39 0.37]);
     LD8.ui.instructionLine(1) = student_text(right, [0.07 0.66 0.86 0.29], "", 14, %f);
     LD8.ui.instructionLine(1).verticalalignment = "top";
-    labels = ["[A02.01] Rt = R1+R2+R3, Ω";"[A02.02] Re = U/I, Ω"; ...
-        "[A03.01] Rt = 1/(Σ1/R), Ω";"[A03.02] Re = U/I, Ω"; ...
-        "[A04.01] Rt = R1+R2·R3/(R2+R3), Ω";"[A04.02] Re = U/I, Ω"; ...
-        "[A05.01] I1 = U/R1, mA";"[A05.02] I2 = U/R2, mA";"[A05.03] I3 = U/R3, mA"; ...
-        "[A06.01] Rt nuosekl. didžiausia?";"[A06.02] Rt lygiagr. mažiausia?";"[A06.03] ΣI šakų = I bendrai?"];
+    labels = ["Nuoseklioji teorinė Rt, Ω";"Lygiagretė teorinė Rt, Ω";"Mišrioji teorinė Rt, Ω"; ...
+        "Lygiagrečios šakos I1, mA";"Lygiagrečios šakos I2, mA";"Lygiagrečios šakos I3, mA"; ...
+        "Ar Rt nuosekliai didžiausia?";"Ar Rt lygiagrečiai mažiausia?";"Ar I1+I2+I3=I bendrai?"];
     LD8.ui.answerEdits = []; LD8.ui.answerLabels = [];
-    for k = 1:12
+    for k = 1:9
         LD8.ui.answerLabels($+1) = student_text(right, [0.07 0.5 0.53 0.075], student_wrap(labels(k), 22), 14, %f);
         [st, sl] = ld8_answer_slot(k);
-        h = uicontrol(right, "style", "edit", "units", "normalized", "position", [0.63 0.5 0.30 0.075], ...
-            "string", "", "fontunits", "pixels", "fontsize", 14, "fontname", "DejaVu Sans", ...
-            "tag", ld8_answer_code(st, sl), "callback", "ld8_answers_changed()", "backgroundcolor", [0.94 0.96 0.96]);
+        if st==6 then
+            h = uicontrol(right,"style","popupmenu","units","normalized","position",[0.63 0.5 0.30 0.075], ...
+                "string",["Rinktis";"Taip";"Ne"],"value",1,"fontunits","pixels","fontsize",14, ...
+                "tag",ld8_answer_code(st,sl),"callback","ld8_answers_changed()","backgroundcolor",[0.94 0.96 0.96]);
+        else
+            h = uicontrol(right, "style", "edit", "units", "normalized", "position", [0.63 0.5 0.30 0.075], ...
+                "string", "", "fontunits", "pixels", "fontsize", 14, "fontname", "DejaVu Sans", ...
+                "tag", ld8_answer_code(st, sl), "callback", "ld8_answers_changed()", "backgroundcolor", [0.94 0.96 0.96]);
+        end
         LD8.ui.answerEdits($+1) = h;
     end
     LD8.ui.studentPrimary = ld8_button(right, [0.07 0.085 0.86 0.075], "Tikrinti", "ld8_student_primary()", 15, [0.08 0.39 0.37]);
@@ -280,15 +294,18 @@ function ld8_show_actions()
     global LD8;
     if ~isfield(LD8,"fig") then return; end
     if ~is_handle_valid(LD8.fig) then return; end
-    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą";"Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD8 · Pagalba");
+    choice=x_choose(["Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
+        "Išsaugoti ataskaitą";"Mokymosi / atsiskaitymo režimas"; ...
+        "Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD8 · Pagalba");
     select choice
     case 1 then bench_open_snapshot("LD8");
     case 2 then ld8_show_wiring_guide();
-    case 3 then bench_export_current("LD8");
-    case 4 then bench_mode("LD8"); ld8_student_sync(); bench_autosave("LD8");
-    case 6 then ld8_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD8.student);"";student_parameter_lines("LD8",LD8.cfg)]);
-    case 5 then
-        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD8 · Daugiau veiksmų");
+    case 3 then ld8_show_theory();
+    case 4 then bench_export_current("LD8");
+    case 5 then bench_mode("LD8"); ld8_student_sync(); bench_autosave("LD8");
+    case 7 then ld8_student_details();
+    case 6 then
+        extra=x_choose(["Žemėlapis";"Pavyzdys";"Atkurti stendą";"Pradėti iš naujo"],"LD8 · Daugiau veiksmų");
         select extra
         case 1 then ld8_show_stand_map();
         case 2 then ld8_toggle_solution();
