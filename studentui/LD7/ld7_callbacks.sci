@@ -169,6 +169,14 @@ function ld7_check_step(check_answers)
         if step == 6 & ~or(stripblanks(LD7.answers(step,slot)) == ["1" "2"]) then
             ld7_set_status("Pasirinkite Taip arba Ne.", "error", "Išvadas pasirinkite iš sąrašo."); return;
         end
+        // Catch syntax errors, not wrong physics: assessment must still keep
+        // valid numeric answers even when their calculated values are incorrect.
+        if step <> 6 then
+            parsed = ld7_parse_number(LD7.answers(step,slot));
+            if isnan(parsed) | isinf(parsed) then
+                ld7_set_status("Įrašykite skaičių.", "error", "Naudokite kablelį arba tašką. Vieneto ir formulės į atsakymo lauką nerašykite."); return;
+            end
+        end
         if ~check_answers then continue; end
         value = ld7_parse_number(LD7.answers(step, slot)); relative = .02; absolute = 1e-9;
         if step == 3 then if slot == 1 then relative = .03; else relative = .01; end; end
@@ -276,6 +284,50 @@ function ld7_show_wiring_guide()
     end
     text = [text; ""; notes];
     ld7_text_window("Kaip sujungti", text);
+endfunction
+
+function ld7_show_theory()
+    global LD7;
+    lines = ["LD7 · TEORIJA IR PAAIŠKINIMAI";"";
+        "Šaltinio E įtampa dalijasi tarp apkrovos R ir vidinės varžos r.";
+        "Ampermetras jungiamas nuosekliai, voltmetras – lygiagrečiai apkrovai.";
+        "I (mA) = 1000·E/(R+r). Apkrovos U (V) = E − I(mA)·r/1000.";
+        "Galiai: P (mW) = U(V)·I(mA). Naudingumui: η (%) = 100·U/E.";
+        "Tuščioji eiga: apkrovos srovė labai maža; TJ tik virtualus.";
+        "Matavimo žurnalo rodmenis perrašinėti nereikia.";""];
+    select LD7.step
+    case 1 then
+        lines=[lines;"DABARTINIS ETAPAS · JUNGIMAS";
+            "Junkite laidus išjungę maitinimą. Pirma sujunkite srovės kelią,";
+            "tada voltmetro zondus prie apkrovos. Pagalboje rasite kontaktus."];
+    case 2 then
+        lines=[lines;"DABARTINIS ETAPAS · PENKI MATAVIMAI";
+            "Kiekvienoje P1–P5 padėtyje vieną kartą paspauskite Matuoti.";
+            "Stebėkite: didėjant reostato varžai, srovė ir apkrovos įtampa kinta.";
+            "Matavimai saugomi žurnale automatiškai."];
+    case 3 then
+        lines=[lines;"DABARTINIS ETAPAS · VIDINĖ VARŽA";
+            "Palyginkite du to paties šaltinio matavimo taškus P1 ir P5.";
+            "r = 1000·(U5−U1)/(I1−I5) (Ω), kai srovė I rodoma mA.";
+            "Vidinės varžos įtampos kritimas Ur = I1·r/1000 (V).";
+            "Įrašykite skaičius, ne formules ar matavimo vienetus."];
+    case 4 then
+        lines=[lines;"DABARTINIS ETAPAS · GALIA";
+            "Naudokite savus P3 matavimus ir 3 etape nustatytą r.";
+            "P3 = U3·I3 (mW), Pmax = 1000·E²/(4r) (mW).";
+            "η3 = 100·U3/E (%). Nereikia kopijuoti žurnalo rodmenų."];
+    case 5 then
+        lines=[lines;"DABARTINIS ETAPAS · SPECIALIEJI REŽIMAI";
+            "Maitinimą prieš perjungimą išjunkite. Pakeiskite laidus.";
+            "Tuščiojoje eigoje registruojama U0; virtualiame TJ – Ik.";
+            "Tai kompiuterinis modelis, ne realaus šaltinio trumpinimo instrukcija."];
+    case 6 then
+        lines=[lines;"DABARTINIS ETAPAS · IŠVADOS";
+            "Palyginkite penkis P1–P5 matavimo taškus.";
+            "Svarbu galios maksimumas, naudingumas ir vidinės varžos vaidmuo.";
+            "Pasirinkite Taip arba Ne, remdamiesi savais rodmenimis."];
+    end
+    ld7_text_window("Teorija ir paaiškinimai",lines);
 endfunction
 
 function ld7_show_stand_map()

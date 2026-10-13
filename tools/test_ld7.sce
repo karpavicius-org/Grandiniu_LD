@@ -114,9 +114,28 @@ try
     bench_ld7_primary(); assert_checkequal(LD7.step,6); assert_checktrue(LD7.done(5));
     assert_checkequal(length(bench_report_data("LD7").answers),8);
     mprintf("LD7_GUI_CHECK: special measurements and restored report OK\n");
+    // Reject mistakes in the input format before submission, but preserve
+    // a valid yet physically wrong numerical assessment answer.
+    LD7.assessment=%t; ld7_set_step(3);
+    exp=ld7_expected_answers(); bench_ld7_answers(3,exp(3,1:2));
+    LD7.ui.answerEdits(1).string="1+2";
+    bench_ld7_primary();
+    assert_checkfalse(LD7.done(3)); assert_checkequal(LD7.step,3);
+    assert_checktrue(strindex(LD7.ui.statusMain.string,"Įrašykite skaičių")<>[]);
+    LD7.ui.answerEdits(1).string=msprintf("%.17g",LD7.cfg.r*1.1);
+    bench_ld7_primary();
+    assert_checktrue(LD7.done(3)); assert_checkequal(LD7.step,4);
+    assert_checkequal(ld7_parse_number(LD7.answers(3,1)),LD7.cfg.r*1.1);
+    // Learning mode checks physical correctness, not merely numeric syntax.
+    LD7.assessment=%f; LD7.practice_used=%t;
+    ld7_set_step(3);
+    LD7.ui.answerEdits(1).string=msprintf("%.17g",LD7.cfg.r*1.2);
+    bench_ld7_primary();
+    assert_checkfalse(LD7.done(3)); assert_checkequal(LD7.step,3);
+    mprintf("LD7_GUI_CHECK: input mistakes blocked; wrong assessment values retained; learning feedback works\n");
+    ld7_set_step(6); ld7_render_stage();
     // A worked example is deliberately blocked in assessment. Switch to
     // learning explicitly before testing the allowed sample, as real students do.
-    LD7.assessment=%f; LD7.practice_used=%t; ld7_render_stage();
     ld7_toggle_solution(); assert_checktrue(LD7.demoMode); assert_checktrue(LD7.practice_used);
     ld7_toggle_solution(); assert_checkfalse(LD7.demoMode);
     LD7.assessment=%t; LD7.practice_used=%f;
@@ -125,6 +144,7 @@ try
     assert_checkequal(size(ld7_journal_rows(6),1),0); assert_checkfalse(LD7.done(5));
     report=bench_report_data("LD7"); assert_checkequal(length(report.evidence.wiring.s5te.pairs),0);
     ld7_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD7.fig); delete(window);
+    ld7_show_theory(); window=gcf(); assert_checktrue(window<>LD7.fig); delete(window);
     ld7_show_stand_map(); window=gcf(); assert_checktrue(window<>LD7.fig); delete(window);
     // Correcting a name/group retains the entire experiment.
     before_journal=LD7.journal; before_answers=LD7.answers;

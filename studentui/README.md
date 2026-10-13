@@ -131,8 +131,12 @@ matavimo režimai, 5 skaičiavimai ir 3 išvados. Penki U/I matavimai ir abu spe
 rodmenys registruojami automatiškai – jų perrašyti nereikia. Žurnale nerodomos
 apskaičiuotos galios, nes P3, Pmax ir η3 studentas apskaičiuoja pats.
 Vidinis įtampos kritimas Ur = I1_mA·r/1000 nustatomas iš matavimų.
-Išvados pasirenkamos iš aiškių Taip / Ne sąrašų. Senos LD7-1 ataskaitos išlieka
-vertinamos pagal 27 kriterijus. Atkuriant seną juodraštį laidai ir matavimai
+Išvados pasirenkamos iš aiškių Taip / Ne sąrašų. Kiekvienam etapui prieinama
+**Pagalba → Teorija ir paaiškinimai**: bendros fizikinės formulės ir konkretaus
+etapo paaiškinimas, neatskleidžiant už studentą apskaičiuoto rezultato.
+Netaisyklinga skaičiaus įvestis iškart paaiškinama; neteisingas, bet tinkamo
+formato fizikinis atsakymas atsiskaityme išsaugomas ir vertinamas dėstytojo.
+Senos LD7-1 ataskaitos išlieka vertinamos pagal 27 kriterijus. Atkuriant seną juodraštį laidai ir matavimai
 išsaugomi, tačiau pakitusias teorines užduotis reikia atlikti iš naujo.
 Atsiskaityme užpildytas raw atsakymas išsaugomas, o jo teisingumą vertina dėstytojo
 programa; mokymosi režime **Tikrinti** pateikia savikontrolę. Srovės žurnale yra mA,
