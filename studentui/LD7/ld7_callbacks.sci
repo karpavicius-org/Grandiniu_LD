@@ -173,7 +173,23 @@ function ld7_check_step(check_answers)
         value = ld7_parse_number(LD7.answers(step, slot)); relative = .02; absolute = 1e-9;
         if step == 3 then if slot == 1 then relative = .03; else relative = .01; end; end
         if step == 6 then relative = 0; absolute = 0; end
-        if ~ld7_close_enough(value, expected(step, slot), relative, absolute) then
+        reference = expected(step, slot);
+        // Match C++ marking: a physically acceptable rounded r is used
+        // consistently in dependent calculations, not penalized twice.
+        if (step == 3 & slot == 2) | (step == 4 & slot == 2) then
+            r_used = ld7_parse_number(LD7.answers(3,1));
+            if ~isnan(r_used) & r_used > 0 then
+                if ld7_close_enough(r_used,LD7.cfg.r,.03,1e-9) then
+                    if step == 3 then
+                        first = ld7_reference(1,1);
+                        reference = first(2)*r_used/1000;
+                    else
+                        reference = 1000*LD7.cfg.E^2/(4*r_used);
+                    end
+                end
+            end
+        end
+        if ~ld7_close_enough(value, reference, relative, absolute) then
             ld7_set_status("Patikrinkite [" + ld7_answer_code(step, slot) + "].", "error", "Peržiūrėkite formules užduotyje ir vienetus (mA, mW)."); return;
         end
     end

@@ -154,7 +154,16 @@ try
             step=specs(index,1); slot=specs(index,2); value=expected(step,slot); tolerance=1e-9+specs(index,3)*abs(value);
             for delta=[-1.0001 -.9999 .9999 1.0001]
                 LD7.answers=original; LD7.step=step; LD7.done(step)=%f;
-                LD7.answers(step,slot)=msprintf("%.17g",value+delta*tolerance); ld7_check_step();
+                perturbed=value+delta*tolerance;
+                LD7.answers(step,slot)=msprintf("%.17g",perturbed);
+                if step==3 & slot==1 & abs(delta)<1 then
+                    // The student consistently uses the accepted rounded r
+                    // when calculating Ur and Pmax, exactly as in physics.
+                    first=ld7_reference(1,1);
+                    LD7.answers(3,2)=msprintf("%.17g",first(2)*perturbed/1000);
+                    LD7.answers(4,2)=msprintf("%.17g",1000*LD7.cfg.E^2/(4*perturbed));
+                end
+                ld7_check_step();
                 accepted=LD7.done(step); assert_checkequal(accepted,abs(delta)<1);
                 cases($+1)=struct("report",bench_report_data("LD7"),"accepted",accepted);
             end
