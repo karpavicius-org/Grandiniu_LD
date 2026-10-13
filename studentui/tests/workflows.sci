@@ -1113,13 +1113,22 @@ function bench_ld7_workflow(number,root,gui)
             uu=cfg.E*loads./(loads+cfg.r); ii=cfg.E./(loads+cfg.r)*1000;
             bench_ld7_answers(step,[uu(3)*ii(3) 1000*cfg.E^2/(4*cfg.r) 50]);
             if gui & number==17 then
-                // Formal assessment keeps a non-empty wrong raw value and does not reveal correctness.
+                // Student-friendly syntax validation rejects expressions rather
+                // than pretending they are a completed numeric calculation.
                 LD7.ui.answerEdits(3).string="1+2";
                 bench_ld7_primary();
-                assert_checktrue(LD7.done(4)); assert_checkequal(LD7.step,5);
+                assert_checkfalse(LD7.done(4)); assert_checkequal(LD7.step,4);
                 assert_checkequal(LD7.answers(4,1),"1+2");
+                assert_checktrue(strindex(LD7.ui.statusMain.string,"Įrašykite skaičių")<>[]);
+                // Formal assessment MUST accept a well-formed but wrong number
+                // without disclosing its correctness; grading is for teacher.
+                LD7.ui.answerEdits(3).string=msprintf("%.17g",uu(3)*ii(3)*1.13);
+                bench_ld7_primary();
+                assert_checktrue(LD7.done(4)); assert_checkequal(LD7.step,5);
+                assert_checktrue(abs(ld7_parse_number(LD7.answers(4,1))-uu(3)*ii(3)*1.13)<1e-8);
                 assert_checktrue(strindex(LD7.ui.statusMain.string,"Patikrinkite")==[]);
-                // Restore correct data so the exported acceptance fixture remains perfect.
+                // Independently complete the same student task correctly so
+                // the exported full-score report remains meaningful.
                 ld7_jump_step(4);
                 bench_ld7_answers(4,[uu(3)*ii(3) 1000*cfg.E^2/(4*cfg.r) 50]);
                 bench_ld7_primary();
