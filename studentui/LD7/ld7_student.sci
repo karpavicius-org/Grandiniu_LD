@@ -35,7 +35,7 @@ function ld7_start()
         ld7_build_gui();
     end
     if ~isfield(LD7,"autosave_enabled") then LD7.autosave_enabled=needgui; end
-    ld7_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite matavimo grandinę.", "info", "Atsiskaitymo režimas. Seką rasite: Pagalba → [B04] Kaip sujungti.");
+    ld7_set_status("Pradėkite nuo darbinės grandinės sujungimo.", "info", "Atsiskaitymo režimas. Jungimo seką rasite per Pagalba → Kaip sujungti.");
 endfunction
 
 function ld7_student_primary()

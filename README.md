@@ -12,7 +12,7 @@ LD9: nuosekli RLC grandinė trimis dažnio taškais (0,5·f0, f0, 2·f0) ir vien
 
 LD8: trijų rezistorių nuoseklus, lygiagretus ir mišrus jungimas; kiekvienai grandinei matuojami U ir I, skaičiuojamos teorinė ir eksperimentinė ekvivalentinės varžos bei lygiagretės grandinės šakų srovės; 64 variantai, šeši etapai ir automatinis 21 kriterijaus vertinimas.
 
-LD7: šaltinis E su vidine varža r, reostatas penkiose padėtyse; išorinė charakteristika U(I), galios kreivė P(R), suderinamumo režimas R = r, tuščiosios eigos ir trumpojo jungimo matavimai; 64 variantai, šeši etapai ir automatinis 27 kriterijų vertinimas. [LD7 Windows ir Linux priėmimo patikra](audits/ld7-f5dd729/README.md).
+LD7: šaltinis E su vidine varža r, reostatas penkiose padėtyse; išorinė charakteristika U(I), galios kreivė P(R), suderinamumo režimas R = r, tuščiosios eigos ir kontroliuojamo virtualaus TJ matavimai; 64 variantai, šeši etapai, LD7-2 rubrika su 18 prasmingų kriterijų (senos LD7-1 ataskaitos vertinamos pagal savo 27 kriterijų rubriką). [LD7 Windows ir Linux priėmimo patikra](audits/ld7-f5dd729/README.md).
 
 LD6: E1, nuoseklus, priešpriešinis ir lygiagretus šaltinių jungimas; 64 variantai, šeši etapai ir automatinis 25 kriterijų vertinimas. [Studento eiga](studentui/README.md) · [LD6 pataisų patikra](audits/ld6-1b0f00a-fixes/README.md).
 

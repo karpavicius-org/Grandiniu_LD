@@ -8,9 +8,10 @@ function h = ld7_button(p, pos, label, cb, fs, bg)
     catch
         code = "";
     end
-    if code <> "" then label = "[" + code + "] " + label; end
+    // Stable B-code stays in tag / tooltip without cluttering button labels.
     h = student_button(p, pos, "<html><center>" + label + "</center></html>", cb);
-    h.tag = code; h.tooltipstring = hint; h.fontsize = fs; h.backgroundcolor = bg;
+    h.tag = code; h.tooltipstring = hint; if code <> "" then h.tooltipstring = "[" + code + "] " + hint; end
+    h.fontsize = fs; h.backgroundcolor = bg;
     if sum(bg) < 1.5 then h.foregroundcolor = [1 1 1]; end
 endfunction
 
@@ -174,8 +175,8 @@ function ld7_render_journal()
     for tag = 1:5
         measurements = ld7_journal_rows(tag);
         for k = 1:size(measurements, 1)
-            rows($+1) = msprintf("P%d  %g Ω   %.4f V   %.3f mA   %.2f mW", ...
-                tag, measurements(k,3), measurements(k,1), measurements(k,2), measurements(k,4));
+            rows($+1) = msprintf("P%d  R=%g Ω   U=%.4f V   I=%.3f mA", ...
+                tag, measurements(k,3), measurements(k,1), measurements(k,2));
         end
     end
     te = ld7_journal_rows(6);
@@ -196,13 +197,20 @@ function ld7_render_stage()
     if isfield(LD7.ui, "headless") then if LD7.ui.headless then return; end; end
     if ~isfield(LD7.ui, "answerEdits") then return; end
     row = 0;
-    for k = 1:12
+    for k = 1:8
         [st, sl] = ld7_answer_slot(k); h = LD7.ui.answerEdits(k); lab = LD7.ui.answerLabels(k);
         h.visible = "off"; lab.visible = "off";
         if st == LD7.step then
             yy = 0.56 - row*0.095; row = row + 1;
             lab.position = [0.07 yy 0.53 0.075]; h.position = [0.63 yy 0.30 0.075];
-            h.string = LD7.answers(st, sl); h.visible = "on"; lab.visible = "on";
+            if h.style == "popupmenu" then
+                saved = LD7.answers(st, sl); h.value = 1;
+                if saved == "1" then h.value = 2;
+                elseif saved == "2" then h.value = 3; end
+            else
+                h.string = LD7.answers(st, sl);
+            end
+            h.visible = "on"; lab.visible = "on";
             h.enable = "on"; if LD7.demoMode then h.enable = "off"; end
         end
     end
@@ -258,18 +266,22 @@ function ld7_build_gui()
     controls($+1) = ld7_button(p, [0.80 0.20 0.18 0.06], "Matuoti", "ld7_measure()", 13, [0.08 0.39 0.37]);
     LD7.ui.instructionLine(1) = student_text(right, [0.07 0.66 0.86 0.29], "", 14, %f);
     LD7.ui.instructionLine(1).verticalalignment = "top";
-    labels = ["[A03.01] r = ΔU/ΔI, Ω";"[A03.02] E = U1+I1·r, V"; ...
-        "[A04.01] P1 = U1·I1, mW";"[A04.02] P3 = U3·I3, mW";"[A04.03] P5 = U5·I5, mW"; ...
-        "[A04.04] Pmax = 1000·E²/(4r), mW";"[A04.05] η3 = U3/E · 100"; ...
-        "[A05.01] U0 (TE), V";"[A05.02] Ik = 1000·E/r, mA"; ...
-        "[A06.01] P max kai R = r?";"[A06.02] η = 50 %?";"[A06.03] U krinta dėl r?"];
+    labels = ["Vidinė varža r, Ω";"Vidinis įtampos kritimas Ur, V"; ...
+        "Apkrovos galia P3, mW";"Didžiausioji galia Pmax, mW";"Naudingumas η3, %"; ...
+        "Ar galia didžiausia, kai R = r?";"Ar naudingumas tada 50 %?";"Ar U mažėja dėl vidinės r?"];
     LD7.ui.answerEdits = []; LD7.ui.answerLabels = [];
-    for k = 1:12
+    for k = 1:8
         LD7.ui.answerLabels($+1) = student_text(right, [0.07 0.5 0.53 0.075], student_wrap(labels(k), 22), 14, %f);
         [st, sl] = ld7_answer_slot(k);
-        h = uicontrol(right, "style", "edit", "units", "normalized", "position", [0.63 0.5 0.30 0.075], ...
-            "string", "", "fontunits", "pixels", "fontsize", 14, "fontname", "DejaVu Sans", ...
-            "tag", ld7_answer_code(st, sl), "callback", "ld7_answers_changed()", "backgroundcolor", [0.94 0.96 0.96]);
+        if st == 6 then
+            h = uicontrol(right, "style", "popupmenu", "units", "normalized", "position", [0.63 0.5 0.30 0.075], ...
+                "string", ["Pasirinkite";"Taip";"Ne"], "value", 1, "fontunits", "pixels", "fontsize", 14, ...
+                "tag", ld7_answer_code(st, sl), "callback", "ld7_answers_changed()", "backgroundcolor", [0.94 0.96 0.96]);
+        else
+            h = uicontrol(right, "style", "edit", "units", "normalized", "position", [0.63 0.5 0.30 0.075], ...
+                "string", "", "fontunits", "pixels", "fontsize", 14, "fontname", "DejaVu Sans", ...
+                "tag", ld7_answer_code(st, sl), "callback", "ld7_answers_changed()", "backgroundcolor", [0.94 0.96 0.96]);
+        end
         LD7.ui.answerEdits($+1) = h;
     end
     LD7.ui.studentPrimary = ld7_button(right, [0.07 0.085 0.86 0.075], "Tikrinti", "ld7_student_primary()", 15, [0.08 0.39 0.37]);

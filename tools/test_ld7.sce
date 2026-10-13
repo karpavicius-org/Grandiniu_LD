@@ -66,11 +66,11 @@ try
     end
     // Invoke the registered native resize callback without re-rendering a stage.
     // This checks the callback contract; it does not emulate an OS drag event.
-    LD7.ui.answerEdits(10).string="1,0";
+    LD7.ui.answerEdits(6).value=2;
     for dimension=[1 3 2]
         geometry_size(LD7.fig,sizes(dimension,:));
         assert_checktrue(LD7.fig.resizefcn<>""); execstr(LD7.fig.resizefcn);
-        assert_checkequal(LD7.ui.answerEdits(10).string,"1,0");
+        assert_checkequal(LD7.ui.answerEdits(6).value,2);
         geometry_dump(LD7.fig,"LD7-resize-"+string(dimension),descriptor);
     end
     mclose(descriptor);
@@ -100,23 +100,19 @@ try
     assert_checktrue(values(2)>0 & abs(values(1))<1e-3);
     geometry_size(LD7.fig,[1280 800]); execstr(LD7.fig.resizefcn); capture_ld7("trumpasis-V64");
     journal=LD7.journal; bench_ld7_action("ld7_measure()"); assert_checkequal(LD7.journal,journal);
-    expected=ld7_expected_answers(); bench_ld7_answers(5,expected(5,1:2));
-    LD7.ui.answerEdits(8).string="10,321";
+    // LD7-2 has no field for a copied U0 or Ik. Measurements alone close stage 5.
+    assert_checkequal(size(LD7.ui.answerEdits,"*"),8);
+    LD7.answers(3,2)="10,321";
     snapshot_path=bench_save_snapshot("LD7"); snapshot=bench_read_snapshot(snapshot_path,"LD7");
     ld7_restart(); bench_restore_snapshot(snapshot);
-    assert_checkequal(LD7.ui.answerEdits(8).string,"10,321"); assert_checkequal(LD7.journal,journal);
+    assert_checkequal(LD7.answers(3,2),"10,321"); assert_checkequal(LD7.journal,journal);
     assert_checktrue(LD7.assessment); assert_checkfalse(LD7.powerOn); assert_checkfalse(LD7.switchOn);
-    // Formal assessment preserves invalid raw text and advances without revealing correctness.
-    expected=ld7_expected_answers(); bench_ld7_answers(5,expected(5,1:2)); LD7.ui.answerEdits(8).string="1+2";
-    bench_ld7_primary(); assert_checkequal(LD7.step,6); assert_checktrue(LD7.done(5));
-    assert_checkequal(LD7.answers(5,1),"1+2"); assert_checktrue(strindex(LD7.ui.statusMain.string,"Patikrinkite")==[]);
-    // Learning mode still validates locally.
-    ld7_jump_step(5); LD7.assessment=%f; LD7.practice_used=%t; ld7_render_stage();
-    expected=ld7_expected_answers(); bench_ld7_answers(5,expected(5,1:2)); LD7.ui.answerEdits(8).string="1+2";
+    // Missing U0 blocks a measured stage without requiring copied numbers.
+    LD7.journal(find(LD7.journal(:,3)==6),:)=[];
     bench_ld7_primary(); assert_checkfalse(LD7.done(5)); assert_checkequal(LD7.step,5);
-    assert_checktrue(strindex(LD7.ui.statusMain.string,"Patikrinkite")<>[]);
-    bench_ld7_answers(5,expected(5,1:2)); LD7.ui.answerEdits(8).string=strsubst(LD7.ui.answerEdits(8).string,".",","); bench_ld7_primary();
-    assert_checkequal(LD7.step,6); assert_checktrue(LD7.done(5));
+    LD7.journal=journal;
+    bench_ld7_primary(); assert_checkequal(LD7.step,6); assert_checktrue(LD7.done(5));
+    assert_checkequal(length(bench_report_data("LD7").answers),8);
     ld7_toggle_solution(); assert_checktrue(LD7.demoMode); assert_checktrue(LD7.practice_used);
     ld7_toggle_solution(); assert_checkfalse(LD7.demoMode);
     LD7.assessment=%t; LD7.practice_used=%f;
@@ -126,7 +122,7 @@ try
     ld7_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD7.fig); delete(window);
     ld7_show_stand_map(); window=gcf(); assert_checktrue(window<>LD7.fig); delete(window);
     ld7_close(); assert_checkfalse(is_handle_valid(LD7.fig));
-    cases=list(); specs=[3 1 .03;3 2 .01;4 1 .02;4 2 .02;4 3 .02;4 4 .02;4 5 .02;5 1 .01;5 2 .02];
+    cases=list(); specs=[3 1 .03;3 2 .01;4 1 .02;4 2 .02;4 3 .02];
     for number=[1 17 64]
         bench_ld7_workflow(number,root,%f); expected=ld7_expected_answers(); original=LD7.answers;
         if number==1 then
@@ -143,15 +139,31 @@ try
             end
         end
         for slot=1:3
-            for raw=[string(expected(6,slot))+",0" string(3-expected(6,slot)) "" "1+1"]
+            for raw=[string(expected(6,slot)) string(3-expected(6,slot)) "" "1+1"]
                 LD7.answers=original; LD7.step=6; LD7.done(6)=%f; LD7.answers(6,slot)=raw; ld7_check_step();
-                accepted=LD7.done(6); assert_checkequal(accepted,raw==string(expected(6,slot))+",0");
+                accepted=LD7.done(6); assert_checkequal(accepted,raw==string(expected(6,slot)));
                 cases($+1)=struct("report",bench_report_data("LD7"),"accepted",accepted);
             end
         end
     end
     mputl(toJSON(cases),out+"tolerance-cases.json");
-    mputl("LD7_PASS: assessment/learning split; autosave/restore/close; 3 GUI variants; safe darbine/TE/virtual-TJ wirings; MNA readings; actual report button; saved wiring evidence; comma/raw input; demo isolation; 39 geometry cases including resize callback; grading comparisons",out+"verdict.log"); exit(0);
+    // Historical LD7-1 draft migrates without losing measured U/I and wiring.
+    bench_ld7_workflow(1,root,%f);
+    previous=bench_snapshot("LD7");
+    previous.state.workflow_revision=1;
+    previous.state.step=6;
+    previous.state.answers(3,2)=string(LD7.cfg.E);
+    previous.state.answers(4,1)=string(LD7.journal(1,5));
+    original_journal=LD7.journal; original_wires=LD7.report_wires(1);
+    bench_restore_snapshot(previous);
+    assert_checkequal(LD7.workflow_revision,2); assert_checkequal(LD7.step,3);
+    assert_checkequal(LD7.answers(3,2),""); assert_checkequal(LD7.answers(4,1),"");
+    assert_checkfalse(or(LD7.done(3:6)));
+    assert_checkequal(LD7.journal,original_journal);
+    assert_checkequal(LD7.report_wires(1),original_wires);
+    migrated_report=bench_report_data("LD7");
+    assert_checkequal(migrated_report.rubric_version,"LD7-2");
+    mputl("LD7_PASS: LD7-2 simplified actions; old draft migration; assessment/learning split; autosave/restore/close; 3 GUI variants; safe darbine/TE/virtual-TJ wirings; MNA readings; actual report button; saved wiring evidence; no copied U0/Ik/power; demo isolation; geometry and grading comparisons",out+"verdict.log"); exit(0);
 catch
     mputl("LD7_FAIL: "+strcat(lasterror()," | "),out+"verdict.log"); disp(lasterror()); exit(1);
 end

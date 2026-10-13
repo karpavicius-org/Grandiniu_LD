@@ -1051,11 +1051,16 @@ function bench_ld7_answers(step,values)
     global LD7;
     if LD7.ui.headless then ld7_test_answers(step,values); return; end
     value_index=1;
-    for index=1:12
+    for index=1:8
         [answer_step,slot]=ld7_answer_slot(index);
         if answer_step==step then
-            LD7.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
-            execstr(LD7.ui.answerEdits(index).callback);
+            h=LD7.ui.answerEdits(index);
+            if h.style=="popupmenu" then
+                h.value=values(value_index)+1; // 1=Taip, 2=Ne
+            else
+                h.string=msprintf("%.17g",values(value_index));
+            end
+            execstr(h.callback);
             value_index=value_index+1;
         end
     end
@@ -1103,10 +1108,10 @@ function bench_ld7_workflow(number,root,gui)
             end
             bench_ld7_action("ld7_toggle_power()");
         case 3 then
-            bench_ld7_answers(step,[cfg.r cfg.E]);
+            bench_ld7_answers(step,[cfg.r cfg.E-cfg.E*loads(1)/(loads(1)+cfg.r)]);
         case 4 then
             uu=cfg.E*loads./(loads+cfg.r); ii=cfg.E./(loads+cfg.r)*1000;
-            bench_ld7_answers(step,[uu(1)*ii(1) uu(3)*ii(3) uu(5)*ii(5) 1000*cfg.E^2/(4*cfg.r) 50]);
+            bench_ld7_answers(step,[uu(3)*ii(3) 1000*cfg.E^2/(4*cfg.r) 50]);
             if gui & number==17 then
                 // Formal assessment keeps a non-empty wrong raw value and does not reveal correctness.
                 LD7.ui.answerEdits(3).string="1+2";
@@ -1116,7 +1121,7 @@ function bench_ld7_workflow(number,root,gui)
                 assert_checktrue(strindex(LD7.ui.statusMain.string,"Patikrinkite")==[]);
                 // Restore correct data so the exported acceptance fixture remains perfect.
                 ld7_jump_step(4);
-                bench_ld7_answers(4,[uu(1)*ii(1) uu(3)*ii(3) uu(5)*ii(5) 1000*cfg.E^2/(4*cfg.r) 50]);
+                bench_ld7_answers(4,[uu(3)*ii(3) 1000*cfg.E^2/(4*cfg.r) 50]);
                 bench_ld7_primary();
                 assert_checktrue(LD7.done(4)); assert_checkequal(LD7.step,5);
                 primary_done=%t;
@@ -1127,7 +1132,7 @@ function bench_ld7_workflow(number,root,gui)
             bench_ld7_action("ld7_set_mode(3)");
             bench_ld7_connect(3);
             bench_ld7_action("ld7_toggle_power()"); bench_ld7_action("ld7_toggle_switch()"); bench_ld7_action("ld7_measure()"); bench_ld7_action("ld7_toggle_power()");
-            bench_ld7_answers(step,[cfg.E*1e6/(1e6+cfg.r) cfg.E/cfg.r*1000]);
+
         case 6 then
             bench_ld7_answers(step,[1 1 1]);
         end

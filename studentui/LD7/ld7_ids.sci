@@ -1,6 +1,6 @@
 // ============================================================================
 // LD7 elementų numerių registras. Bankas LD7-64-A-2026.
-// REGISTRY-CODES: T01:T10 B01:B17 E01:E06 A03.01 A03.02 A04.01:A04.05 A05.01 A05.02 A06.01:A06.03 V02 H01
+// REGISTRY-CODES: T01:T10 B01:B17 E01:E06 A03.01:A03.02 A04.01:A04.03 A06.01:A06.03 V02 H01
 // ============================================================================
 
 function ids = ld7_terminal_ids()
@@ -76,7 +76,7 @@ function codes = ld7_all_codes()
     [bids, callbacks, labels, hints] = ld7_button_registry();
     codes = [codes; bids];
     for n = 1:6; codes($+1, 1) = msprintf("E%02d", n); end
-    codes = [codes; "A03.01";"A03.02";"A04.01";"A04.02";"A04.03";"A04.04";"A04.05"; ...
-             "A05.01";"A05.02";"A06.01";"A06.02";"A06.03"];
+    codes = [codes; "A03.01";"A03.02";"A04.01";"A04.02";"A04.03"; ...
+             "A06.01";"A06.02";"A06.03"];
     codes = [codes; "V02";"H01"];
 endfunction
