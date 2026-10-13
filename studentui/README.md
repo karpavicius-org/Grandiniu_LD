@@ -126,9 +126,22 @@ uždarant išsaugomas ir dar nepatvirtintas įvedimas. Grįžkite per
 **LD7 – įtampos, srovės ir galios suderinamumas:** pradedama atsiskaitymo režimu.
 Studentas tiria darbinę grandinę E → jungiklis → ampermetras → reostatas R penkiose
 padėtyse P1–P5, tuščiąją eigą ir **virtualų kontroliuojamą trumpąjį jungimą**.
+Naujoje **LD7-2** rubrikoje yra 18 kriterijų: 3 studento sujungimai, 7 užfiksuoti
+matavimo režimai, 5 skaičiavimai ir 3 išvados. Penki U/I matavimai ir abu specialieji
+rodmenys registruojami automatiškai – jų perrašyti nereikia. Žurnale nerodomos
+apskaičiuotos galios, nes P3, Pmax ir η3 studentas apskaičiuoja pats.
+Vidinis įtampos kritimas Ur = I1_mA·r/1000 nustatomas iš matavimų.
+Išvados pasirenkamos iš aiškių Taip / Ne sąrašų. Kiekvienam etapui prieinama
+**Pagalba → Teorija ir paaiškinimai**: bendros fizikinės formulės ir konkretaus
+etapo paaiškinimas, neatskleidžiant už studentą apskaičiuoto rezultato.
+Netaisyklinga skaičiaus įvestis iškart paaiškinama; neteisingas, bet tinkamo
+formato fizikinis atsakymas atsiskaityme išsaugomas ir vertinamas dėstytojo.
+Senos LD7-1 ataskaitos išlieka vertinamos pagal 27 kriterijus. Atkuriant seną juodraštį laidai ir matavimai
+išsaugomi, tačiau pakitusias teorines užduotis reikia atlikti iš naujo.
 Atsiskaityme užpildytas raw atsakymas išsaugomas, o jo teisingumą vertina dėstytojo
 programa; mokymosi režime **Tikrinti** pateikia savikontrolę. Srovės žurnale yra mA,
-todėl vidinei varžai naudokite **r = 1000·(U5−U1)/(I1_mA−I5_mA)**. Galiai
+todėl vidinei varžai naudokite **r = 1000·(U5−U1)/(I1_mA−I5_mA)**. Vidiniam įtampos kritimui:
+**Ur = I1_mA·r/1000**. Galiai
 **P = U·I_mA** tiesiogiai gaunami mW, o teorinei didžiausiai galiai naudokite
 **Pmax = 1000·E²/(4r), mW**. Virtualiam trumpajam jungimui
 **Ik = 1000·E/r, mA**. Realiame laboratoriniame stende trumpojo jungimo bandymas

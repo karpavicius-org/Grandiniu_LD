@@ -402,10 +402,23 @@ function bench_restore_snapshot(session)
                 LD7.done(:)=%f;
             end
             if ~isfield(session.state,"assessment") then LD7.assessment=%f;LD7.practice_used=%t;end
+            migrated=~isfield(session.state,"workflow_revision");
+            if ~migrated then migrated=LD7.workflow_revision<2; end
+            if migrated then
+                // LD7-1: q3.2 was a known E, q4 contained displayed P, q5 copied U0.
+                // Keep wiring and measured points; do not misinterpret old values as LD7-2 theory.
+                LD7.answers(3,2)=""; LD7.answers(4,1:5)=""; LD7.answers(5,1:2)="";
+                LD7.done(3:6)=%f; LD7.workflow_revision=2;
+                if LD7.step>3 then LD7.step=3;end
+            end
             LD7.powerOn=%f;LD7.switchOn=%f;LD7.demoMode=%f;LD7.pending="";
             LD7.lastMeasurement=%nan;LD7.autosave_enabled=~LD7.ui.headless;
             ld7_render_stage();ld7_student_sync();
-            ld7_set_status("Juodraštis atkurtas: "+student_caption(LD7.student),"ok","Maitinimas išjungtas.");
+            if migrated then
+                ld7_set_status("Senas LD7 juodraštis atkurtas; laidai ir matavimai išsaugoti.","ok","Atlikite naują vidinio įtampos kritimo ir galios skaičiavimą.");
+            else
+                ld7_set_status("Juodraštis atkurtas: "+student_caption(LD7.student),"ok","Maitinimas išjungtas.");
+            end
         elseif session.lab=="LD8" then
             LD8.cfg=session.cfg;LD8.student=session.student;
             // Apply the store before rendering, so stale edits cannot overwrite it.

@@ -49,11 +49,11 @@ expected = {}
 for index, case in enumerate(cases):
     name = f'{index:03d}.html'
     write(inputs / name, case['report'])
-    expected[name] = 27 if case['accepted'] else 26
+    expected[name] = 18 if case['accepted'] else 17
 verdicts, _ = run(a.grader.resolve(), inputs, out / 'boundary-grading')
 assert len(verdicts['results']) == len(expected)
 for result in verdicts['results']:
-    assert result['status'] == 'graded' and result['max_points'] == 27, result
+    assert result['status'] == 'graded' and result['max_points'] == 18, result
     assert result['points'] == expected[result['file']], result
 actual, _ = run(a.grader.resolve(), out / 'Ataskaitos Žąsė', out / 'student-grading')
 reports = [r for r in actual['results'] if r['file'].endswith('.html')]
@@ -61,7 +61,7 @@ drafts = [r for r in actual['results'] if r['file'].endswith('.sod')]
 assert len(reports) == 3 and len(drafts) >= 3
 assert len(actual['results']) == len(reports) + len(drafts)
 for result in reports:
-    assert result['status'] == 'graded' and (result['points'], result['max_points']) == (27, 27), result
+    assert result['status'] == 'graded' and (result['points'], result['max_points']) == (18, 18), result
     assert result['mode'] == 'assessment' and result['selected_for_summary'] and not result['practice_used'], result
 for result in drafts:
     assert result['status'] == 'review' and result['reason'] == 'unsupported_file' and result['grade_10'] is None, result

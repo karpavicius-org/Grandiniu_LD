@@ -100,6 +100,7 @@ function ld7_init_state()
         LD7.wires_by_mode(index) = emptystr(0, 2); LD7.report_wires(index) = emptystr(0, 2);
     end
     LD7.answers = emptystr(6, 8); LD7.demoMode = %f; LD7.lastMeasurement = %nan; LD7.pending = "";
+    LD7.workflow_revision = 2;
     LD7.assessment=assessment; LD7.practice_used=practice;
 endfunction
 
@@ -107,15 +108,11 @@ function expected = ld7_expected_answers()
     global LD7;
     cfg = LD7.cfg;
     expected = %nan * ones(6, 8);
-    first = ld7_reference(1, 1); third = ld7_reference(1, 3); fifth = ld7_reference(1, 5);
-    expected(3, 1:2) = [cfg.r, cfg.E];
-    expected(4, 1) = first(1) * first(2);
-    expected(4, 2) = third(1) * third(2);
-    expected(4, 3) = fifth(1) * fifth(2);
-    expected(4, 4) = 1000 * cfg.E^2 / (4*cfg.r);
-    expected(4, 5) = 50;
-    expected(5, 1) = cfg.E * 1e6 / (1e6 + cfg.r);
-    expected(5, 2) = cfg.E / cfg.r * 1000;
+    first = ld7_reference(1, 1); third = ld7_reference(1, 3);
+    expected(3, 1:2) = [cfg.r, cfg.E-first(1)];
+    expected(4, 1) = third(1) * third(2);
+    expected(4, 2) = 1000 * cfg.E^2 / (4*cfg.r);
+    expected(4, 3) = 50;
     expected(6, 1:3) = [1 1 1];
 endfunction
 

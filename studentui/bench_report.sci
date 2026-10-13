@@ -161,8 +161,9 @@ function r=bench_report_data(lab)
         st=LD7.student; cfg=LD7.cfg;
         if isfield(LD7,"assessment") then if LD7.assessment then mode="assessment"; end; end
         if isfield(LD7,"practice_used") then practice=LD7.practice_used; end
-        specs=["3" "1" "Ohm";"3" "2" "V";"4" "1" "mW";"4" "2" "mW";"4" "3" "mW";"4" "4" "mW";"4" "5" "1"; ...
-               "5" "1" "V";"5" "2" "mA";"6" "1" "choice";"6" "2" "choice";"6" "3" "choice"];
+        // LD7-2: only student calculations, not a second entry of meter readings.
+        specs=["3" "1" "Ohm";"3" "2" "V";"4" "1" "mW";"4" "2" "mW";"4" "3" "1"; ...
+               "6" "1" "choice";"6" "2" "choice";"6" "3" "choice"];
         for k=1:size(specs,1)
             step=bench_safe_number(specs(k,1)); q=bench_safe_number(specs(k,2));
             answers($+1)=bench_answer(msprintf("s%d.q%d",step,q),LD7.answers(step,q),specs(k,3));
@@ -368,6 +369,7 @@ function r=bench_report_data(lab)
         "student",struct("number",st.number,"name",st.name,"group",st.group), ...
         "parameters",params,"answers",answers,"observations",observations,"evidence",evidence,"note",note,"practice_used",practice);
     if lab=="LD6" then r.lab_revision="3"; r.rubric_version="LD6-3"; end
+    if lab=="LD7" then r.lab_revision="2"; r.rubric_version="LD7-2"; end
     if lab=="LD1" then
         if isfield(evidence,"automatic_setup") then
             if evidence.automatic_setup then r.lab_revision="2";r.rubric_version="LD1-2";end

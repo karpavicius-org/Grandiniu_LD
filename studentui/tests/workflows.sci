@@ -1051,11 +1051,16 @@ function bench_ld7_answers(step,values)
     global LD7;
     if LD7.ui.headless then ld7_test_answers(step,values); return; end
     value_index=1;
-    for index=1:12
+    for index=1:8
         [answer_step,slot]=ld7_answer_slot(index);
         if answer_step==step then
-            LD7.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
-            execstr(LD7.ui.answerEdits(index).callback);
+            h=LD7.ui.answerEdits(index);
+            if h.style=="popupmenu" then
+                h.value=values(value_index)+1; // 1=Taip, 2=Ne
+            else
+                h.string=msprintf("%.17g",values(value_index));
+            end
+            execstr(h.callback);
             value_index=value_index+1;
         end
     end
@@ -1103,20 +1108,29 @@ function bench_ld7_workflow(number,root,gui)
             end
             bench_ld7_action("ld7_toggle_power()");
         case 3 then
-            bench_ld7_answers(step,[cfg.r cfg.E]);
+            bench_ld7_answers(step,[cfg.r cfg.E-cfg.E*loads(1)/(loads(1)+cfg.r)]);
         case 4 then
             uu=cfg.E*loads./(loads+cfg.r); ii=cfg.E./(loads+cfg.r)*1000;
-            bench_ld7_answers(step,[uu(1)*ii(1) uu(3)*ii(3) uu(5)*ii(5) 1000*cfg.E^2/(4*cfg.r) 50]);
+            bench_ld7_answers(step,[uu(3)*ii(3) 1000*cfg.E^2/(4*cfg.r) 50]);
             if gui & number==17 then
-                // Formal assessment keeps a non-empty wrong raw value and does not reveal correctness.
+                // Student-friendly syntax validation rejects expressions rather
+                // than pretending they are a completed numeric calculation.
                 LD7.ui.answerEdits(3).string="1+2";
                 bench_ld7_primary();
-                assert_checktrue(LD7.done(4)); assert_checkequal(LD7.step,5);
+                assert_checkfalse(LD7.done(4)); assert_checkequal(LD7.step,4);
                 assert_checkequal(LD7.answers(4,1),"1+2");
+                assert_checktrue(strindex(LD7.ui.statusMain.string,"Įrašykite skaičių")<>[]);
+                // Formal assessment MUST accept a well-formed but wrong number
+                // without disclosing its correctness; grading is for teacher.
+                LD7.ui.answerEdits(3).string=msprintf("%.17g",uu(3)*ii(3)*1.13);
+                bench_ld7_primary();
+                assert_checktrue(LD7.done(4)); assert_checkequal(LD7.step,5);
+                assert_checktrue(abs(ld7_parse_number(LD7.answers(4,1))-uu(3)*ii(3)*1.13)<1e-8);
                 assert_checktrue(strindex(LD7.ui.statusMain.string,"Patikrinkite")==[]);
-                // Restore correct data so the exported acceptance fixture remains perfect.
+                // Independently complete the same student task correctly so
+                // the exported full-score report remains meaningful.
                 ld7_jump_step(4);
-                bench_ld7_answers(4,[uu(1)*ii(1) uu(3)*ii(3) uu(5)*ii(5) 1000*cfg.E^2/(4*cfg.r) 50]);
+                bench_ld7_answers(4,[uu(3)*ii(3) 1000*cfg.E^2/(4*cfg.r) 50]);
                 bench_ld7_primary();
                 assert_checktrue(LD7.done(4)); assert_checkequal(LD7.step,5);
                 primary_done=%t;
@@ -1127,42 +1141,58 @@ function bench_ld7_workflow(number,root,gui)
             bench_ld7_action("ld7_set_mode(3)");
             bench_ld7_connect(3);
             bench_ld7_action("ld7_toggle_power()"); bench_ld7_action("ld7_toggle_switch()"); bench_ld7_action("ld7_measure()"); bench_ld7_action("ld7_toggle_power()");
-            bench_ld7_answers(step,[cfg.E*1e6/(1e6+cfg.r) cfg.E/cfg.r*1000]);
+
         case 6 then
             bench_ld7_answers(step,[1 1 1]);
         end
         if ~primary_done then bench_ld7_primary(); end
         if ~LD7.done(step) then error("LD7 variantas "+string(number)+", etapas "+string(step)); end
+        if gui & step==3 then
+            // In formal assessment r must not be leaked on the source card
+            // just because an ungraded answer was submitted.
+            card=findobj("tag","reading:E");
+            assert_checktrue(card<>[]);
+            assert_checktrue(strindex(card.string,"r = ?")<>[]);
+        end
         if gui then mprintf("PASS LD7 V%02d: etapas %d\n",number,step); end
     end
     assert_checktrue(and(LD7.done)); assert_checkequal(size(LD7.journal,1),7);
     if gui then
+        mprintf("LD7_DIAG V%02d: all six done; journal verified\n",number);
         if number==17 then
             saved=bench_snapshot("LD7");
             keep=LD7.answers(4,1); LD7.answers(4,1)="sugadinta";
             bench_restore_snapshot(saved);
             assert_checkequal(LD7.answers(4,1),keep);
             assert_checktrue(LD7.assessment); assert_checkfalse(LD7.powerOn); assert_checkfalse(LD7.switchOn);
+            mprintf("LD7_DIAG V17: snapshot roundtrip verified\n");
         end
         r=bench_report_data("LD7"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
+        mprintf("LD7_DIAG V%02d: report metadata verified\n",number);
         before=size(listfiles(bench_documents()+"/*.html"),"*");
         bench_ld7_primary();
         assert_checkequal(size(listfiles(bench_documents()+"/*.html"),"*"),before+1);
         assert_checktrue(strindex(LD7.ui.statusMain.string,"Ataskaita išsaugota")<>[]);
+        mprintf("LD7_DIAG V%02d: exported report verified\n",number);
         if number==17 then
             // Learning mode still validates locally; practice remains sticky across restart.
             LD7.assessment=%f; LD7.practice_used=%t; ld7_restart();
             assert_checkfalse(LD7.assessment); assert_checktrue(LD7.practice_used);
+            mprintf("LD7_DIAG V17: restarted learning mode verified\n");
             bench_ld7_connect(1); bench_ld7_primary(); assert_checkequal(LD7.step,2);
+            mprintf("LD7_DIAG V17: learning wiring verified\n");
             bench_ld7_action("ld7_toggle_power()"); bench_ld7_action("ld7_toggle_switch()");
             for k=1:5
                 bench_ld7_action("ld7_set_position("+string(k)+")"); bench_ld7_action("ld7_measure()");
             end
             bench_ld7_action("ld7_toggle_power()"); bench_ld7_primary(); assert_checkequal(LD7.step,3);
+            mprintf("LD7_DIAG V17: learning measurements verified\n");
             LD7.ui.answerEdits(1).string="1+2"; LD7.ui.answerEdits(2).string=string(cfg.E);
             bench_ld7_primary();
             assert_checkfalse(LD7.done(3)); assert_checkequal(LD7.step,3);
-            assert_checktrue(strindex(LD7.ui.statusMain.string,"Patikrinkite")<>[]);
+            // Both learning and assessment reject malformed numeric syntax,
+            // while learning also provides correctness feedback for valid numbers.
+            assert_checktrue(strindex(LD7.ui.statusMain.string,"Įrašykite skaičių")<>[]);
             ld7_toggle_solution(); assert_checktrue(LD7.demoMode); assert_checktrue(LD7.practice_used);
             ld7_toggle_solution(); assert_checkfalse(LD7.demoMode);
         end

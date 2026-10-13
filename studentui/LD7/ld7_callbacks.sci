@@ -19,7 +19,7 @@ function ld7_terminal_click(id)
     if ~ld7_wiring_editable() | ~or(ld7_terminal_ids() == id) then return; end
     if LD7.powerOn then
         LD7.pending="";
-        ld7_set_status("Prieš keisdami laidus išjunkite [B01].", "error", "Maitinimas turi būti išjungtas prieš bet kokį perjungimą.");
+        ld7_set_status("Prieš keisdami laidus išjunkite maitinimą.", "error", "Maitinimas turi būti išjungtas prieš bet kokį perjungimą.");
         bench_autosave("LD7"); return;
     end
     if LD7.pending == "" then
@@ -85,7 +85,7 @@ function ld7_set_position(k)
     global LD7;
     if LD7.demoMode | ~ld7_valid_index(k, 5) then return; end
     if LD7.wireMode <> 1 then
-        ld7_set_status("Padėtys renkamos darbinėje grandinėje [B10].", "info", "");
+        ld7_set_status("Padėtys renkamos tik darbinėje grandinėje.", "info", "");
         return;
     end
     LD7.position = k;
@@ -98,7 +98,7 @@ function ld7_measure()
     global LD7;
     if LD7.demoMode then return; end
     if ~((LD7.step == 2 & LD7.wireMode == 1) | (LD7.step == 5 & or(LD7.wireMode == [2 3]))) then
-        ld7_set_status("Matuojama 2 etape darbine grandine, 5 etape — TE ir TJ.", "error", "Režimą nurodo užduotis."); return;
+        ld7_set_status("Matavimai atliekami 2 ir 5 etapuose.", "error", "Pasirinkite užduotyje nurodytą režimą."); return;
     end
     [voltage, current, ok, message, load] = ld7_measure_values();
     if ~ok then ld7_set_status(message, "error", ""); return; end
@@ -116,7 +116,7 @@ function ld7_measure()
     LD7.lastMeasurement = current;
     ld7_render_journal(); ld7_render_wires();
     if LD7.wireMode == 1 then
-        ld7_set_status(msprintf("P%d užfiksuota: R = %g Ω; U = %.4f V; I = %.3f mA.", tag, load, voltage, current), "ok", msprintf("P = U·I = %.2f mW — prisiminkite skaičiavimams.", voltage*current));
+        ld7_set_status(msprintf("P%d užfiksuota: R = %g Ω; U = %.4f V; I = %.3f mA.", tag, load, voltage, current), "ok", "Galią P3 apskaičiuosite patys iš U ir I.");
     elseif LD7.wireMode == 2 then
         ld7_set_status(msprintf("TE: U0 = %.4f V (srovė ≈ %.4f mA).", voltage, current), "ok", "Tuščiosios eigos įtampa artima šaltinio EV.");
     else
@@ -148,30 +148,56 @@ function ld7_check_step(check_answers)
     elseif step == 2 then
         for tag = 1:5
             if ld7_journal_rows(tag) == [] then
-                ld7_set_status(msprintf("Trūksta matavimo: padėtis P%d.", tag), "error", "Įjunkite [B01], uždarykite [B02], rinkitės padėtį ir matuokite [B03]."); return;
+                ld7_set_status(msprintf("Trūksta matavimo: padėtis P%d.", tag), "error", "Įjunkite maitinimą, uždarykite jungiklį ir spauskite Matuoti."); return;
             end
         end
     elseif step == 5 then
         for tag = [6 7]
             if ld7_journal_rows(tag) == [] then
-                name = "tuščioji eiga [B11]"; if tag == 7 then name = "virtualus trumpasis jungimas [B12]"; end
-                ld7_set_status("Trūksta matavimo: " + name + ".", "error", "Sujunkite atitinkamą grandinę ir matuokite [B03]."); return;
+                name = "tuščioji eiga"; if tag == 7 then name = "virtualus TJ"; end
+                ld7_set_status("Trūksta matavimo: " + name + ".", "error", "Sujunkite atitinkamą grandinę ir spauskite Matuoti."); return;
             end
         end
     end
     expected = ld7_expected_answers();
-    for index = 1:12
+    for index = 1:8
         [answer_step, slot] = ld7_answer_slot(index);
         if answer_step <> step then continue; end
         if stripblanks(LD7.answers(step,slot))=="" then
             ld7_set_status("Įrašykite [" + ld7_answer_code(step, slot) + "].", "error", "Atsakymą vertins dėstytojo programa."); return;
         end
+        if step == 6 & ~or(stripblanks(LD7.answers(step,slot)) == ["1" "2"]) then
+            ld7_set_status("Pasirinkite Taip arba Ne.", "error", "Išvadas pasirinkite iš sąrašo."); return;
+        end
+        // Catch syntax errors, not wrong physics: assessment must still keep
+        // valid numeric answers even when their calculated values are incorrect.
+        if step <> 6 then
+            parsed = ld7_parse_number(LD7.answers(step,slot));
+            if isnan(parsed) | isinf(parsed) then
+                ld7_set_status("Įrašykite skaičių.", "error", "Naudokite kablelį arba tašką. Vieneto ir formulės į atsakymo lauką nerašykite."); return;
+            end
+        end
         if ~check_answers then continue; end
         value = ld7_parse_number(LD7.answers(step, slot)); relative = .02; absolute = 1e-9;
         if step == 3 then if slot == 1 then relative = .03; else relative = .01; end; end
-        if step == 5 then if slot == 1 then relative = .01; else relative = .02; end; end
         if step == 6 then relative = 0; absolute = 0; end
-        if ~ld7_close_enough(value, expected(step, slot), relative, absolute) then
+        reference = expected(step, slot);
+        // Match C++ marking: a physically acceptable rounded r is used
+        // consistently in dependent calculations, not penalized twice.
+        if (step == 3 & slot == 2) | (step == 4 & slot == 2) then
+            r_used = ld7_parse_number(LD7.answers(3,1));
+            if ~isnan(r_used) & r_used > 0 then
+                if ld7_close_enough(r_used,LD7.cfg.r,.03,1e-9) then
+                    if step == 3 then
+                        first = ld7_reference(1,1);
+                        reference = first(2)*r_used/1000;
+                    else
+                        reference = 1000*LD7.cfg.E^2/(4*r_used);
+                    end
+                end
+            end
+        end
+        if ~ld7_close_enough(value, reference, relative, absolute) then
             ld7_set_status("Patikrinkite [" + ld7_answer_code(step, slot) + "].", "error", "Peržiūrėkite formules užduotyje ir vienetus (mA, mW)."); return;
         end
     end
@@ -198,12 +224,12 @@ function text = ld7_step_instruction(step)
     global LD7;
     cfg = LD7.cfg;
     select step
-    case 1 then text = msprintf("Sujunkite darbinę grandinę be maitinimo: E → jungiklis → ampermetras → reostatas R; voltmetro zondai prie R galų. Seka: Pagalba → [B04]. Šaltinis E = %g V; modelyje vidinė varža r yra šaltinio dalis.", cfg.E);
-    case 2 then text = "Įjunkite [B01], uždarykite [B02]. Rinkitės padėtis [B13]–[B17] ir kiekvienoje spauskite [B03]. Penki matavimai (U ir I) sudarys lentelę — jos reikės skaičiavimams.";
-    case 3 then text = "[A03.01] Vidinė varža iš dviejų taškų: r = 1000·(U5−U1)/(I1_mA−I5_mA), Ω. [A03.02] Patikra: E = U1 + (I1_mA/1000)·r, V.";
-    case 4 then text = "Galia P = U·I_mA, mW. [A04.01] P1; [A04.02] P3; [A04.03] P5. [A04.04] Teorinė didžiausioji: Pmax = 1000·E²/(4r), mW. [A04.05] η3 = (U3/E)·100 %.";
-    case 5 then text = "[B11] Tuščioji eiga: voltmetras prie šaltinio galų — išmatuokite U0 → [A05.01]. [B12] VIRTUALUS kontroliuojamas trumpasis jungimas: ampermetras vietoj R — Ik = 1000·E/r, mA → [A05.02]. Realiame stende trumpasis jungimas atliekamas tik pagal dėstytojo procedūrą ir su srovės ribojimu.";
-    case 6 then text = "[A06.01] Galia didžiausia, kai R = r? [A06.02] Suderinamumo režime η = 50 %? [A06.03] Įtampa mažėja didėjant srovei dėl kritimo vidinėje varžoje? Atsakykite 1 – Taip, 2 – Ne.";
+    case 1 then text = msprintf("Be maitinimo sujunkite: šaltinis → jungiklis → ampermetras → reostatas → šaltinis. Voltmetrą prijunkite prie reostato. Jungimo seką rasite Pagalboje. E = %g V.", cfg.E);
+    case 2 then text = "Įjunkite maitinimą ir uždarykite jungiklį. Paeiliui parinkite P1–P5 ir kiekvienoje padėtyje spauskite Matuoti. Penki U ir I rodmenys automatiškai išliks žurnale.";
+    case 3 then text = "Iš P1 ir P5 rodmenų apskaičiuokite r = 1000·(U5−U1)/(I1−I5), Ω. Tada raskite vidinį įtampos kritimą Ur = I1·r/1000, V (I1 žurnale yra mA).";
+    case 4 then text = "Iš žurnalo apskaičiuokite P3 = U3·I3, mW. Tada raskite Pmax = 1000·E²/(4r), mW, ir naudingumą η3 = U3/E·100 %. Galių rodmenų perrašyti nereikia.";
+    case 5 then text = "Išjunkite maitinimą. Pasirinkite Tuščiąją eigą, sujunkite pagal Pagalbą ir išmatuokite. Pakartokite tik virtualiu TJ režimu. Abu rodmenys įrašomi automatiškai. Realaus šaltinio netrumpinkite.";
+    case 6 then text = "Pagal visus matavimus pasirinkite tris išvadas: kada galia didžiausia, koks naudingumas esant R = r ir kodėl dėl srovės mažėja įtampa. Kiekvienai rinkitės Taip arba Ne.";
     else text = "";
     end
 endfunction
@@ -218,13 +244,17 @@ function ld7_save_answers()
         if ~is_handle_valid(handle) then continue; end
         [step, slot] = ld7_answer_slot(index);
         if step <> LD7.step | handle.visible <> "on" then continue; end
-        if LD7.answers(step, slot) <> handle.string then LD7.done(step) = %f; end
-        LD7.answers(step, slot) = handle.string;
+        raw = handle.string;
+        if handle.style == "popupmenu" then
+            raw = ""; if handle.value > 1 then raw = string(handle.value-1); end
+        end
+        if LD7.answers(step, slot) <> raw then LD7.done(step) = %f; end
+        LD7.answers(step, slot) = raw;
     end
 endfunction
 
 function [step, slot] = ld7_answer_slot(index)
-    mapping = [3 1;3 2;4 1;4 2;4 3;4 4;4 5;5 1;5 2;6 1;6 2;6 3];
+    mapping = [3 1;3 2;4 1;4 2;4 3;6 1;6 2;6 3];
     step = mapping(index, 1); slot = mapping(index, 2);
 endfunction
 
@@ -256,14 +286,60 @@ function ld7_show_wiring_guide()
     ld7_text_window("Kaip sujungti", text);
 endfunction
 
+function ld7_show_theory()
+    global LD7;
+    lines = ["LD7 · TEORIJA IR PAAIŠKINIMAI";"";
+        "Šaltinio E įtampa dalijasi tarp apkrovos R ir vidinės varžos r.";
+        "Ampermetras jungiamas nuosekliai, voltmetras – lygiagrečiai apkrovai.";
+        "I (mA) = 1000·E/(R+r). Apkrovos U (V) = E − I(mA)·r/1000.";
+        "Galiai: P (mW) = U(V)·I(mA). Naudingumui: η (%) = 100·U/E.";
+        "Tuščioji eiga: apkrovos srovė labai maža; TJ tik virtualus.";
+        "Matavimo žurnalo rodmenis perrašinėti nereikia.";""];
+    select LD7.step
+    case 1 then
+        lines=[lines;"DABARTINIS ETAPAS · JUNGIMAS";
+            "Junkite laidus išjungę maitinimą. Pirma sujunkite srovės kelią,";
+            "tada voltmetro zondus prie apkrovos. Pagalboje rasite kontaktus."];
+    case 2 then
+        lines=[lines;"DABARTINIS ETAPAS · PENKI MATAVIMAI";
+            "Kiekvienoje P1–P5 padėtyje vieną kartą paspauskite Matuoti.";
+            "Stebėkite: didėjant reostato varžai, srovė ir apkrovos įtampa kinta.";
+            "Matavimai saugomi žurnale automatiškai."];
+    case 3 then
+        lines=[lines;"DABARTINIS ETAPAS · VIDINĖ VARŽA";
+            "Palyginkite du to paties šaltinio matavimo taškus P1 ir P5.";
+            "r = 1000·(U5−U1)/(I1−I5) (Ω), kai srovė I rodoma mA.";
+            "Vidinės varžos įtampos kritimas Ur = I1·r/1000 (V).";
+            "Įrašykite skaičius, ne formules ar matavimo vienetus."];
+    case 4 then
+        lines=[lines;"DABARTINIS ETAPAS · GALIA";
+            "Naudokite savus P3 matavimus ir 3 etape nustatytą r.";
+            "P3 = U3·I3 (mW), Pmax = 1000·E²/(4r) (mW).";
+            "η3 = 100·U3/E (%). Nereikia kopijuoti žurnalo rodmenų."];
+    case 5 then
+        lines=[lines;"DABARTINIS ETAPAS · SPECIALIEJI REŽIMAI";
+            "Maitinimą prieš perjungimą išjunkite. Pakeiskite laidus.";
+            "Tuščiojoje eigoje registruojama U0; virtualiame TJ – Ik.";
+            "Tai kompiuterinis modelis, ne realaus šaltinio trumpinimo instrukcija."];
+    case 6 then
+        lines=[lines;"DABARTINIS ETAPAS · IŠVADOS";
+            "Palyginkite penkis P1–P5 matavimo taškus.";
+            "Svarbu galios maksimumas, naudingumas ir vidinės varžos vaidmuo.";
+            "Pasirinkite Taip arba Ne, remdamiesi savais rodmenimis."];
+    end
+    ld7_text_window("Teorija ir paaiškinimai",lines);
+endfunction
+
 function ld7_show_stand_map()
     [ids, callbacks, labels, hints] = ld7_button_registry();
     text = ["LD7 · STENDO ŽEMĖLAPIS";"T01/T02 – šaltinis E (+ ir −).";"T03/T04 – jungiklis."; ...
         "T05/T06 – ampermetras; T07/T08 – reostatas R."; "T09/T10 – voltmetro zondai. Ženklai rodo poliškumą."; ""];
     for index = 1:size(ids, "*"); text($+1) = "[" + ids(index) + "] " + labels(index); end
     text = [text; ""; "Etapai E01–E06. V02 – matavimų žurnalas."; ...
-        "A03.01/A03.02 – vidinė varža ir patikra."; "A04.01–A04.05 – galia ir naudingumas."; ...
-        "A05.01/A05.02 – TE ir TJ. A06.01–A06.03 – išvados."];
+        "A03.01/A03.02 – vidinė varža ir vidinis įtampos kritimas."; ...
+        "A04.01–A04.03 – galia ir naudingumas."; ...
+        "5 etapas – automatiniai TE ir virtualaus TJ rodmenys."; ...
+        "A06.01–A06.03 – išvados."];
     ld7_text_window("Žemėlapis", text);
 endfunction
 
