@@ -33,7 +33,10 @@ args = [str(exe), *mode, '-nb', '-f', str(repo / 'tools/test_ld8.sce')]
 with (out / 'scilab.log').open('wb') as log:
     result = subprocess.run(args, env=env, stdout=log, stderr=subprocess.STDOUT, timeout=420)
 verdict = (out / 'verdict.log').read_text(encoding='utf-8') if (out / 'verdict.log').exists() else (out / 'scilab.log').read_text(encoding='utf-8', errors='replace')
-assert result.returncode == 0 and 'LD8_PASS:' in verdict, verdict
+if result.returncode != 0 or 'LD8_PASS:' not in verdict:
+    diagnostics = (out / 'scilab.log').read_text(encoding='utf-8', errors='replace')
+    print(diagnostics[-12000:], flush=True)
+    raise AssertionError(verdict)
 print(verdict.strip())
 result = subprocess.run([str(a.checker.resolve()), str(out / 'geometry.tsv')], capture_output=True, text=True)
 (out / 'geometry.log').write_text(result.stdout + result.stderr, encoding='utf-8')

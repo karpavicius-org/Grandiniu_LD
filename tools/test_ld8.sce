@@ -97,15 +97,18 @@ try
             execstr(LD8.fig.resizefcn); capture_ld8("misri-V64");
         end
     end
+    mprintf("LD8_GUI_STAGE: actual MNA meters and windows PASS\n");
     journal=LD8.journal; bench_ld8_action("ld8_measure()"); assert_checkequal(LD8.journal,journal);
     ld8_set_step(5); LD8.ui.answerEdits(5).string="10,321";
     snapshot_path=bench_save_snapshot("LD8"); snapshot=bench_read_snapshot(snapshot_path,"LD8");
     ld8_restart(); bench_restore_snapshot(snapshot);
     assert_checkequal(LD8.ui.answerEdits(5).string,"10,321"); assert_checkequal(LD8.journal,journal);
     assert_checktrue(LD8.assessment); assert_checkfalse(LD8.powerOn); assert_checkfalse(LD8.switchOn);
+    mprintf("LD8_GUI_STAGE: autosave and snapshot restore PASS\n");
     ld8_toggle_solution(); assert_checkfalse(LD8.demoMode);
     LD8.assessment=%f; LD8.practice_used=%t; ld8_toggle_solution(); assert_checktrue(LD8.demoMode);
     assert_checkequal(size(LD8.journal,1),1); ld8_toggle_solution(); assert_checkequal(LD8.journal,journal);
+    mprintf("LD8_GUI_STAGE: worked example isolation PASS\n");
     // Restart must not erase the practice marker.
     ld8_restart(); assert_checkfalse(LD8.assessment); assert_checktrue(LD8.practice_used);
     bench_restore_snapshot(snapshot); LD8.assessment=%f; LD8.practice_used=%t;
@@ -116,6 +119,7 @@ try
     expected=ld8_expected_answers(); bench_ld8_answers(5,expected(5,1:3));
     LD8.ui.answerEdits(5).string=strsubst(LD8.ui.answerEdits(5).string,".",","); bench_ld8_primary();
     assert_checkequal(LD8.step,6); assert_checktrue(LD8.done(5));
+    mprintf("LD8_GUI_STAGE: learning checks / locale comma PASS\n");
     // 5 etapas skaičiuoja iš 3 etapo matavimų: atkūrimas nieko nevalo.
     ld8_set_step(3); ld8_restore_stage(); assert_checkequal(size(LD8.wires,1),0);
     assert_checkequal(size(ld8_journal_rows(2),1),0); assert_checkfalse(LD8.done(3));
@@ -123,6 +127,7 @@ try
     ld8_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD8.fig); delete(window);
     ld8_show_theory(); window=gcf(); assert_checktrue(window<>LD8.fig); delete(window);
     ld8_show_stand_map(); window=gcf(); assert_checktrue(window<>LD8.fig); delete(window);
+    mprintf("LD8_GUI_STAGE: wiring guide and contextual theory PASS\n");
     // Assessment rejects empty/nonnumeric input but keeps a wrong numeric answer
     // for the teacher, without revealing its correctness to the student.
     LD8.assessment=%t; ld8_set_step(5); expected=ld8_expected_answers();
@@ -134,6 +139,7 @@ try
     LD8.ui.answerEdits(5).string=msprintf("%.17g",expected(5,2)*1.2); bench_ld8_primary();
     assert_checkequal(LD8.step,6);
     assert_checkalmostequal(ld8_parse_number(LD8.answers(5,2)),expected(5,2)*1.2,1e-9,1e-9);
+    mprintf("LD8_GUI_STAGE: assessment numeric format checks PASS\n");
     // Close flushes an edit without Enter; actual Help restores the saved work.
     LD8.ui.answerEdits(7).value=3; // Ne – selection is saved as "2", not a typed number.
     closing=LD8.fig; execstr(closing.closerequestfcn); assert_checkfalse(is_handle_valid(closing));
@@ -146,6 +152,7 @@ try
     assert_checkequal(LD8.step,6); assert_checkequal(LD8.student.number,64);
     assert_checkequal(LD8.ui.answerEdits(7).value,3);
     assert_checktrue(LD8.assessment); assert_checktrue(LD8.autosave_enabled);
+    mprintf("LD8_GUI_STAGE: close/reopen and draft resume PASS\n");
     LD8_CHOICES=[5 2]; ld8_test_help(); assert_checkfalse(LD8.assessment); assert_checktrue(LD8.practice_used);
     LD8_CHOICES=[5 1]; ld8_test_help(); assert_checktrue(LD8.assessment); assert_checktrue(LD8.practice_used);
     LD8_CHOICES=3; ld8_test_help(); window=gcf(); assert_checktrue(window<>LD8.fig); delete(window);
@@ -160,6 +167,7 @@ try
     assert_checkequal(LD8.journal,[]); assert_checkfalse(or(LD8.done));
     h=findobj("tag","reading:R1"); assert_checktrue(h<>[]);
     assert_checkequal(h.string,msprintf("%g Ω",nextcfg.R1));
+    mprintf("LD8_GUI_STAGE: edit profile and switch variants PASS\n");
     delete(LD8.fig);
     cases=list(); specs=[2 1 .01;3 1 .01;4 1 .01;5 1 .02;5 2 .02;5 3 .02];
     for number=[1 17 64]
@@ -198,6 +206,7 @@ try
         end
     end
     mputl(toJSON(cases),out+"tolerance-cases.json");
+    mprintf("LD8_GUI_STAGE: tolerance comparisons PASS\n");
     // Legacy LD8-1 draft: never lose any real work, theory or Kirchhoff answers.
     bench_ld8_workflow(1,root,%f);
     previous=bench_snapshot("LD8");
@@ -212,6 +221,7 @@ try
     assert_checkequal(LD8.answers(2:4,2),["";"";""]);
     assert_checkequal(LD8.done,old_done);
     assert_checkequal(bench_report_data("LD8").rubric_version,"LD8-2");
+    mprintf("LD8_GUI_STAGE: legacy draft migration PASS\n");
     mputl("LD8_PASS: LD8-2 15 criteria; no Re copy; nine meaningful answers; context theory; three grouped U/I measurements and real wiring; old draft preserved; 3 GUI variants; comma/raw input; saved choices; profile corrections; format validation; 13 geometry cases; grading comparisons",out+"verdict.log"); exit(0);
 catch
     [problem,code,line,fn]=lasterror();
