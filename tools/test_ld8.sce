@@ -112,6 +112,10 @@ try
     // Restart must not erase the practice marker.
     ld8_restart(); assert_checkfalse(LD8.assessment); assert_checktrue(LD8.practice_used);
     bench_restore_snapshot(snapshot); LD8.assessment=%f; LD8.practice_used=%t;
+    // All other required inputs must be present before testing a single
+    // malformed field; otherwise the first missing input is rightly reported.
+    expected=ld8_expected_answers();
+    bench_ld8_answers(5,expected(5,1:3));
     LD8.done(5)=%t; LD8.ui.answerEdits(5).string="1+2"; bench_ld8_primary();
     assert_checkfalse(LD8.done(5)); assert_checkequal(LD8.step,5);
     assert_checkequal(LD8.ui.answerEdits(5).string,"1+2");
