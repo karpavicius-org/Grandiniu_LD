@@ -1158,28 +1158,35 @@ function bench_ld7_workflow(number,root,gui)
     end
     assert_checktrue(and(LD7.done)); assert_checkequal(size(LD7.journal,1),7);
     if gui then
+        mprintf("LD7_DIAG V%02d: all six done; journal verified\n",number);
         if number==17 then
             saved=bench_snapshot("LD7");
             keep=LD7.answers(4,1); LD7.answers(4,1)="sugadinta";
             bench_restore_snapshot(saved);
             assert_checkequal(LD7.answers(4,1),keep);
             assert_checktrue(LD7.assessment); assert_checkfalse(LD7.powerOn); assert_checkfalse(LD7.switchOn);
+            mprintf("LD7_DIAG V17: snapshot roundtrip verified\n");
         end
         r=bench_report_data("LD7"); assert_checkequal(r.mode,"assessment"); assert_checkfalse(r.practice_used);
+        mprintf("LD7_DIAG V%02d: report metadata verified\n",number);
         before=size(listfiles(bench_documents()+"/*.html"),"*");
         bench_ld7_primary();
         assert_checkequal(size(listfiles(bench_documents()+"/*.html"),"*"),before+1);
         assert_checktrue(strindex(LD7.ui.statusMain.string,"Ataskaita išsaugota")<>[]);
+        mprintf("LD7_DIAG V%02d: exported report verified\n",number);
         if number==17 then
             // Learning mode still validates locally; practice remains sticky across restart.
             LD7.assessment=%f; LD7.practice_used=%t; ld7_restart();
             assert_checkfalse(LD7.assessment); assert_checktrue(LD7.practice_used);
+            mprintf("LD7_DIAG V17: restarted learning mode verified\n");
             bench_ld7_connect(1); bench_ld7_primary(); assert_checkequal(LD7.step,2);
+            mprintf("LD7_DIAG V17: learning wiring verified\n");
             bench_ld7_action("ld7_toggle_power()"); bench_ld7_action("ld7_toggle_switch()");
             for k=1:5
                 bench_ld7_action("ld7_set_position("+string(k)+")"); bench_ld7_action("ld7_measure()");
             end
             bench_ld7_action("ld7_toggle_power()"); bench_ld7_primary(); assert_checkequal(LD7.step,3);
+            mprintf("LD7_DIAG V17: learning measurements verified\n");
             LD7.ui.answerEdits(1).string="1+2"; LD7.ui.answerEdits(2).string=string(cfg.E);
             bench_ld7_primary();
             assert_checkfalse(LD7.done(3)); assert_checkequal(LD7.step,3);
