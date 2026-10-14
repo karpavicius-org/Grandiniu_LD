@@ -13,7 +13,7 @@ endfunction
 function ld8_terminal_click(id)
     global LD8;
     if ~ld8_wiring_editable() | ~or(ld8_terminal_ids() == id) then return; end
-    if LD8.powerOn then ld8_set_status("Prieš keisdami laidus išjunkite [B01].", "error", ""); return; end
+    if LD8.powerOn then ld8_set_status("Prieš keisdami laidus išjunkite maitinimą.", "error", "Prieš keisdami jungimą, išjunkite šaltinį."); return; end
     changed = %f;
     if LD8.pending == "" then
         LD8.pending = id;
@@ -47,15 +47,15 @@ function ld8_toggle_power()
     LD8.powerOn = ~LD8.powerOn;
     if ~LD8.powerOn then LD8.switchOn = %f; end
     ld8_render_wires();
-    if LD8.powerOn then ld8_set_status("Maitinimas įjungtas.", "ok", "Uždarykite jungiklį [B02] ir matuokite [B03].");
+    if LD8.powerOn then ld8_set_status("Maitinimas įjungtas.", "ok", "Uždarykite jungiklį ir spauskite Matuoti.");
     else ld8_set_status("Maitinimas išjungtas.", "info", "Galima keisti šio etapo laidus."); end
 endfunction
 
 function ld8_toggle_switch()
     global LD8;
-    if ~LD8.powerOn then ld8_set_status("Pirma įjunkite [B01].", "error", ""); return; end
+    if ~LD8.powerOn then ld8_set_status("Pirmiausia įjunkite maitinimą.", "error", ""); return; end
     LD8.switchOn = ~LD8.switchOn; ld8_render_wires();
-    if LD8.switchOn then ld8_set_status("Jungiklis uždarytas.", "ok", "Rodmenis įrašykite [B03].");
+    if LD8.switchOn then ld8_set_status("Jungiklis uždarytas.", "ok", "Spauskite Matuoti – rodmenys išsisaugos automatiškai.");
     else ld8_set_status("Jungiklis atviras.", "info", ""); end
 endfunction
 
@@ -88,8 +88,9 @@ function ld8_measure()
     LD8.report_wires(LD8.wireMode) = LD8.wires;
     LD8.lastMeasurement = current;
     ld8_render_journal(); ld8_render_wires();
-    ld8_set_status(msprintf("%s: U = %.4f V; I = %.3f mA.", ld8_mode_name(tag), voltage, current), "ok", ...
-        msprintf("Re = U/I = %.1f Ω — užsirašykite skaičiavimams.", resistance));
+    next = "Matavimas išsaugotas. Spauskite Įrašyti ir toliau.";
+    if or(LD8.step == [3 4]) then next = "Apskaičiuokite teorinę varžą Rt ir spauskite Įrašyti ir toliau."; end
+    ld8_set_status(msprintf("%s: U = %.4f V; I = %.3f mA.", ld8_mode_name(tag), voltage, current), "ok", next);
     bench_autosave("LD8");
 endfunction
 
@@ -131,20 +132,34 @@ function ld8_check_step(check_answers)
         LD8.report_wires(ld8_stage_mode(step)) = LD8.wires;
     end
     expected = ld8_expected_answers();
-    for index = 1:12
+    for index = 1:9
         [answer_step, slot] = ld8_answer_slot(index);
         if answer_step <> step then continue; end
-        if ~check_answers then
-            if stripblanks(LD8.answers(step,slot))=="" then
-                ld8_set_status("Įrašykite ["+ld8_answer_code(step,slot)+"].","error","Atsakymą vertins dėstytojo programa."); return;
-            end
-            continue;
+        raw = stripblanks(LD8.answers(step,slot));
+        if raw=="" then
+            ld8_set_status(msprintf("Trūksta %d atsakymo.",slot),"error", ...
+                "Užpildykite šio etapo lauką; atsakymą dėstytojas įvertins automatiškai."); return;
         end
-        value = ld8_parse_number(LD8.answers(step, slot)); relative = .02; absolute = 1e-9;
-        if or(step == [2 3 4]) & slot == 1 then relative = .01; end
+        if step == 6 then
+            if ~or(raw==["1" "2"]) then
+                ld8_set_status("Pasirinkite Taip arba Ne.","error","Išvadas pasirinkite iš sąrašo."); return;
+            end
+        else
+            // A mathematical expression is not a number; wrong physics remains
+            // acceptable raw evidence in assessment, not a submission blocker.
+            parsed=ld8_parse_number(raw);
+            if isnan(parsed) | isinf(parsed) then
+                ld8_set_status(msprintf("%d atsakymą įrašykite kaip skaičių.",slot),"error", ...
+                    "Naudokite tašką arba kablelį. Vieneto ir formulės į lauką nerašykite."); return;
+            end
+        end
+        if ~check_answers then continue; end
+        value = ld8_parse_number(raw); relative = .02; absolute = 1e-9;
+        if or(step == [2 3 4]) then relative = .01; end
         if step == 6 then relative = 0; absolute = 0; end
         if ~ld8_close_enough(value, expected(step, slot), relative, absolute) then
-            ld8_set_status("Patikrinkite [" + ld8_answer_code(step, slot) + "].", "error", "Peržiūrėkite formulę užduotyje ir vienetus (Ω, mA)."); return;
+            ld8_set_status(msprintf("Patikrinkite %d atsakymą.",slot), "error", ...
+                "Peržiūrėkite šio etapo formulę Pagalba → Teorija ir paaiškinimai."); return;
         end
     end
     LD8.done(step) = %t; ld8_render_stage();
@@ -171,12 +186,12 @@ function text = ld8_step_instruction(step)
     global LD8;
     cfg = LD8.cfg;
     select step
-    case 1 then text = msprintf("[B10] Sujunkite nuoseklią grandinę be maitinimo: E → jungiklis → ampermetras → R1 → R2 → R3; voltmetro zondai prie šaltinio [T01]/[T02]. Seka: Pagalba → [B04]. Tada įjunkite [B01], uždarykite [B02] ir matuokite [B03].", cfg.E);
-    case 2 then text = "[A02.01] Apskaičiuokite teorinę varžą: Rt = R1 + R2 + R3. [A02.02] Eksperimentinę: Re = U/I (I — amperais). Lyginkite — jos turėtų sutapti.";
-    case 3 then text = "[B11] Sujunkite lygiagrečią grandinę: visos trys varžos tarp tų pačių mazgų. Išmatuokite U ir I. [A03.01] Rt = 1/(1/R1+1/R2+1/R3); [A03.02] Re = U/I.";
-    case 4 then text = "[B12] Sujunkite mišrią grandinę: R1 nuosekliai su lygiagrečiais R2 ir R3. Išmatuokite. [A04.01] Rt = R1 + R2·R3/(R2+R3); [A04.02] Re = U/I.";
-    case 5 then text = "Lygiagrečiosios grandinės šakų srovės esant U iš 3 etapo: [A05.01] I1 = U/R1; [A05.02] I2 = U/R2; [A05.03] I3 = U/R3 (mA). Patikrinkite: I1+I2+I3 = I.";
-    case 6 then text = "[A06.01] Ar nuoseklioji Rt didesnė už kiekvieną varžą? [A06.02] Ar lygiagretė Rt mažesnė už mažiausią? [A06.03] Ar šakų srovių suma lygi bendrai srovei? 1 – Taip, 2 – Ne.";
+    case 1 then text = msprintf("1. Be maitinimo sujunkite: šaltinis → jungiklis → ampermetras → R1 → R2 → R3 → šaltinis. Voltmetrą prijunkite prie šaltinio. 2. Įjunkite maitinimą, uždarykite jungiklį, paspauskite Matuoti. E=%g V.",cfg.E);
+    case 2 then text = "Iš priskirtų trijų rezistorių reikšmių apskaičiuokite nuosekliosios grandinės teorinę varžą Rt=R1+R2+R3, Ω. Žurnale matavimas jau yra – rodmenų perrašyti nereikia.";
+    case 3 then text = "Išjungę maitinimą, sujunkite tris rezistorius lygiagrečiai tarp tų pačių dviejų mazgų. Išmatuokite U ir I. Apskaičiuokite teorinę Rt=1/(1/R1+1/R2+1/R3), Ω.";
+    case 4 then text = "Išjungę maitinimą, sujunkite R1 nuosekliai su lygiagrečiais R2 ir R3. Išmatuokite U ir I. Apskaičiuokite teorinę Rt=R1+R2·R3/(R2+R3), Ω.";
+    case 5 then text = "Naudodami lygiagrečios grandinės U iš 3 etapo, apskaičiuokite tris šakų sroves: I1=1000·U/R1, I2=1000·U/R2, I3=1000·U/R3 (mA). Patikrinkite: I1+I2+I3≈I bendroji.";
+    case 6 then text = "Palyginę tris Rt ir lygiagrečias šakų sroves, atsakykite į tris išvadas. Kiekvienai pasirinkite Taip arba Ne – skaičių rašyti nereikia.";
     else text = "";
     end
 endfunction
@@ -191,13 +206,17 @@ function ld8_save_answers()
         if ~is_handle_valid(handle) then continue; end
         [step, slot] = ld8_answer_slot(index);
         if step <> LD8.step | handle.visible <> "on" then continue; end
-        if LD8.answers(step, slot) <> handle.string then LD8.done(step) = %f; end
-        LD8.answers(step, slot) = handle.string;
+        raw=handle.string;
+        if handle.style=="popupmenu" then
+            raw=""; if handle.value>1 then raw=string(handle.value-1);end
+        end
+        if LD8.answers(step, slot) <> raw then LD8.done(step) = %f; end
+        LD8.answers(step, slot) = raw;
     end
 endfunction
 
 function [step, slot] = ld8_answer_slot(index)
-    mapping = [2 1;2 2;3 1;3 2;4 1;4 2;5 1;5 2;5 3;6 1;6 2;6 3];
+    mapping = [2 1;3 1;4 1;5 1;5 2;5 3;6 1;6 2;6 3];
     step = mapping(index, 1); slot = mapping(index, 2);
 endfunction
 
@@ -215,9 +234,10 @@ function ld8_show_wiring_guide()
     text = ["LD8 · " + ld8_mode_name(LD8.wireMode); ""; "Išjunkite maitinimą prieš jungdami laidus."];
     wires = ld8_canonical_wires(LD8.wireMode);
     for index = 1:size(wires, 1)
-        text($+1) = msprintf("%d. [%s]–[%s]: %s → %s", index, ld8_terminal_code(wires(index,1)), ld8_terminal_code(wires(index,2)), wires(index,1), wires(index,2));
+        text($+1) = msprintf("%d. %s → %s   [%s–%s]",index,ld8_contact_short(wires(index,1)), ...
+            ld8_contact_short(wires(index,2)),ld8_terminal_code(wires(index,1)),ld8_terminal_code(wires(index,2)));
     end
-    notes = ["Voltmetro zondai visada prie šaltinio galų [T01]/[T02]."];
+    notes = ["Voltmetro zondus visada junkite prie šaltinio + ir − gnybtų."];
     if LD8.wireMode == 2 then
         notes = [notes; "Lygiagrečiai: kiekviena varža jungiama tarp tų pačių dviejų mazgų."; "Tarpinis taškas turės du laidus — tai normalu."];
     elseif LD8.wireMode == 3 then
@@ -225,8 +245,75 @@ function ld8_show_wiring_guide()
     else
         notes = [notes; "Nuosekliai: grandinė eina per visas tris varžas viena pakopa."];
     end
-    text = [text; ""; notes];
+    text = [text; ""; notes; ""; "Pakartoję tų pačių gnybtų paspaudimus, laidą pašalinsite."];
     ld8_text_window("Kaip sujungti", text);
+endfunction
+
+// Short physical names in hints; registry Txx identifiers remain audit metadata.
+function label = ld8_contact_short(id)
+    select id
+    case "E_P" then label="Šaltinis +";
+    case "E_N" then label="Šaltinis −";
+    case "K1" then label="Jungiklis 1";
+    case "K2" then label="Jungiklis 2";
+    case "A_P" then label="Ampermetras +";
+    case "A_N" then label="Ampermetras −";
+    case "V_P" then label="Voltmetras +";
+    case "V_N" then label="Voltmetras −";
+    case "R1_A" then label="R1 a";
+    case "R1_B" then label="R1 b";
+    case "R2_A" then label="R2 a";
+    case "R2_B" then label="R2 b";
+    case "R3_A" then label="R3 a";
+    case "R3_B" then label="R3 b";
+    else label=id;
+    end
+endfunction
+
+function ld8_show_theory()
+    global LD8;
+    lines=["LD8 · TEORIJA IR PAAIŠKINIMAI";"";
+        "Nuosekliai: ta pati srovė teka per visas tris varžas; Rt = R1+R2+R3.";
+        "Lygiagrečiai: įtampa visose šakose vienoda; 1/Rt=1/R1+1/R2+1/R3.";
+        "Mišriai: pirmiausia R23=R2·R3/(R2+R3), paskui Rt=R1+R23.";
+        "Ampermetras matuoja bendrą srovę; voltmetras – šaltinio įtampą.";
+        "I(mA)=1000·U(V)/R(Ω). Eksperimentinė Re=1000·U/I_mA.";
+        "Rodmenys automatiškai įrašomi į žurnalą ir HTML ataskaitą.";
+        "Išbandymų rezultatus reikia suprasti, bet nekopijuoti į atsakymų laukus.";""];
+
+    select LD8.step
+    case 1 then
+        lines=[lines;"1 ETAPAS · NUOSEKLI GRANDINĖ";
+            "Paspauskite dviejų gnybtų poras, kad sujungtumėte vieną laidą.";
+            "Išjunkite maitinimą, jei reikės taisyti sujungimą.";
+            "Įjungę šaltinį, uždarykite jungiklį ir pasirinkite Matuoti."];
+    case 2 then
+        lines=[lines;"2 ETAPAS · TEORINĖ VARŽA";
+            "Sudėkite savo variantui priskirtas R1, R2 ir R3 reikšmes.";
+            "Įrašykite vieną teorinę Rt skaičiumi (Ω), be vieneto.";
+            "Matuotų U ir I perrašyti nereikia."];
+    case 3 then
+        lines=[lines;"3 ETAPAS · LYGIAGRETUS JUNGIMAS";
+            "Kiekvienas iš trijų rezistorių jungiamas tarp tų pačių mazgų.";
+            "Pirmiausia sujunkite, tada išmatuokite U ir I.";
+            "Rt apskaičiuokite sumuodami laidžius 1/R, o ne pačias varžas."];
+    case 4 then
+        lines=[lines;"4 ETAPAS · MIŠRUS JUNGIMAS";
+            "R2 ir R3 lygiagrečiai; jų bendroji varža R23.";
+            "R1 prie šios poros sujungtas nuosekliai: Rt=R1+R23.";
+            "Atlikite vieną matavimą ir įrašykite vieną teorinę Rt."];
+    case 5 then
+        lines=[lines;"5 ETAPAS · KIRCHHOFO SROVIŲ DĖSNIS";
+            "Naudokite žurnalo U iš lygiagrečios grandinės matavimo.";
+            "Apskaičiuokite kiekvienos šakos I1, I2 ir I3 mA.";
+            "Patikrinkite jų sumą prieš žurnalo bendrą srovę I."];
+    case 6 then
+        lines=[lines;"6 ETAPAS · IŠVADOS";
+            "Palyginkite nuoseklią, lygiagrečią ir mišrią Rt.";
+            "Atskirai įvertinkite, ar šakų srovių suma atitinka bendrą srovę.";
+            "Pasirinkite Taip arba Ne, remdamiesi savo rezultatais."];
+    end
+    ld8_text_window("Teorija ir paaiškinimai",lines);
 endfunction
 
 function ld8_show_stand_map()
@@ -236,7 +323,7 @@ function ld8_show_stand_map()
         "T13/T14 – voltmetro zondai. Ženklai rodo poliškumą."; ""];
     for index = 1:size(ids, "*"); text($+1) = "[" + ids(index) + "] " + labels(index); end
     text = [text; ""; "Etapai E01–E06. V02 – trijų grandinių žurnalas."; ...
-        "A02/A03/A04 – teorinė ir eksperimentinė varžos."; ...
+        "A02.01/A03.01/A04.01 – teorinės Rt, matavimai saugomi automatiškai."; ...
         "A05.01–A05.03 – šakų srovės. A06.01–A06.03 – išvados."];
     ld8_text_window("Žemėlapis", text);
 endfunction

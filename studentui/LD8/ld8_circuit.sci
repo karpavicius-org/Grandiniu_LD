@@ -39,7 +39,7 @@ function [ok, reason] = ld8_wiring_valid(wires)
             if and(wires(row,:) == canonical(index,:)) | and(wires(row,:) == canonical(index,[2 1])) then present = %t; end
         end
         if ~present then
-            reason = "Trūksta laido ["+ld8_terminal_code(canonical(index,1))+"]–["+ld8_terminal_code(canonical(index,2))+"].";
+            reason = "Trūksta jungties: "+ld8_contact_short(canonical(index,1))+" → "+ld8_contact_short(canonical(index,2))+".";
             return;
         end
     end
@@ -61,8 +61,8 @@ endfunction
 function [voltage, current, ok, message] = ld8_measure_values()
     global LD8;
     voltage = %nan; current = %nan; ok = %f; message = "";
-    if ~LD8.powerOn then message = "Įjunkite maitinimą [B01]."; return; end
-    if ~LD8.switchOn then message = "Uždarykite jungiklį [B02]."; return; end
+    if ~LD8.powerOn then message = "Pirmiausia įjunkite maitinimą."; return; end
+    if ~LD8.switchOn then message = "Uždarykite jungiklį, tada spauskite Matuoti."; return; end
     [valid, message] = ld8_wiring_valid(LD8.wires);
     if ~valid then return; end
     bench_core_require(); cfg = LD8.cfg; mode = LD8.wireMode;
@@ -93,6 +93,7 @@ function ld8_init_state()
         LD8.wires_by_mode(index) = emptystr(0, 2); LD8.report_wires(index) = emptystr(0, 2);
     end
     LD8.answers = emptystr(6, 8); LD8.demoMode = %f; LD8.lastMeasurement = %nan; LD8.pending = "";
+    LD8.workflow_revision = 2;
 endfunction
 
 function expected = ld8_expected_answers()
@@ -102,9 +103,9 @@ function expected = ld8_expected_answers()
     series = cfg.R1 + cfg.R2 + cfg.R3;
     parallel = 1/(1/cfg.R1 + 1/cfg.R2 + 1/cfg.R3);
     mixed = cfg.R1 + cfg.R2*cfg.R3/(cfg.R2 + cfg.R3);
-    expected(2, 1:2) = [series, series];
-    expected(3, 1:2) = [parallel, parallel];
-    expected(4, 1:2) = [mixed, mixed];
+    expected(2, 1) = series;
+    expected(3, 1) = parallel;
+    expected(4, 1) = mixed;
     expected(5, 1:3) = [cfg.E/cfg.R1*1000, cfg.E/cfg.R2*1000, cfg.E/cfg.R3*1000];
     expected(6, 1:3) = [1 1 1];
 endfunction
