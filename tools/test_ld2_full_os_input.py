@@ -142,8 +142,25 @@ class LD2RealUser:
                            f"last={str(last)[:2000]}, log_tail="+
                            (self.root/"scilab.log").read_text(encoding="utf-8",errors="replace")[-4000:])
 
+    def location(self,tag,style):
+        # The native desktop driver owns pointer injection; the lab harness
+        # resolves visible Scilab controls from the same geometry audit used
+        # by the already passing LD1/LD6–LD8 real-mouse tests.
+        rows=[line.split("\t") for line in self.geom_file.read_text(encoding="utf-8").splitlines()]
+        matches=[r for r in rows if len(r)>=8 and r[3]==tag and r[2]==style]
+        if len(matches)!=1:
+            raise AssertionError(f"LD2 step {self.state['step']}: expected exactly one visible "
+                                 f"{style} control {tag}, got {matches!r}")
+        x,y,w,h=[float(z) for z in matches[0][4:8]]
+        self.desktop.update_origin()
+        ox,oy=self.desktop.client_origin
+        cw,ch=self.desktop.client_size
+        pos=(round(ox+x+w/2),round(oy+ch-y-h/2))
+        assert ox<=pos[0]<ox+cw and oy<=pos[1]<oy+ch,(tag,pos,self.desktop.client_size)
+        return pos
+
     def mouse(self,tag,event,expected_step=None):
-        x,y=self.desktop.location(tag,"pushbutton")
+        x,y=self.location(tag,"pushbutton")
         prev=self.seq
         self.desktop.click_xy(x,y)
         state=self.wait_event(prev,event)
@@ -184,7 +201,7 @@ class LD2RealUser:
     def frequency(self,f):
         f=finite(f)
         assert 1<=f<=self.cfg["F_MAX"],f
-        loc=self.desktop.location("F04","edit")
+        loc=self.location("F04","edit")
         prev=self.seq
         self.desktop.click_xy(*loc)
         self.desktop.key("ctrl+a")
@@ -204,7 +221,7 @@ class LD2RealUser:
         value=finite(value)
         tag=f"A{step:02d}.{k:02d}"
         prev=self.seq
-        x,y=self.desktop.location(tag,"edit")
+        x,y=self.location(tag,"edit")
         self.desktop.click_xy(x,y)
         self.desktop.key("ctrl+a")
         entered=f"{value:.12g}"
