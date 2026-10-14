@@ -205,7 +205,7 @@ class LD2RealUser:
         prev=self.seq
         self.desktop.click_xy(*loc)
         self.desktop.key("ctrl+a")
-        self.desktop.type_text(f"{f:.12g}")
+        self.type_real_text(f"{f:.12g}")
         self.desktop.key("Tab")
         # The Scilab edit callback may apply on loss of focus. If it does not,
         # click the visible "Taikyti" button, never execute its callback directly.
@@ -217,6 +217,14 @@ class LD2RealUser:
             raise AssertionError(f"Frequency was not applied via actual keys: {f}, state={st}")
         self.events.append(dict(action="native_frequency_input",hz=f,step=st["step"]))
 
+    def type_real_text(self,text):
+        if os.name=="nt":
+            self.desktop.type_text(str(text))
+        else:
+            # Negative phase angles must be passed as data, not flags to xdotool.
+            subprocess.run(["xdotool","type","--clearmodifiers","--delay","8","--",str(text)],
+                           check=True,capture_output=True,text=True)
+
     def type_answer(self,step,k,value):
         value=finite(value)
         tag=f"A{step:02d}.{k:02d}"
@@ -225,7 +233,7 @@ class LD2RealUser:
         self.desktop.click_xy(x,y)
         self.desktop.key("ctrl+a")
         entered=f"{value:.12g}"
-        self.desktop.type_text(entered)
+        self.type_real_text(entered)
         self.desktop.key("Tab")
         try:
             st=self.wait_event(prev,"answer",timeout=3)
