@@ -1,0 +1,87 @@
+name: LD6-LD8 Native Mouse and Keyboard
+on:
+  push:
+    paths:
+      - 'tools/test_ld678_os_input.py'
+      - 'tools/test_ld678_os_input.sce'
+      - '.github/workflows/real-input.yml'
+      - 'studentui/LD6/**'
+      - 'studentui/LD7/**'
+      - 'studentui/LD8/**'
+      - 'studentui/student_style.sci'
+  pull_request:
+    paths:
+      - 'tools/test_ld678_os_input.py'
+      - 'tools/test_ld678_os_input.sce'
+      - '.github/workflows/real-input.yml'
+      - 'studentui/LD6/**'
+      - 'studentui/LD7/**'
+      - 'studentui/LD8/**'
+      - 'studentui/student_style.sci'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-input:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch locked dependencies
+        run: python tools/fetch_core_deps.py "${{ runner.temp }}/ld-deps"
+      - name: Build native C++ engine
+        run: |
+          cmake -S core -B build -DLD_DEPS="${{ runner.temp }}/ld-deps" -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel 2
+          cmake --install build --config Release --prefix studentui
+      - name: Install Linux Scilab and real OS input driver
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          curl --fail --location --retry 3 https://www.scilab.org/download/2026.1.0/scilab-2026.1.0.bin.x86_64-linux-gnu.tar.xz -o "$RUNNER_TEMP/scilab.tar.xz"
+          tar -xJf "$RUNNER_TEMP/scilab.tar.xz" -C "$RUNNER_TEMP"
+          echo "SCILAB_BIN=$RUNNER_TEMP/scilab-2026.1.0/bin/scilab" >> "$GITHUB_ENV"
+          sudo apt-get update
+          sudo apt-get install -y xvfb xdotool x11-utils
+      - name: Install Windows Scilab
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer=Join-Path $env:RUNNER_TEMP 'scilab.exe'
+          Invoke-WebRequest https://www.scilab.org/download/2026.1.0/scilab-2026.1.0.bin.x64.exe -OutFile $installer
+          $target=Join-Path $env:RUNNER_TEMP 'Scilab'
+          $p=Start-Process -FilePath $installer -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-',"/DIR=$target" -Wait -PassThru
+          if($p.ExitCode -ne 0){throw "Scilab installer exit $($p.ExitCode)"}
+          "SCILAB_BIN=$target\bin\Scilex.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Real X11 mouse and keyboard, full LD6-LD8 workflow
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python tools/test_ld678_os_input.py \
+            --scilab "$SCILAB_BIN" --core studentui/bin/ldcore.so --output "$RUNNER_TEMP/os-input"
+      - name: Real Windows mouse and keyboard, full LD6-LD8 workflow
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python tools/test_ld678_os_input.py --scilab "$env:SCILAB_BIN" --core studentui/bin/ldcore.dll --output "$env:RUNNER_TEMP/os-input"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: LD678-real-OS-input-${{ runner.os }}
+          path: |
+            ${{ runner.temp }}/os-input/*/scilab.log
+            ${{ runner.temp }}/os-input/*/state.json
+            ${{ runner.temp }}/os-input/*/geometry.tsv
+            ${{ runner.temp }}/os-input/*/config.json
+            ${{ runner.temp }}/os-input/*/wires.tsv
+            ${{ runner.temp }}/os-input/*/acceptance.json
+            ${{ runner.temp }}/os-input/*/failure.txt
+            ${{ runner.temp }}/os-input/acceptance.json
+          if-no-files-found: warn
