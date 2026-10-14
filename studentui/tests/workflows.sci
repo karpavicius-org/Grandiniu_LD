@@ -194,6 +194,8 @@ function bench_ld2_workflow(n,root,gui)
             LD2.state.sweep_f=matrix(recorded,-1,1);
             LD2.state.sweep_f(2)=LD2.state.sweep_f(2)+1;
             assert_checkfalse(ld2_assessment_ready());  // corrupted sample must fail
+            LD2.state.sweep_f=[];
+            assert_checkfalse(ld2_assessment_ready());  // missing scan is not enough
             LD2.state.sweep_f=recorded;
             assert_checktrue(ld2_assessment_ready());
         end

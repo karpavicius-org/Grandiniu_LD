@@ -264,7 +264,20 @@ class LD2RealUser:
         return st
 
     def screenshot(self,step):
-        target=self.root/f"E{step:02d}.png"
+        label=f"E{step:02d}" if isinstance(step,int) else f"E{step}"
+        target=self.root/f"{label}.png"
+        # Save and inspect every actual stage's hit targets and elements,
+        # not merely the last RLC screenshot. Distinct scenario labels let the
+        # original C++ geometry checker verify the full student journey.
+        case=f"LD2-{label}"
+        rows=self.geom_file.read_text(encoding="utf-8").splitlines()
+        assert rows,(case,"empty native geometry")
+        with (self.root/"geometry_all.tsv").open("a",encoding="utf-8") as stream:
+            for row in rows:
+                parts=row.split("\t")
+                assert len(parts)==13,(case,row)
+                parts[0]=case
+                stream.write("\t".join(parts)+"\n")
         self.desktop.update_origin()
         if os.name=="nt":
             import ctypes
@@ -388,7 +401,7 @@ class LD2RealUser:
         state=self.mouse("B04","primary",expected_step=12)
         assert state["completed_count"]==12,state
         assert state["assessment"] and not state["practice"],state
-        self.screenshot(12)
+        self.screenshot("12-final")
         self.wait_report()
         assert len(self.shots)>=12,self.shots
         self.events.append(dict(action="all_twelve_stages_completed",events=len(self.events)))
@@ -418,10 +431,13 @@ class LD2RealUser:
             assert draft["status"]=="review" and not draft["selected_for_summary"],draft
         self.grade_result=result
         self.drafts=len(drafts)
-        checker=subprocess.run([str(self.args.checker.resolve()),str(self.geom_file)],
+        checker=subprocess.run([str(self.args.checker.resolve()),
+                                str(self.root/"geometry_all.tsv")],
                                capture_output=True,text=True)
         (self.root/"geometry.log").write_text(checker.stdout+checker.stderr,encoding="utf-8")
         assert checker.returncode==0,checker.stdout+checker.stderr
+        lines=checker.stdout.splitlines()
+        assert any("scenarios=13" in line and "errors=0" in line for line in lines),lines
 
     def save(self):
         report=dict(status="PASS",lab="LD2",os=os.name,variant=17,stages=12,
@@ -432,6 +448,7 @@ class LD2RealUser:
                     recorded_resonance_points=3,recorded_extrema_points=9,
                     half_power_samples=2,measured_sweep_points=11,
                     screenshot_count=len(self.shots),screenshots=self.shots,
+                    geometry_scenarios=13,
                     report=self.report.name,autosaved_drafts=self.drafts,
                     grading={"points":self.grade_result["points"],"maximum":self.grade_result["max_points"],
                              "rubric":self.grade_result["rubric_version"]},
