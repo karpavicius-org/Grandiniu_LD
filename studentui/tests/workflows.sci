@@ -181,6 +181,21 @@ function bench_ld2_workflow(n,root,gui)
             bench_ld2_answers(step,[cfg.E_RLC/sqrt(2) rr.F1 rr.F2 rr.BW rr.Q]);
         elseif step==12 then
             bench_ld2_probe("RLC","UR"); bench_ld2_action("ld2_run_sweep()");
+            // Native user-input testing exposed an 11×1 acquired sweep that
+            // was mistakenly compared to the expected 1×11 frequency row.
+            // Both orientations represent the SAME eleven ordered samples.
+            recorded=LD2.state.sweep_f;
+            expected=0:1000:cfg.F_MAX;
+            assert_checkequal(matrix(recorded,1,-1),expected);
+            LD2.state.sweep_f=matrix(recorded,-1,1);
+            assert_checktrue(ld2_assessment_ready());
+            LD2.state.sweep_f=matrix(recorded,1,-1);
+            assert_checktrue(ld2_assessment_ready());
+            LD2.state.sweep_f=matrix(recorded,-1,1);
+            LD2.state.sweep_f(2)=LD2.state.sweep_f(2)+1;
+            assert_checkfalse(ld2_assessment_ready());  // corrupted sample must fail
+            LD2.state.sweep_f=recorded;
+            assert_checktrue(ld2_assessment_ready());
         end
         bench_ld2_primary();
         if LD2.state.completed(step)<>1 then error("LD2 V"+string(n)+" etapas "+string(step)+": "+LD2.state.last_error); end
