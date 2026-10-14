@@ -143,8 +143,16 @@ try:
     sys.path.insert(0,str(repo/'core/tests'))
     from test_grading import run as grade
     grades,_=grade(a.grader.resolve(),out/'Ataskaitos',out/'grading')
-    assert len(grades['results'])==1, grades
-    result_grade=grades['results'][0]
+    # The grader intentionally discovers auto-saved .sod drafts alongside the
+    # submitted HTML. Those are not failed submissions and must stay ungraded.
+    html=[item for item in grades['results'] if item['file'].lower().endswith('.html')]
+    drafts=[item for item in grades['results'] if item['file'].lower().endswith('.sod')]
+    assert len(html)==1 and len(drafts)>=1, grades
+    assert len(html)+len(drafts)==len(grades['results']),grades
+    for draft in drafts:
+        assert draft['status']=='review' and draft['reason']=='unsupported_file',draft
+        assert draft['grade_10'] is None and not draft['selected_for_summary'],draft
+    result_grade=html[0]
     assert result_grade['status']=='graded' and (result_grade['points'],result_grade['max_points'])==(9,9),result_grade
     assert result_grade['rubric_version']=='LD1-3' and result_grade['selected_for_summary'],result_grade
     assert not result_grade['practice_used'] and result_grade['mode']=='assessment',result_grade
@@ -156,7 +164,7 @@ try:
                 actual_mouse_actions=len(actions),all_stages=9,manual_wires=15,
                 manual_numeric_entries=0,test_enrollment_fixture=True,
                 measure_actions=[2,6,8],automatic_measurement_stages=[3,4,7],
-                screens=screens,report=reports[0].name,
+                screens=screens,report=reports[0].name,autosaved_drafts=len(drafts),
                 grader=dict(points=result_grade['points'],max_points=result_grade['max_points'],
                             rubric=result_grade['rubric_version']),
                 input_method='native Windows user32 / Linux X11 mouse events; no callback injection')
