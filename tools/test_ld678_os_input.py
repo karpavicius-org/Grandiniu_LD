@@ -41,9 +41,43 @@ class Desktop:
             self.w = wintypes
             self.user = ctypes.windll.user32
             self.user.SetProcessDPIAware()
+            # The Scilab canvas is 1280×720; on the default 1024×768 CI
+            # desktop its right-hand primary button is beyond the viewport.
+            # Use a real OS display-mode change, not a fictitious GUI click.
+            self.ensure_desktop_resolution()
         else:
             cmd("xdotool", "--version")
             cmd("xwininfo", "-help", check=False)
+
+    def ensure_desktop_resolution(self):
+        width=self.user.GetSystemMetrics(0)
+        height=self.user.GetSystemMetrics(1)
+        if width>=1450 and height>=850:
+            return
+        import win32api
+        import win32con
+        modes=[]
+        index=0
+        while True:
+            try:
+                m=win32api.EnumDisplaySettings(None,index)
+            except Exception:
+                break
+            if m.PelsWidth>=1450 and m.PelsHeight>=850:
+                modes.append((m.PelsWidth,m.PelsHeight,m.BitsPerPel))
+            index+=1
+        # Prefer a regular 16:9 desktop, rather than an arbitrary very wide mode.
+        modes.sort(key=lambda item:(abs(item[0]/item[1]-16/9),item[0]*item[1]))
+        for w,h,_ in modes:
+            setting=win32api.EnumDisplaySettings(None,win32con.ENUM_CURRENT_SETTINGS)
+            setting.PelsWidth=w
+            setting.PelsHeight=h
+            if win32api.ChangeDisplaySettings(setting,0)==0:
+                time.sleep(1)
+                if self.user.GetSystemMetrics(0)>=1450 and self.user.GetSystemMetrics(1)>=850:
+                    return
+        raise RuntimeError(f"No desktop mode can show the full 1280x720 laboratory. "
+                           f"Current Windows display {width}x{height}, modes={modes!r}")
 
     def locate(self):
         if os.name == "nt":
@@ -64,7 +98,10 @@ class Desktop:
             ids = cmd("xdotool", "search", "--onlyvisible", "--name",
                       self.lab + " · OS INPUT TEST", check=False)
             if ids.returncode or not ids.stdout.strip():
-                raise RuntimeError(f"{self.lab}: missing visible X11 window")
+                listing=cmd("xwininfo","-root","-tree",check=False)
+                raise RuntimeError(f"{self.lab}: missing visible X11 window; "
+                                   f"X root tree: {listing.stdout[-7000:]}; "
+                                   f"stderr: {ids.stderr}; display={os.environ.get('DISPLAY')}")
             # Prefer the window whose actual title matches (not a child dialog).
             windows = ids.stdout.split()
             selected = []
@@ -176,7 +213,8 @@ class Lab:
                     "-f", str(SCE)]
         (self.path / "scihome").mkdir(exist_ok=True)
         self.log = (self.path / "scilab.log").open("wb")
-        self.proc = subprocess.Popen(command, stdout=self.log, stderr=subprocess.STDOUT,
+        self.proc = subprocess.Popen(command, stdin=subprocess.PIPE,
+                                     stdout=self.log, stderr=subprocess.STDOUT,
                                      env=self.env)
         self.wait_file("ready", 90)
         self.config = json.loads((self.path / "config.json").read_text(encoding="utf-8"))
@@ -190,6 +228,9 @@ class Lab:
                 self.desktop.locate()
                 break
             except (RuntimeError, subprocess.CalledProcessError):
+                if self.proc.poll() is not None:
+                    raise RuntimeError(f"{self.lab}: Scilab exited before the desktop window became visible; "
+                                       f"returncode={self.proc.returncode}")
                 if time.monotonic() > deadline:
                     raise
                 time.sleep(.25)
@@ -247,7 +288,9 @@ class Lab:
         target=(round(ox+x+width/2),round(oy+client_h-y-height/2))
         if not (ox <= target[0] < ox+self.desktop.client_size[0] and
                 oy <= target[1] < oy+client_h):
-            raise AssertionError(f"{tag}: mouse target out of real native window: {target}")
+            raise AssertionError(f"{tag}: target {target} outside real client. "
+                                 f"origin={self.desktop.client_origin},size={self.desktop.client_size}, "
+                                 f"rectangle={rect}. Requires actual OS scrolling or a larger screen.")
         return target
 
     def click(self, tag, event, expected_step=None):

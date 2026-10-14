@@ -50,6 +50,10 @@ jobs:
           echo "SCILAB_BIN=$RUNNER_TEMP/scilab-2026.1.0/bin/scilab" >> "$GITHUB_ENV"
           sudo apt-get update
           sudo apt-get install -y xvfb xdotool x11-utils
+      - name: Install native Windows display-mode bindings
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python -m pip install --disable-pip-version-check pywin32
       - name: Install Windows Scilab
         if: runner.os == 'Windows'
         shell: pwsh
