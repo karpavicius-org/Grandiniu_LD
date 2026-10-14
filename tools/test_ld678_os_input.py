@@ -215,7 +215,7 @@ class Lab:
         self.log = (self.path / "scilab.log").open("wb")
         self.proc = subprocess.Popen(command, stdin=subprocess.PIPE,
                                      stdout=self.log, stderr=subprocess.STDOUT,
-                                     env=self.env)
+                                     env=self.env, start_new_session=(os.name!="nt"))
         self.wait_file("ready", 90)
         self.config = json.loads((self.path / "config.json").read_text(encoding="utf-8"))
         self.wires = {}
@@ -450,10 +450,22 @@ class Lab:
     def shutdown(self):
         try:
             if self.proc is not None and self.proc.poll() is None:
-                self.proc.terminate()
-                self.proc.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            self.proc.kill()
+                # Scilab's Linux wrapper may signal its entire process group
+                # on SIGTERM. Never signal the GitHub runner's process group.
+                if self.proc.stdin:
+                    try:
+                        self.proc.stdin.write(b"exit(0)\n")
+                        self.proc.stdin.flush()
+                        self.proc.wait(timeout=4)
+                    except (BrokenPipeError, OSError, subprocess.TimeoutExpired):
+                        pass
+                if self.proc.poll() is None:
+                    self.proc.terminate()
+                    try:
+                        self.proc.wait(timeout=10)
+                    except subprocess.TimeoutExpired:
+                        self.proc.kill()
+                        self.proc.wait(timeout=5)
         finally:
             if hasattr(self,"log"):
                 self.log.close()
