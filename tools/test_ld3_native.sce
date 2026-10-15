@@ -26,7 +26,7 @@ function ld3_native_publish(event)
     for k=1:size(LD3.ui.answerEdits,"*")
         h=LD3.ui.answerEdits(k);
         if is_handle_valid(h) & h.visible=="on" then
-            assert_checktrue(h.position(3)>=0.36);
+            assert_checktrue(h.position(3)>=0.38);
             assert_checktrue(h.position(1)+h.position(3)<=0.94);
         end
     end

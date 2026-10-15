@@ -143,7 +143,7 @@ function ld3_render_stage()
             yy=0.55-row*0.10; row=row+1;
             // Leave space for explanatory labels while showing the full numeric
             // answer, including leading digits, on the Linux Scilab desktop.
-            lab.position=[0.07 yy 0.49 0.075]; h.position=[0.57 yy 0.36 0.075];
+            lab.position=[0.07 yy 0.47 0.075]; h.position=[0.55 yy 0.38 0.075];
             h.string=LD3.answers(st,sl); h.visible="on"; lab.visible="on";
         end
     end
@@ -184,9 +184,9 @@ function ld3_build_gui()
         "R vidurkis, Ω";"R iš nuolydžio, Ω";"Ar I(U) tiesinė? 1 Taip / 2 Ne";"Ar R pastovi? 1 Taip / 2 Ne"];
     LD3.ui.answerEdits=[]; LD3.ui.answerLabels=[];
     for k=1:8
-        LD3.ui.answerLabels($+1)=student_text(right,[0.07 0.5 0.49 0.075],student_wrap(labels(k),22),14,%f);
+        LD3.ui.answerLabels($+1)=student_text(right,[0.07 0.5 0.47 0.075],student_wrap(labels(k),22),14,%f);
         [st,sl]=ld3_answer_slot(k);
-        h=uicontrol(right,"style","edit","units","normalized","position",[0.57 0.5 0.36 0.075], ...
+        h=uicontrol(right,"style","edit","units","normalized","position",[0.55 0.5 0.38 0.075], ...
             "string","","fontunits","pixels","fontsize",14,"fontname","DejaVu Sans", ...
             "tag",ld3_answer_code(st,sl),"callback","ld3_answers_changed()","backgroundcolor",[0.94 0.96 0.96]);
         LD3.ui.answerEdits($+1)=h;
