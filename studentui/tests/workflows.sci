@@ -386,6 +386,7 @@ function bench_ld3_workflow(n,root,gui)
             if gui & n==17 then
                 for k=1:3
                     assert_checktrue(strindex(LD3.ui.answerLabels(k+1).string,"U"+string(k))<>[]);
+                    assert_checktrue(LD3.ui.answerEdits(k+1).position(3)>=.36);
                 end
             end
             r=[LD3.journal(1,1)*1000/LD3.journal(1,2) LD3.journal(2,1)*1000/LD3.journal(2,2) LD3.journal(3,1)*1000/LD3.journal(3,2)];

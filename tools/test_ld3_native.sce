@@ -21,6 +21,15 @@ function ld3_native_publish(event)
             assert_checktrue(strindex(LD3.ui.answerLabels(k+1).string,"U"+string(k))<>[]);
         end
     end
+    // The native Linux screenshot previously showed 6.001… in place of
+    // 56.001… because the input field clipped its leading digit.
+    for k=1:size(LD3.ui.answerEdits,"*")
+        h=LD3.ui.answerEdits(k);
+        if is_handle_valid(h) & h.visible=="on" then
+            assert_checktrue(h.position(3)>=0.36);
+            assert_checktrue(h.position(1)+h.position(3)<=0.94);
+        end
+    end
     st=struct("seq",LD3_NATIVE_SEQ,"event",event,"step",LD3.step, ...
         "done_count",sum(LD3.done),"wire_count",size(LD3.wires,1), ...
         "journal_count",size(LD3.journal,1),"journal",LD3.journal, ...
