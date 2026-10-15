@@ -114,11 +114,13 @@ function ld3_measure()
     bench_autosave("LD3");
 endfunction
 
-function ok = ld3_close_enough(userValue, expectedValue)
-    global LD3;
-    if isnan(userValue) | isnan(expectedValue) then ok = %f; return; end
-    scale = max([abs(expectedValue), 1e-9]);
-    ok = abs(userValue - expectedValue) <= 0.02 * scale;
+function ok = ld3_close_enough(userValue, expectedValue, rel)
+    // Default 2 % applies to measured/calculated resistance. Theoretical I1
+    // prediction uses the teacher grader's stricter 1 % tolerance.
+    if argn(2)<3 then rel=0.02; end
+    if isnan(userValue) | isnan(expectedValue) then ok=%f; return; end
+    scale=max([abs(expectedValue),1e-9]);
+    ok=abs(userValue-expectedValue) <= rel*scale;
 endfunction
 
 function ld3_check_step(check_answers)
@@ -139,7 +141,7 @@ function ld3_check_step(check_answers)
         if isnan(v) then ld3_set_status("Teorinė srovė turi būti skaičius.","error","Tinka kablelis arba taškas; formulės ir vieneto į lauką nerašykite."); return; end
         if check_answers then
             e=LD3.cfg.U1/LD3.cfg.R*1000;
-            if ~ld3_close_enough(v,e) then ld3_set_status("Teorinė srovė netiksli.","error",msprintf("Tikimasi ≈ %.2f mA.",e)); return; end
+            if ~ld3_close_enough(v,e,.01) then ld3_set_status("Teorinė srovė netiksli.","error",msprintf("Tikimasi ≈ %.2f mA.",e)); return; end
         end
         if size(LD3.journal,1)<1 then ld3_set_status("Trūksta pirmo matavimo.","error","Pasirinkite U1 ir spauskite Matuoti."); return; end
         LD3.done(2)=%t;
@@ -153,7 +155,7 @@ function ld3_check_step(check_answers)
         ld3_set_status("Trys matavimo taškai užfiksuoti.","ok","Spauskite Toliau.");
     case 4 then
         exp=ld3_expected_answers();
-        labels=["R1";"R2";"R3";"R vidurkis"];
+        labels=["R pagal U1";"R pagal U2";"R pagal U3";"R vidurkis"];
         for k=1:4
             raw=stripblanks(LD3.answers(4,k));
             if raw=="" then ld3_set_status("Įrašykite "+labels(k)+", Ω.","error","Atsakymo teisingumą vertins dėstytojo programa."); return; end
@@ -235,8 +237,8 @@ function s = ld3_step_instruction(n)
     case 1 then s="Sujunkite nuoseklią grandinę šaltinis → jungiklis → ampermetras → R1 → šaltinis. Voltmetrą prijunkite lygiagrečiai R1. Maitinimas turi būti išjungtas.";
     case 2 then s=msprintf("Apskaičiuokite teorinę srovę I1 = U1/R·1000, kai U1=%d V ir R=%d Ω. Įrašykite rezultatą, tada įjunkite maitinimą, uždarykite jungiklį, pasirinkite U1 ir spauskite Matuoti.",cfg.U1,cfg.R);
     case 3 then s=msprintf("Pamatuokite dar du taškus: pasirinkite U2=%d V ir Matuoti, tada U3=%d V ir Matuoti. Matavimų sąraše turi būti 3 taškai.",cfg.U2,cfg.U3);
-    case 4 then s="Iš kiekvieno matavimo apskaičiuokite R = U/I ir įrašykite R1, R2, R3 bei jų vidurkį.";
-    case 5 then s="Pagal pirmą ir trečią tašką apskaičiuokite R iš I(U) charakteristikos nuolydžio: R = ΔU / ΔI.";
+    case 4 then s="Srovė žurnale pateikta mA: R = 1000·U/I_mA, Ω. Tas pats rezistorius matuotas prie U1, U2 ir U3. Apskaičiuokite tris R reikšmes ir jų vidurkį."; 
+    case 5 then s="Naudokite 1 ir 3 taškus: R = 1000·(U3−U1)/(I3_mA−I1_mA), Ω. Tai R iš I(U) nuolydžio; srovės žurnale yra mA.";
     case 6 then s="Padarykite dvi išvadas: ar I(U) charakteristika tiesinė ir ar apskaičiuota R išlieka pastovi. 1 – Taip, 2 – Ne.";
     else s="";
     end
@@ -380,7 +382,7 @@ function ld3_restore_stage()
     if LD3.step == 1 then LD3.wires = []; end
     ld3_set_status("Etapo stendas atkurtas į pradinę būseną.","info","");
     if isfield(LD3, "ui") then
-        if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_stage(); end
+        if ~isfield(LD3.ui,"headless") | ~LD3.ui.headless then ld3_render_stage(); end
     end
     bench_autosave("LD3");
 endfunction

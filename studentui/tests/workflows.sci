@@ -181,6 +181,23 @@ function bench_ld2_workflow(n,root,gui)
             bench_ld2_answers(step,[cfg.E_RLC/sqrt(2) rr.F1 rr.F2 rr.BW rr.Q]);
         elseif step==12 then
             bench_ld2_probe("RLC","UR"); bench_ld2_action("ld2_run_sweep()");
+            // Native user-input testing exposed an 11×1 acquired sweep that
+            // was mistakenly compared to the expected 1×11 frequency row.
+            // Both orientations represent the SAME eleven ordered samples.
+            recorded=LD2.state.sweep_f;
+            expected=0:1000:cfg.F_MAX;
+            assert_checkequal(matrix(recorded,1,-1),expected);
+            LD2.state.sweep_f=matrix(recorded,-1,1);
+            assert_checktrue(ld2_assessment_ready());
+            LD2.state.sweep_f=matrix(recorded,1,-1);
+            assert_checktrue(ld2_assessment_ready());
+            LD2.state.sweep_f=matrix(recorded,-1,1);
+            LD2.state.sweep_f(2)=LD2.state.sweep_f(2)+1;
+            assert_checkfalse(ld2_assessment_ready());  // corrupted sample must fail
+            LD2.state.sweep_f=[];
+            assert_checkfalse(ld2_assessment_ready());  // missing scan is not enough
+            LD2.state.sweep_f=recorded;
+            assert_checktrue(ld2_assessment_ready());
         end
         bench_ld2_primary();
         if LD2.state.completed(step)<>1 then error("LD2 V"+string(n)+" etapas "+string(step)+": "+LD2.state.last_error); end
@@ -383,6 +400,12 @@ function bench_ld3_workflow(n,root,gui)
                 ld3_set_voltage(u(k)); bench_ld3_action("ld3_measure()");
             end
         case 4 then
+            if gui & n==17 then
+                for k=1:3
+                    assert_checktrue(strindex(LD3.ui.answerLabels(k+1).string,"U"+string(k))<>[]);
+                    assert_checktrue(LD3.ui.answerEdits(k+1).position(3)>=.38);
+                end
+            end
             r=[LD3.journal(1,1)*1000/LD3.journal(1,2) LD3.journal(2,1)*1000/LD3.journal(2,2) LD3.journal(3,1)*1000/LD3.journal(3,2)];
             bench_ld3_answers(step,[r(1) r(2) r(3) (r(1)+r(2)+r(3))/3]);
         case 5 then
@@ -438,6 +461,23 @@ function bench_ld3_workflow(n,root,gui)
             LD3.ui.answerEdits(1).string="0"; bench_ld3_primary();
             assert_checkfalse(LD3.done(2)); assert_checkequal(LD3.step,2);
             assert_checktrue(strindex(LD3.ui.statusFix.string,"Tikimasi")<>[]);
+            // Theoretical I1 must use the same 1 % threshold as C++ marking.
+            // A 1.5 % error previously passed local learning feedback but
+            // lost points in the teacher's evaluation.
+            predicted=cfg.U1/cfg.R*1000;
+            assert_checktrue(ld3_close_enough(predicted*1.009,predicted,.01));
+            assert_checkfalse(ld3_close_enough(predicted*1.011,predicted,.01));
+            assert_checktrue(ld3_close_enough(predicted*1.019,predicted));
+            assert_checkfalse(ld3_close_enough(predicted*1.021,predicted));
+            LD3.ui.answerEdits(1).string=msprintf("%.12g",predicted*1.015);
+            execstr(LD3.ui.answerEdits(1).callback);
+            bench_ld3_primary();
+            assert_checkfalse(LD3.done(2)); assert_checkequal(LD3.step,2);
+            assert_checktrue(strindex(LD3.ui.statusMain.string,"netiksli")<>[]);
+            LD3.ui.answerEdits(1).string=msprintf("%.12g",predicted*1.005);
+            execstr(LD3.ui.answerEdits(1).callback);
+            bench_ld3_primary();
+            assert_checktrue(LD3.done(2)); assert_checkequal(LD3.step,3);
             ld3_toggle_solution(); assert_checktrue(LD3.demoMode); assert_checktrue(LD3.practice_used);
             ld3_toggle_solution(); assert_checkfalse(LD3.demoMode);
         end
