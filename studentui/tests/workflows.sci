@@ -438,6 +438,23 @@ function bench_ld3_workflow(n,root,gui)
             LD3.ui.answerEdits(1).string="0"; bench_ld3_primary();
             assert_checkfalse(LD3.done(2)); assert_checkequal(LD3.step,2);
             assert_checktrue(strindex(LD3.ui.statusFix.string,"Tikimasi")<>[]);
+            // Theoretical I1 must use the same 1 % threshold as C++ marking.
+            // A 1.5 % error previously passed local learning feedback but
+            // lost points in the teacher's evaluation.
+            predicted=cfg.U1/cfg.R*1000;
+            assert_checktrue(ld3_close_enough(predicted*1.009,predicted,.01));
+            assert_checkfalse(ld3_close_enough(predicted*1.011,predicted,.01));
+            assert_checktrue(ld3_close_enough(predicted*1.019,predicted));
+            assert_checkfalse(ld3_close_enough(predicted*1.021,predicted));
+            LD3.ui.answerEdits(1).string=msprintf("%.12g",predicted*1.015);
+            execstr(LD3.ui.answerEdits(1).callback);
+            bench_ld3_primary();
+            assert_checkfalse(LD3.done(2)); assert_checkequal(LD3.step,2);
+            assert_checktrue(strindex(LD3.ui.statusMain.string,"netiksli")<>[]);
+            LD3.ui.answerEdits(1).string=msprintf("%.12g",predicted*1.005);
+            execstr(LD3.ui.answerEdits(1).callback);
+            bench_ld3_primary();
+            assert_checktrue(LD3.done(2)); assert_checkequal(LD3.step,3);
             ld3_toggle_solution(); assert_checktrue(LD3.demoMode); assert_checktrue(LD3.practice_used);
             ld3_toggle_solution(); assert_checkfalse(LD3.demoMode);
         end

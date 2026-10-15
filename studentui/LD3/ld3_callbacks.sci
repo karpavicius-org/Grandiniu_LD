@@ -114,11 +114,13 @@ function ld3_measure()
     bench_autosave("LD3");
 endfunction
 
-function ok = ld3_close_enough(userValue, expectedValue)
-    global LD3;
-    if isnan(userValue) | isnan(expectedValue) then ok = %f; return; end
-    scale = max([abs(expectedValue), 1e-9]);
-    ok = abs(userValue - expectedValue) <= 0.02 * scale;
+function ok = ld3_close_enough(userValue, expectedValue, rel)
+    // Default 2 % applies to measured/calculated resistance. Theoretical I1
+    // prediction uses the teacher grader's stricter 1 % tolerance.
+    if argn(2)<3 then rel=0.02; end
+    if isnan(userValue) | isnan(expectedValue) then ok=%f; return; end
+    scale=max([abs(expectedValue),1e-9]);
+    ok=abs(userValue-expectedValue) <= rel*scale;
 endfunction
 
 function ld3_check_step(check_answers)
@@ -139,7 +141,7 @@ function ld3_check_step(check_answers)
         if isnan(v) then ld3_set_status("Teorinė srovė turi būti skaičius.","error","Tinka kablelis arba taškas; formulės ir vieneto į lauką nerašykite."); return; end
         if check_answers then
             e=LD3.cfg.U1/LD3.cfg.R*1000;
-            if ~ld3_close_enough(v,e) then ld3_set_status("Teorinė srovė netiksli.","error",msprintf("Tikimasi ≈ %.2f mA.",e)); return; end
+            if ~ld3_close_enough(v,e,.01) then ld3_set_status("Teorinė srovė netiksli.","error",msprintf("Tikimasi ≈ %.2f mA.",e)); return; end
         end
         if size(LD3.journal,1)<1 then ld3_set_status("Trūksta pirmo matavimo.","error","Pasirinkite U1 ir spauskite Matuoti."); return; end
         LD3.done(2)=%t;
