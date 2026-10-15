@@ -1,0 +1,101 @@
+name: LD4 LD5 Complete Native Mouse and Keyboard Acceptance
+on:
+  push:
+    paths:
+      - 'tools/test_ld45_native.py'
+      - 'tools/test_ld45_native.sce'
+      - '.github/workflows/ld45-real-input.yml'
+      - 'studentui/LD4/**'
+      - 'studentui/LD5/**'
+      - 'studentui/student_style.sci'
+      - 'studentui/bench_common.sci'
+  pull_request:
+    paths:
+      - 'tools/test_ld45_native.py'
+      - 'tools/test_ld45_native.sce'
+      - '.github/workflows/ld45-real-input.yml'
+      - 'studentui/LD4/**'
+      - 'studentui/LD5/**'
+      - 'studentui/student_style.sci'
+      - 'studentui/bench_common.sci'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  complete-native-input:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify Python native-input driver syntax
+        run: python -m py_compile tools/test_ld45_native.py
+      - name: Fetch locked native dependencies
+        run: python tools/fetch_core_deps.py "${{ runner.temp }}/ld-deps"
+      - name: Build original C++ measurement and grading engine
+        run: |
+          cmake -S core -B build -DLD_DEPS="${{ runner.temp }}/ld-deps" -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel 2
+          cmake --install build --config Release --prefix studentui
+      - name: Existing C++ core and grading regression
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Install Linux Scilab 2026.1 and X11 event/capture tools
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          curl --fail --location --retry 3 https://www.scilab.org/download/2026.1.0/scilab-2026.1.0.bin.x86_64-linux-gnu.tar.xz -o "$RUNNER_TEMP/scilab.tar.xz"
+          tar -xJf "$RUNNER_TEMP/scilab.tar.xz" -C "$RUNNER_TEMP"
+          echo "SCILAB_BIN=$RUNNER_TEMP/scilab-2026.1.0/bin/scilab" >> "$GITHUB_ENV"
+          sudo apt-get update
+          sudo apt-get install -y xvfb xdotool x11-utils python3-gi gir1.2-gtk-3.0
+      - name: Install Windows native desktop and screen-capture packages
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python -m pip install --disable-pip-version-check pywin32 Pillow
+      - name: Install Windows Scilab 2026.1
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer=Join-Path $env:RUNNER_TEMP 'scilab.exe'
+          Invoke-WebRequest https://www.scilab.org/download/2026.1.0/scilab-2026.1.0.bin.x64.exe -OutFile $installer
+          $target=Join-Path $env:RUNNER_TEMP 'Scilab'
+          $p=Start-Process -FilePath $installer -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-',"/DIR=$target" -Wait -PassThru
+          if($p.ExitCode -ne 0){throw "Scilab installer exit $($p.ExitCode)"}
+          "SCILAB_BIN=$target\bin\Scilex.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Complete LD4 LD5 stages using Linux OS mouse and keyboard
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python tools/test_ld45_native.py \
+            --scilab "$SCILAB_BIN" --core studentui/bin/ldcore.so \
+            --grader build/ldcheck --checker build/layoutcheck --output "$RUNNER_TEMP/ld45-native"
+      - name: Complete LD4 LD5 stages using Windows OS mouse and keyboard
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python tools/test_ld45_native.py --scilab "$env:SCILAB_BIN" --core studentui/bin/ldcore.dll --grader build/Release/ldcheck.exe --checker build/Release/layoutcheck.exe --output "$env:RUNNER_TEMP/ld45-native"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: LD45-complete-native-input-${{ runner.os }}
+          path: |
+            ${{ runner.temp }}/ld45-native/*.png
+            ${{ runner.temp }}/ld45-native/*.json
+            ${{ runner.temp }}/ld45-native/*.tsv
+            ${{ runner.temp }}/ld45-native/*.log
+            ${{ runner.temp }}/ld45-native/*.txt
+            ${{ runner.temp }}/ld45-native/*/actions.json
+            ${{ runner.temp }}/ld45-native/*/acceptance.json
+            ${{ runner.temp }}/ld45-native/*/geometry*.tsv
+            ${{ runner.temp }}/ld45-native/*/geometry*.log
+            ${{ runner.temp }}/ld45-native/*/scilab.log
+            ${{ runner.temp }}/ld45-native/*/failure.txt
+            ${{ runner.temp }}/ld45-native/*/E*.png
+            ${{ runner.temp }}/ld45-native/*/graded/*.json
+          if-no-files-found: warn
