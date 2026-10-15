@@ -155,7 +155,7 @@ function ld3_check_step(check_answers)
         ld3_set_status("Trys matavimo taškai užfiksuoti.","ok","Spauskite Toliau.");
     case 4 then
         exp=ld3_expected_answers();
-        labels=["R1";"R2";"R3";"R vidurkis"];
+        labels=["R pagal U1";"R pagal U2";"R pagal U3";"R vidurkis"];
         for k=1:4
             raw=stripblanks(LD3.answers(4,k));
             if raw=="" then ld3_set_status("Įrašykite "+labels(k)+", Ω.","error","Atsakymo teisingumą vertins dėstytojo programa."); return; end
@@ -237,7 +237,7 @@ function s = ld3_step_instruction(n)
     case 1 then s="Sujunkite nuoseklią grandinę šaltinis → jungiklis → ampermetras → R1 → šaltinis. Voltmetrą prijunkite lygiagrečiai R1. Maitinimas turi būti išjungtas.";
     case 2 then s=msprintf("Apskaičiuokite teorinę srovę I1 = U1/R·1000, kai U1=%d V ir R=%d Ω. Įrašykite rezultatą, tada įjunkite maitinimą, uždarykite jungiklį, pasirinkite U1 ir spauskite Matuoti.",cfg.U1,cfg.R);
     case 3 then s=msprintf("Pamatuokite dar du taškus: pasirinkite U2=%d V ir Matuoti, tada U3=%d V ir Matuoti. Matavimų sąraše turi būti 3 taškai.",cfg.U2,cfg.U3);
-    case 4 then s="Srovė I žurnale pateikta mA. Kiekvienam taškui: R = 1000·U/I_mA, Ω. Įrašykite R1, R2, R3 ir jų vidurkį.";
+    case 4 then s="Srovė žurnale pateikta mA: R = 1000·U/I_mA, Ω. Tas pats rezistorius matuotas prie U1, U2 ir U3. Apskaičiuokite tris R reikšmes ir jų vidurkį."; 
     case 5 then s="Naudokite 1 ir 3 taškus: R = 1000·(U3−U1)/(I3_mA−I1_mA), Ω. Tai R iš I(U) nuolydžio; srovės žurnale yra mA.";
     case 6 then s="Padarykite dvi išvadas: ar I(U) charakteristika tiesinė ir ar apskaičiuota R išlieka pastovi. 1 – Taip, 2 – Ne.";
     else s="";

@@ -39,7 +39,9 @@ saugomi juodraštyje; tęsti galima per **Pagalba → Atverti juodraštį**.
 **LD3 – Omo dėsnio veikimas realioje grandinėje:** pradedama atsiskaitymo režimu.
 **Įrašyti ir toliau** išsaugo studento raw atsakymą; teisingumą vertina dėstytojo
 programa, todėl vietoje teisinga reikšmė neatskleidžiama. Įtampą parinkite U1 / U2 / U3,
-maitinimą ir jungiklį valdykite stende. **Pagalba → Mokymosi / atsiskaitymo režimas**
+maitinimą ir jungiklį valdykite stende. Ketvirtajame etape R pagal U1, U2 ir U3
+reiškia **to paties rezistoriaus tris matavimus**, o ne tris skirtingus rezistorius.
+Skaičiuojant R iš mA rodmenų naudokite **R = 1000·U/I_mA**, Ω. **Pagalba → Mokymosi / atsiskaitymo režimas**
 leidžia pasirinkti savikontrolę; mokymosi režime **Tikrinti** parodo klaidas, o pavyzdys
 pasiekiamas tik mokymuisi. Kartą pasirinkus mokymąsi ar pavyzdį, practice žyma išlieka
 ir toks bandymas neįtraukiamas į pažymių suvestinę. Laidai, matavimai ir atsakymai

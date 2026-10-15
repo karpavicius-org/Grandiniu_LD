@@ -383,6 +383,11 @@ function bench_ld3_workflow(n,root,gui)
                 ld3_set_voltage(u(k)); bench_ld3_action("ld3_measure()");
             end
         case 4 then
+            if gui & n==17 then
+                for k=1:3
+                    assert_checktrue(strindex(LD3.ui.answerLabels(k+1).string,"U"+string(k))<>[]);
+                end
+            end
             r=[LD3.journal(1,1)*1000/LD3.journal(1,2) LD3.journal(2,1)*1000/LD3.journal(2,2) LD3.journal(3,1)*1000/LD3.journal(3,2)];
             bench_ld3_answers(step,[r(1) r(2) r(3) (r(1)+r(2)+r(3))/3]);
         case 5 then

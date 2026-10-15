@@ -178,7 +178,7 @@ function ld3_build_gui()
     controls($+1)=ld3_button(p,[0.755 0.15 0.21 0.06],"Matuoti","ld3_measure()",13,[0.08 0.39 0.37]);
     LD3.ui.instructionLine(1)=student_text(right,[0.07 0.64 0.86 0.31],"",14,%f);
     LD3.ui.instructionLine(1).verticalalignment="top";
-    labels=["I1 teorinė, mA";"R1, Ω";"R2, Ω";"R3, Ω"; ...
+    labels=["I1 teorinė, mA";"R pagal U1, Ω";"R pagal U2, Ω";"R pagal U3, Ω"; ...
         "R vidurkis, Ω";"R iš nuolydžio, Ω";"Ar I(U) tiesinė? 1 Taip / 2 Ne";"Ar R pastovi? 1 Taip / 2 Ne"];
     LD3.ui.answerEdits=[]; LD3.ui.answerLabels=[];
     for k=1:8

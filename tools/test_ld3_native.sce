@@ -15,6 +15,12 @@ function ld3_native_publish(event)
         assert_checktrue(strindex(instruction,"1000")<>[]);
         assert_checktrue(strindex(instruction,"mA")<>[]);
     end
+    if LD3.step==4 then
+        // Three resistance values belong to one physical R1 at three U levels.
+        for k=1:3
+            assert_checktrue(strindex(LD3.ui.answerLabels(k+1).string,"U"+string(k))<>[]);
+        end
+    end
     st=struct("seq",LD3_NATIVE_SEQ,"event",event,"step",LD3.step, ...
         "done_count",sum(LD3.done),"wire_count",size(LD3.wires,1), ...
         "journal_count",size(LD3.journal,1),"journal",LD3.journal, ...
