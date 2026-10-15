@@ -748,9 +748,15 @@ function ok=ld2_assessment_ready()
             ld2_set_status("Dar yra neužfiksuotų ankstesnių etapų.","error","Per Pagalba → Tęsti arba atkurti darbą → Etapai grįžkite prie neužbaigtų etapų.");
             return;
         end
+        // Scilab's indexed append may create an 11×1 column, whereas the
+        // expected frequency grid is a 1×11 row. Compare actual samples in
+        // acquisition order, not a broadcasted 11×11 matrix.
         expected=0:1000:LD2.cfg.F_MAX;
         ok=size(LD2.state.sweep_f,"*")==size(expected,"*");
-        if ok then ok=and(LD2.state.sweep_f==expected); end
+        if ok then
+            acquired=matrix(LD2.state.sweep_f,1,-1);
+            ok=and(acquired==expected);
+        end
         if ~ok then ld2_set_status("Dažninė lentelė dar neužpildyta.","error","Atlikite 0–10 kHz skenavimą."); end
     end
     if ok then ld2_set_status("Etapo duomenys įrašyti.","ok","Teisingumą vertins dėstytojo programa."); end

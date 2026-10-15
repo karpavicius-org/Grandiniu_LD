@@ -141,7 +141,9 @@ function ld3_render_stage()
         h.visible="off"; lab.visible="off";
         if st==LD3.step then
             yy=0.55-row*0.10; row=row+1;
-            lab.position=[0.07 yy 0.53 0.075]; h.position=[0.63 yy 0.30 0.075];
+            // Leave space for explanatory labels while showing the full numeric
+            // answer, including leading digits, on the Linux Scilab desktop.
+            lab.position=[0.07 yy 0.47 0.075]; h.position=[0.55 yy 0.38 0.075];
             h.string=LD3.answers(st,sl); h.visible="on"; lab.visible="on";
         end
     end
@@ -178,13 +180,13 @@ function ld3_build_gui()
     controls($+1)=ld3_button(p,[0.755 0.15 0.21 0.06],"Matuoti","ld3_measure()",13,[0.08 0.39 0.37]);
     LD3.ui.instructionLine(1)=student_text(right,[0.07 0.64 0.86 0.31],"",14,%f);
     LD3.ui.instructionLine(1).verticalalignment="top";
-    labels=["I1 teorinė, mA";"R1, Ω";"R2, Ω";"R3, Ω"; ...
+    labels=["I1 teorinė, mA";"R pagal U1, Ω";"R pagal U2, Ω";"R pagal U3, Ω"; ...
         "R vidurkis, Ω";"R iš nuolydžio, Ω";"Ar I(U) tiesinė? 1 Taip / 2 Ne";"Ar R pastovi? 1 Taip / 2 Ne"];
     LD3.ui.answerEdits=[]; LD3.ui.answerLabels=[];
     for k=1:8
-        LD3.ui.answerLabels($+1)=student_text(right,[0.07 0.5 0.53 0.075],student_wrap(labels(k),22),14,%f);
+        LD3.ui.answerLabels($+1)=student_text(right,[0.07 0.5 0.47 0.075],student_wrap(labels(k),22),14,%f);
         [st,sl]=ld3_answer_slot(k);
-        h=uicontrol(right,"style","edit","units","normalized","position",[0.63 0.5 0.30 0.075], ...
+        h=uicontrol(right,"style","edit","units","normalized","position",[0.55 0.5 0.38 0.075], ...
             "string","","fontunits","pixels","fontsize",14,"fontname","DejaVu Sans", ...
             "tag",ld3_answer_code(st,sl),"callback","ld3_answers_changed()","backgroundcolor",[0.94 0.96 0.96]);
         LD3.ui.answerEdits($+1)=h;
