@@ -235,8 +235,8 @@ function s = ld3_step_instruction(n)
     case 1 then s="Sujunkite nuoseklią grandinę šaltinis → jungiklis → ampermetras → R1 → šaltinis. Voltmetrą prijunkite lygiagrečiai R1. Maitinimas turi būti išjungtas.";
     case 2 then s=msprintf("Apskaičiuokite teorinę srovę I1 = U1/R·1000, kai U1=%d V ir R=%d Ω. Įrašykite rezultatą, tada įjunkite maitinimą, uždarykite jungiklį, pasirinkite U1 ir spauskite Matuoti.",cfg.U1,cfg.R);
     case 3 then s=msprintf("Pamatuokite dar du taškus: pasirinkite U2=%d V ir Matuoti, tada U3=%d V ir Matuoti. Matavimų sąraše turi būti 3 taškai.",cfg.U2,cfg.U3);
-    case 4 then s="Iš kiekvieno matavimo apskaičiuokite R = U/I ir įrašykite R1, R2, R3 bei jų vidurkį.";
-    case 5 then s="Pagal pirmą ir trečią tašką apskaičiuokite R iš I(U) charakteristikos nuolydžio: R = ΔU / ΔI.";
+    case 4 then s="Srovė I žurnale pateikta mA. Kiekvienam taškui: R = 1000·U/I_mA, Ω. Įrašykite R1, R2, R3 ir jų vidurkį.";
+    case 5 then s="Naudokite 1 ir 3 taškus: R = 1000·(U3−U1)/(I3_mA−I1_mA), Ω. Tai R iš I(U) nuolydžio; srovės žurnale yra mA.";
     case 6 then s="Padarykite dvi išvadas: ar I(U) charakteristika tiesinė ir ar apskaičiuota R išlieka pastovi. 1 – Taip, 2 – Ne.";
     else s="";
     end
@@ -380,7 +380,7 @@ function ld3_restore_stage()
     if LD3.step == 1 then LD3.wires = []; end
     ld3_set_status("Etapo stendas atkurtas į pradinę būseną.","info","");
     if isfield(LD3, "ui") then
-        if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_stage(); end
+        if ~isfield(LD3.ui,"headless") | ~LD3.ui.headless then ld3_render_stage(); end
     end
     bench_autosave("LD3");
 endfunction

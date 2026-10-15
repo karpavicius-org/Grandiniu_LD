@@ -9,13 +9,19 @@ LD3_NATIVE_SEQ=0;
 function ld3_native_publish(event)
     global LD3 LD3_NATIVE_OUT LD3_NATIVE_SEQ;
     LD3_NATIVE_SEQ=LD3_NATIVE_SEQ+1;
+    instruction=ld3_step_instruction(LD3.step);
+    if or(LD3.step==[4 5]) then
+        // These instructions must work with the actual displayed mA readings.
+        assert_checktrue(strindex(instruction,"1000")<>[]);
+        assert_checktrue(strindex(instruction,"mA")<>[]);
+    end
     st=struct("seq",LD3_NATIVE_SEQ,"event",event,"step",LD3.step, ...
         "done_count",sum(LD3.done),"wire_count",size(LD3.wires,1), ...
         "journal_count",size(LD3.journal,1),"journal",LD3.journal, ...
         "pending",LD3.pending,"power",LD3.powerOn,"switch",LD3.switchOn, ...
         "voltage",LD3.voltage,"answers",LD3.answers(LD3.step,:), ...
         "all_answers",LD3.answers,"cfg",LD3.cfg, ...
-        "status",LD3.ui.statusMain.string,"instruction",ld3_step_instruction(LD3.step));
+        "status",LD3.ui.statusMain.string,"instruction",instruction);
     fd=mopen(LD3_NATIVE_OUT+"geometry.tsv","wt");
     geometry_dump(LD3.fig,"LD3-native",fd);mclose(fd);
     mputl(toJSON(st),LD3_NATIVE_OUT+"state.json");
