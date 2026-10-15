@@ -31,7 +31,20 @@ if os.name == 'nt':
 mode = [] if os.name == 'nt' else ['-nw']
 args = [str(exe), *mode, '-nb', '-f', str(repo / 'tools/test_ld6.sce')]
 with (out / 'scilab.log').open('wb') as log:
-    result = subprocess.run(args, env=env, stdout=log, stderr=subprocess.STDOUT, timeout=240)
+    # macOS Scilab Swing window rendering is slower/variable than Linux or
+    # Windows. Preserve all acceptance assertions; allow the full GUI grid to
+    # finish rather than misclassifying a slow runner at exactly four minutes.
+    timeout_seconds = 420 if sys.platform == "darwin" else 240
+    try:
+        result = subprocess.run(args, env=env, stdout=log, stderr=subprocess.STDOUT,
+                                timeout=timeout_seconds)
+    except subprocess.TimeoutExpired:
+        # Flush the actual Scilab progress markers for diagnosable CI failures.
+        log.flush()
+        trace=(out / 'scilab.log').read_text(encoding='utf-8', errors='replace')
+        print("LD6 Scilab exceeded the bounded platform runtime of "
+              +str(timeout_seconds)+" s; recent output:\n"+trace[-9000:], file=sys.stderr)
+        raise
 verdict = (out / 'verdict.log').read_text(encoding='utf-8') if (out / 'verdict.log').exists() else (out / 'scilab.log').read_text(encoding='utf-8', errors='replace')
 assert result.returncode == 0 and 'LD6_PASS:' in verdict, verdict
 print(verdict.strip())
