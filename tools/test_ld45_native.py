@@ -236,6 +236,7 @@ class Lab45:
         assert not self.state["power"] and not self.state["switch"],self.state
         st=self.click("B13","resistor")
         assert st["mode"]==2 and st["wire_count"]==6 and not st["power"],st
+        self.snapshot("E03-R2-connected")
         self.click("B01","power");self.click("B02","switch")
         for idx,tag in enumerate(("B10","B11","B12"),4):
             self.click(tag,"voltage");self.measure(idx)
@@ -272,6 +273,7 @@ class Lab45:
         self.remove("T06","T09",5)
         self.remove("T11","T09",4)
         self.connect((("T06","T07"),("T08","T09"),("T11","T07")),7)
+        self.snapshot("E06-series-connected")
         self.click("B01","power");self.click("B02","switch")
         self.click("B12","voltage")
         self.measure(7)

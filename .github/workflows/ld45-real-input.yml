@@ -27,6 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, windows-2022]
+        lab: [LD4, LD5]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
@@ -74,16 +75,16 @@ jobs:
         run: |
           xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python tools/test_ld45_native.py \
             --scilab "$SCILAB_BIN" --core studentui/bin/ldcore.so \
-            --grader build/ldcheck --checker build/layoutcheck --output "$RUNNER_TEMP/ld45-native"
+            --grader build/ldcheck --checker build/layoutcheck --output "$RUNNER_TEMP/ld45-native" --labs "${{ matrix.lab }}"
       - name: Complete LD4 LD5 stages using Windows OS mouse and keyboard
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          python tools/test_ld45_native.py --scilab "$env:SCILAB_BIN" --core studentui/bin/ldcore.dll --grader build/Release/ldcheck.exe --checker build/Release/layoutcheck.exe --output "$env:RUNNER_TEMP/ld45-native"
+          python tools/test_ld45_native.py --scilab "$env:SCILAB_BIN" --core studentui/bin/ldcore.dll --grader build/Release/ldcheck.exe --checker build/Release/layoutcheck.exe --output "$env:RUNNER_TEMP/ld45-native" --labs "${{ matrix.lab }}"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: LD45-complete-native-input-${{ runner.os }}
+          name: LD45-complete-native-input-${{ runner.os }}-${{ matrix.lab }}
           path: |
             ${{ runner.temp }}/ld45-native/*.png
             ${{ runner.temp }}/ld45-native/*.json
