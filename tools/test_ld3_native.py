@@ -161,8 +161,18 @@ class NativeLD3:
             name=f'v{n:02d}.html';write(f/name,report);want[name]=15
         wrong=fixture('LD3',17,'unit-mistake');next(a for a in wrong['answers'] if a['id']=='s4.q1')['raw']='0.056'
         write(f/'wrong-unit.html',wrong);want['wrong-unit.html']=14
+        # Independent C++ checks for the 1 % theoretical I1 rule.
+        # These expected outcomes are derived from the rubric, not from the
+        # Scilab helper being tested: +0.9 % must pass, +1.1 % must lose one.
+        for name,scale,points in [('theory-inside',1.009,15),('theory-outside',1.011,14)]:
+            report=fixture('LD3',17,name)
+            p=report['parameters']
+            theoretical_i=p['U1']*1000/p['R']
+            next(a for a in report['answers'] if a['id']=='s2.q1')['raw']=format(theoretical_i*scale,'.12g')
+            filename=name+'.html'
+            write(f/filename,report);want[filename]=points
         synthetic,_=run(self.args.grader.resolve(),f,self.out/'synthetic-grades')
-        assert len(synthetic['results'])==65,synthetic
+        assert len(synthetic['results'])==67,synthetic
         for item in synthetic['results']:
             assert item['status']=='graded' and item['max_points']==15 and item['points']==want[item['file']],item
         layout=subprocess.run([str(self.args.checker.resolve()),str(self.out/'geometry_all.tsv')],capture_output=True,text=True)
@@ -171,7 +181,7 @@ class NativeLD3:
         result=dict(status='PASS',lab='LD3',variant=17,stages=6,native_os=os.name,
             mouse_clicks=sum(e['kind']=='mouse' for e in self.events),keyboard_entries=sum(e['kind']=='keyboard' for e in self.events),
             manual_wires=6,measured_points=3,geometry_scenarios=7,graded_html='15/15',rubric='LD3-1',
-            synthetic_cases=65,screenshots=self.shots,registration='fixed test identity, not OS-typed',
+            synthetic_cases=67,screenshots=self.shots,registration='fixed test identity, not OS-typed',
             exclusions=['physical electrical instruments','all variants via native input','native menu-based draft restoration'])
         (self.out/'acceptance.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
         print('LD3_NATIVE_PASS: '+json.dumps(result,ensure_ascii=False),flush=True)
