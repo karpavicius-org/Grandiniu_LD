@@ -25,6 +25,7 @@ try
     delete(LD6.fig);
     exec(root+"tests/workflows.sci",-1); exec(source+"tools/ergonomics.sci",-1);
     for number=[1 17 64]; bench_ld6_workflow(number,root,%t); end
+    mprintf("LD6_CI_STAGE: three real-GUI variants complete\n");
     LD6=struct("cfg",ld6_variant_config(1),"student",student_profile(1,"Patikra Žąsė","TEST","LD6"),"ui",struct("headless",%f));
     ld6_start(); report=bench_report_data("LD6");
     for stage=[1 3 4 5]; assert_checkequal(length(report.evidence.wiring("s"+string(stage)).pairs),0); end
@@ -43,6 +44,7 @@ try
     assert_checktrue(rejected); ld6_measure(); ld6_check_step(); assert_checkfalse(or(LD6.done));
     ld6_toggle_solution(); assert_checkequal(size(LD6.journal,1),0); assert_checkequal(size(LD6.wires,1),0);
     LD6.assessment=%t; LD6.practice_used=%f; ld6_render_stage();
+    mprintf("LD6_CI_STAGE: start multi-size geometry grid\n");
     descriptor=mopen(out+"geometry.tsv","wt"); sizes=[1280 720;1280 800;1600 900];
     for dimension=1:3
         geometry_size(LD6.fig,sizes(dimension,:));
@@ -65,6 +67,7 @@ try
         geometry_dump(LD6.fig,"LD6-resize-"+string(dimension),descriptor);
     end
     mclose(descriptor);
+    mprintf("LD6_CI_STAGE: geometry grid and resizing complete\n");
     // 5 etapo teoriniai dydžiai ir 6 etapo išvados turi tilpti be slinkties rodyklių.
     for stage=[5 6]
         LD6.step=stage; ld6_render_stage();
@@ -136,6 +139,7 @@ try
     ld6_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD6.fig); delete(window);
     ld6_show_stand_map(); window=gcf(); assert_checktrue(window<>LD6.fig); delete(window);
     ld6_close(); assert_checkfalse(is_handle_valid(LD6.fig));
+    mprintf("LD6_CI_STAGE: modes, snapshots and interactive help complete\n");
     cases=list(); specs=[2 1 .01;4 1 .01;4 2 .01;5 1 .01;5 2 .01];
     for number=[1 17 64]
         bench_ld6_workflow(number,root,%f); expected=ld6_expected_answers(); original=LD6.answers;
@@ -161,6 +165,7 @@ try
         end
     end
     mputl(toJSON(cases),out+"tolerance-cases.json");
+    mprintf("LD6_CI_STAGE: grading boundary fixtures complete\n");
     mputl("LD6_PASS: LD6-3; no measurement retyping; 7 meaningful answers; 4 grouped measurement actions; 4 wiring proofs; assessment/learning split; autosave/migration/restore/close; 3 GUI variants; signed MNA readings; grading comparisons",out+"verdict.log"); exit(0);
 catch
     mputl("LD6_FAIL: "+strcat(lasterror()," | "),out+"verdict.log"); disp(lasterror()); exit(1);
