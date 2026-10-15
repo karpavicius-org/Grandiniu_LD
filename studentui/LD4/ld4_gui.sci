@@ -22,8 +22,23 @@ function [term_xy,boxes]=ld4_layout()
         "K1",[35.5 72],"K2",[53.5 72],"A_P",[63.5 72],"A_N",[83 72], ...
         "R1A",[15 46],"R1B",[40 46],"R2A",[51 46],"R2B",[76 46], ...
         "V_P",[32 20],"V_N",[59 20]);
-    // The voltmeter follows the measured resistor, keeping the probe leads clear.
+    // Keep the voltmeter next to the circuit which the student ACTUALLY wired,
+    // not the NEXT target. On entry to E03/E06 the previous circuit is still
+    // connected, and prematurely moving V routes genuine wires through its body.
     m=ld4_wire_mode();
+    if LD4.step==3 then
+        m=LD4.wireMode;  // E03: R1 stays visible until the student clicks "Į R2".
+    elseif LD4.step==6 then
+        m=2;             // E06: initially the previous R2 wiring remains.
+        // Move V into the middle only after the student's V+ lead has reached
+        // R1A (real series connection), independent of endpoint click order.
+        for k=1:size(LD4.wires,1)
+            pair=LD4.wires(k,:);
+            if and(pair==["V_P" "R1A"]) | and(pair==["R1A" "V_P"]) then
+                m="S"; break;
+            end
+        end
+    end
     if m==1 then boxes.V=[18 12 19 16]; term_xy.V_P=[15 20]; term_xy.V_N=[40 20];
     elseif m==2 then boxes.V=[54 12 19 16]; term_xy.V_P=[51 20]; term_xy.V_N=[76 20]; end
 endfunction
