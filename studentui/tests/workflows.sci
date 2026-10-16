@@ -1473,7 +1473,8 @@ function bench_ld10_answers(step,values)
     for index=1:12
         [answer_step,slot]=ld10_answer_slot(index);
         if answer_step==step then
-            LD10.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
+            if step==6 then LD10.ui.answerEdits(index).value=values(value_index)+1;
+            else LD10.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));end
             execstr(LD10.ui.answerEdits(index).callback);
             value_index=value_index+1;
         end
