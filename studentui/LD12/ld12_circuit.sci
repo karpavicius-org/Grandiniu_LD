@@ -1,8 +1,7 @@
 // ============================================================================
 // LD12 grandinės modelis: trifazis simetrinis šaltinis (Ul pagal variantą,
 // fazinės EV ±120°) ir trys vienodi imtuvai R žvaigždėje arba trikampyje.
-// Fizika — tiesioginis ld_mna (kompleksinė MNA): trys EV šaltiniai su re/im
-// dalimis. Žurnalas: [U V, I mA, režimas 1–2, fazė 1–3, 0].
+// Fizika — C++ ld_ac kind 6, simetrinė aktyvioji apkrova; Žurnalas: [U V, I mA, režimas 1–2, fazė 1–3, 0].
 // Režimas 1 – žvaigždė (Uf = Ul/√3, If = Il), 2 – trikampis (Uf = Ul).
 // ============================================================================
 
@@ -49,11 +48,11 @@ function [u, i, ok, message] = ld12_measure_values()
     // U ir I pasirinktoje fazėje (LD12.phase 1–3) su esamu režimu.
     global LD12;
     u = %nan; i = %nan; ok = %f; message = "";
-    if ~LD12.powerOn then message = "Įjunkite trifazį šaltinį [B01]."; return; end
-    if ~LD12.switchOn then message = "Uždarykite jungiklį [B02]."; return; end
+    if ~LD12.powerOn then message = "Įjunkite trifazį šaltinį."; return; end
+    if ~LD12.switchOn then message = "Uždarykite jungiklį."; return; end
     [valid, message] = ld12_wiring_valid(LD12.wires);
     if ~valid then return; end
-    if LD12.phase == 0 then message = "Pasirinkite matuojamą fazę [B12]–[B14]."; return; end
+    if ~ld12_valid_index(LD12.phase,3) then message = "Pasirinkite matuojamą imtuvą R1, R2 arba R3."; return; end
     // Fizika — ld_ac kind 6 (trifazė MNA branduolyje):
     // v = [Uf_Y, If_Y, Uf_D, If_D, Il_D, P_Y, P_D, Ul].
     bench_core_require(); cfg = LD12.cfg;

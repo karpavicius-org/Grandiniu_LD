@@ -8,7 +8,6 @@ function h = ld12_button(p, pos, label, cb, fs, bg)
     catch
         code = "";
     end
-    if code <> "" then label = "[" + code + "] " + label; end
     h = student_button(p, pos, "<html><center>" + label + "</center></html>", cb);
     h.tag = code; h.tooltipstring = hint; h.fontsize = fs; h.backgroundcolor = bg;
     if sum(bg) < 1.5 then h.foregroundcolor = [1 1 1]; end
@@ -19,7 +18,7 @@ function [term_xy, boxes] = ld12_layout()
     // SRC [6 24 14 20] pakeltas virš mygtukų eilės; N apatiniame kairiajame
     // kampe; vertikalūs koridoriai x = .31/.33/.35 (tarp kairiojo stulpelio,
     // K ir imtuvų stovo); apatinis bendras koridorius y = .19–.22.
-    boxes = struct("SRC", [6 22 14 26], "K", [40 44 12 13], "VM", [62 20 11 13], ...
+    boxes = struct("SRC", [6 22 14 23], "K", [40 44 12 13], "VM", [40 23.5 12 13], ...
         "R1", [75 40 16 12], "R2", [75 54 16 12], "R3", [75 68 16 12], "V", [6 62 16 14], "A", [6 46 16 14]);
     term_xy = struct("N", [3 23], "L1", [26 42], "L2", [26 33], "L3", [26 24], ...
         "K1", [38 50.5], "K2", [53.5 50.5], ...
@@ -81,11 +80,11 @@ function route = ld12_route(a, b)
     elseif (a == "R3_B" & b == "N") | (a == "N" & b == "R3_B") then
         route = [[.935 .74];[.975 .74];[.975 .19];[.03 .19];[.03 .23]];
     elseif (a == "R1_B" & b == "L2") | (a == "L2" & b == "R1_B") then
-        route = [[.935 .46];[.96 .46];[.96 .175];[.28 .175];[.28 .33];[.26 .33]];
+        route = [[.935 .46];[.96 .46];[.96 .22];[.30 .22];[.30 .33];[.26 .33]];
     elseif (a == "R2_B" & b == "L3") | (a == "L3" & b == "R2_B") then
-        route = [[.935 .60];[.96 .60];[.96 .185];[.28 .185];[.28 .24];[.26 .24]];
+        route = [[.935 .60];[.975 .60];[.975 .205];[.28 .205];[.28 .24];[.26 .24]];
     elseif (a == "R3_B" & b == "L1") | (a == "L1" & b == "R3_B") then
-        route = [[.935 .74];[.985 .74];[.985 .195];[.29 .195];[.29 .42];[.26 .42]];
+        route = [[.935 .74];[.985 .74];[.985 .19];[.29 .19];[.29 .42];[.26 .42]];
     end
 endfunction
 
@@ -114,7 +113,7 @@ function ld12_render_wires()
         ld12_polyline(pts, [0.22 0.40 0.42]);
     end
     [tt, bb] = ld12_layout(); ids = ["SRC" "K" "VM" "R1" "R2" "R3" "V" "A"];
-    names = ["3~ ŠALTINIS";"JUNGIKLIS";"FAZĖ";"R1";"R2";"R3";"VOLTMETRAS";"AMPERMETRAS"];
+    names = ["3~ ŠALTINIS";"JUNGIKLIS";"IMTUVAS";"R1";"R2";"R3";"VOLTMETRAS";"AMPERMETRAS"];
     switchText = "Atviras"; if LD12.switchOn then switchText = "Uždarytas"; end
     [u, i, valid, reason] = ld12_measure_values();
     voltText = "— V";
@@ -122,11 +121,11 @@ function ld12_render_wires()
     ampText = "— mA";
     if valid then ampText = msprintf("%.3f mA", i); end
     modeName = "ŽVAIGŽDĖ"; if LD12.wireMode == 2 then modeName = "TRIKAMPIS"; end
-    phaseName = "—"; if LD12.phase > 0 then phaseName = "L" + string(LD12.phase); end
-    vals = [msprintf("3~ %g V · 50 Hz", LD12.cfg.Ul), switchText, phaseName, ...
+    phaseName=ld12_branch_name(LD12.wireMode,LD12.phase);
+    vals = [msprintf("Ul=%g V",LD12.cfg.Ul), switchText, phaseName, ...
         msprintf("%g Ω", LD12.cfg.R), msprintf("%g Ω", LD12.cfg.R), msprintf("%g Ω", LD12.cfg.R), ...
         voltText, ampText];
-    pairs = ["N" "L1";"K1" "K2";"" "";"" "";"" "";"" "";"" "";"" ""];
+    pairs = ["N" "L1";"" "";"" "";"" "";"" "";"" "";"" "";"" ""];
     for k = 1:8
         r = bb(ids(k))/100; bg = [0.94 0.97 0.97];
         if ids(k) == "R" then bg = [0.98 0.96 0.88]; end
@@ -137,13 +136,22 @@ function ld12_render_wires()
                 ld12_track_board(student_wire(p, xy, edge, [0.41 0.49 0.51], "lead:" + ids(k)));
             end
         end
+        if k==1 then
+            for sourceId=["L2" "L3"]
+                xy=tt(sourceId)/100;
+                ld12_track_board(student_wire(p,xy,[r(1)+r(3) xy(2)],[0.41 0.49 0.51],"lead:SRC"));
+            end
+        end
         fr = student_frame(p, r, bg); fr.tag = "component:" + ids(k); ld12_track_board(fr);
         h = student_text(fr, [0.06 0.66 0.88 0.24], names(k), 12, %t, bg); h.horizontalalignment = "center";
         h = student_text(fr, [0.04 0.04 0.92 0.58], vals(k), 13, %t, bg); h.horizontalalignment = "center";
         h.tag = "reading:" + ids(k);
         if or(k == [4 5 6]) then h.tooltipstring = msprintf("Imtuvas: R = %g Ω (visi trys vienodi).", LD12.cfg.R); end
-        if k == 7 then h.tooltipstring = "Voltmetras: įtampa U prie generatoriaus galų."; end
-        if k == 8 then h.tooltipstring = "Ampermetras: pasirinktos fazės srovė."; end
+        if k==1 then h.tooltipstring="Ul – efektinė įtampa tarp dviejų šaltinio linijų, f=50 Hz.";end
+        if k==2 then h.tooltipstring="Įmontuotas bendras trifazis jungiklis. Jo atskirais laidais jungti nereikia.";end
+        if k==3 then h.tooltipstring="Matuojamas imtuvas ir jo prijungimo taškai.";end
+        if k == 7 then h.tooltipstring = "Voltmetras: pasirinkto imtuvo fazinė įtampa Uf."; end
+        if k == 8 then h.tooltipstring = "Ampermetras: srovė If per pasirinktą imtuvą; trikampyje ji nelygi linijinei Il."; end
     end
     tids = ld12_terminal_ids();
     for id = matrix(tids, 1, -1)
@@ -179,10 +187,11 @@ function ld12_render_journal()
     for tag = 1:2
         m = ld12_journal_rows(tag);
         for k = 1:size(m, 1)
-            rows($+1) = msprintf("%-9s L%d  U=%.4f V  I=%.3f mA", names(tag), m(k,4), m(k,1), m(k,2));
+            rows($+1) = msprintf("%s · R%d · Uf=%.4f V",names(tag),m(k,4),m(k,1));
+            rows($+1) = msprintf("If=%.3f mA",m(k,2));
         end
     end
-    if rows == [] then rows = "Matavimų dar nėra."; end
+    if rows == [] then rows = "Matavimų dar nėra. Pasirinkite imtuvą ir spauskite Matuoti."; end
     LD12.ui.journalList.string = rows;
 endfunction
 
@@ -196,9 +205,18 @@ function ld12_render_stage()
         [st, sl] = ld12_answer_slot(k); h = LD12.ui.answerEdits(k); lab = LD12.ui.answerLabels(k);
         h.visible = "off"; lab.visible = "off";
         if st == LD12.step then
-            yy = 0.60 - row*0.085; row = row + 1;
+            yy = 0.65 - row*0.085; row = row + 1;
             lab.position = [0.07 yy 0.53 0.075]; h.position = [0.63 yy 0.30 0.075];
-            h.string = LD12.answers(st, sl); h.visible = "on"; lab.visible = "on";
+            if st==6 then
+                yy=0.62-(row-1)*0.13;
+                lab.position=[0.07 yy 0.53 0.11];h.position=[0.63 yy+0.0175 0.30 0.075];
+            end
+            if st==6 then
+                h.value=1; raw=stripblanks(LD12.answers(st,sl));
+                choice=ld12_parse_number(raw);
+                if or(choice==[1 2]) then h.value=choice+1;end
+            else h.string=LD12.answers(st,sl);end
+            h.visible="on";lab.visible="on";
             h.enable = "on"; if LD12.demoMode then h.enable = "off"; end
         end
     end
@@ -233,7 +251,7 @@ function ld12_build_gui()
     student_button(f, [0.87 0.93 0.105 0.044], "Pagalba", "ld12_show_actions()");
     p = student_frame(f, [0.025 0.12 0.655 0.77]); LD12.ui.circuitFrame = p;
     right = student_frame(f, [0.70 0.12 0.275 0.77]); LD12.ui.right = right;
-    student_text(p, [0.79 0.40 0.19 0.13], student_wrap("Laidas: spauskite abu galus. Pakartoję — pašalinsite. Tarpas sankirtoje: nesujungta.", 20), 12, %f);
+    student_text(p, [0.52 0.025 0.45 0.10], student_wrap("Laidas: spauskite abu galus. Pakartoję — pašalinsite. Tarpas sankirtoje: nesujungta.", 44), 12, %f);
     // Du realūs matavimai: po vieną pasirinktą fazę simetrinei žvaigždei ir trikampiui.
     LD12.ui.journalList = uicontrol(p, "style", "listbox", "units", "normalized", ...
         "position", [0.04 0.80 0.64 0.18], "string", "Matavimai", ...
@@ -244,61 +262,69 @@ function ld12_build_gui()
         cb = "ld12_set_mode(" + string(k) + ")";
         controls($+1) = ld12_button(p, [0.02+(k-1)*0.245 0.105 0.235 0.075], modes(k), cb, 12);
     end
-    phases = ["FAZĖ L1";"FAZĖ L2";"FAZĖ L3"];
+    phases = ["R1 · U,I";"R2 · U,I";"R3 · U,I"];
     for k = 1:3
         cb = "ld12_set_phase(" + string(k) + ")";
         controls($+1) = ld12_button(p, [0.02+(k-1)*0.16 0.020 0.15 0.070], phases(k), cb, 11);
     end
-    controls($+1) = ld12_button(p, [0.55 0.56 0.14 0.06], "Maitinimas", "ld12_toggle_power()", 12);
-    controls($+1) = ld12_button(p, [0.55 0.46 0.14 0.06], "Jungiklis", "ld12_toggle_switch()", 12);
-    controls($+1) = ld12_button(p, [0.55 0.36 0.14 0.06], "Matuoti", "ld12_measure()", 13, [0.08 0.39 0.37]);
-    LD12.ui.instructionLine(1) = student_text(right, [0.07 0.72 0.86 0.22], "", 14, %f);
+    controls($+1) = ld12_button(p, [0.55 0.655 0.14 0.06], "Maitinimas", "ld12_toggle_power()", 12);
+    controls($+1) = ld12_button(p, [0.55 0.525 0.14 0.06], "Jungiklis", "ld12_toggle_switch()", 12);
+    controls($+1) = ld12_button(p, [0.55 0.395 0.14 0.06], "Matuoti", "ld12_measure()", 13, [0.08 0.39 0.37]);
+    LD12.ui.instructionLine(1) = student_text(right, [0.07 0.76 0.86 0.19], "", 14, %f);
     LD12.ui.instructionLine(1).verticalalignment = "top";
-    labels = ["[A01.01] Uf = Ul/√3, V"; ...
-        "[A02.01] If = 1000·Uf/R, mA"; ...
-        "[A03.01] Trikampio Uf, V"; ...
-        "[A04.01] If = 1000·Ul/R, mA"; ...
-        "[A05.01] Il = √3·If, mA";"[A05.02] PΔ = √3·Ul·Il, mW";"[A05.03] PY = 3·Uf·If, mW"; ...
-        "[A06.01] Žvaigždėje If = Il?";"[A06.02] Trikampyje Il = √3·If?";"[A06.03] PΔ = 3·PY?"];
+    labels=["Žvaigždės fazinė įtampa Uf, V";"Žvaigždės srovė If, mA"; ...
+        "Trikampio fazinė įtampa Uf, V";"Trikampio fazinė srovė If, mA"; ...
+        "Trikampio linijinė srovė Il, mA";"Trikampio galia PΔ, mW";"Žvaigždės galia PY, mW"; ...
+        "Žvaigždėje If = Il?";"Trikampyje Il = √3·If?";"Trikampio galia PΔ = 3·PY?"];
     LD12.ui.answerEdits = []; LD12.ui.answerLabels = [];
     for k = 1:10
         LD12.ui.answerLabels($+1) = student_text(right, [0.07 0.5 0.53 0.075], student_wrap(labels(k), 22), 14, %f);
         [st, sl] = ld12_answer_slot(k);
+        if st==6 then
+            h=uicontrol(right,"style","popupmenu","units","normalized","position",[0.63 0.5 0.30 0.075], ...
+                "string",["—";"Taip";"Ne"],"value",1,"fontunits","pixels","fontsize",14, ...
+                "tag",ld12_answer_code(st,sl),"callback","ld12_answers_changed()","backgroundcolor",[0.94 0.96 0.96]);
+        else
         h = uicontrol(right, "style", "edit", "units", "normalized", "position", [0.63 0.5 0.30 0.075], ...
             "string", "", "fontunits", "pixels", "fontsize", 14, "fontname", "DejaVu Sans", ...
             "tag", ld12_answer_code(st, sl), "callback", "ld12_answers_changed()", "backgroundcolor", [0.94 0.96 0.96]);
+        end
         LD12.ui.answerEdits($+1) = h;
     end
     LD12.ui.studentPrimary = ld12_button(right, [0.07 0.085 0.86 0.075], "Tikrinti", "ld12_student_primary()", 15, [0.08 0.39 0.37]);
     controls($+1) = LD12.ui.studentPrimary;
     controls($+1) = ld12_button(right, [0.07 0.015 0.37 0.045], "← Atgal", "ld12_jump_step(LD12.step-1)", 12);
-    controls($+1) = ld12_button(right, [0.48 0.015 0.45 0.045], "Žemėlapis", "ld12_show_stand_map()", 12);
     LD12.ui.controls = controls; LD12.ui.dynamic = controls;
     LD12.ui.statusMain = student_text(f, [0.025 0.055 0.95 0.035], "", 13, %t, [0.94 0.96 0.96]);
     LD12.ui.statusFix = student_text(f, [0.025 0.020 0.95 0.035], "", 12, %f, [0.94 0.96 0.96]);
     ld12_font(f);
     student_finish_window(f); f.visible = "on"; ld12_render_stage();
+    f.closerequestfcn="ld12_close()";
     f.resizefcn = "ld12_resize(" + string(f.figure_id) + ")";
 endfunction
 
 function ld12_show_actions()
     global LD12;
-    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
-        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD12 · Pagalba");
+    if ~isfield(LD12,"fig") then return; end
+    if ~is_handle_valid(LD12.fig) then return; end
+    choice=x_choose(["Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
+        "Išsaugoti ataskaitą";"Mokymosi / atsiskaitymo režimas"; ...
+        "Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD12 · Pagalba");
     select choice
     case 1 then bench_open_snapshot("LD12");
     case 2 then ld12_show_wiring_guide();
-    case 3 then bench_export_current("LD12");
-    case 4 then bench_mode("LD12"); ld12_student_sync(); bench_autosave("LD12");
-    case 6 then ld12_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD12.student);"";student_parameter_lines("LD12",LD12.cfg)]);
-    case 5 then
-        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD12 · Daugiau veiksmų");
+    case 3 then ld12_show_theory();
+    case 4 then ld12_export_report();
+    case 5 then bench_mode("LD12"); ld12_student_sync(); bench_autosave("LD12");
+    case 7 then ld12_student_details();
+    case 6 then
+        extra=x_choose(["Žemėlapis";"Pavyzdys";"Atkurti stendą";"Pradėti iš naujo"],"LD12 · Daugiau veiksmų");
         select extra
         case 1 then ld12_show_stand_map();
         case 2 then ld12_toggle_solution();
         case 3 then ld12_restore_stage();
         case 4 then
-            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD12","question",["Pradėti" "Grįžti"],"modal")==1 then ld12_restart(); end
+            if messagebox("Pradėti naują atsiskaitymą? Dabartinis darbas bus išsaugotas atskirai.","LD12","question",["Pradėti" "Grįžti"],"modal")==1 then ld12_restart(); end
         end
     end
 endfunction
