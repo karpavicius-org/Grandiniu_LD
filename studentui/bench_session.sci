@@ -474,6 +474,12 @@ function bench_restore_snapshot(session)
         elseif session.lab=="LD11" then
             LD11.cfg=session.cfg;LD11.student=session.student;
             for field=fieldnames(session.state)';LD11(field)=session.state(field);end
+            // Old drafts have no first-compensation flag. Infer it from this draft,
+            // never retain a flag left over from the currently open student's work.
+            if ~isfield(session.state,"compensation_started") then
+                LD11.compensation_started=size(LD11.wires_by_mode(2),1)>0;
+                if LD11.wireMode==2 & size(LD11.wires,1)>0 then LD11.compensation_started=%t;end
+            end
             if ~isfield(session.state,"report_wires") then
                 LD11.report_wires=list();
                 for k=1:2;LD11.report_wires(k)=emptystr(0,2);end

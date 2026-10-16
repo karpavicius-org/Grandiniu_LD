@@ -85,6 +85,14 @@ try
     ld11_set_step(5); LD11.ui.answerEdits(6).string="10,321";
     snapshot_path=bench_save_snapshot("LD11"); snapshot=bench_read_snapshot(snapshot_path,"LD11");
     ld11_restart(); bench_restore_snapshot(snapshot);
+    legacy=snapshot;legacy.state=rmfield(legacy.state,"compensation_started");
+    legacy.state.step=3;legacy.state.wireMode=1;legacy.state.wires=ld11_canonical_wires(1);
+    legacy.state.wires_by_mode(2)=emptystr(0,2);legacy.state.journal=[];legacy.state.done(:)=%f;
+    LD11.compensation_started=%t;bench_restore_snapshot(legacy);assert_checkfalse(LD11.compensation_started);
+    ld11_set_step(4);assert_checkequal(size(LD11.wires,1),4);
+    legacy=snapshot;legacy.state=rmfield(legacy.state,"compensation_started");
+    LD11.compensation_started=%f;bench_restore_snapshot(legacy);assert_checktrue(LD11.compensation_started);
+    bench_restore_snapshot(snapshot);
     assert_checkequal(LD11.ui.answerEdits(6).string,"10,321"); assert_checkequal(LD11.journal,journal);
     assert_checktrue(LD11.assessment); assert_checkfalse(LD11.powerOn); assert_checkfalse(LD11.switchOn);
     ld11_toggle_solution(); assert_checkfalse(LD11.demoMode);
