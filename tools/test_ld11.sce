@@ -100,6 +100,7 @@ try
     ld11_set_step(1); ld11_restore_stage(); assert_checkequal(size(LD11.wires,1),0);
     assert_checkequal(size(ld11_journal_rows(1),1),0); assert_checkfalse(LD11.done(1));
     report=bench_report_data("LD11"); assert_checkequal(length(report.evidence.wiring.s1.pairs),0);
+    exec(root+"LD12/ld12_callbacks.sci",-1); // Both labs can coexist without a shared mode-name function.
     ld11_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD11.fig); delete(window);
     ld11_show_stand_map(); window=gcf(); assert_checktrue(window<>LD11.fig); delete(window);
     for stage=1:6

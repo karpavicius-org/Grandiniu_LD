@@ -92,6 +92,9 @@ class Lab11(Lab45):
         z = complex(c['R'], w*c['L'])
         self.snapshot('E01')
         self.press(1, 0)
+        self.click('B11', 'mode')
+        assert self.state['wire_count'] == 0, self.state
+        self.click('B10', 'mode')
         self.connect(WIRES, 4)
         self.remove('T08', 'T02', 3)
         self.enter(1, 1, c['R']/abs(z))
@@ -123,6 +126,8 @@ class Lab11(Lab45):
         self.press(3, 2)
         self.snapshot('E03')
         self.press(3, 2)
+        self.click('B11', 'mode')  # a preview still has no compensation wires
+        assert self.state['wire_count'] == 0, self.state
         self.enter(3, 1, z.imag/(w*abs(z)**2)*1e6)
         self.press(4, 3)
         assert self.state['wire_count'] == 4 and not self.state['power'], self.state

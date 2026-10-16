@@ -60,11 +60,6 @@ function ld11_set_mode(mode)
     if LD11.demoMode | ~ld11_valid_index(mode, 2) then return; end
     if mode <> LD11.wireMode then
         LD11.wires_by_mode(LD11.wireMode) = LD11.wires;
-        // Carry over only the student's real base wires on the first compensation.
-        if ~isfield(LD11,"compensation_started") then LD11.compensation_started=size(LD11.wires_by_mode(2),1)>0;end
-        if mode==2 & ~LD11.compensation_started then
-            LD11.wires_by_mode(2)=LD11.wires_by_mode(1);LD11.compensation_started=%t;
-        end
         LD11.wireMode = mode; LD11.wires = LD11.wires_by_mode(mode);
         LD11.powerOn = %f; LD11.switchOn = %f; LD11.pending = ""; LD11.lastMeasurement = %nan;
     end
@@ -171,6 +166,19 @@ function ld11_set_step(step)
     if ~ld11_valid_index(step, 6) then return; end
     if LD11.demoMode then ld11_toggle_solution(); end
     ld11_save_answers(); LD11.pending = ""; LD11.step = step;
+    // Only the first actual compensation stage inherits the student's base wiring.
+    // Merely viewing SU Ck earlier must not initialize an empty compensation circuit.
+    if ~isfield(LD11,"compensation_started") then LD11.compensation_started=%f;end
+    if step==4 & ~LD11.compensation_started then
+        existing=LD11.wires_by_mode(2);
+        if LD11.wireMode==2 then existing=LD11.wires;end
+        if existing==[] then
+            if LD11.wireMode==1 then LD11.wires_by_mode(1)=LD11.wires;end
+            LD11.wires_by_mode(2)=LD11.wires_by_mode(1);
+            if LD11.wireMode==2 then LD11.wires=LD11.wires_by_mode(2);end
+        end
+        LD11.compensation_started=%t;LD11.powerOn=%f;LD11.switchOn=%f;
+    end
     ld11_set_mode(ld11_stage_mode(step)); ld11_render_stage();
 endfunction
 
@@ -217,7 +225,7 @@ endfunction
 
 function ld11_show_wiring_guide()
     global LD11;
-    text = ["LD11 · " + names_rezhimas(); ""; "Išjunkite generatorių prieš jungdami laidus."];
+    text = ["LD11 · " + ld11_mode_name(); ""; "Išjunkite generatorių prieš jungdami laidus."];
     wires = ld11_canonical_wires(LD11.wireMode);
     for index = 1:size(wires, 1)
         text($+1) = msprintf("%d. [%s]–[%s]: %s → %s", index, ld11_terminal_code(wires(index,1)), ld11_terminal_code(wires(index,2)), ld11_terminal_name(wires(index,1)), ld11_terminal_name(wires(index,2)));
@@ -309,7 +317,7 @@ function ld11_answers_changed()
     ld11_save_answers(); ld11_student_sync(); bench_autosave("LD11");
 endfunction
 
-function name = names_rezhimas()
+function name = ld11_mode_name()
     global LD11;
     if LD11.wireMode == 1 then name = "Ritė be kondensatoriaus"; else name = "Ritė su Ck"; end
 endfunction

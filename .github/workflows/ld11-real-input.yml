@@ -2,6 +2,10 @@ name: LD11 Student Workflow and Native Input
 on:
   push:
     paths:
+      - 'core/src/**'
+      - 'studentui/student_profile.sci'
+      - 'studentui/bench_session.sci'
+      - 'studentui/bench_report.sci'
       - 'core/tests/test_ld11_grading.py'
       - 'tools/test_ld11_native.py'
       - 'tools/test_ld11_native.sce'
@@ -14,6 +18,10 @@ on:
       - 'studentui/bench_common.sci'
   pull_request:
     paths:
+      - 'core/src/**'
+      - 'studentui/student_profile.sci'
+      - 'studentui/bench_session.sci'
+      - 'studentui/bench_report.sci'
       - 'core/tests/test_ld11_grading.py'
       - 'tools/test_ld11_native.py'
       - 'tools/test_ld11_native.sce'
