@@ -1674,7 +1674,8 @@ function bench_ld12_answers(step,values)
     for index=1:10
         [answer_step,slot]=ld12_answer_slot(index);
         if answer_step==step then
-            LD12.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
+            if step==6 then LD12.ui.answerEdits(index).value=values(value_index)+1;
+            else LD12.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));end
             execstr(LD12.ui.answerEdits(index).callback);
             value_index=value_index+1;
         end

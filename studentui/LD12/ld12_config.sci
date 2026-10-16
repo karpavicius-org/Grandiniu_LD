@@ -1,9 +1,6 @@
-// ============================================================================
-// LD12 variantų konfigūracija (bankas LD12-64-A-2026). Nuosekliai sujungtos RLC
-// grandinės tyrimas: rišlė L pagal eilutę, kondensatorius C pagal stulpelį;
-// R = round(100·sqrt(L/C)/Qt)/100, Qt = 2..3,5 pagal (a+b)%4 — kokybė Q > 1
-// visuose variantuose. E = 5 V RMS. Skaičiavimas sutampa su core/src/model.cpp.
-// ============================================================================
+// LD12-64-A-2026: simetrinis trifazis 50 Hz šaltinis, Ul=30..220 V RMS,
+// trys vienodi imtuvai R=10..100 Ω; tie patys Ul ir R abiem jungimams.
+// Banko formulės sutampa su core/src/model.cpp.
 
 function cfg = ld12_variant_config(number)
     if ~ld12_valid_index(number, 64) then error("Eilės numeris turi būti nuo 1 iki 64."); end

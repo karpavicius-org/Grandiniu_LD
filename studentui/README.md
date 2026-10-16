@@ -76,13 +76,17 @@ ataskaitų vertinimui naudojamas bendras C++ branduolys; yra 64 variantai:
 daliklis; oficialaus dalyko darbų numerių susiejimas turi būti tvarkomas atskiru
 kurso žemėlapiu, o ne vien techniniu `LD5` identifikatoriumi.
 
-**LD12 – trifazės grandinės: žvaigždė ir trikampis:** šeši etapai, simetrinis
-trifazis šaltinis (Ul pagal variantą, 50 Hz) ir trys vienodi imtuvai R. Jungimas
-mygtukais [B10] žvaigžde (imtuvai tarp linijų ir neutralio N) ir [B11] trikampiu
-(tarp linijų L1–L2, L2–L3, L3–L1); matuojama fazė renkama [B12]–[B14]. Fizika —
-trifazė MNA branduolyje (ld_ac kind 6). Studentas skaičiuoja Uf = Ul/√3, fazines
-ir linijines sroves, Il = √3·If bei abiejų jungimų galias ir palygina:
-P(trikampis) = 3·P(žvaigždė). 64 variantai: `LD12/VARIANTAI.csv`.
+**LD12 – trifazės grandinės: žvaigždė ir trikampis:** šeši etapai ir vienas
+**Toliau** mygtukas. Šešiais laidais sujunkite žvaigždę, vėliau – trikampį pagal
+**Pagalba → Kaip sujungti**. Abiejų jungimų laidai saugomi atskirai; trikampyje
+neutralis N nenaudojamas. **R1 / R2 / R3** pasirenka matuojamą imtuvą:
+voltmetras rodo jo Uf, ampermetras – fazinę If, o **Matuoti** juos automatiškai
+įrašo į žurnalą. Simetrinei apkrovai pakanka vieno matavimo kiekviename jungime.
+Linijinę trikampio srovę Il=√3·If ir galias apskaičiuoja studentas; kai srovė
+pateikta mA, V·mA jau duoda mW. Formulės ir vienetai – **Pagalba → Teorija ir
+paaiškinimai**, išvados – **Taip / Ne**. Darbas automatiškai saugomas, o naujas
+atsiskaitymas pradeda atskirą bandymą. 64 variantai: `LD12/VARIANTAI.csv`, bankas
+`LD12-64-A-2026`; vertinimas `LD12-1`.
 
 **LD11 – aktyvioji, reaktyvioji ir pilnutinė galia; cos φ gerinimas:** šeši
 etapai ir vienas **Toliau** mygtukas. Sujunkite ritę (R, L nuosekliai), o
