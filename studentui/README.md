@@ -92,14 +92,21 @@ cos φ = P/S. Studentas apskaičiuoja teorinį Ck = XL/(ω(R²+XL²)) ir palygin
 po kompensacijos P nepakinta, S bei I sumažėja, cos φ → 1 (galios trikampio
 susispaudimas). 64 variantai: `LD11/VARIANTAI.csv`, bankas `LD11-64-A-2026`.
 
-**LD10 – lygiagretė RLC grandinė: srovių rezonansas:** šeši etapai, generatorius →
-jungiklis → ampermetras → mazgas, kuriame R, L ir C šakos jungiamos lygiagrečiai.
-Tie patys trys dažnio taškai [B10]–[B12]; ampermetras perkeliamas mygtukais
-[B13]–[B16] (IR, IL, IC šakose ir pagrindinėje linijoje); U vienoda visose šakose.
-Ties f0 bendroji srovė minimali (lygi U/R), IL = IC abi viršija ją (srovių
-kokybė Q). Skaičiuojami srovių trikampis √(IR²+(IL−IC)²), laidis Y = I/U,
-cos φ = IR/I ir galios P, Q, S. Išvados atspindi kontrastą su nuosekliąja grandine.
-64 variantai: `LD10/VARIANTAI.csv`, bankas `LD10-64-A-2026`, ataskaitos revizija 1.
+**LD10 – lygiagretė RLC grandinė: srovių rezonansas:** šeši trumpai paaiškinti etapai
+ir vienas **Toliau** mygtukas. Sujunkite R, L ir C šakas pagal **Pagalba → Kaip sujungti**.
+Trijuose dažniuose (0,5·f0, f0, 2·f0) pasirinkite **IR / IL / IC / I** ir kiekvieną
+kartą spauskite **Matuoti**. Bendroji įtampa U ir keturios srovės grupuojamos žurnale;
+rodmenų perrašyti nereikia. Schemos ampermetras visada rodo bendrąją I; pasirinkta
+šakos srovė matoma atskirame **Matavimai** laukelyje kartu su U.
+**Pagalba → Teorija ir paaiškinimai** pateikia dabartinio
+etapo formules, vienetus ir grandinės paaiškinimą. Rezonanse IL=IC, bendroji I mažiausia.
+Skaičiavimams naudokite nurodyto dažnio duomenis: Y=I_mA/U yra mS, o U·I_mA duoda
+mW/mvar/mVA. Išvadas rinkitės **Taip / Ne**. Atsiskaityme teisingumą vėliau vertina
+dėstytojo programa; netinkamas formatas ar nebaigta išvada nepraleidžiami.
+Darbas automatiškai išsaugomas. Vardo / grupės pataisa išlaiko matavimus, naujas
+variantas ar naujas atsiskaitymas pradeda atskirą darbą išsaugojus ankstesnį.
+Ataskaitą išsaugokite užbaigę visus šešis etapus. Originalus 64 variantų bankas
+`LD10/VARIANTAI.csv`, lygiagretės grandinės modelis ir LD10-1 vertinimas išlieka.
 
 **LD9 – nuosekli RLC grandinė: įtampų rezonansas:** šeši aiškūs etapai.
 Studentas sujungia generatorių, jungiklį, ampermetrą, R, L ir C viena seka;

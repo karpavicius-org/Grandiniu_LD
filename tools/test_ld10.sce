@@ -9,10 +9,11 @@ function selected=messagebox(varargin)
     if varargin(2)<>"Jūsų priskirtos reikšmės" then error("Netikėtas dialogas"); end
     selected=1;
 endfunction
-function capture_ld10(name)
+function capture_ld10(name,window)
     global LD10;
+    if argn(2)<2 then window=LD10.fig;end
     if getos()<>"Linux" then return; end
-    LD10.fig.figure_name="LD10 PATIKRA "+name; show_window(LD10.fig); sleep(500);
+    window.figure_name="LD10 PATIKRA "+name; show_window(window); sleep(500);
     command="/usr/bin/python3 """+getenv("LD10_TEST_RUNTIME")+"/capture_window.py"" ""LD10 PATIKRA "+name+""" """+getenv("LD10_TEST_OUT")+"/"+name+".png""";
     assert_checkequal(host(command),0);
 endfunction
@@ -49,11 +50,11 @@ try
     end
     // Invoke the registered native resize callback without re-rendering a stage.
     // This checks the callback contract; it does not emulate an OS drag event.
-    LD10.ui.answerEdits(10).string="1,0";
+    LD10.ui.answerEdits(10).value=2;
     for dimension=[1 3 2]
         geometry_size(LD10.fig,sizes(dimension,:));
         assert_checktrue(LD10.fig.resizefcn<>""); execstr(LD10.fig.resizefcn);
-        assert_checkequal(LD10.ui.answerEdits(10).string,"1,0");
+        assert_checkequal(LD10.ui.answerEdits(10).value,2);
         geometry_dump(LD10.fig,"LD10-resize-"+string(dimension),descriptor);
     end
     mclose(descriptor);
@@ -69,7 +70,11 @@ try
             LD10.target=target; ld10_render_wires();
             v=bench_cpp_ac(4,LD10.cfg.E,f,LD10.cfg.R,LD10.cfg.L,LD10.cfg.C);
             cur=v(4)*1000; if target==1 then cur=v(5)*1000; elseif target==2 then cur=v(6)*1000; elseif target==3 then cur=v(7)*1000; end
-            handle=findobj("tag","reading:A"); assert_checkequal(handle.string,msprintf("%.3f mA",cur));
+            // Main-line ammeter and selected branch probe are separate displays.
+            handle=findobj("tag","reading:A");assert_checkequal(handle.string,msprintf("%.3f mA",v(4)*1000));
+            names=["IR";"IL";"IC";"I"];
+            handle=findobj("tag","reading:SELECTED");
+            assert_checkequal(handle.string,msprintf("%s = %.3f mA",names(target),cur));
         end
         handle=findobj("tag","reading:V"); assert_checkequal(handle.string,msprintf("%.4f V",LD10.cfg.E));
         if step==3 then
@@ -92,7 +97,7 @@ try
     ld10_set_step(3); ld10_toggle_solution(); assert_checkfalse(LD10.demoMode);
     LD10.assessment=%f; LD10.practice_used=%t; ld10_toggle_solution(); assert_checktrue(LD10.demoMode);
     assert_checkequal(size(LD10.journal,1),4); ld10_toggle_solution(); assert_checkequal(LD10.journal,journal);
-    ld10_restart(); assert_checkfalse(LD10.assessment); assert_checktrue(LD10.practice_used);
+    ld10_restart(); assert_checktrue(LD10.assessment); assert_checkfalse(LD10.practice_used);
     bench_restore_snapshot(snapshot); LD10.assessment=%f; LD10.practice_used=%t;
     ld10_set_step(5); LD10.done(5)=%t; LD10.ui.answerEdits(4).string="1+2"; bench_ld10_primary();
     assert_checkfalse(LD10.done(5)); assert_checkequal(LD10.step,5); assert_checkequal(LD10.ui.answerEdits(4).string,"1+2");
@@ -104,7 +109,40 @@ try
     report=bench_report_data("LD10"); assert_checkequal(length(report.evidence.wiring.s1.pairs),0);
     ld10_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD10.fig); delete(window);
     ld10_show_stand_map(); window=gcf(); assert_checktrue(window<>LD10.fig); delete(window);
-    delete(LD10.fig);
+    for stage=1:6
+        LD10.step=stage;ld10_show_theory();window=gcf();assert_checktrue(window<>LD10.fig);
+        capture_ld10("teorija-"+string(stage),window);delete(window);
+        assert_checktrue(size(ld10_theory_lines(stage),"*")>8);
+    end
+    // A numeric choice from an older draft is shown and canonicalized by the popup.
+    ld10_set_step(6); LD10.answers(6,1)="1,0";ld10_render_stage();
+    assert_checkequal(LD10.ui.answerEdits(10).value,2);ld10_save_answers();
+    assert_checkequal(LD10.answers(6,1),"1");
+    // Assessment accepts a wrong finite number, rejects formulas and premature export.
+    LD10.assessment=%t;LD10.practice_used=%f;
+    ld10_set_step(1); LD10.wires=ld10_canonical_wires();
+    for raw=["1+2" "%nan" "Inf" "3 Hz" ""]
+        LD10.ui.answerEdits(1).string=raw;ld10_student_primary();assert_checkfalse(LD10.done(1));
+    end
+    assert_checkequal(ld10_export_report(),"");
+    LD10.ui.answerEdits(1).string="123";ld10_student_primary();
+    assert_checkequal(LD10.step,2);assert_checkequal(LD10.answers(1,1),"123");
+    oldWires=LD10.wires;oldJournal=LD10.journal;
+    st=LD10.student;st.name="Pataisytas vardas";ld10_apply_profile(st,LD10.cfg);
+    assert_checkequal(LD10.wires,oldWires);assert_checkequal(LD10.journal,oldJournal);
+    assert_checkequal(LD10.answers(1,1),"123");
+    oldProfilePath=LD10.autosave_paths($);
+    ld10_apply_profile(student_profile(17,"Naujas variantas","TEST","LD10"),ld10_variant_config(17));
+    assert_checkequal(LD10.student.number,17);assert_checkequal(LD10.step,1);
+    assert_checkequal(size(LD10.wires,1),0);
+    beforeProfile=bench_read_snapshot(oldProfilePath,"LD10");
+    assert_checkequal(beforeProfile.student.number,64);
+    LD10.assessment=%f;LD10.practice_used=%t;bench_autosave("LD10");
+    oldPath=LD10.autosave_paths($);ld10_restart();
+    saved=bench_read_snapshot(oldPath,"LD10");assert_checktrue(saved.state.practice_used);
+    assert_checktrue(LD10.assessment);assert_checkfalse(LD10.practice_used);
+    assert_checkequal(size(LD10.wires,1),0);
+    ld10_close();assert_checkfalse(is_handle_valid(LD10.fig));
     cases=list(); specs=[1 1 .01;3 1 .03;3 2 0;5 1 .02;5 2 .02;5 3 .02;5 4 .02;5 5 .02;5 6 .02];
     for number=[1 17 64]
         bench_ld10_workflow(number,root,%f); expected=ld10_expected_answers(); original=LD10.answers;
@@ -132,15 +170,15 @@ try
             end
         end
         for slot=1:3
-            for raw=[string(expected(6,slot))+",0" string(3-expected(6,slot)) "" "1+1"]
+            for raw=[string(expected(6,slot)) string(3-expected(6,slot)) "" "1+1"]
                 LD10.answers=original; LD10.step=6; LD10.done(6)=%f; LD10.answers(6,slot)=raw; ld10_check_step();
-                accepted=LD10.done(6); assert_checkequal(accepted,raw==string(expected(6,slot))+",0");
+                accepted=LD10.done(6); assert_checkequal(accepted,raw==string(expected(6,slot)));
                 cases($+1)=struct("report",bench_report_data("LD10"),"accepted",accepted);
             end
         end
     end
     mputl(toJSON(cases),out+"tolerance-cases.json");
-    mputl("LD10_PASS: 3 GUI variants; single parallel RLC wiring; three frequency points; four ammeter targets; IL=IC at resonance with minimal total current; current triangle from own measurements; actual report button; comma input without Enter; demo isolation; draft restore; 39 geometry cases including resize callback; 144 grading comparisons",out+"verdict.log"); exit(0);
+    mputl("LD10_PASS: 3 GUI variants; single parallel RLC wiring; three frequency points; four ammeter targets; IL=IC at resonance with minimal total current; current triangle from own measurements; actual report button; comma input without Enter; demo isolation; draft restore; 39 geometry cases including resize callback; 146 grading comparisons",out+"verdict.log"); exit(0);
 catch
     mputl("LD10_FAIL: "+strcat(lasterror()," | "),out+"verdict.log"); disp(lasterror()); exit(1);
 end

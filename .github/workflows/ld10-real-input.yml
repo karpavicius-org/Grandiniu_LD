@@ -1,0 +1,170 @@
+name: LD10 Student Workflow and Native Input
+on:
+  push:
+    paths:
+      - 'tools/test_ld10_native.py'
+      - 'tools/test_ld10_native.sce'
+      - '.github/workflows/ld10-real-input.yml'
+      - 'studentui/LD10/**'
+      - 'tools/test_ld10.py'
+      - 'tools/test_ld10.sce'
+      - 'studentui/tests/workflows.sci'
+      - 'studentui/student_style.sci'
+      - 'studentui/bench_common.sci'
+  pull_request:
+    paths:
+      - 'tools/test_ld10_native.py'
+      - 'tools/test_ld10_native.sce'
+      - '.github/workflows/ld10-real-input.yml'
+      - 'studentui/LD10/**'
+      - 'tools/test_ld10.py'
+      - 'tools/test_ld10.sce'
+      - 'studentui/tests/workflows.sci'
+      - 'studentui/student_style.sci'
+      - 'studentui/bench_common.sci'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  complete-native-input:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify Python native-input driver syntax
+        run: python -m py_compile tools/test_ld10_native.py
+      - name: Fetch locked native dependencies
+        run: python tools/fetch_core_deps.py "${{ runner.temp }}/ld-deps"
+      - name: Build original C++ measurement and grading engine
+        run: |
+          cmake -S core -B build -DLD_DEPS="${{ runner.temp }}/ld-deps" -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel 2
+          cmake --install build --config Release --prefix studentui
+      - name: Existing C++ core and grading regression
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Install Linux Scilab 2026.1 and X11 event/capture tools
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          curl --fail --location --retry 3 https://www.scilab.org/download/2026.1.0/scilab-2026.1.0.bin.x86_64-linux-gnu.tar.xz -o "$RUNNER_TEMP/scilab.tar.xz"
+          tar -xJf "$RUNNER_TEMP/scilab.tar.xz" -C "$RUNNER_TEMP"
+          echo "SCILAB_BIN=$RUNNER_TEMP/scilab-2026.1.0/bin/scilab" >> "$GITHUB_ENV"
+          sudo apt-get update
+          sudo apt-get install -y xvfb xdotool x11-utils python3-gi gir1.2-gtk-3.0
+      - name: Install Windows native desktop and screen-capture packages
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python -m pip install --disable-pip-version-check pywin32 Pillow
+      - name: Install Windows Scilab 2026.1
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer=Join-Path $env:RUNNER_TEMP 'scilab.exe'
+          Invoke-WebRequest https://www.scilab.org/download/2026.1.0/scilab-2026.1.0.bin.x64.exe -OutFile $installer
+          $target=Join-Path $env:RUNNER_TEMP 'Scilab'
+          $p=Start-Process -FilePath $installer -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-',"/DIR=$target" -Wait -PassThru
+          if($p.ExitCode -ne 0){throw "Scilab installer exit $($p.ExitCode)"}
+          "SCILAB_BIN=$target\bin\Scilex.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: LD10 functional GUI, persistence and grading boundaries (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python tools/test_ld10.py --scilab "$SCILAB_BIN" --core studentui/bin/ldcore.so --grader build/ldcheck --checker build/layoutcheck --output "$RUNNER_TEMP/ld10-ui"
+      - name: LD10 functional GUI, persistence and grading boundaries (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python tools/test_ld10.py --scilab "$env:SCILAB_BIN" --core studentui/bin/ldcore.dll --grader build/Release/ldcheck.exe --checker build/Release/layoutcheck.exe --output "$env:RUNNER_TEMP/ld10-ui"
+      - name: Complete LD10 stages using Linux OS mouse and keyboard
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python tools/test_ld10_native.py \
+            --scilab "$SCILAB_BIN" --core studentui/bin/ldcore.so \
+            --grader build/ldcheck --checker build/layoutcheck --output "$RUNNER_TEMP/ld10-native"
+      - name: Complete LD10 stages using Windows OS mouse and keyboard
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python tools/test_ld10_native.py --scilab "$env:SCILAB_BIN" --core studentui/bin/ldcore.dll --grader build/Release/ldcheck.exe --checker build/Release/layoutcheck.exe --output "$env:RUNNER_TEMP/ld10-native"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: LD10-complete-native-input-${{ runner.os }}
+          path: |
+            ${{ runner.temp }}/ld10-ui/*.png
+            ${{ runner.temp }}/ld10-ui/*.log
+            ${{ runner.temp }}/ld10-ui/*.json
+            ${{ runner.temp }}/ld10-ui/*.tsv
+            ${{ runner.temp }}/ld10-native/*.png
+            ${{ runner.temp }}/ld10-native/*.json
+            ${{ runner.temp }}/ld10-native/*.tsv
+            ${{ runner.temp }}/ld10-native/*.log
+            ${{ runner.temp }}/ld10-native/*.txt
+            ${{ runner.temp }}/ld10-native/*/actions.json
+            ${{ runner.temp }}/ld10-native/*/acceptance.json
+            ${{ runner.temp }}/ld10-native/*/geometry*.tsv
+            ${{ runner.temp }}/ld10-native/*/geometry*.log
+            ${{ runner.temp }}/ld10-native/*/scilab.log
+            ${{ runner.temp }}/ld10-native/*/failure.txt
+            ${{ runner.temp }}/ld10-native/*/E*.png
+            ${{ runner.temp }}/ld10-native/*/graded/*.json
+          if-no-files-found: warn
+
+  mac:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            arch: arm64
+          - os: macos-15-intel
+            arch: x86_64
+    runs-on: ${{ matrix.os }}
+    # The full Scilab GUI and delivery checks exceed 30 minutes on Intel.
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build and verify native C++ core
+        run: |
+          python tools/fetch_core_deps.py "$RUNNER_TEMP/deps"
+          cmake -S core -B build -DLD_DEPS="$RUNNER_TEMP/deps" -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+          cmake --build build --parallel 2
+          ctest --test-dir build --output-on-failure
+          cmake --install build --prefix studentui
+      - name: Install matching Scilab
+        run: |
+          curl --fail --location --retry 3 --retry-all-errors "https://www.utc.fr/~mottelet/scilab/download/2026.1.0/scilab-2026.1.0-${{ matrix.arch }}.dmg" -o "$RUNNER_TEMP/scilab.dmg"
+          mkdir "$RUNNER_TEMP/scilab-volume"
+          hdiutil attach "$RUNNER_TEMP/scilab.dmg" -nobrowse -readonly -mountpoint "$RUNNER_TEMP/scilab-volume"
+          app=$(find "$RUNNER_TEMP/scilab-volume" -maxdepth 2 -name '*.app' -type d -print -quit)
+          test -n "$app"
+          ditto "$app" "$RUNNER_TEMP/Scilab.app"
+          hdiutil detach "$RUNNER_TEMP/scilab-volume"
+          exe=$(find "$RUNNER_TEMP/Scilab.app/Contents" -type f -name scilab -print -quit)
+          test -x "$exe"
+          echo "SCILAB_BIN=$exe" >> "$GITHUB_ENV"
+          dirname "$exe" >> "$GITHUB_PATH"
+          find "$RUNNER_TEMP/Scilab.app/Contents" -name scilab-cli-bin -exec dirname {} \; >> "$GITHUB_PATH"
+      - name: Scilab native integration and real reports
+        run: python tools/test_automatic_reports.py --scilab "$SCILAB_BIN" --runtime studentui
+      - name: Actual LD10 windows and grading
+        run: python tools/test_ld10.py --scilab "$SCILAB_BIN" --checker build/layoutcheck --grader build/ldcheck --output "$RUNNER_TEMP/ld10-ui"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: LD10-interface-macOS-${{ matrix.arch }}
+          path: |
+            ${{ runner.temp }}/ld10-ui/*.log
+            ${{ runner.temp }}/ld10-ui/*.json
+            ${{ runner.temp }}/ld10-ui/*.tsv
+            ${{ runner.temp }}/ld10-ui/*.png

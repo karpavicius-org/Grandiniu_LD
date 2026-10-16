@@ -8,7 +8,6 @@ function h = ld10_button(p, pos, label, cb, fs, bg)
     catch
         code = "";
     end
-    if code <> "" then label = "[" + code + "] " + label; end
     h = student_button(p, pos, "<html><center>" + label + "</center></html>", cb);
     h.tag = code; h.tooltipstring = hint; h.fontsize = fs; h.backgroundcolor = bg;
     if sum(bg) < 1.5 then h.foregroundcolor = [1 1 1]; end
@@ -104,15 +103,21 @@ function ld10_render_wires()
         ld10_polyline(pts, [0.22 0.40 0.42]);
     end
     [tt, bb] = ld10_layout(); ids = ["GEN" "K" "A" "R" "L" "C" "V"];
-    names = ["GEN ~";"JUNGIKLIS";"AMPERMETRAS";"R";"L";"C";"VOLTMETRAS"];
+    names = ["GEN ~";"JUNGIKLIS";"AMPERMETRAS";"R";"L";"C";"MATAVIMAI"];
     switchText = "Atviras"; if LD10.switchOn then switchText = "Uždarytas"; end
     [u, i, valid, reason] = ld10_measure_values();
     freqText = "f = ?";
     if LD10.freqPoint > 0 then freqText = msprintf("f = %g Hz", ld10_current_frequency()); end
     voltText = "— V";
     if valid then voltText = msprintf("%.4f V", u); end
-    ampText = "— mA";
-    if valid then ampText = msprintf("%.3f mA", i); end
+    ampText="— mA"; selectedText="Pasirinkite srovę";
+    if valid then
+        kk=[0.5 1 2];reference=ld10_reference(kk(LD10.freqPoint));
+        // The drawn ammeter is in the main line; it must always show total I.
+        ampText=msprintf("%.3f mA",reference(6));
+        targetNames=["IR";"IL";"IC";"I"];
+        selectedText=msprintf("%s = %.3f mA",targetNames(LD10.target),i);
+    end
     vals = [msprintf("5 V ~ · %s", freqText), switchText, ampText, ...
         msprintf("%g Ω", LD10.cfg.R), msprintf("%g mH", LD10.cfg.LmH), msprintf("%g nF", LD10.cfg.CnF), voltText];
     pairs = ["GEN_N" "GEN_P";"K1" "K2";"A_P" "A_N";"R_A" "R_B";"L_A" "L_B";"C_A" "C_B";"" ""];
@@ -130,7 +135,14 @@ function ld10_render_wires()
         h = student_text(fr, [0.06 0.66 0.88 0.24], names(k), 12, %t, bg); h.horizontalalignment = "center";
         h = student_text(fr, [0.04 0.04 0.92 0.58], vals(k), 13, %t, bg); h.horizontalalignment = "center";
         h.tag = "reading:" + ids(k);
-        if k == 7 then h.tooltipstring = "Voltmetras rodo šakų įtampą U — visose lygiagretėse šakose ji vienoda."; end
+        if k==3 then h.tooltipstring="Schemos ampermetras rodo bendrąją šaltinio srovę I.";end
+        if k==7 then
+            h.position=[0.04 0.35 0.92 0.25];
+            h.tooltipstring="Bendroji įtampa U vienoda visose lygiagretėse šakose.";
+            selected=student_text(fr,[0.04 0.04 0.92 0.25],selectedText,13,%t,bg);
+            selected.horizontalalignment="center";selected.tag="reading:SELECTED";
+            selected.tooltipstring="Mygtuku pasirinktos šakos arba bendrosios srovės rodmuo.";
+        end
         if k == 5 then h.tooltipstring = msprintf("Rišlė: L = %g mH.", LD10.cfg.LmH); end
         if k == 6 then h.tooltipstring = msprintf("Kondensatorius: C = %g nF.", LD10.cfg.CnF); end
     end
@@ -160,21 +172,25 @@ endfunction
 
 function ld10_render_journal()
     global LD10;
-    if ~isfield(LD10, "ui") then return; end
-    if ~isfield(LD10.ui, "journalList") then return; end
-    rows = emptystr(0, 1);
-    names = ["f1 = 0,5·f0";"f0  (rezonansas)";"f2 = 2·f0"];
-    targets = ["IR";"IL";"IC";"I"];
-    for tag = 1:3
-        for target = 1:4
-            m = ld10_journal_rows(tag, target);
-            for k = 1:size(m, 1)
-                rows($+1) = msprintf("%s  %s   %.4f V   %.3f mA", names(tag), targets(target), m(k,1), m(k,2));
+    if ~isfield(LD10,"ui") then return;end
+    if ~isfield(LD10.ui,"journalList") then return;end
+    rows=emptystr(0,1); names=["0,5·f0";"f0";"2·f0"];
+    for tag=1:3
+        count=0;voltage="—";frequency="—";currents=["—";"—";"—";"—"];
+        for target=1:4
+            m=ld10_journal_rows(tag,target);
+            if m<>[] then
+                count=count+1;currents(target)=msprintf("%.3f",m(1,2));
+                voltage=msprintf("%.4f",m(1,1));frequency=msprintf("%g",m(1,4));
             end
         end
+        if count>0 then
+            rows($+1)=msprintf("%s · %s Hz · U=%s V · %d/4",names(tag),frequency,voltage,count);
+            rows($+1)=msprintf("IR=%s | IL=%s | IC=%s | I=%s mA",currents(1),currents(2),currents(3),currents(4));
+        end
     end
-    if rows == [] then rows = "Matavimų dar nėra."; end
-    LD10.ui.journalList.string = rows;
+    if rows==[] then rows="Matavimų dar nėra. Pasirinkite srovę ir spauskite Matuoti.";end
+    LD10.ui.journalList.string=rows;
 endfunction
 
 function ld10_render_stage()
@@ -187,9 +203,18 @@ function ld10_render_stage()
         [st, sl] = ld10_answer_slot(k); h = LD10.ui.answerEdits(k); lab = LD10.ui.answerLabels(k);
         h.visible = "off"; lab.visible = "off";
         if st == LD10.step then
-            yy = 0.60 - row*0.085; row = row + 1;
+            yy = 0.65 - row*0.085; row = row + 1;
             lab.position = [0.07 yy 0.53 0.075]; h.position = [0.63 yy 0.30 0.075];
-            h.string = LD10.answers(st, sl); h.visible = "on"; lab.visible = "on";
+            if st==6 then
+                yy=0.62-(row-1)*0.13;
+                lab.position=[0.07 yy 0.53 0.11];h.position=[0.63 yy+0.0175 0.30 0.075];
+            end
+            if st==6 then
+                h.value=1; raw=stripblanks(LD10.answers(st,sl));
+                choice=ld10_parse_number(raw);
+                if or(choice==[1 2]) then h.value=choice+1;end
+            else h.string=LD10.answers(st,sl);end
+            h.visible="on";lab.visible="on";
             h.enable = "on"; if LD10.demoMode then h.enable = "off"; end
         end
     end
@@ -224,7 +249,7 @@ function ld10_build_gui()
     student_button(f, [0.87 0.93 0.105 0.044], "Pagalba", "ld10_show_actions()");
     p = student_frame(f, [0.025 0.12 0.655 0.77]); LD10.ui.circuitFrame = p;
     right = student_frame(f, [0.70 0.12 0.275 0.77]); LD10.ui.right = right;
-    student_text(p, [0.40 0.63 0.30 0.10], student_wrap("Laidas: spauskite abu galus. Pakartoję — pašalinsite. Tarpas sankirtoje: nesujungta.", 20), 12, %f);
+    student_text(p, [0.40 0.63 0.30 0.15], student_wrap("Laidas: spauskite abu galus. Pakartoję — pašalinsite. Tarpas sankirtoje: nesujungta.", 20), 12, %f);
     // Dvylikos matavimų žurnalas (3 dažnio taškai × 4 ampermetro taikiniai).
     LD10.ui.journalList = uicontrol(p, "style", "listbox", "units", "normalized", ...
         "position", [0.04 0.80 0.64 0.18], "string", "Matavimai", ...
@@ -243,51 +268,61 @@ function ld10_build_gui()
     controls($+1) = ld10_button(p, [0.40 0.56 0.18 0.06], "Maitinimas", "ld10_toggle_power()", 12);
     controls($+1) = ld10_button(p, [0.40 0.46 0.18 0.06], "Jungiklis", "ld10_toggle_switch()", 12);
     controls($+1) = ld10_button(p, [0.40 0.36 0.18 0.06], "Matuoti", "ld10_measure()", 13, [0.08 0.39 0.37]);
-    LD10.ui.instructionLine(1) = student_text(right, [0.07 0.72 0.86 0.22], "", 14, %f);
+    LD10.ui.instructionLine(1) = student_text(right, [0.07 0.76 0.86 0.19], "", 14, %f);
     LD10.ui.instructionLine(1).verticalalignment = "top";
-    labels = ["[A01.01] f0 = 1/(2π√(LC)), Hz"; ...
-        "[A03.01] Q = IL(f0)/I";"[A03.02] IL−IC ties f0, mA"; ...
-        "[A05.01] √(IR²+(IL−IC)²) f1, mA";"[A05.02] Y = I/U f1, mS";"[A05.03] cos φ = IR/I f1"; ...
-        "[A05.04] P = U·IR f1, mW";"[A05.05] Q = U·(IL−IC) f1, mvar";"[A05.06] S = U·I f1, mVA"; ...
-        "[A06.01] I minimalus ties f0?";"[A06.02] IL = IC ties f0?";"[A06.03] Žemiau indukcinė, aukščiau talpinė?"];
+    labels=["Rezonanso dažnis f0, Hz";"Kokybė Q (be vieneto)";"Srovių skirtumas IL−IC, mA"; ...
+        "Srovių trikampio Itr, mA";"Pilnutinis laidumas Y, mS";"Galios faktorius cos φ"; ...
+        "Aktyvioji galia P, mW";"Reaktyvioji galia, mvar";"Pilnutinė galia S, mVA"; ...
+        "Ties f0 bendroji srovė I mažiausia?";"Ties f0 srovės IL ir IC lygios?"; ...
+        "Žemiau f0 – indukcinė, aukščiau – talpinė?"];
     LD10.ui.answerEdits = []; LD10.ui.answerLabels = [];
     for k = 1:12
         LD10.ui.answerLabels($+1) = student_text(right, [0.07 0.5 0.53 0.075], student_wrap(labels(k), 22), 14, %f);
         [st, sl] = ld10_answer_slot(k);
+        if st==6 then
+            h=uicontrol(right,"style","popupmenu","units","normalized","position",[0.63 0.5 0.30 0.075], ...
+                "string",["—";"Taip";"Ne"],"value",1,"fontunits","pixels","fontsize",14, ...
+                "tag",ld10_answer_code(st,sl),"callback","ld10_answers_changed()","backgroundcolor",[0.94 0.96 0.96]);
+        else
         h = uicontrol(right, "style", "edit", "units", "normalized", "position", [0.63 0.5 0.30 0.075], ...
             "string", "", "fontunits", "pixels", "fontsize", 14, "fontname", "DejaVu Sans", ...
             "tag", ld10_answer_code(st, sl), "callback", "ld10_answers_changed()", "backgroundcolor", [0.94 0.96 0.96]);
+        end
         LD10.ui.answerEdits($+1) = h;
     end
     LD10.ui.studentPrimary = ld10_button(right, [0.07 0.085 0.86 0.075], "Tikrinti", "ld10_student_primary()", 15, [0.08 0.39 0.37]);
     controls($+1) = LD10.ui.studentPrimary;
     controls($+1) = ld10_button(right, [0.07 0.015 0.37 0.045], "← Atgal", "ld10_jump_step(LD10.step-1)", 12);
-    controls($+1) = ld10_button(right, [0.48 0.015 0.45 0.045], "Žemėlapis", "ld10_show_stand_map()", 12);
     LD10.ui.controls = controls; LD10.ui.dynamic = controls;
     LD10.ui.statusMain = student_text(f, [0.025 0.055 0.95 0.035], "", 13, %t, [0.94 0.96 0.96]);
     LD10.ui.statusFix = student_text(f, [0.025 0.020 0.95 0.035], "", 12, %f, [0.94 0.96 0.96]);
     ld10_font(f); student_finish_window(f); f.visible = "on"; ld10_render_stage();
+    f.closerequestfcn="ld10_close()";
     f.resizefcn = "ld10_resize(" + string(f.figure_id) + ")";
 endfunction
 
 function ld10_show_actions()
     global LD10;
-    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
-        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD10 · Pagalba");
+    if ~isfield(LD10,"fig") then return; end
+    if ~is_handle_valid(LD10.fig) then return; end
+    choice=x_choose(["Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
+        "Išsaugoti ataskaitą";"Mokymosi / atsiskaitymo režimas"; ...
+        "Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD10 · Pagalba");
     select choice
     case 1 then bench_open_snapshot("LD10");
     case 2 then ld10_show_wiring_guide();
-    case 3 then bench_export_current("LD10");
-    case 4 then bench_mode("LD10"); ld10_student_sync(); bench_autosave("LD10");
-    case 6 then ld10_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD10.student);"";student_parameter_lines("LD10",LD10.cfg)]);
-    case 5 then
-        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD10 · Daugiau veiksmų");
+    case 3 then ld10_show_theory();
+    case 4 then ld10_export_report();
+    case 5 then bench_mode("LD10"); ld10_student_sync(); bench_autosave("LD10");
+    case 7 then ld10_student_details();
+    case 6 then
+        extra=x_choose(["Žemėlapis";"Pavyzdys";"Atkurti stendą";"Pradėti iš naujo"],"LD10 · Daugiau veiksmų");
         select extra
         case 1 then ld10_show_stand_map();
         case 2 then ld10_toggle_solution();
         case 3 then ld10_restore_stage();
         case 4 then
-            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD10","question",["Pradėti" "Grįžti"],"modal")==1 then ld10_restart(); end
+            if messagebox("Pradėti naują atsiskaitymą? Dabartinis darbas bus išsaugotas atskirai.","LD10","question",["Pradėti" "Grįžti"],"modal")==1 then ld10_restart(); end
         end
     end
 endfunction

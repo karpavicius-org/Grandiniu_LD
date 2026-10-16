@@ -1,8 +1,8 @@
 // ============================================================================
-// LD10 variantų konfigūracija (bankas LD10-64-A-2026). Nuosekliai sujungtos RLC
-// grandinės tyrimas: rišlė L pagal eilutę, kondensatorius C pagal stulpelį;
-// R = round(100·sqrt(L/C)/Qt)/100, Qt = 2..3,5 pagal (a+b)%4 — kokybė Q > 1
-// visuose variantuose. E = 5 V RMS. Skaičiavimas sutampa su core/src/model.cpp.
+// LD10 variantų konfigūracija (bankas LD10-64-A-2026). Lygiagreti RLC
+// grandinė: L pagal stulpelį, C pagal eilutę. R = round(100·Qt·sqrt(L/C))/100,
+// Qt = 2..3,5 pagal (a+b)%4; srovių kokybė IL/I > 1 visuose variantuose.
+// E = 5 V RMS. Skaičiavimas sutampa su core/src/model.cpp.
 // ============================================================================
 
 function cfg = ld10_variant_config(number)
