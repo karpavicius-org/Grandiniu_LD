@@ -9,10 +9,11 @@ function selected=messagebox(varargin)
     if varargin(2)<>"Jūsų priskirtos reikšmės" then error("Netikėtas dialogas"); end
     selected=1;
 endfunction
-function capture_ld11(name)
+function capture_ld11(name,window)
     global LD11;
+    if argn(2)<2 then window=LD11.fig;end
     if getos()<>"Linux" then return; end
-    LD11.fig.figure_name="LD11 PATIKRA "+name; show_window(LD11.fig); sleep(500);
+    window.figure_name="LD11 PATIKRA "+name; show_window(window); sleep(500);
     command="/usr/bin/python3 """+getenv("LD11_TEST_RUNTIME")+"/capture_window.py"" ""LD11 PATIKRA "+name+""" """+getenv("LD11_TEST_OUT")+"/"+name+".png""";
     assert_checkequal(host(command),0);
 endfunction
@@ -47,11 +48,11 @@ try
             if dimension==2 & step>=2 then capture_ld11("E"+string(step)); end
         end
     end
-    LD11.ui.answerEdits(10).string="1,0";
+    LD11.ui.answerEdits(10).value=2;
     for dimension=[1 3 2]
         geometry_size(LD11.fig,sizes(dimension,:));
         assert_checktrue(LD11.fig.resizefcn<>""); execstr(LD11.fig.resizefcn);
-        assert_checkequal(LD11.ui.answerEdits(10).string,"1,0");
+        assert_checkequal(LD11.ui.answerEdits(10).value,2);
         geometry_dump(LD11.fig,"LD11-resize-"+string(dimension),descriptor);
     end
     mclose(descriptor);
@@ -84,12 +85,20 @@ try
     ld11_set_step(5); LD11.ui.answerEdits(6).string="10,321";
     snapshot_path=bench_save_snapshot("LD11"); snapshot=bench_read_snapshot(snapshot_path,"LD11");
     ld11_restart(); bench_restore_snapshot(snapshot);
+    legacy=snapshot;legacy.state=rmfield(legacy.state,"compensation_started");
+    legacy.state.step=3;legacy.state.wireMode=1;legacy.state.wires=ld11_canonical_wires(1);
+    legacy.state.wires_by_mode(2)=emptystr(0,2);legacy.state.journal=[];legacy.state.done(:)=%f;
+    LD11.compensation_started=%t;bench_restore_snapshot(legacy);assert_checkfalse(LD11.compensation_started);
+    ld11_set_step(4);assert_checkequal(size(LD11.wires,1),4);
+    legacy=snapshot;legacy.state=rmfield(legacy.state,"compensation_started");
+    LD11.compensation_started=%f;bench_restore_snapshot(legacy);assert_checktrue(LD11.compensation_started);
+    bench_restore_snapshot(snapshot);
     assert_checkequal(LD11.ui.answerEdits(6).string,"10,321"); assert_checkequal(LD11.journal,journal);
     assert_checktrue(LD11.assessment); assert_checkfalse(LD11.powerOn); assert_checkfalse(LD11.switchOn);
     ld11_toggle_solution(); assert_checkfalse(LD11.demoMode);
     LD11.assessment=%f; LD11.practice_used=%t; ld11_toggle_solution(); assert_checktrue(LD11.demoMode);
     assert_checkequal(size(LD11.journal,1),1); ld11_toggle_solution(); assert_checkequal(LD11.journal,journal);
-    ld11_restart(); assert_checkfalse(LD11.assessment); assert_checktrue(LD11.practice_used);
+    ld11_restart(); assert_checktrue(LD11.assessment); assert_checkfalse(LD11.practice_used);
     bench_restore_snapshot(snapshot); LD11.assessment=%f; LD11.practice_used=%t;
     LD11.done(5)=%t; LD11.ui.answerEdits(6).string="1+2"; bench_ld11_primary();
     assert_checkfalse(LD11.done(5)); assert_checkequal(LD11.step,5); assert_checkequal(LD11.ui.answerEdits(6).string,"1+2");
@@ -99,9 +108,43 @@ try
     ld11_set_step(1); ld11_restore_stage(); assert_checkequal(size(LD11.wires,1),0);
     assert_checkequal(size(ld11_journal_rows(1),1),0); assert_checkfalse(LD11.done(1));
     report=bench_report_data("LD11"); assert_checkequal(length(report.evidence.wiring.s1.pairs),0);
+    exec(root+"LD12/ld12_callbacks.sci",-1); // Both labs can coexist without a shared mode-name function.
     ld11_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD11.fig); delete(window);
     ld11_show_stand_map(); window=gcf(); assert_checktrue(window<>LD11.fig); delete(window);
-    delete(LD11.fig);
+    for stage=1:6
+        LD11.step=stage;ld11_show_theory();window=gcf();assert_checktrue(window<>LD11.fig);
+        capture_ld11("teorija-"+string(stage),window);delete(window);
+        assert_checktrue(size(ld11_theory_lines(stage),"*")>8);
+    end
+    // A numeric choice from an older draft is shown and canonicalized by the popup.
+    ld11_set_step(6); LD11.answers(6,1)="1,0";ld11_render_stage();
+    assert_checkequal(LD11.ui.answerEdits(10).value,2);ld11_save_answers();
+    assert_checkequal(LD11.answers(6,1),"1");
+    // Assessment accepts a wrong finite number, rejects formulas and premature export.
+    LD11.assessment=%t;LD11.practice_used=%f;
+    ld11_set_step(1); LD11.wires=ld11_canonical_wires(1);
+    for raw=["1+2" "%nan" "Inf" "3 Hz" ""]
+        LD11.ui.answerEdits(1).string=raw;ld11_student_primary();assert_checkfalse(LD11.done(1));
+    end
+    assert_checkequal(ld11_export_report(),"");
+    LD11.ui.answerEdits(1).string="123";ld11_student_primary();
+    assert_checkequal(LD11.step,2);assert_checkequal(LD11.answers(1,1),"123");
+    oldWires=LD11.wires;oldJournal=LD11.journal;
+    st=LD11.student;st.name="Pataisytas vardas";ld11_apply_profile(st,LD11.cfg);
+    assert_checkequal(LD11.wires,oldWires);assert_checkequal(LD11.journal,oldJournal);
+    assert_checkequal(LD11.answers(1,1),"123");
+    oldProfilePath=LD11.autosave_paths($);
+    ld11_apply_profile(student_profile(17,"Naujas variantas","TEST","LD11"),ld11_variant_config(17));
+    assert_checkequal(LD11.student.number,17);assert_checkequal(LD11.step,1);
+    assert_checkequal(size(LD11.wires,1),0);
+    beforeProfile=bench_read_snapshot(oldProfilePath,"LD11");
+    assert_checkequal(beforeProfile.student.number,64);
+    LD11.assessment=%f;LD11.practice_used=%t;bench_autosave("LD11");
+    oldPath=LD11.autosave_paths($);ld11_restart();
+    saved=bench_read_snapshot(oldPath,"LD11");assert_checktrue(saved.state.practice_used);
+    assert_checktrue(LD11.assessment);assert_checkfalse(LD11.practice_used);
+    assert_checkequal(size(LD11.wires,1),0);
+    ld11_close();assert_checkfalse(is_handle_valid(LD11.fig));
     cases=list(); specs=[1 1 .01;2 1 .02;2 2 .02;2 3 .02;3 1 .03;5 1 .02;5 2 .02;5 3 .02;5 4 .02];
     for number=[1 17 64]
         bench_ld11_workflow(number,root,%f); expected=ld11_expected_answers(); original=LD11.answers;
@@ -129,15 +172,15 @@ try
             end
         end
         for slot=1:3
-            for raw=[string(expected(6,slot))+",0" string(3-expected(6,slot)) "" "1+1"]
+            for raw=[string(expected(6,slot)) string(3-expected(6,slot)) "" "1+1"]
                 LD11.answers=original; LD11.step=6; LD11.done(6)=%f; LD11.answers(6,slot)=raw; ld11_check_step();
-                accepted=LD11.done(6); assert_checkequal(accepted,raw==string(expected(6,slot))+",0");
+                accepted=LD11.done(6); assert_checkequal(accepted,raw==string(expected(6,slot)));
                 cases($+1)=struct("report",bench_report_data("LD11"),"accepted",accepted);
             end
         end
     end
     mputl(toJSON(cases),out+"tolerance-cases.json");
-    mputl("LD11_PASS: 3 GUI variants; coil wiring with and without Ck; wattmeter readings; compensation keeps P, cuts S and I, cos phi toward 1; actual report button; comma input without Enter; demo isolation; draft restore; 39 geometry cases including resize callback; 148 grading comparisons",out+"verdict.log"); exit(0);
+    mputl("LD11_PASS: 3 GUI variants; coil wiring with and without Ck; wattmeter readings; compensation keeps P, cuts S and I, cos phi toward 1; actual report button; comma input without Enter; demo isolation; draft restore; 39 geometry cases including resize callback; 146 grading comparisons",out+"verdict.log"); exit(0);
 catch
     mputl("LD11_FAIL: "+strcat(lasterror()," | "),out+"verdict.log"); disp(lasterror()); exit(1);
 end

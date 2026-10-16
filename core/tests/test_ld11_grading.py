@@ -42,6 +42,31 @@ def main(executable):
                 for stage in report['evidence']['wiring'].values():
                     stage['pairs'] = [pair[::-1] for pair in stage['pairs'][::-1]]
             filename = f'v{number:02d}.html'; write(folder/filename, report); expected[filename] = 20
+        for number in range(1, 65):
+            e, r, l, ck = variant_values(number)
+            w = 2 * math.pi * 50
+            load = 1 / complex(r, w * l)
+            corrected = load + complex(0, w * ck)
+            # Match the public journal's six decimal places, not hidden precision.
+            i1 = float(f"{e * abs(load) * 1000:.6f}")
+            i2 = float(f"{e * abs(corrected) * 1000:.6f}")
+            p = float(f"{e * e * load.real * 1000:.6f}")
+            s1, s2 = e * i1, e * i2
+            # Q2 uses the known physical components: the rounded power triangle
+            # is ill-conditioned near perfect compensation (all 64 old displays failed).
+            displayed_ck = float(f"{ck * 1e6:g}") / 1e6
+            residual = (load + complex(0, w * displayed_ck)).imag
+            values = {'s1.q1': r / abs(complex(r, w * l)),
+                      's2.q1': s1, 's2.q2': math.sqrt((s1-p)*(s1+p)), 's2.q3': p/s1,
+                      's3.q1': (w*l)/(w*(r*r+(w*l)**2))*1e6,
+                      's5.q1': s2, 's5.q2': abs(e*e*residual)*1000,
+                      's5.q3': p/s2, 's5.q4': s1-s2}
+            report = fixture('LD11', number, f'display-{number}')
+            for item in report['answers']:
+                if item['id'] in values:
+                    item['raw'] = format(values[item['id']], '.12g')
+            filename = f'display-{number:02d}.html'
+            write(folder/filename, report); expected[filename] = 20
         for stage in ['s1', 's4']:
             for damage in ['missing', 'duplicate', 'extra_endpoint']:
                 name = f'{stage}-{damage}.html'; report = fixture('LD11', 1, name)
@@ -68,7 +93,7 @@ def main(executable):
         for result in results['results']:
             assert result['status'] == 'graded' and result['points'] == expected[result['file']], result
         print(json.dumps(dict(status='PASS', variants=64, graded_reports=len(expected),
-                              compensation_improves=True, active_power_kept=True, seconds=round(seconds, 3))))
+                              compensation_improves=True, active_power_kept=True, displayed_reading_variants=64, seconds=round(seconds, 3))))
 
 
 if __name__ == '__main__': main(Path(sys.argv[1]).resolve())

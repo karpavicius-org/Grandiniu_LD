@@ -1,5 +1,5 @@
 // ============================================================================
-// LD11 grandinės modelis: rišlė (R, L nuosekliai) su paraleliniu kompensuo-
+// LD11 grandinės modelis: ritė (R, L nuosekliai) su paraleliniu kompensuo-
 // jančiu kondensatoriumi Ck. Fizika — ld_ac kind 5 (C = 0 – be kondensatoriaus):
 // [XL, Z_RL, cosφ0, I bendra, I_RL, P, Q, S, φ°, IC]. Žurnalas: [U V, I mA,
 // režimas 1–2, P mW, režimas]; režimas 1 – be Ck, 2 – su Ck. f = 50 Hz.
@@ -16,7 +16,7 @@ function wires = ld11_canonical_wires(mode)
 endfunction
 
 function mode = ld11_stage_mode(step)
-    mapping = [1 1 2 2 2 1]; mode = mapping(step);
+    mapping = [1 1 1 2 2 2]; mode = mapping(step);
 endfunction
 
 function editable = ld11_wiring_editable()
@@ -49,8 +49,8 @@ function [u, i, ok, message, p] = ld11_measure_values()
     // U V, I mA, ok, message, P mW su esamu režimu (1 be Ck, 2 su Ck).
     global LD11;
     u = %nan; i = %nan; ok = %f; message = ""; p = %nan;
-    if ~LD11.powerOn then message = "Įjunkite generatorių [B01]."; return; end
-    if ~LD11.switchOn then message = "Uždarykite jungiklį [B02]."; return; end
+    if ~LD11.powerOn then message = "Įjunkite maitinimą."; return; end
+    if ~LD11.switchOn then message = "Uždarykite jungiklį."; return; end
     [valid, message] = ld11_wiring_valid(LD11.wires);
     if ~valid then return; end
     bench_core_require(); cfg = LD11.cfg;
@@ -73,7 +73,7 @@ function ld11_init_state()
         LD11.wires_by_mode(index) = emptystr(0, 2); LD11.report_wires(index) = emptystr(0, 2);
     end
     LD11.answers = emptystr(6, 8); LD11.demoMode = %f; LD11.lastMeasurement = %nan; LD11.pending = "";
-    LD11.assessment=assessment; LD11.practice_used=practice;
+    LD11.assessment=assessment; LD11.practice_used=practice; LD11.compensation_started=%f;
 endfunction
 
 function expected = ld11_expected_answers()
