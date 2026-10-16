@@ -82,9 +82,9 @@ class Lab9(Lab45):
 
     def measurements(self, tag):
         self.click(f"B{9 + tag:02d}", "frequency")
-        for target in (4, 1, 3, 2):
+        for index, target in enumerate((4, 1, 3, 2), 1):
             self.click(f"B{12 + target:02d}", "target")
-            self.measure((tag - 1) * 4 + len([r for r in self.state["journal"] if int(r[2]) == tag]) + 1)
+            self.measure((tag - 1) * 4 + index)
         self.measure(tag * 4)  # a duplicate must not create a fifth measurement
         return self.point_readings(tag)
 
