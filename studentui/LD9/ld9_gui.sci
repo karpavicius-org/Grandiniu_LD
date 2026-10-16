@@ -8,7 +8,6 @@ function h = ld9_button(p, pos, label, cb, fs, bg)
     catch
         code = "";
     end
-    if code <> "" then label = "[" + code + "] " + label; end
     h = student_button(p, pos, "<html><center>" + label + "</center></html>", cb);
     h.tag = code; h.tooltipstring = hint; h.fontsize = fs; h.backgroundcolor = bg;
     if sum(bg) < 1.5 then h.foregroundcolor = [1 1 1]; end
@@ -131,7 +130,7 @@ function ld9_render_wires()
         h = student_text(fr, [0.06 0.66 0.88 0.24], names(k), 12, %t, bg); h.horizontalalignment = "center";
         h = student_text(fr, [0.04 0.04 0.92 0.58], vals(k), 13, %t, bg); h.horizontalalignment = "center";
         h.tag = "reading:" + ids(k);
-        if k == 7 then h.tooltipstring = "Vienas voltmetras: taikinys renkamas mygtukais [B13]–[B16]."; end
+        if k == 7 then h.tooltipstring = "Pasirinkite, kur matuoti: UR, UL, UC arba šaltinio U."; end
         if k == 5 then h.tooltipstring = msprintf("Rišlė: L = %g mH.", LD9.cfg.LmH); end
         if k == 6 then h.tooltipstring = msprintf("Kondensatorius: C = %g nF.", LD9.cfg.CnF); end
     end
@@ -163,18 +162,22 @@ function ld9_render_journal()
     global LD9;
     if ~isfield(LD9, "ui") then return; end
     if ~isfield(LD9.ui, "journalList") then return; end
-    rows = emptystr(0, 1);
-    names = ["f1 = 0,5·f0";"f0  (rezonansas)";"f2 = 2·f0"];
-    targets = ["UR";"UL";"UC";"U"];
-    for tag = 1:3
-        for target = 1:4
-            m = ld9_journal_rows(tag, target);
-            for k = 1:size(m, 1)
-                rows($+1) = msprintf("%s  %s   %.4f V   %.3f mA", names(tag), targets(target), m(k,1), m(k,2));
+    rows=emptystr(0,1); names=["0,5·f0";"f0";"2·f0"];
+    for tag=1:3
+        count=0; current="—"; frequency="—"; volts=["—";"—";"—";"—"];
+        for target=1:4
+            m=ld9_journal_rows(tag,target);
+            if m<>[] then
+                count=count+1;volts(target)=msprintf("%.4f",m(1,1));
+                current=msprintf("%.3f",m(1,2));frequency=msprintf("%g",m(1,4));
             end
         end
+        if count>0 then
+            rows($+1)=msprintf("%s · %s Hz · I=%s mA · %d/4",names(tag),frequency,current,count);
+            rows($+1)=msprintf("UR=%s V | UL=%s V | UC=%s V | U=%s V",volts(1),volts(2),volts(3),volts(4));
+        end
     end
-    if rows == [] then rows = "Matavimų dar nėra."; end
+    if rows==[] then rows="Matavimų dar nėra. Pasirinkite įtampą ir spauskite Matuoti.";end
     LD9.ui.journalList.string = rows;
 endfunction
 
@@ -188,9 +191,18 @@ function ld9_render_stage()
         [st, sl] = ld9_answer_slot(k); h = LD9.ui.answerEdits(k); lab = LD9.ui.answerLabels(k);
         h.visible = "off"; lab.visible = "off";
         if st == LD9.step then
-            yy = 0.60 - row*0.085; row = row + 1;
+            yy = 0.65 - row*0.085; row = row + 1;
             lab.position = [0.07 yy 0.53 0.075]; h.position = [0.63 yy 0.30 0.075];
-            h.string = LD9.answers(st, sl); h.visible = "on"; lab.visible = "on";
+            if st==6 then
+                yy=0.62-(row-1)*0.13;
+                lab.position=[0.07 yy 0.53 0.11];h.position=[0.63 yy+0.0175 0.30 0.075];
+            end
+            if st==6 then
+                h.value=1; raw=stripblanks(LD9.answers(st,sl));
+                choice=ld9_parse_number(raw);
+                if or(choice==[1 2]) then h.value=choice+1;end
+            else h.string=LD9.answers(st,sl);end
+            h.visible="on";lab.visible="on";
             h.enable = "on"; if LD9.demoMode then h.enable = "off"; end
         end
     end
@@ -225,7 +237,7 @@ function ld9_build_gui()
     student_button(f, [0.87 0.93 0.105 0.044], "Pagalba", "ld9_show_actions()");
     p = student_frame(f, [0.025 0.12 0.655 0.77]); LD9.ui.circuitFrame = p;
     right = student_frame(f, [0.70 0.12 0.275 0.77]); LD9.ui.right = right;
-    student_text(p, [0.40 0.63 0.30 0.10], student_wrap("Laidas: spauskite abu galus. Pakartoję — pašalinsite. Tarpas sankirtoje: nesujungta.", 20), 12, %f);
+    student_text(p, [0.40 0.63 0.30 0.10], student_wrap("Laidas: spauskite abu galus. Pakartoję porą — pašalinsite.", 26), 12, %f);
     // Dvylikos matavimų žurnalas (3 dažnio taškai × 4 voltmetro taikiniai).
     LD9.ui.journalList = uicontrol(p, "style", "listbox", "units", "normalized", ...
         "position", [0.04 0.80 0.64 0.18], "string", "Matavimai", ...
@@ -244,51 +256,61 @@ function ld9_build_gui()
     controls($+1) = ld9_button(p, [0.40 0.56 0.18 0.06], "Maitinimas", "ld9_toggle_power()", 12);
     controls($+1) = ld9_button(p, [0.40 0.46 0.18 0.06], "Jungiklis", "ld9_toggle_switch()", 12);
     controls($+1) = ld9_button(p, [0.40 0.36 0.18 0.06], "Matuoti", "ld9_measure()", 13, [0.08 0.39 0.37]);
-    LD9.ui.instructionLine(1) = student_text(right, [0.07 0.72 0.86 0.22], "", 14, %f);
+    LD9.ui.instructionLine(1) = student_text(right, [0.07 0.76 0.86 0.19], "", 14, %f);
     LD9.ui.instructionLine(1).verticalalignment = "top";
-    labels = ["[A01.01] f0 = 1/(2π√(LC)), Hz"; ...
-        "[A03.01] Q = UL(f0)/U";"[A03.02] UL−UC ties f0, V"; ...
-        "[A05.01] √(UR²+(UL−UC)²) f1, V";"[A05.02] Z = U/I f1, Ω";"[A05.03] cos φ = UR/U f1"; ...
-        "[A05.04] P = UR·I f1, mW";"[A05.05] Q = (UL−UC)·I f1, mvar";"[A05.06] S = U·I f1, mVA"; ...
-        "[A06.01] φ = 0 ties f0?";"[A06.02] UL = UC ties f0?";"[A06.03] Žemiau talpinė, aukščiau indukcinė?"];
+    labels=["Rezonanso dažnis f0, Hz";"Kokybė Q (be vieneto)";"Įtampų skirtumas UL−UC, V"; ...
+        "Įtampų trikampio Utr, V";"Pilnutinė varža Z, Ω";"Galios faktorius cos φ"; ...
+        "Aktyvioji galia P, mW";"Reaktyvioji galia, mvar";"Pilnutinė galia S, mVA"; ...
+        "Ties f0 fazės poslinkis lygus nuliui?";"Ties f0 įtampos UL ir UC lygios?"; ...
+        "Žemiau f0 – talpinė, aukščiau – indukcinė?"];
     LD9.ui.answerEdits = []; LD9.ui.answerLabels = [];
     for k = 1:12
         LD9.ui.answerLabels($+1) = student_text(right, [0.07 0.5 0.53 0.075], student_wrap(labels(k), 22), 14, %f);
         [st, sl] = ld9_answer_slot(k);
+        if st==6 then
+            h=uicontrol(right,"style","popupmenu","units","normalized","position",[0.63 0.5 0.30 0.075], ...
+                "string",["—";"Taip";"Ne"],"value",1,"fontunits","pixels","fontsize",14, ...
+                "tag",ld9_answer_code(st,sl),"callback","ld9_answers_changed()","backgroundcolor",[0.94 0.96 0.96]);
+        else
         h = uicontrol(right, "style", "edit", "units", "normalized", "position", [0.63 0.5 0.30 0.075], ...
             "string", "", "fontunits", "pixels", "fontsize", 14, "fontname", "DejaVu Sans", ...
             "tag", ld9_answer_code(st, sl), "callback", "ld9_answers_changed()", "backgroundcolor", [0.94 0.96 0.96]);
+        end
         LD9.ui.answerEdits($+1) = h;
     end
     LD9.ui.studentPrimary = ld9_button(right, [0.07 0.085 0.86 0.075], "Tikrinti", "ld9_student_primary()", 15, [0.08 0.39 0.37]);
     controls($+1) = LD9.ui.studentPrimary;
     controls($+1) = ld9_button(right, [0.07 0.015 0.37 0.045], "← Atgal", "ld9_jump_step(LD9.step-1)", 12);
-    controls($+1) = ld9_button(right, [0.48 0.015 0.45 0.045], "Žemėlapis", "ld9_show_stand_map()", 12);
     LD9.ui.controls = controls; LD9.ui.dynamic = controls;
     LD9.ui.statusMain = student_text(f, [0.025 0.055 0.95 0.035], "", 13, %t, [0.94 0.96 0.96]);
     LD9.ui.statusFix = student_text(f, [0.025 0.020 0.95 0.035], "", 12, %f, [0.94 0.96 0.96]);
     ld9_font(f); student_finish_window(f); f.visible = "on"; ld9_render_stage();
+    f.closerequestfcn="ld9_close()";
     f.resizefcn = "ld9_resize(" + string(f.figure_id) + ")";
 endfunction
 
 function ld9_show_actions()
     global LD9;
-    choice=x_choose(["Tęsti išsaugotą darbą";"[B04] Kaip sujungti";"[B08] Išsaugoti ataskaitą"; ...
-        "Mokymosi / atsiskaitymo režimas";"Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD9 · Pagalba");
+    if ~isfield(LD9,"fig") then return; end
+    if ~is_handle_valid(LD9.fig) then return; end
+    choice=x_choose(["Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
+        "Išsaugoti ataskaitą";"Mokymosi / atsiskaitymo režimas"; ...
+        "Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD9 · Pagalba");
     select choice
     case 1 then bench_open_snapshot("LD9");
     case 2 then ld9_show_wiring_guide();
-    case 3 then bench_export_current("LD9");
-    case 4 then bench_mode("LD9"); ld9_student_sync(); bench_autosave("LD9");
-    case 6 then ld9_text_window("Studentas ir priskirtos reikšmės",[student_caption(LD9.student);"";student_parameter_lines("LD9",LD9.cfg)]);
-    case 5 then
-        extra=x_choose(["[B05] Žemėlapis";"[B07] Pavyzdys";"[B06] Atkurti stendą";"[B09] Pradėti iš naujo"],"LD9 · Daugiau veiksmų");
+    case 3 then ld9_show_theory();
+    case 4 then ld9_export_report();
+    case 5 then bench_mode("LD9"); ld9_student_sync(); bench_autosave("LD9");
+    case 7 then ld9_student_details();
+    case 6 then
+        extra=x_choose(["Žemėlapis";"Pavyzdys";"Atkurti stendą";"Pradėti iš naujo"],"LD9 · Daugiau veiksmų");
         select extra
         case 1 then ld9_show_stand_map();
         case 2 then ld9_toggle_solution();
         case 3 then ld9_restore_stage();
         case 4 then
-            if messagebox("Pradėti darbą iš naujo? Atsakymai bus išvalyti.","LD9","question",["Pradėti" "Grįžti"],"modal")==1 then ld9_restart(); end
+            if messagebox("Pradėti naują atsiskaitymą? Dabartinis darbas bus išsaugotas atskirai.","LD9","question",["Pradėti" "Grįžti"],"modal")==1 then ld9_restart(); end
         end
     end
 endfunction

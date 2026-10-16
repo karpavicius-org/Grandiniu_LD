@@ -55,12 +55,12 @@ endfunction
 function [voltage, current, ok, message] = ld9_measure_values()
     global LD9;
     voltage = %nan; current = %nan; ok = %f; message = "";
-    if ~LD9.powerOn then message = "Įjunkite generatorių [B01]."; return; end
-    if ~LD9.switchOn then message = "Uždarykite jungiklį [B02]."; return; end
+    if ~LD9.powerOn then message = "Įjunkite maitinimą."; return; end
+    if ~LD9.switchOn then message = "Uždarykite jungiklį."; return; end
     [valid, message] = ld9_wiring_valid(LD9.wires);
     if ~valid then return; end
-    if LD9.freqPoint == 0 then message = "Pasirinkite dažnį [B10]–[B12]."; return; end
-    if LD9.target == 0 then message = "Pasirinkite voltmetro taikinį [B13]–[B16]."; return; end
+    if LD9.freqPoint == 0 then message = "Pasirinkite šio etapo dažnį: 0,5·f0, f0 arba 2·f0."; return; end
+    if LD9.target == 0 then message = "Pasirinkite voltmetro įtampą UR, UL, UC arba U."; return; end
     bench_core_require();
     kk = [0.5 1 2];
     f = kk(LD9.freqPoint)/sqrt(LD9.cfg.L*LD9.cfg.C)/(2*%pi);

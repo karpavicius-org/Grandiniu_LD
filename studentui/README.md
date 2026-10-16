@@ -101,13 +101,19 @@ kokybė Q). Skaičiuojami srovių trikampis √(IR²+(IL−IC)²), laidis Y = I/
 cos φ = IR/I ir galios P, Q, S. Išvados atspindi kontrastą su nuosekliąja grandine.
 64 variantai: `LD10/VARIANTAI.csv`, bankas `LD10-64-A-2026`, ataskaitos revizija 1.
 
-**LD9 – nuosekli RLC grandinė: trikampiai ir įtampų rezonansas:** šeši etapai,
-viena nuosekli grandinė generatorius → jungiklis → ampermetras → R → L → C.
-Dažnis nustatomas mygtukais [B10]–[B12] (0,5·f0, f0, 2·f0); vienas voltmetras
-pereina taikiniais [B13]–[B16] (UR, UL, UC, U). Kiekviename taške matuojami I ir
-visos keturios įtampos. Skaičiuojami teorinis f0, kokybė Q, įtampų trikampis
-√(UR²+(UL−UC)²), varžų Z ir cos φ bei galių P, Q, S. Ties f0 tikrinama UL = UC.
-64 variantai: `LD9/VARIANTAI.csv`, bankas `LD9-64-A-2026`, ataskaitos revizija 1.
+**LD9 – nuosekli RLC grandinė: įtampų rezonansas:** šeši aiškūs etapai.
+Studentas sujungia generatorių, jungiklį, ampermetrą, R, L ir C viena seka;
+apskaičiuoja f0, tada tiria 0,5·f0, f0 ir 2·f0. Kiekviename taške pasirenka
+UR / UL / UC / U ir spaudžia **Matuoti**. Srovė ir visos įtampos automatiškai
+lieka sugrupuotame žurnale; jų perrašyti nereikia. **Pagalba → Teorija ir
+paaiškinimai** pateikia dabartinio etapo veiksmus, formules ir vienetus,
+įskaitant mA→A koeficientą varžai ir galių mW/mvar/mVA skaičiavimą.
+Išvados pasirenkamos **Taip / Ne**. Atsiskaitymas priima neteisingą skaitinį
+atsakymą, bet ne formulę ar nebaigtą etapą; teisingumą vertina dėstytojas.
+Vardo / grupės pataisa išlaiko darbą, naujas variantas arba naujas atsiskaitymas
+atskiriamas nuo ankstesnio juodraščio. Uždarant langą darbas išsaugomas.
+RLC fizika, 64 variantų bankas, ataskaitos revizija 1 ir 28 kriterijų rubrika
+`LD9-1` išsaugoti; ankstesnės ataskaitos ir juodraščiai suderinami.
 
 **LD8 – varžų nuoseklus, lygiagretus ir mišrus jungimas:** šeši etapai, trys studento
 sujungiamos grandinės: nuoseklioji (R1→R2→R3), lygiagretė (visos varžos tarp tų pačių

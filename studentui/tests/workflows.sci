@@ -1369,7 +1369,9 @@ function bench_ld9_answers(step,values)
     for index=1:12
         [answer_step,slot]=ld9_answer_slot(index);
         if answer_step==step then
-            LD9.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
+            if LD9.ui.answerEdits(index).style=="popupmenu" then
+                LD9.ui.answerEdits(index).value=values(value_index)+1;
+            else LD9.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));end
             execstr(LD9.ui.answerEdits(index).callback);
             value_index=value_index+1;
         end
