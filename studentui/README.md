@@ -85,12 +85,16 @@ ir linijines sroves, Il = √3·If bei abiejų jungimų galias ir palygina:
 P(trikampis) = 3·P(žvaigždė). 64 variantai: `LD12/VARIANTAI.csv`.
 
 **LD11 – aktyvioji, reaktyvioji ir pilnutinė galia; cos φ gerinimas:** šeši
-etapai, rišlė (R, L nuosekliai) prie 50 Hz generatoriaus; stende ampermetras,
-voltmetras ir vatmetras (P). Režimai [B10] be Ck ir [B11] su Ck — kompensuojančiu
-kondensatoriumi lygiagrečiai rišlei. Pirmas matavimas: S = U·I, Q = √(S²−P²),
-cos φ = P/S. Studentas apskaičiuoja teorinį Ck = XL/(ω(R²+XL²)) ir palygina:
-po kompensacijos P nepakinta, S bei I sumažėja, cos φ → 1 (galios trikampio
-susispaudimas). 64 variantai: `LD11/VARIANTAI.csv`, bankas `LD11-64-A-2026`.
+etapai ir vienas **Toliau** mygtukas. Sujunkite ritę (R, L nuosekliai), o
+kompensavimo etape pridėkite du Ck laidus: keturi pradiniai laidai išlieka.
+**Matuoti** automatiškai įrašo U [V], I [mA] ir P [mW] į dvi žurnalo grupes:
+**BE Ck** ir **SU Ck**. Skaičiavimams naudokite žurnalo šešių skaitmenų po
+kablelio rodmenis. Formulės ir vienetų keitimas – **Pagalba → Teorija ir paaiškinimai**.
+Po kompensavimo mažą Q2 skaičiuokite iš U, R, L ir stendo Ck; beveik lygių
+suapvalintų S2 ir P2 galios trikampis tam netinka. Išvados pasirenkamos **Taip / Ne**.
+Darbas automatiškai išsaugomas; vardo ar grupės pataisymas išlaiko atliktą darbą.
+Naujas atsiskaitymas pradeda atskirą darbą, išsaugodamas ankstesnį.
+64 variantai: `LD11/VARIANTAI.csv`, bankas `LD11-64-A-2026`; vertinimas `LD11-1`.
 
 **LD10 – lygiagretė RLC grandinė: srovių rezonansas:** šeši trumpai paaiškinti etapai
 ir vienas **Toliau** mygtukas. Sujunkite R, L ir C šakas pagal **Pagalba → Kaip sujungti**.

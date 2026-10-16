@@ -1576,7 +1576,8 @@ function bench_ld11_answers(step,values)
     for index=1:12
         [answer_step,slot]=ld11_answer_slot(index);
         if answer_step==step then
-            LD11.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));
+            if step==6 then LD11.ui.answerEdits(index).value=values(value_index)+1;
+            else LD11.ui.answerEdits(index).string=msprintf("%.17g",values(value_index));end
             execstr(LD11.ui.answerEdits(index).callback);
             value_index=value_index+1;
         end
@@ -1586,8 +1587,12 @@ endfunction
 function bench_ld11_connect(mode)
     global LD11;
     wires=ld11_canonical_wires(mode);
-    assert_checkequal(size(LD11.wires,1),0);
-    for index=1:size(wires,1)
+    if mode==1 then assert_checkequal(size(LD11.wires,1),0);else
+        assert_checkequal(size(LD11.wires,1),4);LD11.wireMode=1;
+        [base_ok,base_message]=ld11_wiring_valid(LD11.wires);assert_checktrue(base_ok);LD11.wireMode=2;
+    end
+    first=1;if mode==2 then first=5;end
+    for index=first:size(wires,1)
         bench_ld11_click(wires(index,1)); bench_ld11_click(wires(index,2));
     end
     bench_ld11_click(wires($,1)); bench_ld11_click(wires($,2));

@@ -9,11 +9,67 @@ function ld11_student_main(root)
             if is_handle_valid(LD11.fig) then show_window(LD11.fig); return; end
         end
     end
-    bench_core_require();
+    try bench_core_require(); catch
+        messagebox(["LD11 nepavyko paleisti.";strcat(lasterror()," "); ...
+            "Išskleiskite visą paketą ir paleiskite STENDAS.sce grafinėje Scilab aplinkoje."], ...
+            "LD11 paleidimas","error"); return;
+    end
     [ok, st, cfg] = student_enroll("LD11");
     if ~ok then return; end
     LD11 = struct("root", root, "cfg", cfg, "student", st);
-    student_remember(st); ld11_start();
+    student_remember(st); ld11_start(); bench_autosave("LD11");
+endfunction
+
+// Fixing a typo in the student's name/group must never invalidate measurements.
+function ld11_student_details()
+    global LD11;
+    if LD11.demoMode then ld11_set_status("Pirma grįžkite į savo darbą.","info","");return;end
+    choice=messagebox([student_caption(LD11.student);student_parameter_lines("LD11",LD11.cfg)], ...
+        "Studentas ir priskirtos reikšmės","info",["Grįžti" "Keisti duomenis"],"modal");
+    if choice<>2 then return;end
+    [ok,st,cfg]=student_enroll("LD11",LD11.student);
+    if ~ok then return;end
+    if st.number<>LD11.student.number then
+        choice=messagebox("Pakeitus eilės numerį, bus pradėtas naujas variantas. Dabartinį darbą programa prieš tai išsaugos.", ...
+            "Keisti variantą?","question",["Atšaukti" "Pradėti naują"],"modal");
+        if choice<>2 then return;end
+    end
+    ld11_apply_profile(st,cfg);
+endfunction
+
+function ld11_apply_profile(st,cfg)
+    global LD11;
+    ld11_save_answers();
+    changed=st.number<>LD11.student.number;
+    assessment=LD11.assessment; practice=LD11.practice_used;
+    if changed then
+        bench_autosave("LD11");
+        if isfield(LD11,"autosave_error") then
+            if LD11.autosave_error<>"" then return;end
+        end
+        ld11_init_state();
+        LD11.cfg=cfg;LD11.student=st;
+        LD11.assessment=assessment;LD11.practice_used=practice;
+        LD11.autosave_paths=emptystr(0,1);LD11.autosave_error="";
+    else
+        LD11.cfg=cfg;LD11.student=st;
+    end
+    student_remember(st);
+    if isfield(LD11,"ui") then
+        if ~isfield(LD11.ui,"headless") | ~LD11.ui.headless then
+            ld11_render_stage();
+        end
+    end
+    bench_autosave("LD11");
+endfunction
+
+function path=ld11_export_report()
+    global LD11;
+    path=""; ld11_save_answers();
+    if LD11.assessment & ~and(LD11.done) then
+        ld11_set_status("Dar yra neužbaigtų etapų.","error","Užbaikite visus 6 etapus ir tada išsaugokite ataskaitą."); return;
+    end
+    path=bench_export_current("LD11");
 endfunction
 
 function ld11_start()
@@ -30,11 +86,11 @@ function ld11_start()
         end
         if isfield(LD11.ui, "circuitFrame") then needgui = %f; end
     end
+    if ~isfield(LD11,"autosave_enabled") then LD11.autosave_enabled=needgui; end
     if needgui & ~isfield(LD11, "fig") then
         ld11_build_gui();
     end
-    if ~isfield(LD11,"autosave_enabled") then LD11.autosave_enabled=needgui; end
-    ld11_set_status("Sveiki! Pradėkite nuo [E01]: sujunkite R–L rišlę be kompensavimo kondensatoriaus.", "info", "Seką rasite: Pagalba → [B04] Kaip sujungti.");
+    ld11_set_status("Pradėkite nuo ritės (R, L) sujungimo be kondensatoriaus.","info","Seka: Pagalba → Kaip sujungti. Formulės: Pagalba → Teorija ir paaiškinimai.");
 endfunction
 
 function ld11_student_primary()
@@ -42,7 +98,7 @@ function ld11_student_primary()
     if LD11.demoMode then ld11_toggle_solution(); return; end
     ld11_save_answers();
     if LD11.step == 6 & and(LD11.done) then
-        bench_export_current("LD11");
+        ld11_export_report();
         return;
     end
     // Vienas paspaudimas: patikrinti ir, pavykus, iškart pereiti (LD2 semantika).
@@ -75,13 +131,13 @@ function ld11_student_sync()
         if LD11.demoMode then
             LD11.ui.studentPrimary.string = "GRĮŽTI Į SAVO DARBĄ";
         elseif LD11.step == 6 & and(LD11.done) then
-            LD11.ui.studentPrimary.string = "ĮRAŠYTI ATASKAITĄ";
+            LD11.ui.studentPrimary.string = "IŠSAUGOTI ATASKAITĄ";
         elseif LD11.step == 6 & LD11.done(6) then
             LD11.ui.studentPrimary.string = "UŽBAIGTI PRALEISTĄ ETAPĄ";
         elseif LD11.done(LD11.step) then
             LD11.ui.studentPrimary.string = "TOLIAU →";
         elseif LD11.assessment then
-            LD11.ui.studentPrimary.string = "ĮRAŠYTI IR TOLIAU →";
+            LD11.ui.studentPrimary.string = "TOLIAU →";
         else
             LD11.ui.studentPrimary.string = "TIKRINTI";
         end
