@@ -88,6 +88,9 @@ class Lab10(Lab45):
         if tag == 2:
             assert math.isclose(measured[2], measured[3], rel_tol=1e-12)
             assert math.isclose(measured[4], measured[1], rel_tol=1e-12)
+        assert self.state["main_current"] == f"{expected[4]:.3f} mA", self.state
+        labels = {1: "IR", 2: "IL", 3: "IC", 4: "I"}
+        assert self.state["selected_current"] == f"{labels[2]} = {expected[2]:.3f} mA", self.state
         return measured, u
 
     def measurements(self, tag):

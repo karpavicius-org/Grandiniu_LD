@@ -96,7 +96,9 @@ susispaudimas). 64 variantai: `LD11/VARIANTAI.csv`, bankas `LD11-64-A-2026`.
 ir vienas **Toliau** mygtukas. Sujunkite R, L ir C šakas pagal **Pagalba → Kaip sujungti**.
 Trijuose dažniuose (0,5·f0, f0, 2·f0) pasirinkite **IR / IL / IC / I** ir kiekvieną
 kartą spauskite **Matuoti**. Bendroji įtampa U ir keturios srovės grupuojamos žurnale;
-rodmenų perrašyti nereikia. **Pagalba → Teorija ir paaiškinimai** pateikia dabartinio
+rodmenų perrašyti nereikia. Schemos ampermetras visada rodo bendrąją I; pasirinkta
+šakos srovė matoma atskirame **Matavimai** laukelyje kartu su U.
+**Pagalba → Teorija ir paaiškinimai** pateikia dabartinio
 etapo formules, vienetus ir grandinės paaiškinimą. Rezonanse IL=IC, bendroji I mažiausia.
 Skaičiavimams naudokite nurodyto dažnio duomenis: Y=I_mA/U yra mS, o U·I_mA duoda
 mW/mvar/mVA. Išvadas rinkitės **Taip / Ne**. Atsiskaityme teisingumą vėliau vertina

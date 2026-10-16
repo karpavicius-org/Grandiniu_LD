@@ -70,7 +70,11 @@ try
             LD10.target=target; ld10_render_wires();
             v=bench_cpp_ac(4,LD10.cfg.E,f,LD10.cfg.R,LD10.cfg.L,LD10.cfg.C);
             cur=v(4)*1000; if target==1 then cur=v(5)*1000; elseif target==2 then cur=v(6)*1000; elseif target==3 then cur=v(7)*1000; end
-            handle=findobj("tag","reading:A"); assert_checkequal(handle.string,msprintf("%.3f mA",cur));
+            // Main-line ammeter and selected branch probe are separate displays.
+            handle=findobj("tag","reading:A");assert_checkequal(handle.string,msprintf("%.3f mA",v(4)*1000));
+            names=["IR";"IL";"IC";"I"];
+            handle=findobj("tag","reading:SELECTED");
+            assert_checkequal(handle.string,msprintf("%s = %.3f mA",names(target),cur));
         end
         handle=findobj("tag","reading:V"); assert_checkequal(handle.string,msprintf("%.4f V",LD10.cfg.E));
         if step==3 then

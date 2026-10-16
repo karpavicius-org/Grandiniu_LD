@@ -103,15 +103,21 @@ function ld10_render_wires()
         ld10_polyline(pts, [0.22 0.40 0.42]);
     end
     [tt, bb] = ld10_layout(); ids = ["GEN" "K" "A" "R" "L" "C" "V"];
-    names = ["GEN ~";"JUNGIKLIS";"AMPERMETRAS";"R";"L";"C";"VOLTMETRAS"];
+    names = ["GEN ~";"JUNGIKLIS";"AMPERMETRAS";"R";"L";"C";"MATAVIMAI"];
     switchText = "Atviras"; if LD10.switchOn then switchText = "Uždarytas"; end
     [u, i, valid, reason] = ld10_measure_values();
     freqText = "f = ?";
     if LD10.freqPoint > 0 then freqText = msprintf("f = %g Hz", ld10_current_frequency()); end
     voltText = "— V";
     if valid then voltText = msprintf("%.4f V", u); end
-    ampText = "— mA";
-    if valid then ampText = msprintf("%.3f mA", i); end
+    ampText="— mA"; selectedText="Pasirinkite srovę";
+    if valid then
+        kk=[0.5 1 2];reference=ld10_reference(kk(LD10.freqPoint));
+        // The drawn ammeter is in the main line; it must always show total I.
+        ampText=msprintf("%.3f mA",reference(6));
+        targetNames=["IR";"IL";"IC";"I"];
+        selectedText=msprintf("%s = %.3f mA",targetNames(LD10.target),i);
+    end
     vals = [msprintf("5 V ~ · %s", freqText), switchText, ampText, ...
         msprintf("%g Ω", LD10.cfg.R), msprintf("%g mH", LD10.cfg.LmH), msprintf("%g nF", LD10.cfg.CnF), voltText];
     pairs = ["GEN_N" "GEN_P";"K1" "K2";"A_P" "A_N";"R_A" "R_B";"L_A" "L_B";"C_A" "C_B";"" ""];
@@ -129,7 +135,14 @@ function ld10_render_wires()
         h = student_text(fr, [0.06 0.66 0.88 0.24], names(k), 12, %t, bg); h.horizontalalignment = "center";
         h = student_text(fr, [0.04 0.04 0.92 0.58], vals(k), 13, %t, bg); h.horizontalalignment = "center";
         h.tag = "reading:" + ids(k);
-        if k == 7 then h.tooltipstring = "Voltmetras rodo šakų įtampą U — visose lygiagretėse šakose ji vienoda."; end
+        if k==3 then h.tooltipstring="Schemos ampermetras rodo bendrąją šaltinio srovę I.";end
+        if k==7 then
+            h.position=[0.04 0.35 0.92 0.25];
+            h.tooltipstring="Bendroji įtampa U vienoda visose lygiagretėse šakose.";
+            selected=student_text(fr,[0.04 0.04 0.92 0.25],selectedText,13,%t,bg);
+            selected.horizontalalignment="center";selected.tag="reading:SELECTED";
+            selected.tooltipstring="Mygtuku pasirinktos šakos arba bendrosios srovės rodmuo.";
+        end
         if k == 5 then h.tooltipstring = msprintf("Rišlė: L = %g mH.", LD10.cfg.LmH); end
         if k == 6 then h.tooltipstring = msprintf("Kondensatorius: C = %g nF.", LD10.cfg.CnF); end
     end
@@ -236,7 +249,7 @@ function ld10_build_gui()
     student_button(f, [0.87 0.93 0.105 0.044], "Pagalba", "ld10_show_actions()");
     p = student_frame(f, [0.025 0.12 0.655 0.77]); LD10.ui.circuitFrame = p;
     right = student_frame(f, [0.70 0.12 0.275 0.77]); LD10.ui.right = right;
-    student_text(p, [0.40 0.63 0.30 0.10], student_wrap("Laidas: spauskite abu galus. Pakartoję — pašalinsite. Tarpas sankirtoje: nesujungta.", 20), 12, %f);
+    student_text(p, [0.40 0.63 0.30 0.15], student_wrap("Laidas: spauskite abu galus. Pakartoję — pašalinsite. Tarpas sankirtoje: nesujungta.", 20), 12, %f);
     // Dvylikos matavimų žurnalas (3 dažnio taškai × 4 ampermetro taikiniai).
     LD10.ui.journalList = uicontrol(p, "style", "listbox", "units", "normalized", ...
         "position", [0.04 0.80 0.64 0.18], "string", "Matavimai", ...
