@@ -49,11 +49,11 @@ try
     end
     // Invoke the registered native resize callback without re-rendering a stage.
     // This checks the callback contract; it does not emulate an OS drag event.
-    LD9.ui.answerEdits(10).string="1,0";
+    LD9.ui.answerEdits(10).value=2;
     for dimension=[1 3 2]
         geometry_size(LD9.fig,sizes(dimension,:));
         assert_checktrue(LD9.fig.resizefcn<>""); execstr(LD9.fig.resizefcn);
-        assert_checkequal(LD9.ui.answerEdits(10).string,"1,0");
+        assert_checkequal(LD9.ui.answerEdits(10).value,2);
         geometry_dump(LD9.fig,"LD9-resize-"+string(dimension),descriptor);
     end
     mclose(descriptor);
@@ -92,7 +92,7 @@ try
     ld9_set_step(3); ld9_toggle_solution(); assert_checkfalse(LD9.demoMode);
     LD9.assessment=%f; LD9.practice_used=%t; ld9_toggle_solution(); assert_checktrue(LD9.demoMode);
     assert_checkequal(size(LD9.journal,1),4); ld9_toggle_solution(); assert_checkequal(LD9.journal,journal);
-    ld9_restart(); assert_checkfalse(LD9.assessment); assert_checktrue(LD9.practice_used);
+    ld9_restart(); assert_checktrue(LD9.assessment); assert_checkfalse(LD9.practice_used);
     bench_restore_snapshot(snapshot); LD9.assessment=%f; LD9.practice_used=%t;
     ld9_set_step(5); LD9.done(5)=%t; LD9.ui.answerEdits(4).string="1+2"; bench_ld9_primary();
     assert_checkfalse(LD9.done(5)); assert_checkequal(LD9.step,5); assert_checkequal(LD9.ui.answerEdits(4).string,"1+2");
@@ -104,7 +104,33 @@ try
     report=bench_report_data("LD9"); assert_checkequal(length(report.evidence.wiring.s1.pairs),0);
     ld9_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD9.fig); delete(window);
     ld9_show_stand_map(); window=gcf(); assert_checktrue(window<>LD9.fig); delete(window);
-    delete(LD9.fig);
+    for stage=1:6
+        LD9.step=stage;ld9_show_theory();window=gcf();assert_checktrue(window<>LD9.fig);delete(window);
+        assert_checktrue(size(ld9_theory_lines(stage),"*")>8);
+    end
+    // Assessment accepts a wrong finite number, rejects formulas and premature export.
+    LD9.assessment=%t;LD9.practice_used=%f;
+    ld9_set_step(1); LD9.wires=ld9_canonical_wires();
+    LD9.ui.answerEdits(1).string="1+2";ld9_student_primary();assert_checkfalse(LD9.done(1));
+    assert_checkequal(ld9_export_report(),"");
+    LD9.ui.answerEdits(1).string="123";ld9_student_primary();
+    assert_checkequal(LD9.step,2);assert_checkequal(LD9.answers(1,1),"123");
+    oldWires=LD9.wires;oldJournal=LD9.journal;
+    st=LD9.student;st.name="Pataisytas vardas";ld9_apply_profile(st,LD9.cfg);
+    assert_checkequal(LD9.wires,oldWires);assert_checkequal(LD9.journal,oldJournal);
+    assert_checkequal(LD9.answers(1,1),"123");
+    oldProfilePath=LD9.autosave_paths($);
+    ld9_apply_profile(student_profile(17,"Naujas variantas","TEST","LD9"),ld9_variant_config(17));
+    assert_checkequal(LD9.student.number,17);assert_checkequal(LD9.step,1);
+    assert_checkequal(size(LD9.wires,1),0);
+    beforeProfile=bench_read_snapshot(oldProfilePath,"LD9");
+    assert_checkequal(beforeProfile.student.number,64);
+    LD9.assessment=%f;LD9.practice_used=%t;bench_autosave("LD9");
+    oldPath=LD9.autosave_paths($);ld9_restart();
+    saved=bench_read_snapshot(oldPath,"LD9");assert_checktrue(saved.state.practice_used);
+    assert_checktrue(LD9.assessment);assert_checkfalse(LD9.practice_used);
+    assert_checkequal(size(LD9.wires,1),0);
+    ld9_close();assert_checkfalse(is_handle_valid(LD9.fig));
     cases=list(); specs=[1 1 .01;3 1 .03;3 2 0;5 1 .02;5 2 .02;5 3 .02;5 4 .02;5 5 .02;5 6 .02];
     for number=[1 17 64]
         bench_ld9_workflow(number,root,%f); expected=ld9_expected_answers(); original=LD9.answers;
@@ -132,9 +158,9 @@ try
             end
         end
         for slot=1:3
-            for raw=[string(expected(6,slot))+",0" string(3-expected(6,slot)) "" "1+1"]
+            for raw=[string(expected(6,slot)) string(3-expected(6,slot)) "" "1+1"]
                 LD9.answers=original; LD9.step=6; LD9.done(6)=%f; LD9.answers(6,slot)=raw; ld9_check_step();
-                accepted=LD9.done(6); assert_checkequal(accepted,raw==string(expected(6,slot))+",0");
+                accepted=LD9.done(6); assert_checkequal(accepted,raw==string(expected(6,slot)));
                 cases($+1)=struct("report",bench_report_data("LD9"),"accepted",accepted);
             end
         end
