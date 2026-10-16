@@ -245,10 +245,22 @@ endfunction
 function ld9_text_window(title, lines)
     global LD9;
     if LD9.ui.headless then return; end
+    wrapped=emptystr(0,1);
+    for line=matrix(lines,1,-1)
+        words=tokens(line," ");current="";
+        for k=1:size(words,"*")
+            if length(current)+length(words(k))+1>72 & current<>"" then
+                wrapped($+1)=current;current="";
+            end
+            if current<>"" then current=current+" ";end
+            current=current+words(k);
+        end
+        wrapped($+1)=current;
+    end
     window = figure("figure_name", "LD9 · " + title, "axes_size", [560 420], ...
         "menubar_visible", "off", "toolbar_visible", "off", "infobar_visible", "off");
     uicontrol(window, "style", "listbox", "units", "normalized", "position", [.02 .10 .96 .84], ...
-        "string", lines, "fontname", "SansSerif", "fontunits", "pixels", "fontsize", 12);
+        "string", wrapped, "fontname", "SansSerif", "fontunits", "pixels", "fontsize", 12);
     uicontrol(window, "style", "pushbutton", "units", "normalized", "position", [.35 .02 .30 .06], ...
         "string", "Uždaryti", "tag", "H01", "callback", "close()");
 endfunction

@@ -9,10 +9,11 @@ function selected=messagebox(varargin)
     if varargin(2)<>"Jūsų priskirtos reikšmės" then error("Netikėtas dialogas"); end
     selected=1;
 endfunction
-function capture_ld9(name)
+function capture_ld9(name,window)
     global LD9;
+    if argn(2)<2 then window=LD9.fig;end
     if getos()<>"Linux" then return; end
-    LD9.fig.figure_name="LD9 PATIKRA "+name; show_window(LD9.fig); sleep(500);
+    window.figure_name="LD9 PATIKRA "+name; show_window(window); sleep(500);
     command="/usr/bin/python3 """+getenv("LD9_TEST_RUNTIME")+"/capture_window.py"" ""LD9 PATIKRA "+name+""" """+getenv("LD9_TEST_OUT")+"/"+name+".png""";
     assert_checkequal(host(command),0);
 endfunction
@@ -105,7 +106,8 @@ try
     ld9_show_wiring_guide(); window=gcf(); assert_checktrue(window<>LD9.fig); delete(window);
     ld9_show_stand_map(); window=gcf(); assert_checktrue(window<>LD9.fig); delete(window);
     for stage=1:6
-        LD9.step=stage;ld9_show_theory();window=gcf();assert_checktrue(window<>LD9.fig);delete(window);
+        LD9.step=stage;ld9_show_theory();window=gcf();assert_checktrue(window<>LD9.fig);
+        capture_ld9("teorija-"+string(stage),window);delete(window);
         assert_checktrue(size(ld9_theory_lines(stage),"*")>8);
     end
     // Assessment accepts a wrong finite number, rejects formulas and premature export.

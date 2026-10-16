@@ -194,6 +194,10 @@ function ld9_render_stage()
             yy = 0.65 - row*0.085; row = row + 1;
             lab.position = [0.07 yy 0.53 0.075]; h.position = [0.63 yy 0.30 0.075];
             if st==6 then
+                yy=0.62-(row-1)*0.13;
+                lab.position=[0.07 yy 0.53 0.11];h.position=[0.63 yy+0.0175 0.30 0.075];
+            end
+            if st==6 then
                 h.value=1; raw=stripblanks(LD9.answers(st,sl));
                 choice=ld9_parse_number(raw);
                 if or(choice==[1 2]) then h.value=choice+1;end
@@ -233,7 +237,7 @@ function ld9_build_gui()
     student_button(f, [0.87 0.93 0.105 0.044], "Pagalba", "ld9_show_actions()");
     p = student_frame(f, [0.025 0.12 0.655 0.77]); LD9.ui.circuitFrame = p;
     right = student_frame(f, [0.70 0.12 0.275 0.77]); LD9.ui.right = right;
-    student_text(p, [0.40 0.63 0.30 0.10], student_wrap("Laidas: spauskite abu galus. Pakartoję — pašalinsite. Tarpas sankirtoje: nesujungta.", 20), 12, %f);
+    student_text(p, [0.40 0.63 0.30 0.10], student_wrap("Laidas: spauskite abu galus. Pakartoję porą — pašalinsite.", 26), 12, %f);
     // Dvylikos matavimų žurnalas (3 dažnio taškai × 4 voltmetro taikiniai).
     LD9.ui.journalList = uicontrol(p, "style", "listbox", "units", "normalized", ...
         "position", [0.04 0.80 0.64 0.18], "string", "Matavimai", ...
@@ -265,7 +269,7 @@ function ld9_build_gui()
         [st, sl] = ld9_answer_slot(k);
         if st==6 then
             h=uicontrol(right,"style","popupmenu","units","normalized","position",[0.63 0.5 0.30 0.075], ...
-                "string",["Rinktis";"Taip";"Ne"],"value",1,"fontunits","pixels","fontsize",14, ...
+                "string",["—";"Taip";"Ne"],"value",1,"fontunits","pixels","fontsize",14, ...
                 "tag",ld9_answer_code(st,sl),"callback","ld9_answers_changed()","backgroundcolor",[0.94 0.96 0.96]);
         else
         h = uicontrol(right, "style", "edit", "units", "normalized", "position", [0.63 0.5 0.30 0.075], ...
