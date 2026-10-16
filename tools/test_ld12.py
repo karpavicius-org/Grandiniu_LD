@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+from check_ld12_routes import check_routes
 
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--scilab', required=True, type=Path)
@@ -39,6 +40,9 @@ result = subprocess.run([str(a.checker.resolve()), str(out / 'geometry.tsv')], c
 (out / 'geometry.log').write_text(result.stdout + result.stderr, encoding='utf-8')
 print(result.stdout)
 assert result.returncode == 0, 'LD12 geometry failed'
+routes=check_routes(out/'geometry.tsv')
+(out/'route-geometry.log').write_text(json.dumps(routes,indent=2)+'\n',encoding='utf-8')
+assert routes['status']=='PASS',routes
 
 # Compare the actual Scilab step decisions with C++ grading of the same reports.
 sys.path.insert(0, str(repo / 'core/tests'))
@@ -69,6 +73,6 @@ for result in reports:
 for result in drafts:
     assert result['status'] == 'review' and result['reason'] == 'unsupported_file' and result['grade_10'] is None, result
 summary = dict(status='PASS', tolerance_cases=len(expected), actual_gui_reports=3,
-               variants=[1, 17, 64], geometry_cases=39, assessment_reports_selected=True, close_autosave_restore=True, platform=os.name)
+               variants=[1, 17, 64], geometry_cases=39, assessment_reports_selected=True, close_autosave_restore=True, wire_control_clearance=True, platform=os.name)
 (out / 'acceptance.json').write_text(json.dumps(summary, indent=2)+'\n', encoding='utf-8')
 print(json.dumps(summary))

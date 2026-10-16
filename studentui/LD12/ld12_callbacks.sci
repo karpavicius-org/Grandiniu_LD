@@ -94,7 +94,7 @@ function ld12_measure()
     LD12.lastMeasurement = i;
     ld12_render_journal(); ld12_render_wires(); bench_autosave("LD12");
     ld12_set_status(msprintf("Užfiksuota: Uf = %.4f V; If = %.3f mA (imtuvas R%d).", u, i, LD12.phase), "ok", ...
-        "Simetrinėje grandinėje visos trys fazės vienodos.");
+        "Simetrinių imtuvų Uf ir If moduliai vienodi.");
 endfunction
 
 function ok = ld12_close_enough(value, expected, relative, absolute)
@@ -347,6 +347,7 @@ function lines=ld12_theory_lines(step)
         "Įmontuoto bendro trifazio jungiklio ir prietaisų atskirais laidais jungti nereikia."; ...
         "Matuoti automatiškai įrašo Uf [V] ir If [mA]. Simetrinei grandinei užtenka vieno imtuvo matavimo kiekviename jungime."; ...
         "Į laukus rašykite skaičius, be vieneto ir be formulės. Tinka taškas arba kablelis.";""];
+    common_count=size(lines,"*");
     select step
     case 1 then lines=[lines;"1 ETAPAS · SUJUNGIMAS ŽVAIGŽDE"; ...
         "Išjungę maitinimą sujunkite šešis laidus pagal Pagalba → Kaip sujungti."; ...
@@ -383,6 +384,8 @@ function lines=ld12_theory_lines(step)
         "Kiekvienam teiginiui pasirinkite Taip arba Ne. Atsiskaityme saugomas jūsų pasirinkimas."; ...
         "Užbaigę šešis etapus išsaugokite ataskaitą. Teisingumą įvertins dėstytojo programa."];
     end
+    // Show the current task and formulas before the shared reference text.
+    lines=[lines(1);lines(common_count+1:$);"";lines(2:common_count)];
 endfunction
 
 function ld12_show_theory()

@@ -7,6 +7,7 @@ on:
       - 'studentui/bench_session.sci'
       - 'studentui/bench_report.sci'
       - 'core/tests/test_ld12_grading.py'
+      - 'tools/check_ld12_routes.py'
       - 'tools/test_ld12_headless.sce'
       - 'tools/test_ld12_native.py'
       - 'tools/test_ld12_native.sce'
@@ -24,6 +25,7 @@ on:
       - 'studentui/bench_session.sci'
       - 'studentui/bench_report.sci'
       - 'core/tests/test_ld12_grading.py'
+      - 'tools/check_ld12_routes.py'
       - 'tools/test_ld12_headless.sce'
       - 'tools/test_ld12_native.py'
       - 'tools/test_ld12_native.sce'
@@ -134,6 +136,8 @@ jobs:
             ${{ runner.temp }}/ld12-native/*.tsv
             ${{ runner.temp }}/ld12-native/*.log
             ${{ runner.temp }}/ld12-native/*.txt
+            ${{ runner.temp }}/ld12-native/*/state.json
+            ${{ runner.temp }}/ld12-native/*/config.json
             ${{ runner.temp }}/ld12-native/*/actions.json
             ${{ runner.temp }}/ld12-native/*/acceptance.json
             ${{ runner.temp }}/ld12-native/*/geometry*.tsv

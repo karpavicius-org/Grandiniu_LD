@@ -26,6 +26,9 @@ try
         assert_checkalmostequal(ld12_line_current(),abs(lineD(1))*1000,1e-10,1e-8);
         assert_checkalmostequal(powerD,3*powerY,1e-10,1e-8);
     end
+    for stage=1:6
+        lines=ld12_theory_lines(stage);assert_checktrue(strindex(lines(2),string(stage)+" ETAPAS")<>[]);
+    end
     mprintf("LD12_ALL64_PASS: 64 complete workflows,384 stages,128 recorded measurements; all3 branches in both modes checked with independent phasors; LD12-1 reports preserved\n");exit(0);
 catch
     mprintf("LD12_ALL64_FAIL: %s\n",strcat(lasterror()," | "));exit(1);

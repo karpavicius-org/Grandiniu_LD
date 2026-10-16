@@ -16,6 +16,7 @@ import sys
 import time
 
 from test_ld45_native import Lab45, flatten, number
+from check_ld12_routes import check_routes
 
 REPO = Path(__file__).resolve().parents[1]
 SCE = REPO / "tools/test_ld12_native.sce"
@@ -94,10 +95,13 @@ class Lab12(Lab45):
         assert self.state['branch']==f"R{selected_branch} · {ends[k]}",self.state
         lines=flatten(self.state['journal_display'])
         name=('ŽVAIGŽDĖ','TRIKAMPIS')[mode-1]
-        text=next(line for line in lines if line.startswith(name))
+        index=next(k for k,line in enumerate(lines) if line.startswith(name))
+        text=lines[index]
         assert f'R{recorded_branch}' in text,text
-        values=re.search(r'Uf=([0-9.]+) V \| If=([0-9.]+) mA',text).groups()
-        return tuple(map(number,values))
+        u_match=re.search(r'Uf=([0-9.]+) V',text)
+        i_match=re.search(r'If=([0-9.]+) mA',lines[index+1])
+        assert u_match is not None and i_match is not None,lines
+        return number(u_match.group(1)),number(i_match.group(1))
 
     def work(self):
         c=self.cfg
@@ -167,12 +171,15 @@ class Lab12(Lab45):
                                capture_output=True, text=True)
         (self.path / "geometry.log").write_text(check.stdout + check.stderr, encoding="utf-8")
         assert check.returncode == 0, check.stdout + check.stderr
+        routes=check_routes(self.path/'geometry_all.tsv')
+        (self.path/'route-geometry.log').write_text(json.dumps(routes,indent=2)+'\n',encoding='utf-8')
+        assert routes['status']=='PASS',routes
         result = dict(status="PASS", lab="LD12", os=os.name, variant=17, stages=6,
                       circuit_wires=6, measurements=2, report_score="14/14",
                       geometry_scenarios=len(self.screen_files), screen_files=self.screen_files,
                       mouse_clicks=sum(x["kind"] == "real_OS_mouse" for x in self.events),
                       keyboard_entries=sum(x["kind"] == "real_OS_keyboard" for x in self.events),
-                      independent_complex_phasors=True, manually_connected_wires=12,
+                      wire_control_clearance=True, independent_complex_phasors=True, manually_connected_wires=12,
                       limitations="Fixed registration; real OS events in CI, not physical electrical equipment")
         (self.path / "acceptance.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print("LD12_NATIVE_PASS: " + json.dumps(result, ensure_ascii=False), flush=True)

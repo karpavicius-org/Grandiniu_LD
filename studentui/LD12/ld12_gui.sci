@@ -18,7 +18,7 @@ function [term_xy, boxes] = ld12_layout()
     // SRC [6 24 14 20] pakeltas virš mygtukų eilės; N apatiniame kairiajame
     // kampe; vertikalūs koridoriai x = .31/.33/.35 (tarp kairiojo stulpelio,
     // K ir imtuvų stovo); apatinis bendras koridorius y = .19–.22.
-    boxes = struct("SRC", [6 22 14 23], "K", [40 44 12 13], "VM", [62 20 11 13], ...
+    boxes = struct("SRC", [6 22 14 23], "K", [40 44 12 13], "VM", [40 23.5 12 13], ...
         "R1", [75 40 16 12], "R2", [75 54 16 12], "R3", [75 68 16 12], "V", [6 62 16 14], "A", [6 46 16 14]);
     term_xy = struct("N", [3 23], "L1", [26 42], "L2", [26 33], "L3", [26 24], ...
         "K1", [38 50.5], "K2", [53.5 50.5], ...
@@ -80,11 +80,11 @@ function route = ld12_route(a, b)
     elseif (a == "R3_B" & b == "N") | (a == "N" & b == "R3_B") then
         route = [[.935 .74];[.975 .74];[.975 .19];[.03 .19];[.03 .23]];
     elseif (a == "R1_B" & b == "L2") | (a == "L2" & b == "R1_B") then
-        route = [[.935 .46];[.96 .46];[.96 .175];[.28 .175];[.28 .33];[.26 .33]];
+        route = [[.935 .46];[.96 .46];[.96 .22];[.30 .22];[.30 .33];[.26 .33]];
     elseif (a == "R2_B" & b == "L3") | (a == "L3" & b == "R2_B") then
-        route = [[.935 .60];[.96 .60];[.96 .185];[.28 .185];[.28 .24];[.26 .24]];
+        route = [[.935 .60];[.975 .60];[.975 .205];[.28 .205];[.28 .24];[.26 .24]];
     elseif (a == "R3_B" & b == "L1") | (a == "L1" & b == "R3_B") then
-        route = [[.935 .74];[.985 .74];[.985 .195];[.29 .195];[.29 .42];[.26 .42]];
+        route = [[.935 .74];[.985 .74];[.985 .19];[.29 .19];[.29 .42];[.26 .42]];
     end
 endfunction
 
@@ -187,7 +187,8 @@ function ld12_render_journal()
     for tag = 1:2
         m = ld12_journal_rows(tag);
         for k = 1:size(m, 1)
-            rows($+1) = msprintf("%s · R%d · Uf=%.4f V | If=%.3f mA", names(tag), m(k,4), m(k,1), m(k,2));
+            rows($+1) = msprintf("%s · R%d · Uf=%.4f V",names(tag),m(k,4),m(k,1));
+            rows($+1) = msprintf("If=%.3f mA",m(k,2));
         end
     end
     if rows == [] then rows = "Matavimų dar nėra. Pasirinkite imtuvą ir spauskite Matuoti."; end
@@ -266,9 +267,9 @@ function ld12_build_gui()
         cb = "ld12_set_phase(" + string(k) + ")";
         controls($+1) = ld12_button(p, [0.02+(k-1)*0.16 0.020 0.15 0.070], phases(k), cb, 11);
     end
-    controls($+1) = ld12_button(p, [0.55 0.56 0.14 0.06], "Maitinimas", "ld12_toggle_power()", 12);
-    controls($+1) = ld12_button(p, [0.55 0.46 0.14 0.06], "Jungiklis", "ld12_toggle_switch()", 12);
-    controls($+1) = ld12_button(p, [0.55 0.36 0.14 0.06], "Matuoti", "ld12_measure()", 13, [0.08 0.39 0.37]);
+    controls($+1) = ld12_button(p, [0.55 0.655 0.14 0.06], "Maitinimas", "ld12_toggle_power()", 12);
+    controls($+1) = ld12_button(p, [0.55 0.525 0.14 0.06], "Jungiklis", "ld12_toggle_switch()", 12);
+    controls($+1) = ld12_button(p, [0.55 0.395 0.14 0.06], "Matuoti", "ld12_measure()", 13, [0.08 0.39 0.37]);
     LD12.ui.instructionLine(1) = student_text(right, [0.07 0.76 0.86 0.19], "", 14, %f);
     LD12.ui.instructionLine(1).verticalalignment = "top";
     labels=["Žvaigždės fazinė įtampa Uf, V";"Žvaigždės srovė If, mA"; ...
