@@ -108,14 +108,29 @@ function ld2_build_gui()
     LD2.ui.stand=student_frame(f,[0.025 0.12 0.655 0.77]);
     LD2.ui.right=student_frame(f,[0.70 0.12 0.275 0.77]);
     LD2.ui.status=student_text(f,[0.025 0.025 0.95 0.07],"",13,%f,[0.94 0.96 0.96]);
-    nav=student_frame(f,[0 0 0.01 0.01]); nav.visible="off";
+    // No ghost navigation controls. Step selection is in Pagalba -> Etapai.
     LD2.ui.step_buttons=[];
-    for k=1:12
-        h=student_button(nav,[0 0 1 1],string(k),"ld2_step_button("+string(k)+")");
-        LD2.ui.step_buttons=[LD2.ui.step_buttons h];
-    end
-    LD2.ui.teacher=uicontrol(nav,"style","checkbox","value",0,"string","Peržiūra");
     student_finish_window(f); f.visible="on";
+endfunction
+
+function ld2_update_nav_colors()
+    // Kept as a stable interface: main student UI has no hidden nav widgets.
+    // Live next-action highlighting is provided by ld2_guide_next().
+endfunction
+
+function ld2_main(root)
+    // Preview / automated GUI test only; never counted as an assessment.
+    // Opens the SAME actual student UI without prompting for an identity.
+    global LD2;
+    cfg=ld2_default_config();
+    LD2=struct("root",root,"cfg",cfg,"state",ld2_initial_state(cfg), ...
+        "ui",struct("headless",%f,"suppress_render",%f), ...
+        "example_active",%f,"example_backup",struct());
+    LD2.state.student=student_profile(1,"Bandomoji peržiūra","PATIKRA","LD2");
+    LD2.state.assessment=%f;
+    LD2.state.practice_used=%t;
+    LD2.state.teacher_mode=%t;
+    ld2_build_gui();ld2_go_step(1,%t);
 endfunction
 
 function ld2_render_step()
@@ -124,33 +139,34 @@ function ld2_render_step()
     if isfield(LD2.ui,"headless") then if LD2.ui.headless then return; end; end
     drawing=LD2.ui.figure.immediate_drawing; LD2.ui.figure.immediate_drawing="off";
     ld2_save_answers(); ld2_clear_dynamic();
+    // Legacy snapshots can point to hidden stages; show the actual next experiment.
+    if LD2.state.step==3 then LD2.state.step=4; end
+    if LD2.state.step==6 then LD2.state.step=7; end
     ld2_render_instructions(); ld2_render_answers(); ld2_render_action_row();
     ld2_render_stand(); ld2_render_controls(); ld2_update_nav_colors();
-    LD2.ui.studentProgress.string=string(LD2.state.step)+" / 12 etapas";
-    if LD2.example_active then LD2.ui.studentProgress.string="Pavyzdys · "+string(LD2.state.step); end
+    LD2.ui.studentProgress.string=string(ld2_visible_ordinal(LD2.state.step))+" / 10 etapų";
+    if LD2.example_active then LD2.ui.studentProgress.string="Pavyzdys · "+string(ld2_visible_ordinal(LD2.state.step)); end
     if isfield(LD2.state,"student") then LD2.ui.studentIdentity.string=student_caption(LD2.state.student); end
     LD2.ui.figure.immediate_drawing=drawing;
 endfunction
 
 function ld2_render_instructions()
     global LD2;
-    titles=["Darbo eiga";"Sujunkite RC";"Apskaičiuokite RC";"Išmatuokite RC"; ...
-        "Sujunkite RL";"Apskaičiuokite RL";"Išmatuokite RL";"Sujunkite RLC"; ...
+    // Indices 3/6 reserved only for pre-2026 compatibility: no student screens.
+    titles=["Darbo eiga";"Sujunkite RC";"";"Išmatuokite RC"; ...
+        "Sujunkite RL";"";"Išmatuokite RL";"Sujunkite RLC"; ...
         "Raskite rezonansą";"Įtampų maksimumai";"Dažnių juosta";"Jūsų rezultatai"];
     k=LD2.state.step;
     select k
     case 1 then
         tip=["Darbą sudaro trys dalys: RC, RL ir nuoseklios RLC grandinės tyrimas."; ...
              "Grandines jungsite patys, rodmenis fiksuos virtualūs matuokliai."; ...
-             "Atsiskaityme programa tikrina, ar etapas užpildytas, bet neatskleidžia atsakymo teisingumo."];
+             "RC ir RL dalyse pirmiausia patys sujungsite grandines, paskui išmatuosite ir palyginsite rodmenis."; ...
+             "Atsiskaityme programa tikrina rezultatus, bet neatskleidžia atsakymo teisingumo."];
     case 2 then
         tip=["Sujunkite nuoseklią RC grandinę pagal schemą kairėje."; ...
              "Laidą prijunkite paspausdami du mėlynus gnybtus. Generatorius turi būti išjungtas."; ...
              "Kai prijungti visi 4 laidai, spauskite Toliau."];
-    case 3 then
-        tip=["Pagal savo RC parametrus apskaičiuokite septynias reikšmes dešinėje."; ...
-             "Į laukus rašykite tik skaičius; vienetai jau nurodyti."; ...
-             "Formulės ir paaiškinimas pasiekiami per Pagalba → Šio etapo pagalba."];
     case 4 then
         tip=["Įjunkite generatorių ir išmatuokite srovę."; ...
              "Voltmetru paeiliui išmatuokite įtampą ties R8, C2 ir šaltiniu. Prieš kitą matavimą nuimkite zondus."; ...
@@ -159,10 +175,6 @@ function ld2_render_instructions()
         tip=["Sujunkite nuoseklią RL grandinę pagal schemą kairėje."; ...
              "Laidą prijunkite paspausdami du mėlynus gnybtus. Generatorius turi būti išjungtas."; ...
              "Kai prijungti visi 4 laidai, spauskite Toliau."];
-    case 6 then
-        tip=["Pagal savo RL parametrus apskaičiuokite septynias reikšmes dešinėje."; ...
-             "Į laukus rašykite tik skaičius; vienetai jau nurodyti."; ...
-             "Formulės ir paaiškinimas pasiekiami per Pagalba → Šio etapo pagalba."];
     case 7 then
         tip=["Įjunkite generatorių ir išmatuokite srovę."; ...
              "Voltmetru paeiliui išmatuokite įtampą ties R9, L1 ir šaltiniu. Prieš kitą matavimą nuimkite zondus."; ...
@@ -189,8 +201,15 @@ function ld2_render_instructions()
              "Kai visi etapai užfiksuoti, spauskite Išsaugoti ataskaitą ir dėstytojui perduokite vieną HTML failą."];
     end
     h=student_text(LD2.ui.right,[0.07 0.85 0.86 0.11],student_wrap(titles(k),24),20,%t); ld2_track(h);
-    h=student_text(LD2.ui.right,[0.07 0.625 0.86 0.215],student_wrap(tip,44),13,%f);
-    h.verticalalignment="top"; ld2_track(h);
+    // A state-dependent instruction, always visible without opening a menu.
+    // Like LD1, the student performs each click/measurement, not the guide.
+    [guide_lines,guide_terminals,guide_callback,guide_field]=ld2_guide_next();
+    bg=[1.00 0.975 0.875];
+    h=student_text(LD2.ui.right,[0.07 0.625 0.86 0.215], ...
+        student_wrap(["KĄ DARYTI DABAR?";guide_lines],44),13,%t,bg);
+    h.verticalalignment="top";
+    h.tooltipstring="Kitas veiksmas pagal tikrąją stendo būseną. Formulės ir teorija – Pagalba.";
+    LD2.ui.guide_text=h; ld2_track(h);
 endfunction
 
 function ld2_render_answers()
@@ -207,6 +226,8 @@ function ld2_render_answers()
             e.callback="ld2_student_answers_changed()";
             e.tag=msprintf("A%02d.%02d",step,k);
             e.tooltipstring=msprintf("[A%02d.%02d] ",step,k)+labels(k);
+            [gtext,gtargets,gcallback,gfield]=ld2_guide_next();
+            if gfield==k then e.backgroundcolor=[1.00 0.92 0.65]; end
             LD2.ui.answer_edits=[LD2.ui.answer_edits e];
         end
     elseif step==2 | step==5 | step==8 then
@@ -232,6 +253,10 @@ function ld2_render_action_row()
     if LD2.state.step==12 then label="Išsaugoti ataskaitą"; end
     if LD2.example_active then label="Grįžti į savo darbą"; end
     h=student_button(LD2.ui.right,[0.07 0.085 0.86 0.075],label,"ld2_student_primary()",%t);
+    [gtext,gtargets,gcallback,gfield]=ld2_guide_next();
+    if gcallback=="ld2_student_primary()" then
+        h.backgroundcolor=[0.97 0.72 0.26]; h.foregroundcolor=[0.16 0.16 0.10];
+    end
     h.tag="B04";
     h.tooltipstring="Užfiksuoja dabartinį etapą ir tęsia darbą.";
     LD2.ui.studentPrimary=h; ld2_track(h);
@@ -243,6 +268,7 @@ function ld2_student_answers_changed()
     global LD2;
     ld2_save_answers();
     bench_autosave("LD2");
+    ld2_guide_refresh();
     if ~LD2.example_active then
         if LD2.state.assessment then LD2.ui.studentPrimary.string="Toliau →";
         else LD2.ui.studentPrimary.string="Patikrinti";end
@@ -266,7 +292,7 @@ function ld2_student_primary()
         LD2.state.completed(LD2.state.step)=1; LD2.state.skipped(LD2.state.step)=0;
         bench_autosave("LD2");
         if LD2.state.step==12 then bench_export_current("LD2");
-        else ld2_go_step(LD2.state.step+1,%f);end
+        else ld2_go_step(ld2_visible_next(LD2.state.step),%f);end
     elseif LD2.state.step==1 then ld2_check_step(); ld2_next();
     elseif LD2.state.completed(LD2.state.step) then
         if LD2.state.step==12 then bench_export_current("LD2"); else ld2_next(); end
@@ -275,8 +301,12 @@ endfunction
 
 function ld2_student_help()
     global LD2;
-    selected=x_choose(["Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
-        "Mano duomenys ir variantas";"Ataskaita ir rezultatai";"Daugiau veiksmų"],"Pagalba");
+    selected=x_choose(["Ką tiksliai spausti dabar?";"Šio etapo pagalba"; ...
+        "Tęsti arba atkurti darbą";"Mano duomenys ir variantas"; ...
+        "Ataskaita ir rezultatai";"Daugiau veiksmų"],"Pagalba");
+    if selected==0 then return; end
+    if selected==1 then ld2_guide_show(); return; end
+    selected=selected-1;
     n=0;
     if selected==1 then
         a=x_choose(["Metodika ir formulės";"Etapo paaiškinimas";"Grafikai";"Matavimų žurnalas";"Kontaktų žinynas"],"Šio etapo pagalba");
@@ -316,16 +346,18 @@ function ld2_student_help()
     case 5 then ld2_save_work();
     case 6 then ld2_load_work();
     case 7 then
-        opts=emptystr(12,1);
-        for k=1:12
+        stages=ld2_visible_steps();
+        opts=emptystr(size(stages,"*"),1);
+        for k=1:size(stages,"*")
+            stage=stages(k);
             state="Neatlikta";
-            if LD2.state.completed(k)==1 then
+            if LD2.state.completed(stage)==1 then
                 if LD2.state.assessment then state="Įrašyta"; else state="Patikrinta"; end
-            elseif LD2.state.skipped(k)==1 then state="Praleista"; end
-            opts(k)=string(k)+" etapas · "+state+" · "+ld2_step_title(k);
+            elseif LD2.state.skipped(stage)==1 then state="Praleista"; end
+            opts(k)=state+" · "+ld2_step_title(stage);
         end
-        k=x_choose(opts,"Etapai · atsakymai išlieka");
-        if k>0 then ld2_step_button(k); end
+        choice=x_choose(opts,"Etapai · atsakymai išlieka");
+        if choice>0 then ld2_step_button(stages(choice)); end
     case 8 then ld2_student_details();
     case 9 then ld2_restart();
     case 11 then bench_open_snapshot("LD2");
@@ -464,7 +496,11 @@ function ld2_draw_terminal(parent,id,label,xy,active,c)
         end
     end
     selected=(LD2.state.selected_terminal==id);
-    bg=[0.08 0.39 0.37]; if selected then bg=[0.85 0.59 0.16]; end
+    [gtext,gtargets,gcallback,gfield]=ld2_guide_next();
+    highlighted=ld2_in_string_list(id,gtargets);
+    bg=[0.08 0.39 0.37];
+    if highlighted & isactive & ~used then bg=[0.98 0.70 0.17]; end
+    if selected then bg=[0.85 0.59 0.16]; end
     if label=="COM" then label="C"; end
     h=student_terminal(parent,xy+[0.014 0.019],label,ld2_terminal_code(id), ...
         msprintf("ld2_terminal_click(""%s"")",id),ld2_terminal_name(id),bg);

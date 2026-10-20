@@ -48,21 +48,6 @@ function ld2_set_status(msg, kind, hint)
     end
 endfunction
 
-function ld2_show_error(problem, fixes)
-    global LD2;
-    LD2.state.last_error=problem;
-    fixes=matrix(fixes,-1,1);
-    LD2.state.last_fix=strcat(fixes," ");
-    if isfield(LD2.ui,"test_no_dialogs") then
-        if LD2.ui.test_no_dialogs then return; end
-    end
-    if isfield(LD2.ui,"headless") then
-        if LD2.ui.headless then return; end
-    end
-    ld2_set_status(problem+" "+strcat(fixes," "),"error");
-    messagebox(["KLAIDA: "+problem;"";"KAIP PATAISYTI:";fixes], ...
-        "LD2 – taisymo nurodymas","error","modal");
-endfunction
 
 function ld2_show_info(title, lines)
     global LD2;
@@ -160,21 +145,54 @@ function lines = ld2_connection_list_text(req)
     end
 endfunction
 
+function stages=ld2_visible_steps()
+    // Historical report/session indices 3 and 6 remain reserved but have no student screen.
+    stages=[1 2 4 5 7 8 9 10 11 12];
+endfunction
+
+function step=ld2_visible_next(current)
+    stages=ld2_visible_steps();
+    idx=find(stages==current);
+    step=current;
+    if size(idx,"*")<>1 then return; end
+    if idx<size(stages,"*") then step=stages(idx+1); end
+endfunction
+
+function step=ld2_visible_previous(current)
+    stages=ld2_visible_steps();
+    idx=find(stages==current);
+    step=current;
+    if size(idx,"*")<>1 then return; end
+    if idx>1 then step=stages(idx-1); end
+endfunction
+
+function idx=ld2_visible_ordinal(current)
+    stages=ld2_visible_steps();
+    idx=find(stages==current);
+    if size(idx,"*")<>1 then idx=0; end
+endfunction
+
 function txt = ld2_step_title(step)
     titles = [ ...
         "1. Darbo sandara ir parametrai"; ...
         "2. RC grandinės sujungimas"; ...
-        "3. RC teoriniai skaičiavimai"; ...
+        "3. Istorinė RC vieta (neaktyvi)"; ...
         "4. RC matavimai ir fazoriai"; ...
         "5. RL grandinės sujungimas"; ...
-        "6. RL teoriniai skaičiavimai"; ...
+        "6. Istorinė RL vieta (neaktyvi)"; ...
         "7. RL matavimai ir fazoriai"; ...
         "8. RLC rezonanso grandinės sujungimas"; ...
         "9. Rezonansinio dažnio paieška"; ...
         "10. Įtampų rezonansas: UL, UC ir ULC"; ...
         "11. -3 dB dažniai, juostos plotis ir Q"; ...
         "12. Rezonanso kreivė ir rezultatų suvestinė"];
-    txt = titles(step);
+    txt=titles(step);
+    idx=ld2_visible_ordinal(step);
+    if idx>0 then
+        // One logical step number for the student, irrespective of internal legacy IDs.
+        dot=strindex(txt,". ");
+        if size(dot,"*")>0 then txt=string(idx)+". "+part(txt,dot(1)+2:length(txt)); end
+    end
 endfunction
 
 function lines = ld2_instruction_lines(step)

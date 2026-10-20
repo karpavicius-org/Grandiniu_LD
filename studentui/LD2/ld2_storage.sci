@@ -23,7 +23,7 @@ endfunction
 function ld2_load_work()
     global LD2;
     if LD2.example_active then ld2_show_error("Pirmiausia uždarykite pavyzdį.",["Spauskite MANO DARBAS."]); return; end
-    name=uigetfile("*.sod",LD2.root,"Atverti išsaugotą LD2 v1.1 darbą");
+    name=uigetfile("*.sod",LD2.root,"Atverti išsaugotą LD2 darbą");
     if size(name,"*")==0 then return; end
     if type(name)<>10 then return; end
     if stripblanks(name)=="" then return; end
@@ -40,14 +40,14 @@ function ld2_write_session(path)
     global LD2;
     if LD2.example_active then error("Pavyzdys nėra studento darbas."); end
     ld2_save_answers();
-    session=struct("format","LD2-1.1","cfg",LD2.cfg,"state",LD2.state);
+    session=struct("format","LD2-1.2","cfg",LD2.cfg,"state",LD2.state);
     save(path,"session");
 endfunction
 
 function session=ld2_read_session(path)
         load(path,"session");
         if ~isfield(session,"format") then error("Ne LD2 sesijos failas."); end
-        if session.format<>"LD2-1.1" then error("Reikia LD2 v1.1 sesijos failo."); end
+        if session.format<>"LD2-1.1" & session.format<>"LD2-1.2" then error("Reikia LD2 v1.1 arba v1.2 sesijos failo."); end
         [valid,why]=ld2_validate_config(session.cfg);
         if ~valid then error(why); end
         if ~isfield(session.state,"answers_text") | ~isfield(session.state,"measurements") then error("Trūksta sesijos duomenų."); end
@@ -70,9 +70,20 @@ function ld2_restore_session(session)
     global LD2;
     ld2_clear_dynamic();
     LD2.cfg=session.cfg; LD2.state=session.state;
+    // LD2-2 never claims legacy theory inputs as current student's answers.
+    for retired=[3 6]
+        LD2.state.answers_text(retired,:)=emptystr(1,8);
+        LD2.state.answers(retired,:)=%nan*ones(1,8);
+    end
     if ~isfield(LD2.state,"student") then LD2.state.student=student_empty("LD2"); end
     LD2.state.power=%f;
     LD2.state.selected_terminal="";
+    // Retired compatibility slots mirror the actual wiring stages exactly.
+    // No independent scoring/measurement/answer state survives for 3 and 6.
+    LD2.state.completed(3)=LD2.state.completed(2); LD2.state.skipped(3)=0;
+    LD2.state.completed(6)=LD2.state.completed(5); LD2.state.skipped(6)=0;
+    if LD2.state.step==3 then LD2.state.step=4; end
+    if LD2.state.step==6 then LD2.state.step=7; end
     ld2_reset_live_readings(ld2_phase_for_step(LD2.state.step));
     ld2_render_step();
     if LD2.state.student.number>0 then student_remember(LD2.state.student); end
@@ -121,7 +132,7 @@ function ld2_write_exports(folder)
     end
     mputl(lines,fullfile(folder,"LD2_matavimu_zurnalas.csv"));
     lines=ld2_csv_row(["Etapas" "Pavadinimas" "Laukas" "Studento_tekstas" "Etapo_busena"]);
-    for step=1:12
+    for step=ld2_visible_steps()
         status="NEATLIKTA";
         if LD2.state.completed(step)==1 then status="PATIKRINTA"; end
         if LD2.state.skipped(step)==1 & LD2.state.completed(step)==0 then status="PRALEISTA"; end

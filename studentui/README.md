@@ -229,6 +229,22 @@ Programa sukuria `vertinimai.html`, `suvestine.csv` ir `vertinimai.json`.
 Mokymosi ar pavyzdžio pagalbą naudoję bandymai gauna komentarus, bet neįtraukiami
 į atsiskaitymų suvestinę. Skirtingų rubrikų bandymai lyginami pagal pažymį iš 10.
 
+## LD2-2: paprastesnis RC ir RL tyrimas (2026-10-20)
+
+LD2 sudaro **10 studentui matomų etapų**. Ankstesni 3 ir 6 teorinių
+skaičiavimų ekranai su septyniais tuščiais laukais **pašalinti**.
+Sujungus RC, studentas iš karto matuoja RC srovę ir įtampas; sujungus RL
+– iš karto pereina prie RL matavimų. Per **Pagalba → Šio etapo pagalba**
+lieka prieinamos aiškinamosios formulės. Matavimo etapų atsakymai,
+RLC rezonanso tyrimas ir HTML eksportas išlieka.
+
+Dėstytojo vertinimas: naujoms ataskaitoms naudojama **LD2-2** rubrika
+(36 galimi balai vietoj ankstesnių 50). Pašalinti 14 automatiškai
+apskaičiuotų / ranka suvedamų teorinių atsakymų balų; pažymys ir toliau
+skaičiuojamas iš tikrai atliekamų užduočių pagal 10 balų skalę.
+Ankstesnės **LD2-1** HTML ataskaitos vertinamos savo senąja rubrika.
+Juodraščio viduje išlieka 12 suderinamumo pozicijų, nors studentas jų nemato.
+
 ## Paleidimas
 
 Reikia Scilab 2026.1.0 ir jūsų OS atitinkančio paketo su `bin/ldcore.dll`
@@ -311,9 +327,9 @@ Vienai patikros daliai skirtas 10 minučių laiko limitas; pasibaigus laikui
 pateikiama nesėkmė, o ne sėkmės pranešimas.
 
 - `./PATIKRINTI.sh modelis`: visi 64 LD1 variantai tikrinami skaitiniu grandinės
-  sprendikliu; visi 64 LD2 variantai nuosekliai atlieka 12 etapų (768 etapų).
+  sprendikliu; visi 64 LD2 variantai nuosekliai atlieka 10 aktyvių etapų (640 etapų).
   Tikrinamos ir netinkamos registracijos įvestys bei bazinės LD2 regresijos.
-- `./PATIKRINTI.sh langai`: variantai 1, 17 ir 64 atlieka LD1 9 ir LD2 12 etapų
+- `./PATIKRINTI.sh langai`: variantai 1, 17 ir 64 atlieka LD1 9 ir LD2 10 aktyvių etapų
   per realių valdiklių funkcijas. Patikrinami įvedimo laukai, mygtukų prieinamumas,
   matavimai, neteisingi atsakymai, pavyzdžio grąžinimas, eksporto ir sesijos
   įrašymas bei atkūrimas, duomenų išlaikymas ir naujo varianto pradžia.

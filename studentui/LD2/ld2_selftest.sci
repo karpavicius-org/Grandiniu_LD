@@ -53,18 +53,18 @@ function [ok,log]=ld2_selftest()
         end
         [ok,log]=ld2_test_true(ok,log,"Visi 45 registro mygtukų veiksmai apibrėžti",defined);
         meth_ok=%t;
-        for st=1:12
+        for st=ld2_visible_steps()
             d=ld2_method_data(st);
             if size(d.method,"*")<3 | size(strindex(d.method(1),"["),"*")==0 then meth_ok=%f; end
         end
-        [ok,log]=ld2_test_true(ok,log,"12 etapų metodika su kodais",meth_ok);
+        [ok,log]=ld2_test_true(ok,log,"10 aktyvių etapų metodika su kodais",meth_ok);
         ilines=ld2_instruction_lines(2);
         [ok,log]=ld2_test_true(ok,log,"Instrukcijos deleguojamos į metodiką su kodais", ...
             size(ilines,"*")>=5 & size(strindex(ilines(4),"[T01]"),"*")>0 & ...
             size(strindex(ilines(3),"[B09]"),"*")>0);
 
         // All sample stages use the actual measurement, recording and evaluation code.
-        for step=1:12
+        for step=ld2_visible_steps()
             ld2_test_new_state();
             LD2.example_active=%t;
             ld2_prepare_example(step);
@@ -78,7 +78,31 @@ function [ok,log]=ld2_selftest()
         // A full student workflow, in one persistent state, through clicks and measurements.
         ld2_test_new_state();
         LD2.state.teacher_mode=%f;
-        for step=1:12
+        [ok,log]=ld2_test_true(ok,log,"Studento matomų etapų skaičius yra 10", ...
+            size(ld2_visible_steps(),"*")==10 & ld2_visible_next(2)==4 & ld2_visible_next(5)==7);
+        [ok,log]=ld2_test_true(ok,log,"Grįžimo kelias aplenkia 3 ir 6", ...
+            ld2_visible_previous(4)==2 & ld2_visible_previous(7)==5);
+        // Exercise the real advance/back callbacks, not only arithmetic mappings.
+        ld2_test_new_state(); LD2.state.step=2; LD2.state.completed(2)=1;
+        ld2_next();
+        [ok,log]=ld2_test_true(ok,log,"RC: po laidų jungimo tiesiai į matavimus", ...
+            LD2.state.step==4 & LD2.state.completed(3)==1);
+        LD2.state.step=5; LD2.state.completed(5)=1;
+        ld2_next();
+        [ok,log]=ld2_test_true(ok,log,"RL: po laidų jungimo tiesiai į matavimus", ...
+            LD2.state.step==7 & LD2.state.completed(6)==1);
+        ld2_prev();
+        [ok,log]=ld2_test_true(ok,log,"RL: Atgal grąžina į jungimo ekraną",LD2.state.step==5);
+        ld2_test_new_state(); LD2.state.step=3;
+        ld2_go_step(3,%f);
+        [ok,log]=ld2_test_true(ok,log,"Atkuriamas senas 3 etapas nenuklysta į tuščią langą",LD2.state.step==4);
+        ld2_test_new_state(); LD2.state.step=6;
+        ld2_go_step(6,%f);
+        [ok,log]=ld2_test_true(ok,log,"Atkuriamas senas 6 etapas nenuklysta į tuščią langą",LD2.state.step==7);
+        [labels,n3]=ld2_answer_spec(3);
+        [labels,n6]=ld2_answer_spec(6);
+        [ok,log]=ld2_test_true(ok,log,"Nebėra teorinių įvesties laukų",n3==0 & n6==0);
+        for step=ld2_visible_steps()
             ld2_go_step(step,%f);
             phase=ld2_phase_for_step(step);
             if step==2 | step==5 | step==8 then
@@ -86,10 +110,6 @@ function [ok,log]=ld2_selftest()
                 for k=1:size(req,1)
                     ld2_terminal_click(req(k,1)); ld2_terminal_click(req(k,2));
                 end
-            elseif step==3 then
-                ld2_test_answers(step,[rc.X rc.Z rc.I*1000 rc.UR rc.UX rc.P*1000 rc.PHI_I]);
-            elseif step==6 then
-                ld2_test_answers(step,[rl.X rl.Z rl.I*1000 rl.UR rl.UX rl.P*1000 rl.PHI_I]);
             elseif step==4 | step==7 then
                 if ~LD2.state.power then ld2_power_toggle(); end
                 ld2_measure_current();
@@ -130,7 +150,8 @@ function [ok,log]=ld2_selftest()
             ld2_check_step();
             [ok,log]=ld2_test_true(ok,log,"Nuosekli studento sesija: etapas "+string(step),LD2.state.completed(step)==1);
         end
-        [ok,log]=ld2_test_true(ok,log,"Visi 12 etapų vienoje sesijoje",and(LD2.state.completed==1));
+        [ok,log]=ld2_test_true(ok,log,"10 aktyvių etapų ir 2 nematomi suderinamumo etapai",and(LD2.state.completed==1) & ...
+            and(LD2.state.answers_text(3,:)=="") & and(LD2.state.answers_text(6,:)==""));
         [ok,log]=ld2_test_true(ok,log,"Lentelėje 11 taškų ir atskira 0 Hz kilmė", ...
             size(LD2.state.sweep_f,"*")==11 & LD2.state.sweep_source(1)=="TEORINĖ 0 Hz RIBA");
         count=length(LD2.state.measurements);
@@ -165,13 +186,13 @@ function [ok,log]=ld2_selftest()
         ld2_power_toggle(); ld2_measure_voltage(); ld2_remove_voltage_probes();
         [ok,log]=ld2_test_true(ok,log,"Atjungus zondus nėra skaitinio rodmens",~LD2.state.last_voltage.valid & isnan(LD2.state.volt_live));
 
-        // Unsaved strings are owned by the rendered stage, not the destination stage.
-        ld2_test_new_state(); LD2.state.step=3;
-        LD2.ui.answer_step=3;
+        // A pending student measurement answer stays with its original step.
+        ld2_test_new_state(); LD2.state.step=4;
+        LD2.ui.answer_step=4;
         LD2.ui.answer_edits=[struct("string","12,34") struct("string","1e")];
-        LD2.state.step=4; ld2_save_answers();
+        LD2.state.step=5; ld2_save_answers();
         [ok,log]=ld2_test_true(ok,log,"Neužbaigtas tekstas išsaugomas ankstesniame etape", ...
-            LD2.state.answers_text(3,1)=="12,34" & LD2.state.answers_text(3,2)=="1e" & LD2.state.answers_text(4,1)=="");
+            LD2.state.answers_text(4,1)=="12,34" & LD2.state.answers_text(4,2)=="1e" & LD2.state.answers_text(5,1)=="");
         LD2.ui.answer_edits=[]; LD2.ui.answer_step=0;
         LD2.state.step=10; LD2.state.answers_text(10,1)="mano tekstas";
         before=LD2.state;

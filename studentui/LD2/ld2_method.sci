@@ -1,7 +1,7 @@
 // ============================================================================
 // LD2 metodikos langas ir per-etapo turinys su elementų numerių kodais.
 // Adaptuota iš numerių registro architektūros: visi kodai laužtiniuose
-// skliaustuose ([T07], [B12], [A03.01], [W01]), laidai visur W%02d.
+// skliaustuose ([T07], [B12], [A04.01], [W01]), laidai visur W%02d.
 // ============================================================================
 
 // Metodika: naujai parašyti paaiškinimai, ne pažodinė šaltinių kopija.
@@ -9,13 +9,14 @@ function lines=ld2_common_theory()
     lines=["Šis stendas modeliuoja tik nusistovėjusią sinusinę būseną. Tai virtualūs matavimai, o ne iš fizinio KL modulio gauti duomenys. Laidai ir ampermetras idealūs, voltmetras grandinės neapkrauna; nevertinamos temperatūros, triukšmo ir komponentų tolerancijos."; ...
         "E, U, I ir prietaisų rodmenys yra efektinės (RMS) vertės. Sinuso amplitudė Um = sqrt(2)·U, periodas T = 1/f. Dažnis f matuojamas Hz, kampinis dažnis omega = 2·pi·f – rad/s."; ...
         "Vienetai: 1 kΩ = 1000 Ω; 1 mH = 0,001 H; 1 µF = 10^(-6) F; 1 nF = 10^(-9) F; 1 A = 1000 mA; 1 W = 1000 mW. Į [F04] rašomi Hz, ne kHz. Atsakymo lauke įrašomas tik skaičius jo etiketėje nurodytu vienetu; leidžiamas taškas arba kablelis."; ...
-        "Fazės sutartis: šaltinio įtampos fazė 0°. φZ yra grandinės kompleksinės varžos kampas; srovės fazė φI = −φZ. RC atsakymo lauke φI teigiama, RL – neigiama. Varžų ir įtampų diagramose atskirai nurodyta atskaita."; ...
-        "Kontaktai visada pažymėti [T01]–[T38], mygtukai [B01]–[B45], etapų pasirinkimas [E01]–[E12], įvedimo laukai [F01]–[F04], papildomi valdikliai [V01]–[V02]. [H01]–[H04] numeriai priklauso metodikos langui. Tas pats numeris visuomet reiškia tą pačią paskirtį."; ...
+        "Fazės sutartis: šaltinio įtampos fazė 0°. φZ yra kompleksinės varžos kampas, srovės fazė φI = −φZ. RC srovė pirmauja, RL atsilieka; tai aiškina oscilograma ir fazorių diagramos, o ne pašalinti teoriniai įvedimo laukai."; ...
+        "Kontaktai pažymėti [T01]–[T38], mygtukai [B01]–[B45], o 10 aktyvių etapų pasiekiami per Pagalba → Etapai, įvedimo laukai [F01]–[F04], papildomi valdikliai [V01]–[V02]. [H01]–[H04] numeriai priklauso metodikos langui. Tas pats numeris visuomet reiškia tą pačią paskirtį."; ...
+        "Dešinėje matomas KĄ DARYTI DABAR? – vienas artimiausias veiksmas, pagal būseną paryškintas gnybtas arba mygtukas. Tai pagalba, ne automatinis atlikimas."; ...
         "Jungtis sukuriama dviem paspaudimais: pirmas [T] numeris, paskui antras [T] numeris. Pažymėtas lizdas pagelsta. Vienam fiziniam lizdui skirtas vienas laidas. Susikertančios linijos be bendro lizdo nesudaro naujo mazgo."; ...
         "Pagrindiniai ir matavimo lizdai yra atskiri fiziniai lizdai tame pačiame elektriniame taške. Pavyzdžiui, R8 [T09] ir [T11] yra sujungti viduje, kaip ir [T10] bei [T12]. Violetinis matavimo lizdas nėra papildomas elementas grandinėje."; ...
         "[B14] arba [B15] atlieka matavimą ir įrašo jį į žurnalą. [B21], [B23], [B24] ir [B25] papildomai atrenka jau atliktą matavimą atitinkamai paieškos lentelei. Pakeitus f, laidus ar maitinimą, gyvas rodmuo panaikinamas; žurnalas išlieka."; ...
-        "[B03] atveria to paties varianto atliktą pavyzdį, o antras paspaudimas grąžina jūsų darbą. Pavyzdžio duomenys atskirti nuo studento duomenų. Laisva navigacija ([V02]) leidžia atverti bet kurį etapą, tačiau automatiškai paruošta schema ataskaitoje bus pažymėta. Praleistas etapas nėra atliktas."; ...
-        "[B05] išsaugo tęsiamą .sod darbą. [B07] įrašo ataskaitą. Galutinė ataskaita galima, kai patikrinti visi etapai, įvestas studento numeris ir bendros išvados; kitu atveju ataskaita aiškiai pažymima JUODRAŠTIS. Vardo ir grupės nurodymas reikalingas galutinei ataskaitai."];
+        "Mokymosi režimu [B03] atveria atliktą pavyzdį, o antras paspaudimas grąžina jūsų darbą. Pavyzdžio duomenys atskirti. Per Pagalba → Etapai galima sugrįžti į jau pasiektą etapą. Praleistas etapas nėra atliktas."; ...
+        "Per Pagalba galima išsaugoti ir atkurti .sod juodraštį. Išsaugoti ataskaitą sukuria vieną HTML failą su studento duomenimis, matavimais ir atsakymais. Ją dėstytojui siųskite užbaigę visus etapus."];
 endfunction
 
 function d=ld2_method_data_1_4(step)
@@ -34,26 +35,17 @@ function d=ld2_method_data_1_4(step)
         d.goal="Sujungti nuoseklią RC grandinę ir teisingai įterpti ampermetrą.";
         d.theory=["Nuoseklioje grandinėje rezistoriumi, kondensatoriumi ir ampermetru teka ta pati srovė. Visi keturi pagrindiniai laidai sudaro vieną uždarą kelią nuo generatoriaus išėjimo atgal iki jo grįžimo lizdo.";"Idealiame ampermetre įtampos kritimo nepaisoma. Jis įterpiamas į srovės kelią, o ne prijungiamas tarp generatoriaus gnybtų. Šis vedamasis stendas netinkamos jungties neįrašo ir nurodo reikalingą porą.";"RC kondensatorius nekeičiamas laidu: kondensatoriaus vidinis ryšys priklauso nuo dažnio, jo gnybtai nėra tas pats mazgas. Matavimo lizdai [T11]/[T12] ir [T15]/[T16] šiame sujungimo etape nereikalingi."];
         d.method=["1. [B09] būsena turi būti IŠJUNGTA. Jei jau įjungta, paspauskite [B09].";"2. [W01]: [T01] → [T05]. Spauskite [T01], po to [T05]. Generatoriaus išėjimas → ampermetro įėjimas.";"3. [W02]: [T06] → [T09]. Spauskite [T06], po to [T09]. Ampermetro COM → R8 kairysis lizdas.";"4. [W03]: [T10] → [T13]. Spauskite [T10], po to [T13]. R8 dešinysis lizdas → C2 kairysis lizdas.";"5. [W04]: [T14] → [T02]. Spauskite [T14], po to [T02]. C2 dešinysis lizdas → generatoriaus grįžimas.";"6. [B04] patikrinkite 4 laidus. Suklydus [B11] atšaukia paskutinį, [B12] išvalo šios dalies laidus.";"7. [B03] galima apžiūrėti atliktą jungimą ir grįžti į savo darbą. Tada [B04], paskui Toliau →."];
-        d.formulas=["Srovės kelias: [T01] → [T05] — A~ — [T06] → [T09] — R8 — [T10] → [T13] — C2 — [T14] → [T02].";"ZRC = R8 − j/(2·pi·f·C2). Skaičiuosime [E03]."];
+        d.formulas=["Srovės kelias: [T01] → [T05] — A~ — [T06] → [T09] — R8 — [T10] → [T13] — C2 — [T14] → [T02].";"ZRC = R8 − j/(2·pi·f·C2); teorinė formulė aptariama RC matavimo etape."];
         d.check=["4 pagrindiniai laidai, nė vieno voltmetro zondo.";"[B04] nerodo trūkstamų jungčių; [E02] po patikros pažymimas atliktu."];
         d.mistakes=["[T09] jau užimtas: kitas laidas jungiamas prie [T10], ne dar kartą [T09].";"Paspaustas komponento pavadinimas: spauskite patį numeruotą lizdą, pvz., [T09].";"Laido nėra: pasirinkti reikia du skirtingus lizdus iš nurodytos poros."];
         d.questions=["Kodėl ampermetras nėra jungiamas lygiagrečiai šaltiniui?";"Kodėl vienodas srovės stipris nereiškia vienodų elementų įtampų?"];
         d.source=["[S1] p. 3, RC darbo 1–2 punktai.";"[S3] matavimo prietaisų nuoseklaus ir lygiagretaus jungimo pagrindai.";"[N] T numeriai ir keturių laidų planas – virtualaus stendo realizacija."];
-    case 3 then
-        d.goal="Apskaičiuoti RC reaktyviąją varžą, srovę, įtampas, galią ir fazę.";
-        d.theory=["Rezistoriaus varža yra reali: ZR = R. Kondensatoriaus varža ZC = −jXC, todėl bendras impedansas Z = R−jXC. XC yra teigiamas talpinės varžos modulis; minusas yra kompleksinėje išraiškoje.";"Bendros varžos modulio negalima gauti sudedant R+XC. Šie dydžiai statmeni kompleksinėje plokštumoje, todėl naudojama kvadratinė šaknis iš kvadratų sumos.";"UR ir UC įtampų fazės skiriasi 90°. Įtampų fazorių suma lygi šaltinio fazoriui; moduliams E = sqrt(UR²+UC²), o ne UR+UC.";"Kondensatorius šiame idealiame modelyje vidutiniškai aktyviosios galios nevartoja. P = I²R yra rezistoriuje išskiriama aktyvioji galia. Visos įtampos ir srovės formulėse yra RMS.";"Šiame atsakymų lape prašoma srovės fazės φI šaltinio įtampos atžvilgiu. RC srovė pirmauja, todėl φI > 0; varžos kampas φZ = −φI."];
-        d.method=["1. [B39] nusirašykite savo E_RC, f_RC, R8 ir C2. C2 reikšmę iš µF paverskite į F.";"2. Pagal žemiau pateiktą seką apskaičiuokite XC, |Z|, I, UR8, UC2, P ir φI.";"3. [A03.01]–[A03.07] įrašykite skaičius etiketėse nurodytais vienetais. I pateikiama mA, P – mW, φI – laipsniais.";"4. Meniu „Grafikai“: [B28] varžų ir [B29] įtampų diagramos yra modelio paaiškinimai, ne matavimai.";"5. [B41] trumpai paaiškinkite rezultatus. [B04] patikrinkite skaičius. Jei reikia, [B03] rodo sprendimą jūsų parametrams."];
-        d.formulas=["XC = 1/(2·pi·f_RC·C2).";"Z = R8 − jXC; |Z| = sqrt(R8² + XC²).";"I = E_RC/|Z|; į atsakymą I_mA = 1000·I.";"UR8 = I·R8; UC2 = I·XC.";"P = I²·R8; į atsakymą P_mW = 1000·P.";"φI = atan(XC/R8)·180/pi; φZ = −φI."];
-        d.check=["Patikra: sqrt(UR8²+UC2²) ≈ E_RC.";"|Z| ≥ R8; I ≤ E_RC/R8; φI tarp 0 ir +90°."];
-        d.mistakes=["I per mažas 1000 kartų: į mA lauką neperskaičiuota srovė amperais.";"Gautas neigiamas XC: į XC lauką rašykite modulį, −j yra impedanso žymėjime.";"Fazė radianais: atan rezultatą padauginkite iš 180/pi."];
-        d.questions=["Kodėl E nėra lygi UR8+UC2?";"Kas nutiktų XC padidinus dažnį du kartus?"];
-        d.source=["[S1] p. 3, RC 3 ir 7 punktai.";"[S4] PD8 teorija: kompleksinė varža ir efektinės vertės.";"[N] aiškiai atskirtos φI ir φZ bei papildytas fazės skaičiavimas."];
     case 4 then
-        d.goal="Išmatuoti RC srovę ir tris įtampas; patikrinti fazorinį įtampų balansą.";
+        d.goal="Sujungus RC grandinę išmatuoti srovę bei įtampas ir palyginti du matavimais pagrįstus dydžius. Septyni teoriniai skaičiavimai nebereikalingi.";
         d.theory=["Voltmetras jungiamas lygiagrečiai: jo du zondai turi apimti vieną visą elementą arba šaltinį. [T07] yra V~ lizdas, [T08] – COM. Tai atskiras prietaisas nuo grandinėje esančio ampermetro.";"R8 matavimo pora [T11]/[T12] elektriškai sutampa su pagrindiniais [T09]/[T10], C2 pora [T15]/[T16] – su [T13]/[T14], o šaltinio [T03]/[T04] – su [T01]/[T02]. Todėl voltmetro matavimas pagrindinio laido nenutraukia.";"Pakeitus zondus senasis gyvas skaičius išnyksta. [B15] atlieka naują matavimą ir jį išsaugo žurnale. Vien zondų prijungimas nėra matavimas.";"Iš matuotų UR ir UC apskaičiuokite šaltinio RMS įtampą pagal statmenų fazorių sumą. Srovę patikrinkite per rezistorių: I = UR/R8. Idealiame modelyje skirtumai gali kilti tik dėl apvalinimo."];
         d.method=["1. [B09] įjunkite generatorių. [B14] išmatuokite I; rodmuo ir kilmė atsiranda žurnale.";"2. UR8: [T07] → [T11] ir [T08] → [T12]. [B15] išmatuokite įtampą.";"3. [B13] nuimkite abu V zondus. UC2: [T07] → [T15] ir [T08] → [T16]. [B15].";"4. [B13]. Šaltinis E: [T07] → [T03] ir [T08] → [T04]. [B15].";"5. [A04.01] įrašykite sqrt(UR8²+UC2²); [A04.02] įrašykite 1000·UR8/R8.";"6. Meniu „Grafikai“ ([B28], [B29], [B30]): diagramos ir oscilograma. [B41] atsakykite į klausimus. [B04] patikrinkite."];
         d.formulas=["E_sk = sqrt(UR8_mat²+UC2_mat²).";"I_sk,mA = 1000·UR8_mat/R8.";"δE = 100·(E_sk−E_mat)/E_mat.";"u(t)=sqrt(2)·E·sin(2·pi·f·t); i(t)=sqrt(2)·I·sin(2·pi·f·t+φI)."];
-        d.check=["Žurnale turi būti RC I, UR, UC ir UE.";"Du skaitiniai atsakymai apskaičiuoti iš matavimų, ne vien nukopijuoti iš [E03]."];
+        d.check=["Žurnale turi būti RC I, UR, UC ir UE.";"Du skaitiniai atsakymai apskaičiuoti iš realiai užfiksuotų virtualių matavimų."];
         d.mistakes=["NEPRIJUNGTA: patikrinkite abu zondus; vien [T07] → [T11] nepakanka.";"PARUOŠTA: spauskite [B15], o srovei [B14].";"Norite keisti UR į UC: [B13] nuima tik zondus; pagrindinės grandinės neardykite."];
         d.questions=["Ką oscilogramoje reiškia srovės pirmavimas?";"Ar idealus virtualus matavimas leidžia įvertinti tikro voltmetro paklaidą? Kodėl?"];
         d.source=["[S1] p. 3, RC 4–7 punktai.";"[N] matavimų žurnalas, jų kilmė ir oscilograma – papildymas."];
@@ -73,17 +65,8 @@ function d=ld2_method_data_5_8(step)
         d.mistakes=["Ieškote [T09]: jis priklauso RC R8. RL rezistorius yra R9, jo pagrindiniai lizdai [T17] ir [T18].";"Norite prijungti ritę prie matavimo lizdo: naudokite pagrindinius [T21] ir [T22]."];
         d.questions=["Kaip nuo dažnio priklauso ritės ir kondensatoriaus varžos?";"Kokia tikros ritės savybė čia sąmoningai neįtraukta?"];
         d.source=["[S1] p. 4, RL 1–2 punktai.";"[N] idealių elementų prielaidos ir numeravimo sistema."];
-    case 6 then
-        d.goal="Apskaičiuoti RL reaktyviąją varžą, srovę, įtampas, galią ir fazę.";
-        d.theory=["Ritės impedansas yra +jXL, tad Z = R9+jXL. Bendro modulio formulė tokia pati kaip RC, tačiau reaktyviosios dalies ženklas priešingas.";"Ritės įtampa pirmauja jos srovę 90°. Visa RL grandinės srovė atsilieka nuo šaltinio įtampos, todėl atsakymų lauke φI yra neigiama. Originale prašomas grandinės kampas gali būti žymimas φZ; abu kampai turi tą patį modulį ir priešingus ženklus.";"Aktyvioji galia išskiriama R9 rezistoriuje. Ritė periodiškai kaupia ir grąžina magnetinio lauko energiją, bet idealios ritės vidutinė aktyvioji galia lygi nuliui.";"Įtampų moduliams E²=UR²+UL². Ši lygybė galioja šiam idealiam nuosekliam RL modeliui, ne bet kuriam netiesiniam ar nesinusiniam bandymui."];
-        d.method=["1. [B39] nusirašykite E_RL, f_RL, R9 ir L1. Induktyvumą formulėse naudokite H.";"2. Apskaičiuokite XL, |Z|, I, UR9, UL1, P ir φI.";"3. [A06.01]–[A06.07] įrašykite skaičius: Ω, Ω, mA, V, V, mW, °.";"4. Meniu „Grafikai“ ([B28], [B29]): induktyvioji diagramos dalis. [B41] įrašykite savo palyginimą su RC.";"5. [B04] patikrinkite. Jei atsakymas netinka, klaidoje bus nurodytas konkretus laukas, pvz., [A06.03]."];
-        d.formulas=["XL = 2·pi·f_RL·L1.";"Z = R9+jXL; |Z| = sqrt(R9²+XL²).";"I_mA = 1000·E_RL/|Z|.";"UR9 = I·R9; UL1 = I·XL.";"P_mW = 1000·I²·R9.";"φZ = atan(XL/R9)·180/pi; φI = −φZ."];
-        d.check=["φI yra tarp −90° ir 0°.";"sqrt(UR9²+UL1²) ≈ E_RL."];
-        d.mistakes=["Gautas teigiamas kampas: tai gali būti φZ, tačiau [A06.07] prašoma φI = −φZ.";"Įrašėte 500 vietoje 0,5 H: mH reikia padauginti iš 0,001."];
-        d.questions=["Kodėl RL ir RC fazių ženklai priešingi?";"Kodėl didinant RL dažnį srovė mažėja?"];
-        d.source=["[S1] p. 4, RL 3 ir 6 punktai.";"[N] aiškiai atskirta srovės fazė nuo impedanso kampo."];
     case 7 then
-        d.goal="Išmatuoti RL rodmenis ir patikrinti įtampų bei fazių ryšius.";
+        d.goal="Sujungus RL grandinę išmatuoti rodmenis ir patikrinti įtampų ryšius. Septyni teoriniai skaičiavimai nebereikalingi.";
         d.theory=["Matavimo principas toks pats kaip [E04]: ampermetras pagrindinėje grandinėje, voltmetras lygiagrečiai pasirinktam elementui. Šioje dalyje R9 matavimo lizdai yra [T19]/[T20], L1 – [T23]/[T24].";"Voltmetras rodo RMS modulį. Sukeitus jo zondus sinusinės įtampos RMS modulis nesikeičia; fazoriaus krypties sutartis diagramoje vis tiek turi būti nurodyta.";"Iš UR9 išvestą srovę lyginkite su A~ rodmeniu. E išveskite iš UR9 ir UL1 fazorių, ne jų paprastos aritmetinės sumos.";"Oscilograma apskaičiuota iš sinusinio modelio ir parodo fazės poslinkį. Ji nevaizduoja realaus skaitmeninio osciloskopo triukšmo ar diskretizavimo paklaidų."];
         d.method=["1. [B09] įjunkite generatorių. [B14] išmatuokite I.";"2. UR9: [T07] → [T19], [T08] → [T20]. [B15].";"3. [B13]. UL1: [T07] → [T23], [T08] → [T24]. [B15].";"4. [B13]. Šaltinio E: [T07] → [T03], [T08] → [T04]. [B15].";"5. [A07.01] įrašykite sqrt(UR9²+UL1²); [A07.02] – 1000·UR9/R9.";"6. Meniu „Grafikai“ ([B28], [B29], [B30]) palyginkite diagramas. [B41] įrašykite pastebėjimus. [B04]."];
         d.formulas=["E_sk = sqrt(UR9_mat²+UL1_mat²).";"I_sk,mA = 1000·UR9_mat/R9.";"i(t) = sqrt(2)·I·sin(2·pi·f·t+φI), φI<0."];
@@ -127,7 +110,7 @@ function d=ld2_method_data_9_12(step)
         d.source=["[S1] p. 5–6, RLC 5–7 punktai.";"[N] tikslios idealaus slopinamo kontūro maksimumų formulės ir jų aiškus atskyrimas."];
     case 11 then
         d.goal="Rasti pusės aktyviosios galios dažnius f1 ir f2, BW ir Q.";
-        d.theory=["Rezistoriaus galia P = I²R13. Pusė maksimumo galios atitinka I = Imax/sqrt(2), todėl ir UR13 = UR13,max/sqrt(2). Įtampos lygis yra maždaug 0,7071 maksimumo, ne pusė įtampos.";"Originalo 8–11 punktai pusės galios ribas siūlo sieti su ritės įtampa. Šiame stende tai aiškiai pakeista: aktyviosios galios ribos nustatomos per R13 įtampą. Ritės įtampa papildomai priklauso nuo dažnio, todėl jos 0,707·UL,max kriterijus nėra tas pats.";"f1 yra žemiau srovės rezonanso, f2 – aukščiau. Juostos plotis BW = f2−f1; matavimu paremtas kokybės koeficientas Qmat = fr_mat/BW.";"Kai [E09] atliktas, slenkstis nustatomas iš ten užfiksuoto UR13 maksimumo. Laisvai peršokus į [E11], orientyras yra nominali E_RLC ir teorinis f0; tai aiškiai pažymima ir ataskaitoje. [E09] vis tiek lieka neatliktas.";"Analitinės ribos pateiktos savikontrolei. Jos nepakeičia reikalavimo [B24] ir [B25] išsaugoti galiojantį virtualų matavimą abiejose rezonanso pusėse."];
+        d.theory=["Rezistoriaus galia P = I²R13. Pusė maksimumo galios atitinka I = Imax/sqrt(2), todėl ir UR13 = UR13,max/sqrt(2). Įtampos lygis yra maždaug 0,7071 maksimumo, ne pusė įtampos.";"Originalo 8–11 punktai pusės galios ribas siūlo sieti su ritės įtampa. Šiame stende tai aiškiai pakeista: aktyviosios galios ribos nustatomos per R13 įtampą. Ritės įtampa papildomai priklauso nuo dažnio, todėl jos 0,707·UL,max kriterijus nėra tas pats.";"f1 yra žemiau srovės rezonanso, f2 – aukščiau. Juostos plotis BW = f2−f1; matavimu paremtas kokybės koeficientas Qmat = fr_mat/BW.";"Kai [E09] atliktas, slenkstis nustatomas iš ten užfiksuoto UR13 maksimumo. Laisvai peršokus į pusės galios etapo, orientyras yra nominali E_RLC ir teorinis f0; tai aiškiai pažymima ir ataskaitoje. [E09] vis tiek lieka neatliktas.";"Analitinės ribos pateiktos savikontrolei. Jos nepakeičia reikalavimo [B24] ir [B25] išsaugoti galiojantį virtualų matavimą abiejose rezonanso pusėse."];
         d.method=["1. [B13]; [T07] → [T35], [T08] → [T36]. [B09] įjunkite generatorių.";"2. Lentelėje nusirašykite UR13 slenkstį. Pasirinkite dažnį žemiau fr per [F04] ir [B16].";"3. [B15] matuokite ir keiskite f, kol UR13 priartės prie slenksčio. [B24] užfiksuokite f1.";"4. Dažnį perkelkite aukščiau fr. Kartokite keitimą ir [B15]. [B25] užfiksuokite f2.";"5. [A11.01] slenkstis; [A11.02] f1; [A11.03] f2; [A11.04] f2−f1; [A11.05] fr/BW.";"6. [B41] parašykite, kuo paremti slenkstis ir Q. [B04] tikrinkite."];
         d.formulas=["U_slenkstis = UR13,max/sqrt(2).";"f1 = (sqrt(R13²+4L3/C4)−R13)/(4·pi·L3).";"f2 = (sqrt(R13²+4L3/C4)+R13)/(4·pi·L3).";"BW_teor = R13/(2·pi·L3); Q_teor = f0/BW_teor."; "BW_mat = f2_mat−f1_mat; Q_mat = fr_mat/BW_mat."];
         d.check=["Yra abu matavimo mygtukais užfiksuoti taškai ir f1 < fr < f2.";"[B24]/[B25] leidžia iki 3 % slenksčio rodmens skirtumą; tai mokomasis paieškos kriterijus.";"Tik įrašytų teorinių f1/f2 į laukus nepakanka."];
@@ -137,9 +120,9 @@ function d=ld2_method_data_9_12(step)
     case 12 then
         d.goal="Sudaryti dažninę lentelę, apibendrinti rezultatus ir išsaugoti detalų darbą.";
         d.theory=["Dažninė charakteristika parodo, kaip UR13 priklauso nuo generatoriaus dažnio. Originalaus aprašo lentelėje naudojami 0, 1, 2, ..., 10 kHz taškai; toks žingsnis gali nepagauti siauro maksimumo, todėl iš [E09] turimi papildomi paieškos taškai yra svarbūs.";"[B26] vykdo virtualių 1–10 kHz matavimų seką su tuo pačiu modeliu ir tikrintuvu. 0 Hz nėra sinusinis AC signalas: jo eilutė pažymėta kaip teorinė ribinė vertė UR13 → 0. Ji nepateikiama kaip voltmetro matavimas.";"Ataskaita atskiria priskirtus parametrus, studento tekstą, teorinę atskaitą, virtualius matavimus, užfiksuotus ekstremumus, klaidų žurnalą ir atliktus/praleistus etapus. Pavyzdžio duomenys neperrašomi kaip studento matavimai.";"[B07] generuoja savarankišką HTML dokumentą su lentelėmis ir diagramomis, CSV duomenimis ir .sod tęsimo failu. HTML galima atverti naršyklėje be interneto; naršyklės spausdinimo lange galima pasirinkti PDF. Tai nėra automatinis PDF spausdintuvo valdymas iš Scilab.";"Ataskaita nėra galutinis pažymys. Skaitinė savikontrolė ir atlikimo būsenos padeda dėstytojui, tačiau kokybinius paaiškinimus ir išvadas vertina dėstytojas."];
-        d.method=["1. [B13]; [T07] → [T35], [T08] → [T36]. [B09] įjunkite generatorių.";"2. [B26] atlikite 0–10 kHz skenavimą. Patikrinkite visas 11 eilučių ir kilmės stulpelį.";"3. Meniu „Grafikai“ ([B31]) – lentelės grafikas. [B33] – visą matavimų žurnalą, [B34] – atsakymų suvestinę.";"4. [B41] aprašykite šio etapo kreivę. [B08] įrašykite bendras darbo išvadas: RC/RL fazės, fazorių sumos, fr, įtampų maksimumai, BW ir Q.";"5. [B04] patikrinkite [E12]. Kai visi etapai patikrinti ir užpildyti studento duomenys bei išvados, programa pasiūlo išsaugoti galutinę ataskaitą.";"6. [B07] bet kada sugeneruoja ataskaitą: neužbaigto darbo dokumentas aiškiai pažymimas JUODRAŠTIS. Pasirinkite aplanką.";"7. Atverkite nurodytą ATASKAITA.html, patikrinkite variantą, savo tekstą ir matavimus. Pateikite dėstytojui visą sugeneruotą aplanką arba HTML su priedais."];
+        d.method=["1. [B13]; [T07] → [T35], [T08] → [T36]. [B09] įjunkite generatorių.";"2. [B26] atlikite 0–10 kHz skenavimą. Patikrinkite visas 11 eilučių ir kilmės stulpelį.";"3. Meniu „Grafikai“ ([B31]) – lentelės grafikas. [B33] – visą matavimų žurnalą, [B34] – atsakymų suvestinę.";"4. [B41] aprašykite šio etapo kreivę. [B08] įrašykite bendras darbo išvadas: RC/RL fazės, fazorių sumos, fr, įtampų maksimumai, BW ir Q.";"5. [B04] patikrinkite galutinio etapo. Kai visi etapai patikrinti ir užpildyti studento duomenys bei išvados, programa pasiūlo išsaugoti galutinę ataskaitą.";"6. [B07] bet kada sugeneruoja ataskaitą: neužbaigto darbo dokumentas aiškiai pažymimas JUODRAŠTIS. Pasirinkite aplanką.";"7. Atverkite nurodytą ATASKAITA.html, patikrinkite variantą, savo tekstą ir matavimus. Pateikite dėstytojui visą sugeneruotą aplanką arba HTML su priedais."];
         d.formulas=["UR13(f) = E_RLC·R13 / sqrt(R13²+(2·pi·f·L3−1/(2·pi·f·C4))²), kai f>0.";"Riba f→0+: UR13→0.";"Δ = studento rezultatas − atskaitos rezultatas; δ = 100·Δ/atskaita, tik kai atskaita nelygi nuliui."];
-        d.check=["11 skenavimo eilučių; 0 Hz eilutė aiškiai teorinė.";"Ataskaitoje yra sąrašo numeris, LD2-Vnn, priskirti parametrai, 12 etapų būsenos ir išvados.";"Neatliktas rodmuo rašomas NEATLIKTA, ne 0 ir ne teorinis skaičius."];
+        d.check=["11 skenavimo eilučių; 0 Hz eilutė aiškiai teorinė.";"Ataskaitoje yra sąrašo numeris, LD2-Vnn, priskirti parametrai, 10 aktyvių etapų būsenos ir išvados.";"Neatliktas rodmuo rašomas NEATLIKTA, ne 0 ir ne teorinis skaičius."];
         d.mistakes=["[B26] neleidžia skenuoti: [B09] įjungta ir V zondai [T07]–[T35] / [T08]–[T36] turi būti prijungti.";"Ataskaita JUODRAŠTIS: patikrinkite nepabaigtų etapų sąrašą, [F02]/[F03] ir [B08] išvadas.";"Neturite rašymo teisių: [B07] pasirinkite savo Dokumentų aplanką, ne Program Files."];
         d.questions=["Kodėl 1 kHz žingsnio lentelė gali nepataikyti į rezonansą?";"Kuri jūsų ataskaitos dalis gauta matuojant, o kuri – skaičiuojant?";"Kokie modelio ribotumai trukdo šiuos skaičius laikyti realaus modulio matavimais?"];
         d.source=["[S1] p. 6, RLC 12–13 punktai ir išvados.";"[N] ataskaita, žurnalas, individualūs variantai, savikontrolė ir duomenų kilmė."];
@@ -148,6 +131,8 @@ function d=ld2_method_data_9_12(step)
 endfunction
 
 function d=ld2_method_data(step)
+    if step==3 then step=4; end
+    if step==6 then step=7; end
     if step>=1 & step<=4 then d=ld2_method_data_1_4(step);
     elseif step>=5 & step<=8 then d=ld2_method_data_5_8(step);
     elseif step>=9 & step<=12 then d=ld2_method_data_9_12(step);
@@ -176,8 +161,10 @@ function wh=ld2_aux_size(desired)
 endfunction
 
 function ld2_open_method(step)
-    // Visa etapo metodika atskirame lange. Headless režime nieko nekuria.
+    // The methodology follows exactly the same 10 stages as the student UI.
     global LD2;
+    if step==3 then step=4; end
+    if step==6 then step=7; end
     if isfield(LD2.ui,"headless") then
         if LD2.ui.headless then return; end
     end
@@ -195,10 +182,10 @@ function ld2_open_method(step)
         "backgroundcolor",[1 1 1]);
     uicontrol(f,"style","pushbutton","units","normalized","position",[0.025 0.025 0.22 0.055], ...
         "string","[H01] Ankstesnis etapas","fontname","DejaVu Sans","fontunits","pixels","fontsize",12, ...
-        "callback",msprintf("ld2_open_method(%d)",max([1 step-1])));
+        "callback",msprintf("ld2_open_method(%d)",ld2_visible_previous(step)));
     uicontrol(f,"style","pushbutton","units","normalized","position",[0.265 0.025 0.22 0.055], ...
         "string","[H02] Kitas etapas","fontname","DejaVu Sans","fontunits","pixels","fontsize",12, ...
-        "callback",msprintf("ld2_open_method(%d)",min([12 step+1])));
+        "callback",msprintf("ld2_open_method(%d)",ld2_visible_next(step)));
     uicontrol(f,"style","pushbutton","units","normalized","position",[0.505 0.025 0.23 0.055], ...
         "string","[H03] Kontaktų žinynas","fontname","DejaVu Sans","fontunits","pixels","fontsize",12, ...
         "callback","ld2_show_contact_map()");
@@ -255,8 +242,8 @@ function ld2_show_button_map()
     end
     [ids,cbs,labels,hints]=ld2_button_registry(); lines=emptystr(0,1);
     for k=1:size(ids,"*"); lines($+1,1)="["+ids(k)+"] "+labels(k)+" – "+hints(k); end
-    lines=[lines;"[E01]–[E12] – etapų pasirinkimas.";"[F01] – sąrašo numeris; [F02] – vardas, pavardė; [F03] – grupė; [F04] – dažnis Hz."; ...
-        "[A03.01] ir pan. – [E03] etapo atsakymo laukai. Kiekvienos etiketės pabaigoje nurodytas vienetas."; ...
+    lines=[lines;"10 etapų – pasirinkimas per Pagalba → Tęsti arba atkurti darbą → Etapai.";"[F01] – sąrašo numeris; [F02] – vardas, pavardė; [F03] – grupė; [F04] – dažnis Hz."; ...
+        "[A04.01], [A07.01] ir kt. – aktyvaus matavimo etapo atsakymo laukai su vienetais."; ...
         "[V01] – dažnio slankiklis; [V02] – laisva etapų navigacija (dėstytojo režimas)."; ...
         "[H01]/[H02] – metodikos ankstesnis/kitas etapas; [H03] – kontaktai; [H04] – uždaryti pagalbos langą."; ...
         "[D01], [D02] – patvirtinimo dialogų parinktys: pirmoji saugi (atšaukti / palikti), antroji patvirtina veiksmą."; ...

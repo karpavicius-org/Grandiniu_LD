@@ -336,7 +336,8 @@ function r=bench_report_data(lab)
         s=LD2.state; st=s.student; cfg=LD2.cfg;
         if isfield(s,"assessment") then if s.assessment then mode="assessment"; end; end
         if isfield(s,"practice_used") then practice=s.practice_used;end
-        for step=[3 4 6 7 9 10 11]
+        // LD2-2: the two removed 7-field theory sheets never become submitted answers.
+        for step=[4 7 9 10 11]
             select step
             case 3 then units=["Ohm" "Ohm" "mA" "V" "V" "mW" "deg"];
             case 6 then units=["Ohm" "Ohm" "mA" "V" "V" "mW" "deg"];
@@ -355,6 +356,7 @@ function r=bench_report_data(lab)
             params(field)=cfg(field);
         end
         evidence.wiring=struct("RC",bench_pairs(s.rc_connections),"RL",bench_pairs(s.rl_connections),"RLC",bench_pairs(s.rlc_connections));
+        evidence.removed_theory_pages=%t; // LD2-2: the old RC/RL theory sheets are not student submissions.
         evidence.resonance=list();
         for k=1:size(s.res_f,"*"); evidence.resonance($+1)=struct("f",s.res_f(k),"u",s.res_ur(k)); end
         evidence.peaks=list();
@@ -372,6 +374,7 @@ function r=bench_report_data(lab)
     if lab=="LD6" then r.lab_revision="3"; r.rubric_version="LD6-3"; end
     if lab=="LD7" then r.lab_revision="2"; r.rubric_version="LD7-2"; end
     if lab=="LD8" then r.lab_revision="2"; r.rubric_version="LD8-2"; end
+    if lab=="LD2" then r.lab_revision="2"; r.rubric_version="LD2-2"; end
     if lab=="LD1" then
         if isfield(evidence,"automatic_setup") then
             if evidence.automatic_setup then r.lab_revision="2";r.rubric_version="LD1-2";end

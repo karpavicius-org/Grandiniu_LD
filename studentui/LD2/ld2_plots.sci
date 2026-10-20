@@ -117,12 +117,12 @@ function ld2_show_summary_window()
     else
         rows=["Mokymasis: PATIKRINTA reiškia, kad etapas patikrintas šiame stende.";" "];
     end
-    for step=1:12
+    for step=ld2_visible_steps()
         if LD2.state.completed(step)==1 then
             if LD2.state.assessment then result="ĮRAŠYTA"; else result="PATIKRINTA"; end
         elseif LD2.state.skipped(step)==1 then result="PRALEISTA";
         else result="NEATLIKTA"; end
-        rows($+1,1)=string(step)+". "+ld2_step_title(step)+" — "+result;
+        rows($+1,1)=ld2_step_title(step)+" — "+result;
         [labels,n]=ld2_answer_spec(step);
         for j=1:n
             raw=LD2.state.answers_text(step,j);
