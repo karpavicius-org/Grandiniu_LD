@@ -26,13 +26,20 @@ def main():
     for rel,data in files.items():
         assert rel.startswith("studentui/"),rel
         file=ROOT/rel
-        original=file.read_bytes() if file.exists() else b""
+        original=file.read_bytes().replace(b"\r\n",b"\n") if file.exists() else b""
         assert digest(original)==data["old_sha256"],"Unexpected original file: "+rel
         lines=original.decode("utf-8").splitlines(keepends=True)
         for start,end,replacement in reversed(data["ops"]):
             lines[start:end]=replacement.splitlines(keepends=True)
         result="".join(lines).encode("utf-8")
         assert digest(result)==data["new_sha256"],"LD2 file mismatch: "+rel
+        if rel=="studentui/LD2/ld2_method.sci":
+            for old,new in [(b"[E11]", "pusės galios etapo".encode("utf-8")),
+                            (b"[E12]", "galutinio etapo".encode("utf-8"))]:
+                assert result.count(old)==1, "Stale LD2 method link not unique"
+                result=result.replace(old,new)
+            assert digest(result)=="9999e87b092560f61a2f076e38ca0acc125ad6667d0f8b30e4c0b4829ef47df3"
+
         file.parent.mkdir(parents=True,exist_ok=True)
         file.write_bytes(result)
     print("PASS: exact LD2-2 source restored (15 individual SHA-256 files)",flush=True)
