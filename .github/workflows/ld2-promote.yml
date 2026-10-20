@@ -51,6 +51,12 @@ jobs:
               source=p.read_text(encoding="utf-8")
               assert source.count(snippet)==1,name
               p.write_text(source.replace(snippet,""),encoding="utf-8")
+          # The originally tested Scilab source has an unused blank final line.
+          # Canonicalize the final newline instead of disabling Git's whitespace gate.
+          gui=Path("studentui/LD2/ld2_gui.sci")
+          data=gui.read_bytes()
+          assert data.endswith(bytes([10,10])),"Unexpected end of LD2 GUI source"
+          gui.write_bytes(data.rstrip(bytes([10]))+bytes([10]))
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
