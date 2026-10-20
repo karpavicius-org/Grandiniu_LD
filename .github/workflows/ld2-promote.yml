@@ -40,17 +40,11 @@ jobs:
           PY
       - name: Restore the SHA-256 verified LD2 source
         run: python tools/ci_ld2_integrate.py
-      - name: Stage native sources and permanently remove temporary migration data
+      - name: Stage tested LD2 sources only; GitHub connector will clean workflow files
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          snippet='      - name: Restore verified LD2-2 student source (SHA-256 checked)\n        run: python tools/ci_ld2_integrate.py\n'
-          for name in ["ld2-real-input.yml","native.yml","macos.yml"]:
-              p=Path(".github/workflows")/name
-              source=p.read_text(encoding="utf-8")
-              assert source.count(snippet)==1,name
-              p.write_text(source.replace(snippet,""),encoding="utf-8")
           # The originally tested Scilab source has an unused blank final line.
           # Canonicalize the final newline instead of disabling Git's whitespace gate.
           gui=Path("studentui/LD2/ld2_gui.sci")
@@ -61,11 +55,9 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A studentui/LD2/ studentui/README.md studentui/bench_report.sci
-          git add .github/workflows/ld2-real-input.yml .github/workflows/native.yml .github/workflows/macos.yml
           git rm -r .ci/ld2_delta tools/ci_ld2_integrate.py
           git rm -f studentui/LD2/LD2_SELFTEST_LAST.txt
-          git rm .github/workflows/ld2-promote.yml
           git diff --cached --check
           git diff --cached --stat
-          git commit -m 'feat(ld2): promote verified ten-stage Scilab source without temporary migration artifacts'
+          git commit -m 'feat(ld2): commit verified ten-stage Scilab source; remove temporary migration data'
           git push origin HEAD:refs/heads/work/ld2-2-native-mouse-full-20261020
