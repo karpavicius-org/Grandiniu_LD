@@ -1,0 +1,111 @@
+{
+  "tested_source_commit": "6b624db0f722ca4ec34d861c2d7b300c4c76f096",
+  "packages": [
+    {
+      "platform": "Windows",
+      "profile": "Studentas",
+      "archive": "Grandiniu_LD-CI-Studentas-Windows.zip",
+      "bytes": 898853,
+      "sha256": "41a3fca01610e22427544ae314637a495f9438341243dbc5c5f33a355a57382b",
+      "files": 174,
+      "binaries": [
+        "ldcore.dll"
+      ]
+    },
+    {
+      "platform": "Windows",
+      "profile": "Destytojas",
+      "archive": "Grandiniu_LD-CI-Destytojas-Windows.zip",
+      "bytes": 1271617,
+      "sha256": "2f7fda0078f1b430ffcc9f749fc150248d5a21ac800fda022e8ef2075ad26323",
+      "files": 176,
+      "binaries": [
+        "ldcheck.exe",
+        "ldcore.dll",
+        "mokytojas.exe"
+      ]
+    },
+    {
+      "platform": "Linux",
+      "profile": "Studentas",
+      "archive": "Grandiniu_LD-CI-Studentas-Linux.zip",
+      "bytes": 807649,
+      "sha256": "971d0a76722028ebb23681200ec24ff146cc6cfbe27ebdd2eab1ab8d4c352f21",
+      "files": 174,
+      "binaries": [
+        "ldcore.so"
+      ]
+    },
+    {
+      "platform": "Linux",
+      "profile": "Destytojas",
+      "archive": "Grandiniu_LD-CI-Destytojas-Linux.zip",
+      "bytes": 940817,
+      "sha256": "583681756043bcd141c30b224aa84ca8cf09d6e7419e233c7727b59097c7ed66",
+      "files": 176,
+      "binaries": [
+        "ldcheck",
+        "ldcore.so",
+        "mokytojas"
+      ]
+    },
+    {
+      "platform": "macOS-arm64",
+      "profile": "Studentas",
+      "archive": "Grandiniu_LD-CI-Studentas-macOS-arm64.zip",
+      "bytes": 697405,
+      "sha256": "a5da0727d020e700d8c3e9348adfe6c3b7d556c4fc2f9f383ebed9bea51cf754",
+      "files": 174,
+      "binaries": [
+        "ldcore.dylib"
+      ]
+    },
+    {
+      "platform": "macOS-arm64",
+      "profile": "Destytojas",
+      "archive": "Grandiniu_LD-CI-Destytojas-macOS-arm64.zip",
+      "bytes": 800707,
+      "sha256": "3d445114cc0009c37a6fbda91a50ad9e06727e83af9c52d0d9342d71308f3610",
+      "files": 176,
+      "binaries": [
+        "ldcheck",
+        "ldcore.dylib",
+        "mokytojas"
+      ]
+    },
+    {
+      "platform": "macOS-x86_64",
+      "profile": "Studentas",
+      "archive": "Grandiniu_LD-CI-Studentas-macOS-x86_64.zip",
+      "bytes": 722703,
+      "sha256": "7457fd2b9b445083423bb8278719ead96cf0f0cdc381ae6c122709d3e4e50418",
+      "files": 174,
+      "binaries": [
+        "ldcore.dylib"
+      ]
+    },
+    {
+      "platform": "macOS-x86_64",
+      "profile": "Destytojas",
+      "archive": "Grandiniu_LD-CI-Destytojas-macOS-x86_64.zip",
+      "bytes": 833132,
+      "sha256": "0b3c80d08194267917867c609b5a009cb75121cce60ddf2b84c42c6286deba12",
+      "files": 176,
+      "binaries": [
+        "ldcheck",
+        "ldcore.dylib",
+        "mokytojas"
+      ]
+    }
+  ],
+  "checks": [
+    "ZIP CRC",
+    "unique safe paths",
+    "manifest source, platform, profile",
+    "all LD1–LD12 tables",
+    "binary SHA256",
+    "student vs teacher exact shared files",
+    "cross-platform identical Scilab source bytes",
+    "all required launchers"
+  ]
+}
