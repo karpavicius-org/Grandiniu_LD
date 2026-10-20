@@ -4,6 +4,10 @@ on:
     paths:
       - 'tools/test_ld2_full_os_input.py'
       - 'tools/test_ld2_full_os_input.sce'
+      - 'tools/ci_ld2_integrate.py'
+      - 'core/src/grader.cpp'
+      - 'core/tests/test_ld2_grading_v2.py'
+      - 'studentui/bench_report.sci'
       - '.github/workflows/ld2-real-input.yml'
       - 'studentui/LD2/**'
       - 'studentui/student_style.sci'
@@ -12,6 +16,10 @@ on:
     paths:
       - 'tools/test_ld2_full_os_input.py'
       - 'tools/test_ld2_full_os_input.sce'
+      - 'tools/ci_ld2_integrate.py'
+      - 'core/src/grader.cpp'
+      - 'core/tests/test_ld2_grading_v2.py'
+      - 'studentui/bench_report.sci'
       - '.github/workflows/ld2-real-input.yml'
       - 'studentui/LD2/**'
       - 'studentui/student_style.sci'
