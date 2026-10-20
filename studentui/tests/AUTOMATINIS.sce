@@ -81,9 +81,9 @@ try
     LD1.stepQ(2,1)="1330,012345";
     draft=bench_save_snapshot("LD1");saved=bench_read_snapshot(draft,"LD1");
     assert_checkequal(saved.state.stepQ,LD1.stepQ);
-    LD2.state.answers_text(3,1)="123,456";
+    LD2.state.answers_text(4,1)="123,456";
     draft=bench_save_snapshot("LD2");saved=bench_read_snapshot(draft,"LD2");
-    before=LD2.state.answers_text;LD2.state.answers_text(3,1)="erased";
+    before=LD2.state.answers_text;LD2.state.answers_text(4,1)="erased";
     bench_restore_snapshot(saved);assert_checkequal(LD2.state.answers_text,before);
     assert_checkfalse(LD2.state.power);
     // A second write to the same submission path fails and preserves bytes.
@@ -93,7 +93,7 @@ try
     // Snapshot files live outside the submitted report inventory.
     rmdir(fullfile(folder,"Juodrasciai"),"s");
     // Raw erroneous text, blanks and HTML delimiters survive export unchanged.
-    LD2.state.answers_text(3,1)="999999";LD2.state.answers_text(3,2)="";
+    LD2.state.answers_text(4,1)="999999";LD2.state.answers_text(4,2)="";
     LD2.state.student.name="Žąsė </script><script>alert(1)</script>";
     path=bench_export_report("LD2",folder);
     body=strcat(mgetl(path),ascii(10));
@@ -106,7 +106,7 @@ try
     end
     [p,status]=bench_batch_call(4,folder,output);assert_checkequal(status,1);
     assert_checkequal(p(1),769);assert_checkequal(p(3),769);assert_checkequal(p(4),0);
-    mprintf("AUTOMATIC_PASS: 384 full reports + wrong/missing answers, C++ CFFI folder grading, UTF-8 HTML\n");
+    mprintf("AUTOMATIC_PASS: 768 full reports + one incorrect LD2-2 submission, C++ CFFI folder grading, UTF-8 HTML\n");
     exit(0);
 catch
     mprintf("AUTOMATIC_FAIL: %s\n",strcat(lasterror()," | "));exit(1);
