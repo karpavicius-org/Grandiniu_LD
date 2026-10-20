@@ -66,9 +66,17 @@ jobs:
             ${{ runner.temp }}/ld*-ui/*.tsv
             ${{ runner.temp }}/delivery/*.log
             ${{ runner.temp }}/delivery/*.json
-      - name: Portable macOS package
+      - name: Build complete native archive (internal input)
         run: python tools/package_native.py --platform macOS-${{ matrix.arch }}
+      - name: Verify student/teacher profiles and reject malformed ZIPs
+        run: python tools/test_release_profiles.py --platform macOS-${{ matrix.arch }} --input "dist/Grandiniu_LD-macOS-${{ matrix.arch }}.zip" --out-dir dist
       - uses: actions/upload-artifact@v4
         with:
-          name: Grandiniu-LD-macOS-${{ matrix.arch }}
-          path: dist/Grandiniu_LD-macOS-${{ matrix.arch }}.zip
+          name: Grandiniu-LD-Studentas-macOS-${{ matrix.arch }}
+          path: dist/Grandiniu_LD-Studentas-macOS-${{ matrix.arch }}.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Grandiniu-LD-Destytojas-macOS-${{ matrix.arch }}
+          path: dist/Grandiniu_LD-Destytojas-macOS-${{ matrix.arch }}.zip
+          if-no-files-found: error

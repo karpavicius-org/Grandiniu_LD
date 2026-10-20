@@ -224,7 +224,7 @@ naudotojo aplanko `Grandiniu_LD_darbai` persiųskite dėstytojui. Nebaigtą
 ataskaitą taip pat galima išsaugoti per Pagalbą. LD1–LD12 juodraščiai saugomi automatiškai
 įrašant atsakymus ir pereinant į kitą etapą; juos atverkite per Pagalbą.
 
-Dėstytojui: vykdykite `DESTYTOJUI.sce` ir pasirinkite aplanką su ataskaitomis.
+Dėstytojui (abiejuose paketuose): vykdykite `DESTYTOJUI.sce` ir pasirinkite aplanką su ataskaitomis.
 Programa sukuria `vertinimai.html`, `suvestine.csv` ir `vertinimai.json`.
 Mokymosi ar pavyzdžio pagalbą naudoję bandymai gauna komentarus, bet neįtraukiami
 į atsiskaitymų suvestinę. Skirtingų rubrikų bandymai lyginami pagal pažymį iš 10.
@@ -240,9 +240,20 @@ Paketai nėra pasirašyti Apple Developer sertifikatu ar notarizuoti.
 
 Linux: `./PALEISTI.sh`. Scilab aplinkoje: vykdykite `STENDAS.sce` ir pasirinkite darbą.
 Windows: dukart paspauskite `PALEISTI.bat` arba vykdykite `STENDAS.sce` grafiniame
-Scilab lange. `bin/ldcheck.exe` skirtas dėstytojo ataskaitų tikrinimui.
+Scilab lange. Studento pakete yra tik `bin/ldcore.dll`; dėstytojo
+pakete papildomai yra `bin/ldcheck.exe` ir `bin/mokytojas.exe`.
 Atskirai galima vykdyti atitinkamą `LD1/LD1.sce`–`LD12/LD12.sce` failą.
 Paleidiklis ieško įdiegto Scilab; prireikus nurodykite `SCILAB_BIN=/visas/kelias/bin/scilab`.
+
+**Paketų profiliai.** Kiekvienai OS parengiami atskiri `Studentas` ir `Destytojas`
+ZIP archyvai. Abu turi visus LD1–LD12, ataskaitų generavimą ir vietinį
+automatinį vertinimą per Scilab (`DESTYTOJUI.sce`). Studento archyve nėra
+atskirų `ldcheck` bei `mokytojas` vykdomųjų programų – Scilab naudoja tą patį
+`ldcore` skaičiavimo branduolį. Dėstytojo archyve išlieka visos komandinės
+priemonės, įskaitant pasirenkamą Google Drive ataskaitų importą per
+`mokytojas` (reikalingas API raktas). Skiriasi tik platinamų komponentų
+rinkinys, ne skaičiavimo ir vertinimo algoritmai. Išsamesnė informacija –
+kiekvieno archyvo `PAKETAS.txt` ir `RELEASE.json`.
 
 Paketą platinkite atsisiuntimo nuoroda. Gmail gali blokuoti archyvą dėl jame esančių
 DLL, EXE ar BAT failų ([Google taisyklės](https://support.google.com/mail/answer/6590?hl=en)).

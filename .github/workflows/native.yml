@@ -262,10 +262,20 @@ jobs:
             ${{ runner.temp }}/ld12-ui/*.tsv
             ${{ runner.temp }}/ld12-ui/*.png
             ${{ runner.temp }}/ld12-ui/acceptance.json
-      - name: Portable student and teacher package
+      - name: Build complete native archive (internal input)
         run: python tools/package_native.py --platform "${{ runner.os }}"
+      - name: Verify student/teacher profiles and reject malformed ZIPs
+        run: python tools/test_release_profiles.py --platform "${{ runner.os }}" --input "dist/Grandiniu_LD-${{ runner.os }}.zip" --out-dir dist
+      - name: Verify actual release runtime on Linux
+        if: runner.os == 'Linux'
+        run: python tools/test_release_runtime.py dist/Grandiniu_LD-Destytojas-Linux.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: Grandiniu-LD-${{ runner.os }}
-          path: dist/Grandiniu_LD-${{ runner.os }}.zip
+          name: Grandiniu-LD-Studentas-${{ runner.os }}
+          path: dist/Grandiniu_LD-Studentas-${{ runner.os }}.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Grandiniu-LD-Destytojas-${{ runner.os }}
+          path: dist/Grandiniu_LD-Destytojas-${{ runner.os }}.zip
           if-no-files-found: error
