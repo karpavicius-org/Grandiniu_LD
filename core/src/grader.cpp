@@ -275,7 +275,7 @@ void dependent(Grader& g,const std::string& id,const std::string& label,double r
         g.items.back()["comment"]="Trūksta tinkamų matavimo taškų. Pirmiausia atlikite ir užfiksuokite bandymą.";
     }
 }
-void grade_ac(Grader& g,const Json& r,const Bank& b) {
+void grade_ac(Grader& g,const Json& r,const Bank& b,bool revised) {
     parameters(r,{{"E_RC",9},{"F_RC",b.frc},{"R8",b.r8},{"C2",4.7e-6},{"E_RL",9},{"F_RL",b.frl},{"R9",b.r9},{"L1",.5},{"E_RLC",5},{"R13",b.r13},{"L3",b.l3},{"C4",b.c4}});
     for(int kind:{1,2}) {
         bool rc=kind==1;int s=rc?3:6;auto v=ac(kind,9,rc?b.frc:b.frl,rc?b.r8:b.r9,.5,4.7e-6);
@@ -286,7 +286,7 @@ void grade_ac(Grader& g,const Json& r,const Bank& b) {
             "srovė I = E / |Z|",rc?"įtampa rezistoriuje UR8 = I·R8":"įtampa rezistoriuje UR9 = I·R9",
             rc?"įtampa kondensatoriuje UC2 = I·XC":"įtampa ritėje UL1 = I·XL",
             "aktyvioji galia P = I²·R","srovės fazė φI"};
-        for(int q=0;q<7;++q) g.answer("s"+std::to_string(s)+".q"+std::to_string(q+1),std::to_string(s)+" etapas ("+(rc?"RC":"RL")+"): "+labels[q],refs[q],units[q],"Naudokite kompleksinį impedansą ir RMS dydžius. P=I²R; srovės fazė priešinga impedanso fazei.");
+        if(!revised) for(int q=0;q<7;++q) g.answer("s"+std::to_string(s)+".q"+std::to_string(q+1),std::to_string(s)+" etapas ("+(rc?"RC":"RL")+"): "+labels[q],refs[q],units[q],"Naudokite kompleksinį impedansą ir RMS dydžius. P=I²R; srovės fazė priešinga impedanso fazei.");
         std::string prefix=rc?"rc_":"rl_";
         std::string tag=std::to_string(s)+" etapas ("+(rc?"RC":"RL")+"): ";
         double mi=g.measured(prefix+"I",tag+"srovės I matavimas",v[3],"A",.002,5e-6);
@@ -1106,7 +1106,8 @@ Json grade(const Json& r) {
     const bool ld8_revision2=lab=="LD8"&&r.at("lab_revision")=="2"&&r.at("rubric_version")=="LD8-2"&&r.at("bank_id")=="LD8-64-A-2026";
     const bool guided_revision=lab=="LD1"&&r.at("lab_revision")=="2"&&r.at("rubric_version")=="LD1-2"&&r.at("bank_id")=="LD1-64-A-2026";
     const bool measurement_revision=lab=="LD1"&&r.at("lab_revision")=="3"&&r.at("rubric_version")=="LD1-3"&&r.at("bank_id")=="LD1-64-A-2026";
-    require(sources_revision2||sources_revision3||ld7_revision2||ld8_revision2||guided_revision||measurement_revision||(r.at("lab_revision")=="1"&&r.at("rubric_version")==lab+"-1"&&r.at("bank_id")==lab+"-64-A-2026"),"unsupported_version");
+    const bool ld2_revision2=lab=="LD2"&&r.at("lab_revision")=="2"&&r.at("rubric_version")=="LD2-2"&&r.at("bank_id")=="LD2-64-A-2026";
+    require(ld2_revision2||sources_revision2||sources_revision3||ld7_revision2||ld8_revision2||guided_revision||measurement_revision||(r.at("lab_revision")=="1"&&r.at("rubric_version")==lab+"-1"&&r.at("bank_id")==lab+"-64-A-2026"),"unsupported_version");
     if(guided_revision) require(r.at("evidence").value("automatic_setup",false),"automatic_setup_required");
     if(measurement_revision) require(r.at("evidence").value("measurement_workflow",false)&&r.at("evidence").value("automatic_measurement",false),"measurement_workflow_required");
     require(r.at("variant").is_number_integer(),"variant_type");
@@ -1123,7 +1124,7 @@ Json grade(const Json& r) {
     auto id=text(r.at("submission_id"),128);require(!id.empty(),"submission_identity");
     require(r.at("mode")=="learning"||r.at("mode")=="assessment","mode");
     text(r.at("note"),32000);
-    Grader g(r);if(measurement_revision) grade_dc_measurement(g,r,b);else if(lab=="LD1") grade_dc(g,r,b);else if(lab=="LD2") grade_ac(g,r,b);else if(lab=="LD3") grade_ld3(g,r,b);else if(lab=="LD4") grade_ld4(g,r,b);else if(lab=="LD5") grade_ld5(g,r,b);else if(ld7_revision2) grade_ld7_v2(g,r,b);else if(lab=="LD7") grade_ld7(g,r,b);else if(ld8_revision2) grade_ld8_v2(g,r,b);else if(lab=="LD8") grade_ld8(g,r,b);else if(lab=="LD9") grade_ld9(g,r,b);else if(lab=="LD10") grade_ld10(g,r,b);else if(lab=="LD11") grade_ld11(g,r,b);else if(lab=="LD12") grade_ld12(g,r,b);else if(sources_revision3) grade_ld6_sources_v3(g,r,b);else if(sources_revision2) grade_ld6_sources(g,r,b);else grade_ld6(g,r,b);g.finish();
+    Grader g(r);if(measurement_revision) grade_dc_measurement(g,r,b);else if(lab=="LD1") grade_dc(g,r,b);else if(lab=="LD2") grade_ac(g,r,b,ld2_revision2);else if(lab=="LD3") grade_ld3(g,r,b);else if(lab=="LD4") grade_ld4(g,r,b);else if(lab=="LD5") grade_ld5(g,r,b);else if(ld7_revision2) grade_ld7_v2(g,r,b);else if(lab=="LD7") grade_ld7(g,r,b);else if(ld8_revision2) grade_ld8_v2(g,r,b);else if(lab=="LD8") grade_ld8(g,r,b);else if(lab=="LD9") grade_ld9(g,r,b);else if(lab=="LD10") grade_ld10(g,r,b);else if(lab=="LD11") grade_ld11(g,r,b);else if(lab=="LD12") grade_ld12(g,r,b);else if(sources_revision3) grade_ld6_sources_v3(g,r,b);else if(sources_revision2) grade_ld6_sources(g,r,b);else grade_ld6(g,r,b);g.finish();
     int points=0,maximum=0;
     for(auto& item:g.items) {
         auto key=item.at("id").get<std::string>();

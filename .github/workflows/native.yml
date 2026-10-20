@@ -20,6 +20,8 @@ jobs:
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+      - name: Restore verified LD2-2 student source (SHA-256 checked)
+        run: python tools/ci_ld2_integrate.py
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

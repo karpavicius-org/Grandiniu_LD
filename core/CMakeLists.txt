@@ -75,3 +75,4 @@ add_test(NAME ld9_grading COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURC
 add_test(NAME ld10_grading COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_ld10_grading.py" "$<TARGET_FILE:ldcheck>" "$<TARGET_FILE:ldcore>")
 add_test(NAME ld11_grading COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_ld11_grading.py" "$<TARGET_FILE:ldcheck>" "$<TARGET_FILE:ldcore>")
 add_test(NAME ld12_grading COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_ld12_grading.py" "$<TARGET_FILE:ldcheck>" "$<TARGET_FILE:ldcore>")
+add_test(NAME ld2_grading_v2 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_ld2_grading_v2.py" "$<TARGET_FILE:ldcheck>")

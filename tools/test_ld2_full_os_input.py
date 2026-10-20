@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Full LD2 student acceptance using real OS mouse and keyboard input.
 
-Every one of twelve student stages is performed through visible native Scilab
+All ten student-visible stages is performed through visible native Scilab
 controls, not by directly invoking a callback, editing the student's program
 state, or reconstructing virtual measurements. Input is injected by Windows
 user32 or Linux X11/XTest. Reference values are read-only test fixtures, and
@@ -335,9 +335,7 @@ class LD2RealUser:
         assert st["selected_terminal"]=="" and st["connections"]==before,st
         assert "nereikalinga" in st["status"].lower() or "jungtis" in st["status"].lower(),st
         self.connect_main("RC")
-        self.primary(3,2)
-        self.scope()
-        self.fill(3,flatten(ref["rc"]))
+        # Old theory page 3 must not be visited by the real OS mouse.
         self.primary(4,3)
         self.scope()
         self.measure_rc_rl("RC",("UR","UC","UE"))
@@ -345,9 +343,7 @@ class LD2RealUser:
         self.primary(5,4)
         self.scope()
         self.connect_main("RL")
-        self.primary(6,5)
-        self.scope()
-        self.fill(6,flatten(ref["rl"]))
+        # Old theory page 6 must not be visited by the real OS mouse.
         self.primary(7,6)
         self.scope()
         self.measure_rc_rl("RL",("UR","UL","UE"))
@@ -403,8 +399,8 @@ class LD2RealUser:
         assert state["assessment"] and not state["practice"],state
         self.screenshot("12-final")
         self.wait_report()
-        assert len(self.shots)>=12,self.shots
-        self.events.append(dict(action="all_twelve_stages_completed",events=len(self.events)))
+        assert len(self.shots)>=10,self.shots
+        self.events.append(dict(action="all_ten_visible_stages_completed",events=len(self.events)))
 
     def wait_report(self):
         deadline=time.monotonic()+20
@@ -425,7 +421,7 @@ class LD2RealUser:
         assert len(html)==1 and len(html)+len(drafts)==len(parsed["results"]),parsed
         result=html[0]
         assert result["status"]=="graded" and result["points"]==result["max_points"],result
-        assert result["rubric_version"]=="LD2-1" and result["selected_for_summary"],result
+        assert result["rubric_version"]=="LD2-2" and result["max_points"]==36 and result["selected_for_summary"],result
         assert result["mode"]=="assessment" and not result["practice_used"],result
         for draft in drafts:
             assert draft["status"]=="review" and not draft["selected_for_summary"],draft
@@ -437,10 +433,10 @@ class LD2RealUser:
         (self.root/"geometry.log").write_text(checker.stdout+checker.stderr,encoding="utf-8")
         assert checker.returncode==0,checker.stdout+checker.stderr
         lines=checker.stdout.splitlines()
-        assert any("scenarios=13" in line and "errors=0" in line for line in lines),lines
+        assert any("scenarios=11" in line and "errors=0" in line for line in lines),lines
 
     def save(self):
-        report=dict(status="PASS",lab="LD2",os=os.name,variant=17,stages=12,
+        report=dict(status="PASS",lab="LD2",os=os.name,variant=17,stages=10,
                     genuine_os_mouse_clicks=sum(x["action"]=="OS_left_click" for x in self.events),
                     native_keyboard_values=sum(x["action"]=="native_keyboard_answer" for x in self.events),
                     frequency_settings=sum(x["action"]=="native_frequency_input" for x in self.events),
@@ -448,7 +444,7 @@ class LD2RealUser:
                     recorded_resonance_points=3,recorded_extrema_points=9,
                     half_power_samples=2,measured_sweep_points=11,
                     screenshot_count=len(self.shots),screenshots=self.shots,
-                    geometry_scenarios=13,
+                    geometry_scenarios=11,
                     report=self.report.name,autosaved_drafts=self.drafts,
                     grading={"points":self.grade_result["points"],"maximum":self.grade_result["max_points"],
                              "rubric":self.grade_result["rubric_version"]},
