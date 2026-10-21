@@ -1,0 +1,65 @@
+{
+  "scope": "Only cumulative studentfile and nativeMac/Linuxdelivery; no extra labtasks, no corealgorithmchanges, no newCI",
+  "acceptance": [
+    {
+      "requirement": "One student HTML accumulates all12 completed labs",
+      "implementation": "mo_portfolio.sci + mo_export_report",
+      "checks": [
+        "samepath1to12updates",
+        "repeatedlaboneentry",
+        "independentstudentidentity",
+        "actualOSendtoend"
+      ]
+    },
+    {
+      "requirement": "Preserve actual measurements and familiar individual report visuals/PDF",
+      "implementation": "unchanged v6 childpayloads/renderers inside portfolio",
+      "checks": [
+        "childrecords/config/wires/events equality",
+        "realWebKitall12navigation/framecontrols/offline/PDF"
+      ]
+    },
+    {
+      "requirement": "Teacher receives one file perstudent and complete matrix",
+      "implementation": "mo_teacher portfolioexpansion + originalchildverification",
+      "checks": [
+        "12/12andmultipleidentities",
+        "invalidchildonlythatLDflagged",
+        "legacy/dedup/envelopenegatives"
+      ]
+    },
+    {
+      "requirement": "Safe olddata migration, resume, writefailure behavior",
+      "implementation": "rt_session/rt_student + transactionalportfolioexport",
+      "checks": [
+        "actualv6checkpointmigration",
+        "partialcheckpointunchanged",
+        "corrupttargetpreserved",
+        "writefailurepreservesoldHTML",
+        "SaveAsmergecopy"
+      ]
+    },
+    {
+      "requirement": "Students can launch macOS with Intel or AppleSilicon",
+      "implementation": "universalnativeMachO + launcher + nativeLinuxcore",
+      "checks": [
+        "authenticatedexistingMacartifactprovenance",
+        "usedFFIsource/exports/dependencies",
+        "exactFATslices",
+        "launchersyntaxandbranchtests",
+        "Linuxactualpackageddefaultcore",
+        "explicitlimitcurrentMacUIunavailable"
+      ]
+    },
+    {
+      "requirement": "Approvedv6 preserved, finalpackage verified",
+      "implementation": "isolatedv7 extraction + release",
+      "checks": [
+        "v6ZIPunchangedSHA",
+        "unchangedLDsources/math",
+        "ZIPCRC/memberhashes",
+        "persistfinaldownload"
+      ]
+    }
+  ]
+}

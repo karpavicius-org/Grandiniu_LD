@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "scope": "Actual executable Linux PALEISTI.sh launches installed graphicalScilab and laboratory picker; fullbenchflows checked separately",
+  "native_override": false,
+  "titles": [
+    "Scilab branch-main Console",
+    "Scilab Choose Message"
+  ],
+  "executable": true
+}

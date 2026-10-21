@@ -1,0 +1,240 @@
+{
+  "status": "PASS",
+  "scope": "Actual 12 OS flows append one canonical student portfolio HTML; independent numerical checks and real teacher aggregation use recorded measurements only",
+  "completion_snapshots": [
+    {
+      "lab": 1,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD1_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD1_V1/report_at_completion.html",
+      "sha256": "d74916156b569fc984bd8d21d01abdb511461ad0d393d06f51b36c6778cfa035",
+      "portfolio_labs": 1,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    },
+    {
+      "lab": 2,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD2_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD2_V1/report_at_completion.html",
+      "sha256": "ce7c93f771aa3ce5aa3dd5c0038f44264eae5616fc8abe0d52bcf135ae953f66",
+      "portfolio_labs": 2,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    },
+    {
+      "lab": 3,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD3_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD3_V1/report_at_completion.html",
+      "sha256": "0b9cf5b56930fa5e95865a9361977369bde2b48de77aa66771d6f6b6fe3e9eea",
+      "portfolio_labs": 3,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    },
+    {
+      "lab": 4,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD4_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD4_V1/report_at_completion.html",
+      "sha256": "db90167374a50b2650d17c2cbdcb71295103a810710542eb7f2579e0716476ea",
+      "portfolio_labs": 4,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    },
+    {
+      "lab": 5,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD5_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD5_V1/report_at_completion.html",
+      "sha256": "86b607627602204a20b8a8a05d77223e830666dda1933ed3bf8226afbc4a5e32",
+      "portfolio_labs": 5,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    },
+    {
+      "lab": 6,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD6_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD6_V1/report_at_completion.html",
+      "sha256": "b1bfb7b5bc9c6e41d4693f6fccf97ed913d401b15524953eb7513600f383b7da",
+      "portfolio_labs": 6,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    },
+    {
+      "lab": 7,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD7_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD7_V1/report_at_completion.html",
+      "sha256": "7b3fbf17b112948aa1038e31475059fc845f6a98e55df56f2aa9137d67f3851c",
+      "portfolio_labs": 7,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    },
+    {
+      "lab": 8,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD8_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD8_V1/report_at_completion.html",
+      "sha256": "1c1db8e876e42d184db0b125d2abd4fb13f024550d4fb9008874e5834f7988b3",
+      "portfolio_labs": 8,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    },
+    {
+      "lab": 9,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD9_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD9_V1/report_at_completion.html",
+      "sha256": "278e7d4eca2d49e7388e11c60ad6fae6666ba8f3c99736e32424a4c520af526c",
+      "portfolio_labs": 9,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    },
+    {
+      "lab": 10,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD10_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD10_V1/report_at_completion.html",
+      "sha256": "5fa965898684ba3782520b2be9d45461bbf7bbbea8e2f98cd9639d127773ca83",
+      "portfolio_labs": 10,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    },
+    {
+      "lab": 11,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD11_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD11_V1/report_at_completion.html",
+      "sha256": "d4a0f6be8be44e336a9ad2a55c569f9079660fd86418a5cc19aaf2e4a3e7f9aa",
+      "portfolio_labs": 11,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    },
+    {
+      "lab": 12,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD12_V1/result.json",
+      "snapshot": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/os/accepted_all12_final/LD12_V1/report_at_completion.html",
+      "sha256": "aff54d4fe6c98b5750cacfd09af31a48f67c5ff15d5f7055a82b42007b7c7f2d",
+      "portfolio_labs": 12,
+      "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html"
+    }
+  ],
+  "numerical": [
+    {
+      "lab": 1,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 7,
+      "readings": 7,
+      "wave_channels": 0
+    },
+    {
+      "lab": 2,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 12,
+      "readings": 17,
+      "wave_channels": 0
+    },
+    {
+      "lab": 3,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 3,
+      "readings": 6,
+      "wave_channels": 0
+    },
+    {
+      "lab": 4,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 7,
+      "readings": 14,
+      "wave_channels": 0
+    },
+    {
+      "lab": 5,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 3,
+      "readings": 6,
+      "wave_channels": 0
+    },
+    {
+      "lab": 6,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 4,
+      "readings": 8,
+      "wave_channels": 0
+    },
+    {
+      "lab": 7,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 7,
+      "readings": 12,
+      "wave_channels": 0
+    },
+    {
+      "lab": 8,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 12,
+      "readings": 20,
+      "wave_channels": 0
+    },
+    {
+      "lab": 9,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 12,
+      "readings": 15,
+      "wave_channels": 60
+    },
+    {
+      "lab": 10,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 12,
+      "readings": 15,
+      "wave_channels": 60
+    },
+    {
+      "lab": 11,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 4,
+      "readings": 12,
+      "wave_channels": 16
+    },
+    {
+      "lab": 12,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 4,
+      "readings": 8,
+      "wave_channels": 20
+    }
+  ],
+  "student_rows": 1,
+  "completed_labs": 12,
+  "teacher_input_html_files": 1,
+  "canonical_path": "/tmp/grandiniu_v7_os_accepted_all12_final/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-291904a02419ebf5862f.html",
+  "canonical_sha256": "aff54d4fe6c98b5750cacfd09af31a48f67c5ff15d5f7055a82b42007b7c7f2d",
+  "previous_children_unchanged": true,
+  "portfolio_counts": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "teacher_links_same_file": true,
+  "teacher_link_fragments": [
+    "LD1",
+    "LD2",
+    "LD3",
+    "LD4",
+    "LD5",
+    "LD6",
+    "LD7",
+    "LD8",
+    "LD9",
+    "LD10",
+    "LD11",
+    "LD12"
+  ],
+  "trials": 87,
+  "readings": 140,
+  "wave_channels": 156,
+  "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/final_data/attempt2_final/student_html/Matavimu_suvestine-20261021T080038-54-84-1/matavimu_suvestine.html",
+  "csv": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/final_data/attempt2_final/student_html/Matavimu_suvestine-20261021T080038-54-84-1/matavimu_suvestine.csv"
+}

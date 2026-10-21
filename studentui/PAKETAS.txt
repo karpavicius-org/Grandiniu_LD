@@ -1,10 +1,13 @@
-LD1–LD12 | ataskaitų vaizdai ir ergonomika | v6 | 2026-10-21
+LD1–LD12 | vienas studento failas ir macOS palaikymas | v7 | 2026-10-21
 
-Išskleiskite visą ZIP. Paleiskite Grandiniu_LD / PALEISTI.bat.
-Studentui: PRADĖKITE.txt. Dėstytojui: DESTYTOJUI.sce.
-12 dabartinių darbų, pažįstami stendai, matomi tikri prietaisų laidai.
-Studentas jungia ir perrašo rodmenis. Ataskaita – vienas savarankiškas HTML.
+Išskleiskite visą ZIP. Grandiniu_LD aplanke:
+Windows – PALEISTI.bat; macOS – PALEISTI.command; Linux – PALEISTI.sh.
+Reikalingas įdiegtas grafinis Scilab.
 
-Išsaugota v5 darbo eiga ir matavimai. Trumpesnės laidų trasos, vietinės
-įvesties užuominos, kiekvienam darbui pritaikyti ataskaitos vaizdai.
-Ataskaitoje: Spausdinti / PDF. V5 darbo kopijos suderinamos.
+Užbaigus LD pasipildo tas pats bendras studento HTML failas.
+Jis kaupia visus 12 darbų, jų grafikus, paaiškinimus ir duomenis.
+Dėstytojui perduokite vieną naujausią failą.
+Studentui: PRADĖKITE.txt. Mac: MACOS.txt. Dėstytojui: DESTYTOJUI.sce.
+
+Įtraukti Windows x64, Linux x86_64, macOS Intel ir Apple Silicon branduoliai.
+Branduolių kilmė ir tikslūs patikros apribojimai: NATIVE_PROVENANCE.json.

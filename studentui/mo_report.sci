@@ -465,17 +465,7 @@ function html=mo5_student_html(s,payload)
     html=html+"</details></div><footer>"+mo_html(p.lab+" · "+s.student.group+" · "+s.student.name)+" · Rodmenys lentelėje pateikti prietaisų ekrano tikslumu.<br>Ataskaitos ID: "+mo_html(payload.submission_id)+"</footer><script id=""mo-data"" type=""application/json"">"+mo5_json(payload)+"</script></main><script>"+mo5_student_script()+"</script></body></html>";
 endfunction
 function path=mo_export_report(s)
-    if isfield(s,"reportPath") then
-        if s.reportPath<>"" then if isfile(s.reportPath) then path=s.reportPath;return;end;end
-    end
-    payload=mo_report_payload(s);[ok,why,stats]=mo_report_verify(payload);if ~ok then error("Ataskaita neparengta: "+why);end
-    html=mo5_student_html(s,payload);folder=fullfile(bench_documents(),"Grandiniu_ataskaitos");
-    if isfield(s,"reportFolder") then if s.reportFolder<>"" then folder=s.reportFolder;end;end
-    if ~isdir(folder) then [ok,msg]=mkdir(folder);if ~ok then error("Nepavyko sukurti ataskaitų aplanko: "+msg);end;end
-    path=fullfile(folder,s.protocol.lab+"-V"+msprintf("%02d",s.student.number)+"-ataskaita-"+bench_id()+".html");
-    bench_write_new(path,html);
-    [kind,saved,why]=mo_read_report(path);if kind<>1 then error("Nepavyko perskaityti išsaugotos ataskaitos: "+path);end
-    [ok,why,stats]=mo_report_verify(saved);if ~ok then error("Nepavyko patikrinti išsaugotos ataskaitos: "+why);end
+    path=mo7_export(s);
 endfunction
 function [kind,p,why]=mo_read_report(path)
     kind=0;p=[];why="";
@@ -484,7 +474,7 @@ function [kind,p,why]=mo_read_report(path)
         kind=2;if size(start,"*")<>1 then error("Ataskaitoje keli duomenų blokai.");end
         tail=part(contents,start(1)+length(marker):length(contents));finish=strindex(tail,"</script>");if isempty(finish) then error("Neužbaigtas duomenų blokas.");end
         raw=part(tail,1:finish(1)-1);if ~mo_json_safe(raw) then error("Sugadinti JSON duomenys.");end
-        p=fromJSON(raw);kind=1;
+        p=fromJSON(mo7_decode_html_json(raw));kind=1;
     catch kind=2;why=strcat(lasterror()," ");end
 endfunction
 
@@ -610,3 +600,5 @@ endfunction
 MO_REPORT_ROOT=get_absolute_file_path("mo_report.sci");
 exec(MO_REPORT_ROOT+"mo_report_dc_visuals.sci",-1);
 exec(MO_REPORT_ROOT+"mo_report_late_visuals.sci",-1);
+
+exec(MO_REPORT_ROOT+"mo_portfolio.sci",-1);

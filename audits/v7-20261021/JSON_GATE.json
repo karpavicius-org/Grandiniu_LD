@@ -1,0 +1,699 @@
+{
+  "status": "PASS",
+  "corpus_cases": 100,
+  "root_type_and_oversize_cases": 3,
+  "encoding_cases": 6,
+  "invalid_UTF8_rejected": 2,
+  "normalized_valid_UTF8_accepted": 4,
+  "bundle_children": 12,
+  "bundle_chars": 222197,
+  "old_seconds": 10.318999,
+  "new_seconds": 2.1786619999999997,
+  "speedup": 4.736392795211007,
+  "corpus": [
+    {
+      "case": "emptyobject",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "whitespace",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "literals",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "utf8",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "escaped",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "basicunicode",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "surrogatepair",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "numbers",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "dupekeys",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "emptycontainers",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "number128",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "empty",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "whitespaceonly",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "arrayroot",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "scalarroot",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "truncated",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "unterminated",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trailcomma",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "arraytrail",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "missingcolon",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "singlequotes",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "badliteral",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "prefixliteral",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trailingdata",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "leadzero",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "plus",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "dot",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "traildot",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "badexp",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "nan",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "inf",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "overflow",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "number129",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "badescape",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "badhex",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "shorthex",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "highalone",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "lowalone",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "highwronglow",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "highhigh",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "literalcontrol",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "nulcontrol",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "outsidecontrol",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "depth48",
+      "expected": true,
+      "old": true,
+      "new": true
+    },
+    {
+      "case": "depth49",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc0",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc1",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc2",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc3",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc4",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc5",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc6",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc7",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc8",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc9",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc10",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc11",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc12",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc13",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc14",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc15",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc16",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc17",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc18",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc19",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc20",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc21",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc22",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc23",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc24",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc25",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc26",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc27",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc28",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc29",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc30",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc31",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc32",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc33",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc34",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc35",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc36",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc37",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc38",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc39",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc40",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc41",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc42",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc43",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc44",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc45",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc46",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc47",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc48",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc49",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc50",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc51",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc52",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc53",
+      "expected": false,
+      "old": false,
+      "new": false
+    },
+    {
+      "case": "trunc54",
+      "expected": false,
+      "old": false,
+      "new": false
+    }
+  ],
+  "actual_single_payloads": [
+    {
+      "lab": "LD1",
+      "old": true,
+      "new": true,
+      "chars": 16280
+    },
+    {
+      "lab": "LD2",
+      "old": true,
+      "new": true,
+      "chars": 26097
+    },
+    {
+      "lab": "LD3",
+      "old": true,
+      "new": true,
+      "chars": 7539
+    },
+    {
+      "lab": "LD4",
+      "old": true,
+      "new": true,
+      "chars": 12950
+    },
+    {
+      "lab": "LD5",
+      "old": true,
+      "new": true,
+      "chars": 6797
+    },
+    {
+      "lab": "LD6",
+      "old": true,
+      "new": true,
+      "chars": 9391
+    },
+    {
+      "lab": "LD7",
+      "old": true,
+      "new": true,
+      "chars": 12271
+    },
+    {
+      "lab": "LD8",
+      "old": true,
+      "new": true,
+      "chars": 32483
+    },
+    {
+      "lab": "LD9",
+      "old": true,
+      "new": true,
+      "chars": 30300
+    },
+    {
+      "lab": "LD10",
+      "old": true,
+      "new": true,
+      "chars": 34523
+    },
+    {
+      "lab": "LD11",
+      "old": true,
+      "new": true,
+      "chars": 11151
+    },
+    {
+      "lab": "LD12",
+      "old": true,
+      "new": true,
+      "chars": 15306
+    }
+  ],
+  "scope": "Grammar equivalence only; native fromJSON invoked only on known valid generated corpus envelope and on old+new gated actual bundle",
+  "source_sha256": "2bddea346131e502828f3aec15f500cb2d97de96801c963a6a23c428084a4c72",
+  "unchanged_non_grammar_prefix": true,
+  "inherited_encoding_correction": "Two genuinely invalid UTF8 encodings (>U+10FFFF, 5-byte form) rejected before nativeJSON; four malformed byte-constructor fixtures normalize to validUTF8 inScilab and are correctly accepted. UTF8_ORACLE.json uses independentPythonstrictdecoder.",
+  "retained_attempts": [
+    "attempt1_valid_syntax_RESULT.json",
+    "attempt2_utf8_fixture_failure.log",
+    "utf8_diagnostic.log",
+    "utf8_after_guard.log"
+  ]
+}

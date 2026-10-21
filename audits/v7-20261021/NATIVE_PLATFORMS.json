@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "files_added": [
+    "bin/ldcore.dylib",
+    "bin/ldcore.so",
+    "MACOS.txt",
+    "NATIVE_PROVENANCE.json"
+  ],
+  "launchers_changed": [
+    "PALEISTI.sh",
+    "PALEISTI.command"
+  ],
+  "windows_dll_unchanged": true,
+  "universal_binary": {
+    "sha256": "f79f387d19625df2eefc3dee37f28286719b6f2b26c2c2592e9a4d6b4a741923",
+    "bytes": 1720320,
+    "slices_unchanged": true
+  },
+  "macos_native_architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "minimum_binary_macos": "11.0",
+  "used_api_source_compatibility": "PASS; model/MNA/sources/batch/ABI headers terminal-whitespace equivalent; open_local body identical; legacy LD2 grading/report branches documented separately",
+  "launcher_cases": 8,
+  "linux_packaged_default_loader": "PASS",
+  "native_macos_historical_tests": {
+    "arm64": {
+      "ctest": 16,
+      "prior_format_reports": 769
+    },
+    "x86_64": {
+      "ctest": 16,
+      "prior_format_reports": 769
+    }
+  },
+  "new_v7_native_macos_execution": "Not performed; local host Linux only",
+  "new_ci_started": false,
+  "file_sha256": {
+    "PALEISTI.sh": "f4e809a6df8d06714ab57eda8ba769409140bb363d41428bb095c15d5d6e2f96",
+    "PALEISTI.command": "e66cb4250bda50ed3263583896ca0113f565cad3c477270cfa5dfb11b8c086b8",
+    "MACOS.txt": "4ac93c6ac17768f21e6e2881582cbb48c6cf5edf63c573cf1182ce99f1f22b04",
+    "NATIVE_PROVENANCE.json": "f685e1d81fe4dc75fbc22b128a07d37a19f21c6cfa3fb0e2ae0b16af50a60896",
+    "bin/ldcore.so": "1e47bd9a8713dc25c384970eaa1bbef6dd6c5d1ff7054258df85051d395f26ed",
+    "bin/ldcore.dylib": "f79f387d19625df2eefc3dee37f28286719b6f2b26c2c2592e9a4d6b4a741923",
+    "bin/ldcore.dll": "40956d3c334343e72f5c0ecd3933e953e30dbaad718ec0e941e895ff4ad56b0e"
+  }
+}

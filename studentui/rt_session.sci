@@ -89,8 +89,18 @@ function mo_restore()
             if isfile(s.reportPath) then
                 [kind,payload,why]=mo_read_report(s.reportPath);
                 if kind==1 then
-                    [valid,why,stats]=mo_report_verify(payload);
-                    if valid & payload.lab_id==MO.lab & payload.student.name==MO.student.name & payload.student.group==MO.student.group & payload.student.number==MO.student.number then MO.reportPath=s.reportPath;end
+                    [valid,report]=mo7_find_report(payload,MO.lab,MO.student);
+                    if valid then MO.reportPath=s.reportPath;end
+                end
+            end
+        end
+        if MO.phase=="complete" & MO.reportPath=="" then
+            studentPath=mo7_canonical_path(MO.student);
+            if isfile(studentPath) then
+                [kind,payload,why]=mo_read_report(studentPath);
+                if kind==1 then
+                    [valid,report]=mo7_find_report(payload,MO.lab,MO.student);
+                    if valid then MO.reportPath=studentPath;end
                 end
             end
         end

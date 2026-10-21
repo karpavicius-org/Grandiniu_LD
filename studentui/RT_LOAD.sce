@@ -1,5 +1,8 @@
 RT_ROOT=get_absolute_file_path("RT_LOAD.sce");
 rt_saved_funcprot=funcprot();funcprot(0);
+// The cumulative file verifies every completed laboratory, including those
+// preceding the currently open bench. Load model functions in the caller scope.
+exec(RT_ROOT+"RT_MODELS_LOAD.sce",-1);
 for rt_file=["mo_public.sci" "mo_common.sci" "mo_ld1_2.sci" "mo_ld3_6.sci" "mo_ld7_12.sci" "mo_report.sci" "mo_teacher.sci" "rt_session.sci" "rt_student.sci" "rt_preview.sci"]
  exec(RT_ROOT+rt_file,-1);
 end

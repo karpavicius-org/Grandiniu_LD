@@ -1,0 +1,97 @@
+{
+  "status": "PASS",
+  "scope": "Independent read-only final source/integration review; existing executed test artifacts reviewed, no new program execution or Git/CI mutation claimed",
+  "checks": {
+    "portfolio_identity_boundary": "PASS; exact name/group/number matching at envelope, children, migration and existing-file boundary",
+    "measurement_integrity": "PASS; every imported and written child is model verified",
+    "stable_path_and_SaveAs": "PASS; identity-hashed canonical path; save-copy merges canonical and existing destination without changing a working canonical path",
+    "completed_restore_and_previous_backup": "PASS; missing main file can recover verified .previous during export; old single-report restoration migrates without changing originals; failed replacement retains/restores previous data",
+    "escaped_identity_reader": "PASS; writer still HTML-protects JSON; reader decodes only unescaped ASCII < > & sequences after grammar gate; cannot introduce quote/backslash controls",
+    "json_gate": "PASS; byte grammar plus explicit UTF8 validity guard; production test artifact PASS",
+    "locking": "PASS; native exclusive file creation; active/unknown owners retained, known-dead owner recoverable",
+    "all_models_scope": "PASS; RT_MODELS_LOAD in caller scope before cumulative verification; all12 actual OS final-flow results PASS with source_unchanged true",
+    "frozen_v6_scope": "PASS; independently compared153 LD source/config entries, numeric adapters, visual helpers and WindowsDLL to approved v6ZIP",
+    "existing_execution_artifacts": "PASS; portfolio12update,11failure/recovery,13teacher,escaping/browser/resume/gate results reviewed",
+    "macOS_claim_scope": "PASS; authenticated native slices and packaged support distinguished from unexecuted newv7macOSUI"
+  },
+  "actual_final_OS_results": [
+    {
+      "lab": "LD10",
+      "status": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "lab": "LD11",
+      "status": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "lab": "LD12",
+      "status": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "lab": "LD1",
+      "status": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "lab": "LD2",
+      "status": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "lab": "LD3",
+      "status": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "lab": "LD4",
+      "status": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "lab": "LD5",
+      "status": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "lab": "LD6",
+      "status": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "lab": "LD7",
+      "status": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "lab": "LD8",
+      "status": "PASS",
+      "source_unchanged": true
+    },
+    {
+      "lab": "LD9",
+      "status": "PASS",
+      "source_unchanged": true
+    }
+  ],
+  "final_source_sha256": {
+    "mo_portfolio.sci": "6d61f0575f775297acff910a483b5ba38ba3c38f89f765ba6dc17184461a7e8a",
+    "mo_report.sci": "874452f9529aaa59951c92e0d50d61d1475d5556ddb6cd1f349c315438a84de9",
+    "rt_student.sci": "067b49656ef015229e028691efa894380f183acf509951bbcb4992aa22257e76",
+    "rt_session.sci": "b98f73a90344928653ab66557d79701a2b9c59193755661d9a532f53620c898d",
+    "RT_LOAD.sce": "df49fd6e95a4c49a083c2efb630b8ee14ae5e1a4f46a79a2005ee2ce7cec04f7",
+    "mo_common.sci": "2bddea346131e502828f3aec15f500cb2d97de96801c963a6a23c428084a4c72",
+    "mo_teacher.sci": "06591f30431addb0a15628acb6865cd43b711911f411188b3cd7316339f6018e"
+  },
+  "blockers": [],
+  "handoff_checks_owned_by_root": [
+    "FinalZIP creation, CRC/memberhash reopening verification and source-byte boundary check.",
+    "Remote commit/tree/ref verification with skipCI."
+  ],
+  "limits": [
+    "No native macOS or Windows UI executed by this review.",
+    "No finalizedZIP existed at review time; source review does not substitute for root archive verification."
+  ]
+}

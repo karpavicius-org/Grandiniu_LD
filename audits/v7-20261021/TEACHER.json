@@ -1,0 +1,175 @@
+{
+  "status": "PASS",
+  "scope": "Real Scilab teacher ingestion; unchanged actual v6 OS payloads plus existing v17/v64 native model report fixtures. Deliberate identity/measurement/ID mutations are declared negative or history fixtures, never measurements.",
+  "cases": [
+    {
+      "name": "one_bundle",
+      "status": "PASS",
+      "students": 1,
+      "completed": [
+        12
+      ],
+      "entries": 12,
+      "invalid_entries": 0,
+      "seconds": 4.452122999999999,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/one_bundle/Matavimu_suvestine-20261021T074256-45-543-1/matavimu_suvestine.html"
+    },
+    {
+      "name": "bundle_and_same_old_singles",
+      "status": "PASS",
+      "students": 1,
+      "completed": [
+        12
+      ],
+      "entries": 12,
+      "invalid_entries": 0,
+      "seconds": 4.608899,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/bundle_and_same_old_singles/Matavimu_suvestine-20261021T074301-45-151-2/matavimu_suvestine.html"
+    },
+    {
+      "name": "three_students",
+      "status": "PASS",
+      "students": 3,
+      "completed": [
+        12,
+        12,
+        12
+      ],
+      "entries": 36,
+      "invalid_entries": 0,
+      "seconds": 3.670616,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/three_students/Matavimu_suvestine-20261021T074304-45-822-3/matavimu_suvestine.html"
+    },
+    {
+      "name": "one_bad_child",
+      "status": "PASS",
+      "students": 1,
+      "completed": [
+        11
+      ],
+      "entries": 12,
+      "invalid_entries": 1,
+      "seconds": 2.183499,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/one_bad_child/Matavimu_suvestine-20261021T074307-45-7-4/matavimu_suvestine.html"
+    },
+    {
+      "name": "mixed_identity_rejected",
+      "status": "PASS",
+      "students": 0,
+      "completed": [],
+      "entries": 1,
+      "invalid_entries": 1,
+      "seconds": 2.129813,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/mixed_identity_rejected/Matavimu_suvestine-20261021T074309-45-143-5/matavimu_suvestine.html"
+    },
+    {
+      "name": "duplicate_lab_rejected",
+      "status": "PASS",
+      "students": 0,
+      "completed": [],
+      "entries": 1,
+      "invalid_entries": 1,
+      "seconds": 2.818619,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/duplicate_lab_rejected/Matavimu_suvestine-20261021T074311-45-965-6/matavimu_suvestine.html"
+    },
+    {
+      "name": "different_attempt_retained",
+      "status": "PASS",
+      "students": 1,
+      "completed": [
+        12
+      ],
+      "entries": 13,
+      "invalid_entries": 0,
+      "seconds": 2.4333139999999998,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/different_attempt_retained/Matavimu_suvestine-20261021T074314-45-391-7/matavimu_suvestine.html"
+    },
+    {
+      "name": "two_completed_labs",
+      "status": "PASS",
+      "students": 1,
+      "completed": [
+        2
+      ],
+      "entries": 2,
+      "invalid_entries": 0,
+      "seconds": 0.25026499999999996,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/two_completed_labs/Matavimu_suvestine-20261021T074314-45-648-8/matavimu_suvestine.html"
+    },
+    {
+      "name": "conflicting_same_id_visible",
+      "status": "PASS",
+      "students": 1,
+      "completed": [
+        12
+      ],
+      "entries": 13,
+      "invalid_entries": 1,
+      "seconds": 2.765134,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/conflicting_same_id_visible/Matavimu_suvestine-20261021T074317-45-397-9/matavimu_suvestine.html"
+    },
+    {
+      "name": "latest_bundle_link",
+      "status": "PASS",
+      "students": 1,
+      "completed": [
+        12
+      ],
+      "entries": 12,
+      "invalid_entries": 0,
+      "seconds": 4.694206,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/latest_bundle_link/Matavimu_suvestine-20261021T074322-45-97-10/matavimu_suvestine.html"
+    },
+    {
+      "name": "valid_metadata_refresh_deduplicated",
+      "status": "PASS",
+      "students": 1,
+      "completed": [
+        12
+      ],
+      "entries": 12,
+      "invalid_entries": 0,
+      "seconds": 2.761879,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/valid_metadata_refresh_deduplicated/Matavimu_suvestine-20261021T074324-45-862-11/matavimu_suvestine.html"
+    },
+    {
+      "name": "one_completed_lab",
+      "status": "PASS",
+      "students": 1,
+      "completed": [
+        1
+      ],
+      "entries": 1,
+      "invalid_entries": 0,
+      "seconds": 0.18106600000000003,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/one_completed_lab/Matavimu_suvestine-20261021T074325-45-55-12/matavimu_suvestine.html"
+    },
+    {
+      "name": "actual_v5_singles",
+      "status": "PASS",
+      "students": 1,
+      "completed": [
+        12
+      ],
+      "entries": 12,
+      "invalid_entries": 0,
+      "seconds": 4.414270999999999,
+      "html": "/workspace/scratch/67e4c3cdba10/ld_revision7/verification/teacher_portfolio/actual_v5_singles/Matavimu_suvestine-20261021T074329-45-455-13/matavimu_suvestine.html"
+    }
+  ],
+  "teacher_source_sha256": "06591f30431addb0a15628acb6865cd43b711911f411188b3cd7316339f6018e",
+  "source_boundary": "Teacher file remained frozen through final13cases. JSON grammar was the optimized numeric-byte version; a later bounded UTF-8 validity guard is separately tested by parser owner. These valid-UTF8 logical cases are unaffected; root final nativeall12 integration covers the final gate.",
+  "preserved_attempts": [
+    "attempt1_href_padding_failure",
+    "attempt2_redundant_parsing_timeout"
+  ],
+  "fixes_verified": [
+    "URI encoding for filenames containing space and #",
+    "Per-child measurement verification inside a portfolio",
+    "Mixed identity and duplicated LD envelope rejection",
+    "Exact/re-exported same-attempt deduplication with portfolio links",
+    "Invalid conflicting same-ID payload remains visible",
+    "Distinct attempts remain in history"
+  ],
+  "total_seconds": 37.363704
+}

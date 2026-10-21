@@ -1,6 +1,7 @@
-LD1–LD12 · GRANDINIŲ LABORATORINIAI DARBAI · v6
+LD1–LD12 · GRANDINIŲ LABORATORINIAI DARBAI · v7
 
-1. Išskleiskite visą ZIP. Aplanke Grandiniu_LD paleiskite PALEISTI.bat.
+1. Išskleiskite visą ZIP. Aplanke Grandiniu_LD paleiskite:
+   Windows – PALEISTI.bat; Mac – PALEISTI.command; Linux – PALEISTI.sh.
    Jei grafinis Scilab jau atvertas, vykdykite STENDAS.sce.
 2. Pasirinkite darbą ir įrašykite savo studento duomenis.
 3. Perskaitykite bandymo tikslą. Sujunkite kabelį spustelėdami jo abu kontaktus.
@@ -16,8 +17,11 @@ LD1–LD12 · GRANDINIŲ LABORATORINIAI DARBAI · v6
    Įrašykite 5 be V.“ Įvestas tekstas išlieka, kad galėtumėte jį pataisyti.
    Spauskite Įrašyti rodmenis. Pagalba gali parodyti kiekvieną lauką ir rodmenį.
 7. Spauskite Kitas bandymas. Tinkami kabeliai liks; prijunkite trūkstamus.
-8. Baigus visus bandymus sukuriamas HTML. Matysite jo pavadinimą ir mygtukus
-   Atverti ataskaitą, Rodyti ataskaitos aplanką bei Išsaugoti kitame aplanke.
+8. Baigus visus bandymus atnaujinamas bendras studento HTML failas.
+   Kitas užbaigtas LD pateks į tą patį failą. Jame pasirinksite norimą LD,
+   atversite jo matavimus, grafikus ir paaiškinimus.
+   Matysite failo pavadinimą ir mygtukus Atverti studento failą,
+   Rodyti ataskaitos aplanką bei Išsaugoti failo kopiją.
    Dėstytojui perduokite šį vieną HTML failą, pavyzdžiui, per Google Drive.
    Ataskaitos mygtuku Spausdinti / PDF atversite naršyklės spausdinimo langą;
    jame galite pasirinkti išsaugojimą PDF formatu.
@@ -28,8 +32,8 @@ Grandiniu_LD_darbai / Grandiniu_ataskaitos.
 
 Tęsdami pradėtą arba baigtą darbą pasirinkite tą patį LD ir įrašykite tiksliai
 tą patį vardą, grupę bei sąrašo numerį. Atkuriami matavimai ir jų laukai.
-V5 darbo kopijos taip pat tęsiamos. Baigto darbo ataskaita prireikus
-atnaujinama į naują failą; ankstesnis HTML išsaugomas.
+V5 ir v6 darbo kopijos taip pat tęsiamos. Anksčiau užbaigti tos pačios
+eigos LD įtraukiami į bendrą failą; ankstesni HTML išsaugomi.
 
 LD3: to paties rezistoriaus srovę matuojate esant trims įtampoms. Nustatymai
 keičiami paeiliui. Ataskaitoje matysite, kaip srovė didėja didinant įtampą.
@@ -54,4 +58,5 @@ pateikimų istorija, HTML ir CSV. Ankstesnės versijos įrašai atskiriami.
 
 Reikalingas grafinis Scilab. Windows paleidiklis ieško įdiegto Scilab x64.
 Atskirų bin failų paleisti nereikia. Linux ir macOS paleidikliai taip pat pridėti;
-macOS reikalingas tai platformai sukompiliuotas skaičiavimo branduolys.
+Mac branduolys jau įtrauktas Intel ir Apple Silicon kompiuteriams.
+Mac paleidimas išsamiau aprašytas MACOS.txt.

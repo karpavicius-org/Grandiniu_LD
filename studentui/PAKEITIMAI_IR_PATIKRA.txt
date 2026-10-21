@@ -1,40 +1,41 @@
-LD1–LD12 · v6 · 2026-10-21
+LD1–LD12 · v7 · 2026-10-21
 
-Išsaugota 12 darbų numeracija, stendai, matavimo eiga ir skaitinis branduolys.
-Patvirtintas v5 paketas paliktas atskirai.
+VIENAS STUDENTO FAILAS
+Užbaigus kiekvieną LD papildomas tas pats bendras HTML. Jame pasirenkamas
+norimas darbas, matomi jo matavimai, grafikai, paaiškinimai ir išvados.
+Dėstytojui perduodamas vienas naujausias HTML. Kiekvienas LD tikrinamas
+atskirai; seni to paties darbo pateikimai nesidubliuoja su bendru failu.
 
-Kas patobulinta
-- LD7–LD12 laidai vengiami mygtukų, kontaktų ir informacijos sričių;
-  sumažintas nereikalingų trasų posūkių skaičius.
-- Netinkamas rodmuo paaiškinamas prie lauko konkrečiu prietaiso pavyzdžiu.
-  Įvestas tekstas išlieka. Taškas ir kablelis priimami.
-- Kiekviename darbe pateiktas temai skirtas vaizdus paaiškinimas.
-  LD7 parodo didžiausią išmatuotą apkrovos galią, LD8 – rezistorių jungimus;
-  LD9 palygina įtampas, LD10 – šakų sroves. LD11 galios trikampiai rodomi
-  vienodu masteliu su pradine būsena, LD12 – trys fazės ir abu jungimai.
-- Spausdinti / PDF išsaugotas; spaudinyje matyti kreivių legendos.
-- V5 darbo kopijos ir ataskaitos suderinamos. Baigto darbo vaizdų atnaujinimas
-  kuria atskirą HTML, palikdamas ankstesnį failą.
+Anksčiau užbaigtų dabartinės eigos v5/v6 darbų duomenys įtraukiami į bendrą
+failą. Ankstesni HTML paliekami. Pradėto darbo rodmenys ir įvestas juodraštis
+išlieka. Failo kopija kitame aplanke taip pat kaupia užbaigtus darbus.
 
-Patikra
-- Scilab 2024.0.0, Linux, vietinis C++ branduolys.
-- Modelis: 12 darbų × 64 variantai; 5568 bandymai, 8960 rodmenų;
-  5568 nepilnų sujungimų atmesta.
-- Visų 12 darbų eiga patikrinta tikrais pelės ir klaviatūros veiksmais:
-  87 bandymai, 140 rodmenų, sukurtos visos HTML ataskaitos.
-- Rodmenys papildomai patikrinti nepriklausomomis lygtimis, LD7–LD12 –
-  pagal sujungtų kabelių grandinės grafą; patikrinti 156 signalų kanalai.
-- Laidai: 51 schema, 437 kabeliai; tikrinti ir tikri mygtukų plotai.
-- Ataskaitos tikrintos naršyklėje, įskaitant kreivių valdymą ir PDF mygtuką.
-  Tikrintas siauresnis langas ir trys spausdinimo maketo pavyzdžiai.
-- Tikrintas suderinamumas su visų 12 darbų v5 HTML bei darbo kopijomis,
-  tęsiamų etapų duomenimis ir netinkamais pakeistais įrašais.
-- Visos 12 atliktų darbų ataskaitų priimtos dėstytojo suvestinėje; CSV ir
-  nuorodos į darbus veikia.
+MACOS IR LINUX
+Pridėtas universalus macOS branduolys Intel ir Apple Silicon kompiuteriams;
+architektūrą parenka macOS. Pridėtas Linux x86_64 branduolys. Windows DLL
+nepakeista. Visoms OS reikalingas įdiegtas grafinis Scilab.
+Mac: PALEISTI.command, išsami instrukcija MACOS.txt.
+Windows: PALEISTI.bat. Linux: PALEISTI.sh.
 
-Patikros ribos
-Windows grafinė aplinka šiame cikle nevykdyta. Windows DLL nepakeista.
-Baigus pagrindinę eigos patikrą suderintos tik LD10 vaizdo spalvos;
-LD7 ir LD10 eiga pakartota su galutiniais failais. Ataskaitos tikrintos
-atskirai su galutine vaizdų versija. Spausdinimas tikrintas naršyklės
-mygtuko ir PDF maketo lygmeniu, ne Windows spausdintuvo tvarkyklėmis.
+SAUGUS IŠSAUGOJIMAS
+Prieš keičiant bendrą failą patikrinami jo ir naujo LD duomenys. Parengtas
+failas perskaitomas ir patikrinamas. Laikoma viena ankstesnė atsarginė kopija.
+Nepavykęs įrašymas nepanaikina jau atliktų darbų. Sugadinti ar kito studento
+duomenys neperrašo galiojančio failo.
+
+PATIKROS APIMTIS
+Dabartinis papildymas tikrinamas Linux Scilab 2024.0.0 su šiame pakete
+esančiu branduoliu. Atlikti nuoseklaus visų 12 LD kaupimo, ankstesnių duomenų
+atkūrimo, įrašymo gedimų, dėstytojo suvestinės ir tikros naršyklės bandymai.
+Tikrinami specialieji simboliai, grafikai, PDF mygtukai ir siauresni langai.
+Tikslūs rezultatai pateikti PATIKROS_REZULTATAS.json.
+
+Mac branduoliai paimti iš ankstesnio sėkmingo natyvaus Intel ir Apple Silicon
+bandymo. Kiekvienos architektūros originalūs baitai išsaugoti universaliame
+faile; tikrintos matavimo, įrašymo ir atvėrimo API. Ankstesnės C++ LD2
+vertinimo šakų skirtumai aprašyti NATIVE_PROVENANCE.json; dabartinė matavimų
+eiga šių šakų nenaudoja. Naujoji v7 grafinė eiga vietinėje Windows ar macOS
+aplinkoje nevykdyta. Tai neįvardijama kaip šių aplinkų pilnas vykdymo PASS.
+
+Patvirtintas v6 paketas išsaugotas atskirai. LD stendai, jų matavimo
+adapteriai ir ankstesni vaizdūs ataskaitų paaiškinimai nepakeisti.

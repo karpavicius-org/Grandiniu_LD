@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "mac_fat_header": true,
+  "exact_authenticated_mach_slices": [
+    {
+      "arch": "arm64",
+      "slice_sha256": "4a7378b02f076660ecf0e131755e4cbd619b0fd2c9f79219d3c9160b30ad2e98",
+      "bytes": 802976,
+      "alignment": 16384
+    },
+    {
+      "arch": "x86_64",
+      "slice_sha256": "19b95b1a6aecf34c3dd45588b309e8d7f8dd9c940b2f2417cc4a912f5f689b70",
+      "bytes": 875000,
+      "alignment": 16384
+    }
+  ],
+  "default_linux_ELF_hash_match": true,
+  "windows_DLL_unchanged": true,
+  "all12_LD_source_files_unchanged": true,
+  "numerical_adapters_unchanged": true,
+  "v6_visual_helpers_unchanged": true,
+  "launchers_executable": true
+}

@@ -85,35 +85,35 @@ endfunction
 // This checks JSON grammar before passing local checkpoints/reports to it.
 function i=mo_json_space(s,i)
     while i<=length(s)
-        if ~or(ascii(part(s,i))==[9 10 13 32]) then return; end
+        if ~or(s(i)==[9 10 13 32]) then return; end
         i=i+1;
     end
 endfunction
 function [ok,i]=mo_json_string(s,i)
     ok=%f; n=length(s);
     if i>n then return; end
-    if ascii(part(s,i))<>34 then return; end
+    if s(i)<>34 then return; end
     i=i+1;
     while i<=n
-        ch=ascii(part(s,i));
+        ch=s(i);
         if ch==34 then i=i+1; ok=%t; return; end
         if ch<32 then return; end
         if ch==92 then
             i=i+1; if i>n then return; end
-            ch=ascii(part(s,i));
+            ch=s(i);
             if ch==117 then
                 if i+4>n then return; end
                 for j=i+1:i+4
-                    if isempty(strindex("0123456789abcdefABCDEF",part(s,j))) then return; end
+                    if ~or(s(j)==[48:57 65:70 97:102]) then return; end
                 end
-                code=hex2dec(part(s,i+1:i+4));
+                code=hex2dec(ascii(s(i+1:i+4)));
                 if code>=55296 & code<=56319 then
                     if i+10>n then return; end
-                    if ascii(part(s,i+5))<>92 | ascii(part(s,i+6))<>117 then return; end
+                    if s(i+5)<>92 | s(i+6)<>117 then return; end
                     for j=i+7:i+10
-                        if isempty(strindex("0123456789abcdefABCDEF",part(s,j))) then return; end
+                        if ~or(s(j)==[48:57 65:70 97:102]) then return; end
                     end
-                    low=hex2dec(part(s,i+7:i+10));
+                    low=hex2dec(ascii(s(i+7:i+10)));
                     if low<56320 | low>57343 then return; end
                     i=i+6;
                 elseif code>=56320 & code<=57343 then return;
@@ -128,22 +128,22 @@ endfunction
 function [ok,i]=mo_json_value(s,i,depth)
     ok=%f; i=mo_json_space(s,i); n=length(s);
     if i>n | depth>48 then return; end
-    ch=ascii(part(s,i));
+    ch=s(i);
     if ch==34 then [ok,i]=mo_json_string(s,i); return; end
     if ch==123 | ch==91 then
         close=125; if ch==91 then close=93; end
         object=(ch==123); i=mo_json_space(s,i+1);
-        if i<=n then if ascii(part(s,i))==close then i=i+1; ok=%t; return; end; end
+        if i<=n then if s(i)==close then i=i+1; ok=%t; return; end; end
         while i<=n
             if object then
                 [valid,i]=mo_json_string(s,i); if ~valid then return; end
                 i=mo_json_space(s,i); if i>n then return; end
-                if ascii(part(s,i))<>58 then return; end
+                if s(i)<>58 then return; end
                 i=i+1;
             end
             [valid,i]=mo_json_value(s,i,depth+1); if ~valid then return; end
             i=mo_json_space(s,i); if i>n then return; end
-            ch=ascii(part(s,i));
+            ch=s(i);
             if ch==close then i=i+1; ok=%t; return; end
             if ch<>44 then return; end
             i=mo_json_space(s,i+1);
@@ -153,16 +153,16 @@ function [ok,i]=mo_json_value(s,i,depth)
     for word=["true" "false" "null"]
         w=length(word);
         if i+w-1<=n then
-            if part(s,i:i+w-1)==word then i=i+w; ok=%t; return; end
+            if and(s(i:i+w-1)==ascii(word)) then i=i+w; ok=%t; return; end
         end
     end
     start=i;
     while i<=n
-        if isempty(strindex("0123456789.eE+-",part(s,i))) then break; end
+        if ~or(s(i)==[48:57 46 101 69 43 45]) then break; end
         i=i+1;
     end
     if i==start then return; end
-    token=part(s,start:i-1);
+    token=ascii(s(start:i-1));
     if isempty(regexp(token,"/^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$/")) then return; end
     if isnan(bench_safe_number(token)) then return; end
     ok=%t;
@@ -173,8 +173,27 @@ function ok=mo_json_safe(s)
     if size(s,"*")<>1 then return; end
     if length(s)==0 | length(s)>2000000 then return; end
     try
+        // Index UTF-8 bytes once; repeated part(string, i) rescans long documents.
+        s=ascii(s);
+        // JSON strings must contain valid UTF-8, including when a file is damaged.
+        high=find(s>=128);j=1;
+        while j<=size(high,"*")
+            pos=high(j);lead=s(pos);count=0;
+            if lead>=194 & lead<=223 then count=1;
+            elseif lead>=224 & lead<=239 then count=2;
+            elseif lead>=240 & lead<=244 then count=3;
+            else return;end
+            if pos+count>length(s) then return;end
+            tail=s(pos+1:pos+count);
+            if or(tail<128) | or(tail>191) then return;end
+            if lead==224 & tail(1)<160 then return;end
+            if lead==237 & tail(1)>159 then return;end
+            if lead==240 & tail(1)<144 then return;end
+            if lead==244 & tail(1)>143 then return;end
+            j=j+count+1;
+        end
         start=mo_json_space(s,1); if start>length(s) then return; end
-        if ascii(part(s,start))<>123 then return; end
+        if s(start)<>123 then return; end
         [valid,i]=mo_json_value(s,start,0);
         if valid then ok=mo_json_space(s,i)>length(s); end
     catch

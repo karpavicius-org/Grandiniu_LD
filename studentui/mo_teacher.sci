@@ -20,6 +20,76 @@ function [newCount,oldCount]=mo_teacher_count(folder)
         if kind==0 then oldCount=oldCount+1;else newCount=newCount+1;end
     end
 endfunction
+// Expand one cumulative file into independently checked laboratory submissions.
+function sources=mo_teacher_sources(folder)
+    sources=list();files=mo_teacher_files(folder);
+    for k=1:size(files,"*")
+        [kind,p,why]=mo_read_report(files(k));if kind==0 then continue;end
+        if kind==1 & mo7_is_portfolio(p) then
+            [valid,why,reports]=mo7_portfolio_reports(p);
+            if valid then
+                stamp=mo_teacher_text(p,"exported_at","");
+                for j=1:length(reports)
+                    item=struct("file",files(k),"kind",1,"payload",reports(j),"why","", ...
+                        "fragment","#"+reports(j).lab_id,"portfolio",%t,"exported",stamp);
+                    sources=mo_teacher_add_source(sources,item);
+                end
+            else
+                sources($+1)=struct("file",files(k),"kind",2,"payload",p,"why",why, ...
+                    "fragment","","portfolio",%t,"exported","");
+            end
+        else
+            item=struct("file",files(k),"kind",kind,"payload",p,"why",why, ...
+                "fragment","","portfolio",%f,"exported","");
+            sources=mo_teacher_add_source(sources,item);
+        end
+    end
+endfunction
+function sources=mo_teacher_add_source(sources,item)
+    // A copied same attempt is one entry. A conflicting payload remains visible.
+    if item.kind==1 then
+        for k=1:length(sources)
+            old=sources(k);
+            if old.kind<>1 then continue;end
+            if ~mo_teacher_same_submission(old.payload,item.payload) then continue;end
+            replace=item.portfolio & ~old.portfolio;
+            if item.portfolio & old.portfolio then replace=strcmp(item.exported,old.exported)>=0;end
+            if replace then sources(k)=item;end
+            return;
+        end
+    end
+    sources($+1)=item;
+endfunction
+function same=mo_teacher_same_submission(a,b)
+    same=%f;
+    try
+        if typeof(a)<>"st" | typeof(b)<>"st" then return;end
+        for key=["lab_id" "submission_id"]
+            if ~isfield(a,key) | ~isfield(b,key) then return;end
+            if type(a(key))<>10 | size(a(key),"*")<>1 then return;end
+            if a(key)=="" | a(key)<>b(key) then return;end
+        end
+        if ~mo5_same(a.student,b.student) then return;end
+        // Export time and presentation can change while a saved attempt is migrated.
+        ignored=["exported_at" "presentation_revision"];
+        identical=%t;
+        for key=matrix(fieldnames(a),1,-1)
+            if or(key==ignored) then continue;end
+            if ~isfield(b,key) then identical=%f;break;end
+            if toJSON(a(key))<>toJSON(b(key)) then identical=%f;break;end
+        end
+        for key=matrix(fieldnames(b),1,-1)
+            if ~or(key==ignored) & ~isfield(a,key) then identical=%f;break;end
+        end
+        if identical then same=%t;return;end
+        // A migration may also refresh public labels or append a report-save event.
+        // Merge the same session only if both full current reports still validate.
+        [validA,whyA,statsA]=mo_report_verify(a);
+        [validB,whyB,statsB]=mo_report_verify(b);
+        same=validA & validB;
+    catch same=%f;end
+endfunction
+
 function line=mo_teacher_csv(fields)
     for j=1:size(fields,"*")
         v=string(fields(j));
@@ -29,10 +99,10 @@ function line=mo_teacher_csv(fields)
     line=strcat(fields,";");
 endfunction
 function path=mo_teacher_summary(folder)
-    files=mo_teacher_files(folder);entries=list();students=emptystr(0,3);keys=emptystr(0,1);
-    for k=1:size(files,"*")
-        [kind,p,why]=mo_read_report(files(k));if kind==0 then continue;end
-        e=struct("file",files(k),"name","Neatpažintas studentas","group","","lab","","variant","", ...
+    sources=mo_teacher_sources(folder);entries=list();students=emptystr(0,3);keys=emptystr(0,1);
+    for k=1:length(sources)
+        source=sources(k);kind=source.kind;p=source.payload;why=source.why;
+        e=struct("file",source.file,"fragment",source.fragment,"name","Neatpažintas studentas","group","","lab","","variant","", ...
           "category","invalid","status","Reikia patikslinti","trials",0,"readings",0,"help","", ...
           "corrections","","submission","","created","","why",why,"studentIndex",0,"events",list(),"eventCount",0,"measurements","");
         if kind==1 then
@@ -83,7 +153,7 @@ function path=mo_teacher_summary(folder)
             history(e.studentIndex,idx)=history(e.studentIndex,idx)+"<a href=""#"+id+""">"+mo_html(e.status)+" · Nr. "+mo_html(e.variant)+"</a><br>";
         end
         hc($+1,1)=mo_teacher_csv([e.file e.name e.group e.variant e.lab e.status string(e.trials) string(e.readings) e.help e.corrections e.submission e.why]);
-        reportLink=mo_teacher_href(folder,e.file);
+        reportLink=mo_teacher_href(folder,e.file)+e.fragment;
         extra="<p><a href="""+mo_html(reportLink)+""">Atverti HTML ataskaitą</a></p>";
         extra=extra+"<details><summary>Matavimų lentelė</summary>"+e.measurements+"</details><details data-events="""+string(k-1)+"""><summary>Svarbiausių veiksmų istorija ("+string(length(e.events))+" iš "+string(e.eventCount)+")</summary><div data-history-body></div></details>";
         rows=rows+"<tr data-group="""+mo_html(e.group)+""" data-search="""+mo_html(convstr(e.name+" "+e.group,"l"))+""" id="""+id+"""><td>"+mo_html(e.name)+"<div class=""condition"">"+mo_html(e.group)+" · Nr. "+mo_html(e.variant)+"</div></td><td>"+mo_html(e.lab)+"</td><td>"+mo_html(e.status)+"</td><td>"+string(e.trials)+" / "+string(e.readings)+"</td><td>"+mo_html(e.help)+"<div class=""condition"">Rodmens taisymai: "+mo_html(e.corrections)+"</div></td><td><details><summary>Įrašo informacija</summary><p>"+mo_html(e.why)+"</p><p class=""condition"">"+mo_html(e.file)+"<br>Darbo ID: "+mo_html(e.submission)+"<br>Pateikta: "+mo_html(e.created)+"</p>"+extra+"</details></td></tr>";
@@ -120,7 +190,10 @@ function href=mo_teacher_href(folder,path)
         code=bytes(k);
         allowed=(code>=65 & code<=90) | (code>=97 & code<=122) | (code>=48 & code<=57) | or(code==[45 46 95 126 47]);
         if allowed then href=href+ascii(code);
-        else href=href+"%"+convstr(dec2hex(code,2),"u");end
+        else
+            hex=convstr(dec2hex(code),"u");if length(hex)<2 then hex="0"+hex;end
+            href=href+"%"+hex;
+        end
     end
 endfunction
 

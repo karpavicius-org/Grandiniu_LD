@@ -1,0 +1,25 @@
+LABORATORINIŲ DARBŲ PALEIDIMAS MAC KOMPIUTERYJE
+
+1. Įdiekite grafinį Scilab. Jo programą perkelkite į Applications / Programos.
+   Patikrintos versijos atsisiuntimas:
+   https://www.scilab.org/download/scilab-2026.1.0
+   Apple meniu → About This Mac / Apie šį Mac patikrinkite kompiuterį:
+   jei nurodyta Apple M1, M2 ar naujesnė Apple mikroschema, rinkitės macOS (ARM);
+   jei nurodyta Intel, rinkitės macOS (Intel).
+2. Išskleiskite visą laboratorinių darbų ZIP į savo aplanką.
+3. Aplanke Grandiniu_LD dukart spustelėkite PALEISTI.command.
+4. Pasirinkite LD ir įrašykite tuos pačius studento duomenis kiekviename darbe.
+
+Tas pats paketas turi branduolius Intel ir Apple Silicon kompiuteriams.
+Reikiamą variantą parenka pati macOS. Keisti failų ar jungimų nereikia.
+
+Jei Scilab jau atvertas, jo lange galite vykdyti STENDAS.sce.
+Jei Scilab nerastas, paleidimo lange bus nurodyta, ką patikrinti.
+
+Branduoliai sukurti macOS 11 arba naujesnei versijai; įdiegta Scilab versija
+gali reikalauti naujesnės macOS. Ankstesnis Intel ir Apple Silicon branduolių
+vykdymas patikrintas su Scilab 2026.1.0 macOS 15 aplinkoje. Dabartinių darbų
+eiga ir bendras studento HTML papildomai tikrinami Linux aplinkoje.
+
+Užbaigę darbus dėstytojui perduokite bendrą studento HTML failą.
+Ataskaitos mygtukas Spausdinti / PDF atveria naršyklės spausdinimo langą.

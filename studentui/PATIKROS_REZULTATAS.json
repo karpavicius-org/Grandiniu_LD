@@ -1,52 +1,153 @@
 {
   "status": "PASS",
-  "version": 6,
+  "version": 7,
   "date": "2026-10-21",
-  "baseline_v5_unchanged_sha256": "01c2e998ea08bb7a695e324aa75381fe80a8f618962788497d33efe3be209ec6",
-  "labs": 12,
-  "model": {
-    "status": "PASS",
+  "scope": "One cumulative student HTML, teacher import and native Mac/Linux distribution; original LD benches, numerical adapters and report visuals retained.",
+  "accepted_v6_archive_unchanged_sha256": "c441a210030ac9e90dcffe2f560e68eebef2eaa88ecbb5b98df63fd913f81f05",
+  "student_file": {
+    "stable_filename": true,
     "labs": 12,
-    "variants_per_lab": 64,
-    "trials": 5568,
-    "readings": 8960,
-    "incomplete_graph_rejections": 5568
+    "actual_OS_trials": 87,
+    "actual_OS_readings": 140,
+    "prior_children_preserved": true,
+    "failure_recovery_cases": 11,
+    "completed_and_partial_resume": "PASS",
+    "copy_update": "PASS"
   },
-  "actual_os_flow": {
-    "labs": 12,
-    "trials": 87,
-    "readings": 140,
-    "independent_wave_channels": 156,
-    "teacher_completed": "12/12",
-    "wrong_unit_hint_draft_preserved": true
+  "actual_OS_flows": [
+    {
+      "lab": 1,
+      "status": "PASS",
+      "actions": 79,
+      "trials": 7,
+      "portfolio_children": 1
+    },
+    {
+      "lab": 2,
+      "status": "PASS",
+      "actions": 134,
+      "trials": 12,
+      "portfolio_children": 2
+    },
+    {
+      "lab": 3,
+      "status": "PASS",
+      "actions": 47,
+      "trials": 3,
+      "portfolio_children": 3
+    },
+    {
+      "lab": 4,
+      "status": "PASS",
+      "actions": 77,
+      "trials": 7,
+      "portfolio_children": 4
+    },
+    {
+      "lab": 5,
+      "status": "PASS",
+      "actions": 37,
+      "trials": 3,
+      "portfolio_children": 5
+    },
+    {
+      "lab": 6,
+      "status": "PASS",
+      "actions": 54,
+      "trials": 4,
+      "portfolio_children": 6
+    },
+    {
+      "lab": 7,
+      "status": "PASS",
+      "actions": 69,
+      "trials": 7,
+      "portfolio_children": 7
+    },
+    {
+      "lab": 8,
+      "status": "PASS",
+      "actions": 190,
+      "trials": 12,
+      "portfolio_children": 8
+    },
+    {
+      "lab": 9,
+      "status": "PASS",
+      "actions": 128,
+      "trials": 12,
+      "portfolio_children": 9
+    },
+    {
+      "lab": 10,
+      "status": "PASS",
+      "actions": 156,
+      "trials": 12,
+      "portfolio_children": 10
+    },
+    {
+      "lab": 11,
+      "status": "PASS",
+      "actions": 60,
+      "trials": 4,
+      "portfolio_children": 11
+    },
+    {
+      "lab": 12,
+      "status": "PASS",
+      "actions": 84,
+      "trials": 4,
+      "portfolio_children": 12
+    }
+  ],
+  "independent_numerical_graph_checks": "PASS; observed readings and actual cable graphs, 156 complex wave channels",
+  "teacher": {
+    "one_student_file": "12/12",
+    "additional_native_cases": 13,
+    "separate_child_validation": true,
+    "legacy_deduplication": true
   },
-  "wire_geometry": {
-    "graphs": 51,
-    "cables": 437,
-    "bends_before": 926,
-    "bends_after": 880,
-    "button_collision_check": "PASS"
-  },
-  "reports": {
-    "native_exports": 36,
-    "browser_reports": 36,
-    "responsive_checks": 24,
-    "print_pdf_samples": 3,
-    "teacher_matrix": "3 students x 12 labs",
-    "final_LD10_palette_replay": "3 variants PASS"
-  },
-  "v5_compatibility": {
+  "browser": {
     "reports": 12,
-    "complete_checkpoints": 12,
-    "other_phase_fixtures": 36,
-    "negative_cases": 48,
-    "native_complete_autorefresh": "PASS; original HTML unchanged"
+    "responsive_cases": 24,
+    "height_cases": 36,
+    "child_print_callbacks": 12,
+    "selected_print_callbacks": 12,
+    "special_identity_cases": 2,
+    "offline_assets": true
   },
-  "source_boundaries": "All used flow files current; shared helper changed only LD10 arrow/label colours after initial runs; final LD7/LD10 replay and report-specific QA PASS.",
-  "limits": [
-    "Linux Scilab 2024.0.0 GUI; Windows GUI not run.",
-    "Windows DLL unchanged.",
-    "PDF layout and print callback checked; not Windows printer drivers."
+  "json_gate": {
+    "grammar_cases": 100,
+    "type_size_cases": 3,
+    "encoding_cases": 6,
+    "rules_preserved": true,
+    "speedup_measured": 4.736392795211007
+  },
+  "platforms": {
+    "Windows_x64": {
+      "dll_unchanged": true,
+      "v6_startup_user_reported": true,
+      "v7_GUI_executed_here": false
+    },
+    "Linux_x86_64": {
+      "packaged_default_native_core": "PASS",
+      "actual_launcher": "PASS",
+      "all12_GUI_to_HTML_and_teacher": "PASS"
+    },
+    "macOS_Intel_AppleSilicon": {
+      "universal_binary_exact_authenticated_slices": true,
+      "prior_native_architectures_executed": [
+        "arm64",
+        "x86_64"
+      ],
+      "v7_GUI_executed_here": false,
+      "source_and_test_scope": "NATIVE_PROVENANCE.json"
+    }
+  },
+  "test_boundaries": [
+    "Native Mac libraries reused from successful existing run; no new CI. Current v7 Mac/Windows GUI not locally executed.",
+    "Earlier failed loader, escaping, fixture and workspace-mirror attempts retained separately; final accepted12 uses ordinary private temporary data storage.",
+    "Teacher13 validUTF8 cases preceded later invalidUTF8 guard; actual final one-file teacher import and targeted escaping checks use final source."
   ],
   "file_sha256": {
     "DESTYTOJUI.sce": "6518ec1acc2679736b3bd2b334381aded90c03e6f313559fde5ca1df46af1aa4",
@@ -199,11 +300,13 @@
     "LD9/ld9_ids.sci": "188725e9719faf9459dc091640ac6b518c303b4e173842b9966f106dd23c968b",
     "LD9/ld9_student.sci": "a9a6d92866a86d60040a24554900d4d303d0cf1445e911ca3a3f262f855c274f",
     "LD9/ld9_utils.sci": "02ad2aaec6b963affb103745121c3df8d481716187652e4bcbde60e1df2484b1",
-    "PAKEITIMAI_IR_PATIKRA.txt": "8a9c8b9c491dac7f2838dbb96c98226d4625b022a44769b1242d9d17ade830f5",
-    "PAKETAS.txt": "5cd1a44d838fd57aa4e9a18ee6f7c3e267a537a3811296f03349b8c8aba7d647",
+    "MACOS.txt": "4ac93c6ac17768f21e6e2881582cbb48c6cf5edf63c573cf1182ce99f1f22b04",
+    "NATIVE_PROVENANCE.json": "f685e1d81fe4dc75fbc22b128a07d37a19f21c6cfa3fb0e2ae0b16af50a60896",
+    "PAKEITIMAI_IR_PATIKRA.txt": "28ba170a6f942e1b625599e7eaebf199adcd20fa9a83923ab4dedde6ede9d53d",
+    "PAKETAS.txt": "1318e50ad53a6dcb057cc9481e09e09714f899e2671b603cf38cce83a284de83",
     "PALEISTI.bat": "86cd5f0f3924a441e1c0c3a75869a9394837b8146f08a177fbcfa0e0901f8098",
-    "PALEISTI.command": "3226e339e3acd67b747099e7eee335a82bf6d5289033755b05a975eb25b222f6",
-    "PALEISTI.sh": "dd83ba56de8c0ec7fd983bb1347efaef4d29cc1927f66306f74388ab0ff4e178",
+    "PALEISTI.command": "e66cb4250bda50ed3263583896ca0113f565cad3c477270cfa5dfb11b8c086b8",
+    "PALEISTI.sh": "f4e809a6df8d06714ab57eda8ba769409140bb363d41428bb095c15d5d6e2f96",
     "PATIKRINTI.sh": "a2d596ad6c9a5df00d2b7082373ebeb8929836c4f977668515871cec33a470b5",
     "PERZIURA.sce": "05f4a1d2be8d0bd81bfe21978410b7ba813337cf4e3b92f8093df3eb59ff36f0",
     "PERZIURA_LD10.sce": "4c673b3494a786a454a9ee0f5b13c9b00184dd36c81661a709845ca1188c4fb9",
@@ -217,10 +320,10 @@
     "PERZIURA_LD7.sce": "4ba079d51b83fc1400cefd20fdd7fe5c3ea2c0547649068f17f93d9f350e373f",
     "PERZIURA_LD8.sce": "2216c77e7a5f009345ecc2d6c14cde83bd49f5ba7738afc30da24f39608db3db",
     "PERZIURA_LD9.sce": "011b245d40908cca84c45172e8b0a2cdd00201d794dbb83e4e46386d8aff43f1",
-    "PRADĖKITE.txt": "54f0fd8bdb00d0ac5021b785fbe79637bcb4fd3f108bdd21a0d215464f439a9c",
-    "README.md": "b58c408cd71d344f59a25cadc03ffad76d85f3548e8c0602daf5da5bf3603b26",
+    "PRADĖKITE.txt": "ec5769c0313c3740f741a04bffbda692b1f844858f266f7bfbe6ec5fce742e30",
+    "README.md": "00a35991ce93ede93394b3dafc8f426e6cf6a21621bab2341dab25f0603497dc",
     "RELEASE.json": "a5ceecc03c8df7843c3f0f26466bd6a1e9bdccb438c7189c447e0ad2bd77593d",
-    "RT_LOAD.sce": "0d8d6d977d5b1f721a3da1b9da268b3e7fc63c2a86e4571a945021a9c6771825",
+    "RT_LOAD.sce": "df49fd6e95a4c49a083c2efb630b8ee14ae5e1a4f46a79a2005ee2ce7cec04f7",
     "RT_MODELS_LOAD.sce": "136fa27e769a87b5f989dc96084f0609d4f97206a638fff93fb291fb5ea239b4",
     "STENDAS.sce": "b6d99f5a3fcec5f1df944da3dc9cb120ed1d73f50ec241b31b60f123f2a30353",
     "bench_common.sci": "313f66c8a601bc01da9570e4795d3a6ac075cc0684e9c1e4f417ec7dc2641842",
@@ -228,16 +331,19 @@
     "bench_session.sci": "5a87a0e41e9c0008b49b544a1989495b073e0d1e2ceab5c76f49459e17625eae",
     "bench_teacher.sci": "59087d0e94f2da40c722ee0de274b49431b6ec6451df540972fd16fa59919649",
     "bin/ldcore.dll": "40956d3c334343e72f5c0ecd3933e953e30dbaad718ec0e941e895ff4ad56b0e",
+    "bin/ldcore.dylib": "f79f387d19625df2eefc3dee37f28286719b6f2b26c2c2592e9a4d6b4a741923",
+    "bin/ldcore.so": "1e47bd9a8713dc25c384970eaa1bbef6dd6c5d1ff7054258df85051d395f26ed",
     "capture_window.py": "e5bc3cf0c11fd17dd0aa7e79502dff680771e8bfea1da6ccba1d0330e8066b1f",
-    "mo_common.sci": "60f3fee36620394fa23ace36b7f5cd93012297624466685eb5bc063f79d84f60",
+    "mo_common.sci": "2bddea346131e502828f3aec15f500cb2d97de96801c963a6a23c428084a4c72",
     "mo_ld1_2.sci": "c1d1d384c9067a4386cd9d33721d1bddb4c8ebc6af9540896e772afe49968f8a",
     "mo_ld3_6.sci": "3d7440bfa3459f2a841a370717ba47ade171e8ff113b1e5b5220392dfb577930",
     "mo_ld7_12.sci": "c1e7239878da2641abd081483e388593e7d8eb1fd25d53447b7489b9cd6e7c02",
+    "mo_portfolio.sci": "6d61f0575f775297acff910a483b5ba38ba3c38f89f765ba6dc17184461a7e8a",
     "mo_public.sci": "3286d0af128e06eee0aae874ae617e47b95c3afac5a10d679bf42a27b169fe5c",
-    "mo_report.sci": "d8626aad4f6b5ecc6d0321c98bb3122a1cfd9717db9d9168cdf76be176f3ac7e",
+    "mo_report.sci": "874452f9529aaa59951c92e0d50d61d1475d5556ddb6cd1f349c315438a84de9",
     "mo_report_dc_visuals.sci": "e23fb6c155bca8fe5ad007595d40c025905399111a4a2859bd2d4f96f0bd076f",
     "mo_report_late_visuals.sci": "a81e76fe96930b6a37d1fc45d9788a9f93d0607cd3d5b93425c46f700319cfbd",
-    "mo_teacher.sci": "3e12b2455280ddbd0511dd91842408525b50fc3ba089efe346b54695e11524f9",
+    "mo_teacher.sci": "06591f30431addb0a15628acb6865cd43b711911f411188b3cd7316339f6018e",
     "rt_ld10_bridge.sci": "1019d3613880e26c3b7aec8cd8acbb89ee31094ba37c3a035563aaf1e86b39d3",
     "rt_ld11_bridge.sci": "39d1e0fb17bd3f3aaa3ca0319a62e491e275ff8f0bc3a45a66bd3da4004c8fe8",
     "rt_ld12_bridge.sci": "e89a176695e1551cd0a0e9d6df3834274546ca6c48374f7e95fce1cd7c8d78e6",
@@ -252,8 +358,8 @@
     "rt_ld9_bridge.sci": "064eae44fa6311ddabe5e679dc2fa605ce715b0694f6ea3831ede894dee15ac8",
     "rt_overrides.sci": "f83587a39145c999c0d161241b31bf91288f64391118b40017191e2286e8f2cb",
     "rt_preview.sci": "00cd3d0755d7aaa32a199c75bad71af500f0c0237a264acdcfdb18f8649a48d5",
-    "rt_session.sci": "eb6573b88cba9a4048dbf8b3edeabc0c85baceb2e99166af89e8e0243dd8886b",
-    "rt_student.sci": "9289ebfa45e4512acb11e533dd5d5337bbdc4a5aeea1beb55d5feb69f5f4426e",
+    "rt_session.sci": "b98f73a90344928653ab66557d79701a2b9c59193755661d9a532f53620c898d",
+    "rt_student.sci": "067b49656ef015229e028691efa894380f183acf509951bbcb4992aa22257e76",
     "student_profile.sci": "0e18d89cdc146bacad52c385fa09d125655d78d712f07f6603d95af135c6a960",
     "student_style.sci": "910754ae228cbffafd9381c8737905571f520edd8126c1ce0d32805b1445ff37",
     "tests/AUTOMATINIS.sce": "c3122b87b5b7b83ed02d9885d9c8cd070441cba0f10a559224e26f077c098e55",

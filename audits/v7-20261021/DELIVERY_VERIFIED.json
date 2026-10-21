@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "archive_sha256": "6b82b93e80981fb4e57903473cfedb25c0da4789794a8c54d1a4c8e4d89d2f32",
+  "members": 222,
+  "zip_crc": "PASS",
+  "all_member_hashes_match": true,
+  "launchers_executable_bits": true,
+  "extracted_default_native_all12_firsttrials": "PASS",
+  "actual_complete_onefile_reexport": "12/12 PASS",
+  "extracted_teacher_onefile": "12/12 PASS",
+  "no_native_override": true,
+  "source_student_file_sha256": "aff54d4fe6c98b5750cacfd09af31a48f67c5ff15d5f7055a82b42007b7c7f2d"
+}

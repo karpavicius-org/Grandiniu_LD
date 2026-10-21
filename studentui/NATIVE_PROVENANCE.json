@@ -1,0 +1,126 @@
+{
+  "format": 1,
+  "purpose": "Native CPU libraries for the same Scilab LD1-LD12 application",
+  "windows_x86_64": {
+    "sha256": "40956d3c334343e72f5c0ecd3933e953e30dbaad718ec0e941e895ff4ad56b0e",
+    "unchanged_from_approved_v6": true
+  },
+  "linux_x86_64": {
+    "sha256": "1e47bd9a8713dc25c384970eaa1bbef6dd6c5d1ff7054258df85051d395f26ed",
+    "packaged_native_smoke": "PASS; default loader, no external override"
+  },
+  "macos_universal": {
+    "status": "PASS",
+    "source_commit": "6b624db0f722ca4ec34d861c2d7b300c4c76f096",
+    "existing_native_run": 39387025972,
+    "slices": {
+      "arm64": {
+        "artifact_id": 12248513659,
+        "artifact_sha256": "28fcfc0201d06e3ceb5122b59ab847ff351ae1cdd9c3a2b666dc8fee986d0e2b",
+        "library_sha256": "4a7378b02f076660ecf0e131755e4cbd619b0fd2c9f79219d3c9160b30ad2e98",
+        "library_bytes": 802976,
+        "cpu_type": 16777228,
+        "cpu_subtype": 0,
+        "dependencies": [
+          "/usr/lib/libc++.1.dylib",
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "exports": [
+          "ld_ac",
+          "ld_batch",
+          "ld_export_report",
+          "ld_mna",
+          "ld_open_local",
+          "ld_sources",
+          "ld_write_new"
+        ],
+        "install_name": "@rpath/ldcore.dylib",
+        "platform": 1,
+        "minimum_macos": "11.0.0",
+        "sdk": "15.5.0"
+      },
+      "x86_64": {
+        "artifact_id": 12248803556,
+        "artifact_sha256": "3c3442f2a9b5aec91da47c41e56c04fd4a562e0789264e1700fd426a96bf5b7c",
+        "library_sha256": "19b95b1a6aecf34c3dd45588b309e8d7f8dd9c940b2f2417cc4a912f5f689b70",
+        "library_bytes": 875000,
+        "cpu_type": 16777223,
+        "cpu_subtype": 3,
+        "dependencies": [
+          "/usr/lib/libc++.1.dylib",
+          "/usr/lib/libSystem.B.dylib"
+        ],
+        "exports": [
+          "ld_ac",
+          "ld_batch",
+          "ld_export_report",
+          "ld_mna",
+          "ld_open_local",
+          "ld_sources",
+          "ld_write_new"
+        ],
+        "install_name": "@rpath/ldcore.dylib",
+        "platform": 1,
+        "minimum_macos": "11.0.0",
+        "sdk": "15.5.0"
+      }
+    },
+    "universal": {
+      "sha256": "f79f387d19625df2eefc3dee37f28286719b6f2b26c2c2592e9a4d6b4a741923",
+      "bytes": 1720320,
+      "slices_unchanged": true
+    },
+    "method": "Standard universal Mach-O FAT container from two byte-identical authenticated native CI slices; no recompilation or algorithm patch",
+    "local_execution_scope": "Binary inspection on Linux; no native macOS execution of current v7 UI"
+  },
+  "macos_source_compatibility": {
+    "status": "PASS",
+    "current_used_numerical_and_write_api_sources_identical_except_terminal_whitespace": [
+      "core/src/mna.cpp",
+      "core/src/model.cpp",
+      "core/src/sources.cpp",
+      "core/src/batch.cpp",
+      "core/include/ldcore.hpp",
+      "core/include/grader.hpp"
+    ],
+    "open_local_body_identical": true,
+    "legacy_boundary": "C++ legacy LD2 grading/report_html differ from local uncommitted LD2-4 variants. Current mo_report/mo_teacher measurement-report and portfolio flow use Scilab report generation/verification; those legacy branches are not the current student workflow. All ABI declarations remain identical.",
+    "linux": {
+      "sha256": "1e47bd9a8713dc25c384970eaa1bbef6dd6c5d1ff7054258df85051d395f26ed",
+      "bytes": 1172336,
+      "prior_native_scope": "Approved v6 model64/all12OS/report/teacher verification; repeated native all12 first-trial smoke"
+    }
+  },
+  "historical_native_macos_evidence": {
+    "run_id": 39387025972,
+    "source_commit": "6b624db0f722ca4ec34d861c2d7b300c4c76f096",
+    "url": "https://github.com/karpavicius-org/Grandiniu_LD/actions/runs/39387025972",
+    "architectures": {
+      "arm64": {
+        "job_id": 118509195005,
+        "native_ctest": 16,
+        "prior_format_reports": 769,
+        "raw_log_sha256": "2133b26d5f662d7fd2bc177bf490613f110f822c8448ad1da9e4efae5b6199d2",
+        "selected_log_lines": [
+          "2026-10-20T07:31:55.6016540Z 100% tests passed out of 16",
+          "2026-10-20T07:33:00.8590770Z {\"status\": \"PASS\", \"platform\": \"posix\", \"actual_exported_reports\": 769, \"ld1_full_variants\": 64, \"ld2_full_variants\": 64, \"ld3_full_variants\": 64, \"ld4_full_variants\": 64, \"ld5_full_variants\": 64, \"ld6_full_variants\": 64, \"ld7_full_variants\": 64, \"ld8_full_variants\": 64, \"ld9_full_variants\": 64, \"ld10_full_variants\": 64, \"ld11_full_variants\": 64, \"ld12_full_variants\": 64, \"wrong_and_missing_preserved\": true, \"seconds\": 16.162, \"cffi_folder_grading\": true}",
+          "2026-10-20T07:54:34.1137680Z {\"status\": \"PASS\", \"platform\": \"darwin\", \"labs\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], \"canvases\": {\"LD1\": [1280, 640], \"other_labs\": [1280, 720]}, \"small_screens\": [[1024, 768], [900, 600]], \"scrollable\": true, \"report_buttons\": 3, \"ld2_ld3_workflows\": true}"
+        ],
+        "scope": "Existing native macOS execution at6b624db; current v7 report and portfolio UI not executed by this historical job"
+      },
+      "x86_64": {
+        "job_id": 118509195425,
+        "native_ctest": 16,
+        "prior_format_reports": 769,
+        "raw_log_sha256": "2f735532de6c7f65d5415a889d7ef2551502a085edf02891655b8b282e8ec576",
+        "selected_log_lines": [
+          "2026-10-20T07:32:17.7505790Z 100% tests passed out of 16",
+          "2026-10-20T07:33:51.7367690Z {\"status\": \"PASS\", \"platform\": \"posix\", \"actual_exported_reports\": 769, \"ld1_full_variants\": 64, \"ld2_full_variants\": 64, \"ld3_full_variants\": 64, \"ld4_full_variants\": 64, \"ld5_full_variants\": 64, \"ld6_full_variants\": 64, \"ld7_full_variants\": 64, \"ld8_full_variants\": 64, \"ld9_full_variants\": 64, \"ld10_full_variants\": 64, \"ld11_full_variants\": 64, \"ld12_full_variants\": 64, \"wrong_and_missing_preserved\": true, \"seconds\": 30.065, \"cffi_folder_grading\": true}",
+          "2026-10-20T07:56:53.6824760Z {\"status\": \"PASS\", \"platform\": \"darwin\", \"labs\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], \"canvases\": {\"LD1\": [1280, 640], \"other_labs\": [1280, 720]}, \"small_screens\": [[1024, 768], [900, 600]], \"scrollable\": true, \"report_buttons\": 3, \"ld2_ld3_workflows\": true}"
+        ],
+        "scope": "Existing native macOS execution at6b624db; current v7 report and portfolio UI not executed by this historical job"
+      }
+    }
+  },
+  "current_local_scope": "Linux native execution and mock launcher routing; current v7 macOS GUI execution unavailable locally. No new CI started."
+}

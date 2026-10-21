@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "scope": "Real production native GUI integration with declared actual-v6 checkpoint seeds; no OS student-action claim",
+  "completed_reopened": true,
+  "same_student_two_labs_same_path": true,
+  "copy_updated_same_path": true,
+  "partial_draft_preserved": true,
+  "old_v6_reports_preserved": true,
+  "canonical": "/tmp/grandiniu_v7_resume_final2/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-fb12f26472a0b2b2d60d.html",
+  "sources_unchanged": true,
+  "native_core": "Packaged default .so; no override",
+  "old_reports_unchanged": true,
+  "source_sha256": {
+    "rt_student.sci": "067b49656ef015229e028691efa894380f183acf509951bbcb4992aa22257e76",
+    "rt_session.sci": "b98f73a90344928653ab66557d79701a2b9c59193755661d9a532f53620c898d",
+    "mo_portfolio.sci": "6d61f0575f775297acff910a483b5ba38ba3c38f89f765ba6dc17184461a7e8a",
+    "mo_report.sci": "874452f9529aaa59951c92e0d50d61d1475d5556ddb6cd1f349c315438a84de9",
+    "mo_common.sci": "2bddea346131e502828f3aec15f500cb2d97de96801c963a6a23c428084a4c72",
+    "mo_teacher.sci": "06591f30431addb0a15628acb6865cd43b711911f411188b3cd7316339f6018e",
+    "RT_LOAD.sce": "df49fd6e95a4c49a083c2efb630b8ee14ae5e1a4f46a79a2005ee2ce7cec04f7",
+    "RT_MODELS_LOAD.sce": "136fa27e769a87b5f989dc96084f0609d4f97206a638fff93fb291fb5ea239b4",
+    "bin/ldcore.so": "1e47bd9a8713dc25c384970eaa1bbef6dd6c5d1ff7054258df85051d395f26ed"
+  }
+}

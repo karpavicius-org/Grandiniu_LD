@@ -28,20 +28,18 @@ function rt_start(root,lab,st,cfg)
         "message","Sujunkite grandinę. Jei reikia, spauskite Pagalba.","resumePath","", ...
         "attached",%f,"focusHandle",[],"guideFig",[], ...
         "sessionId",bench_id(),"createdAt",strcat(string(getdate()),"-"),"events",list(), ...
-        "callbackEpoch",bench_id(),"lastConnected",emptystr(0,1),"lastBadCopyKey","","reportFolder","","copyHintIndex",0);
+        "callbackEpoch",bench_id(),"lastConnected",emptystr(0,1),"lastBadCopyKey","","reportFolder","","copyHintIndex",0,"portfolioReady",%f);
     mo_restore();
-    // Refresh presentation only; preserve the original saved report and measurements.
-    if MO.phase=="complete" & MO.reportPath<>"" then
-        [reportKind,previousReport,reportWhy]=mo_read_report(MO.reportPath);
-        needsRefresh=%f;
-        if reportKind==1 then
-            needsRefresh=~isfield(previousReport,"presentation_revision");
-            if ~needsRefresh then needsRefresh=previousReport.presentation_revision<6;end
+    // A completed older laboratory joins the same student file; originals remain intact.
+    if MO.phase=="complete" then
+        if MO.reportPath<>"" then
+            [reportKind,previousReport,reportWhy]=mo_read_report(MO.reportPath);
+            if reportKind==1 then MO.portfolioReady=mo7_is_portfolio(previousReport);end
         end
-        if needsRefresh then
-            previousPath=MO.reportPath;MO.reportPath="";
-            try MO.reportPath=mo_export_report(MO);mo_checkpoint();
-            catch MO.reportPath=previousPath;MO.message="Matavimai atkurti. Ataskaitos vaizdų atnaujinti nepavyko: "+strcat(lasterror()," ");end
+        if ~MO.portfolioReady then
+            previousPath=MO.reportPath;
+            try MO.reportPath=mo_export_report(MO);MO.portfolioReady=%t;mo_checkpoint();
+            catch MO.reportPath=previousPath;MO.message="Matavimai atkurti. Bendro studento failo išsaugoti nepavyko: "+strcat(lasterror()," ");end
         end
     end
     execstr("v=rt_prepare_"+part(lab,3:length(lab))+"(root,st,cfg);");
@@ -85,7 +83,7 @@ function rt_attach()
     MO.ui.reportFile.tag="RT_REPORT_FILE";MO.ui.reportFile.visible="off";
     MO.ui.folder=student_button(p,[.07 .18 .86 .065],"Rodyti ataskaitos aplanką","rt_report_folder()");
     MO.ui.folder.tag="RT_REPORT_FOLDER";MO.ui.folder.visible="off";
-    MO.ui.saveAs=student_button(p,[.07 .275 .86 .065],"Išsaugoti kitame aplanke…","rt_report_save_as()");
+    MO.ui.saveAs=student_button(p,[.07 .275 .86 .065],"Išsaugoti failo kopiją…","rt_report_save_as()");
     MO.ui.saveAs.tag="RT_REPORT_SAVE_AS";MO.ui.saveAs.visible="off";
     MO.ui.status=student_text(MO.fig,[.025 .020 .95 .055],"",13,%t,[.94 .96 .96]);
     MO.ui.status.tag="RT_STATUS";
@@ -234,6 +232,10 @@ function rt_render()
         if MO.reportPath<>"" & isfile(MO.reportPath) then
             MO.ui.instruction.string=student_wrap(["Darbas baigtas. Ataskaita išsaugota.";"";"Joje rasite matavimus, grafikus ir rezultatų paaiškinimus.";"";"Dėstytojui perduokite šį vieną HTML failą."],38);
             MO.ui.primary.string="Atverti ataskaitą";MO.ui.folder.visible="on";
+            if MO.portfolioReady then
+                MO.ui.instruction.string=student_wrap(["Darbas baigtas. Bendras studento failas atnaujintas.";"";"Jame kaupiami visi jūsų užbaigti LD: matavimai, grafikai ir paaiškinimai.";"";"Dėstytojui perduokite šį vieną HTML failą."],38);
+                MO.ui.primary.string="Atverti studento failą";
+            end
             [rp,rn,re]=fileparts(MO.reportPath);MO.ui.reportFile.string=student_wrap("Failas: "+rn+re,42);MO.ui.reportFile.visible="on";
         else
             MO.ui.instruction.string=student_wrap(["Visi matavimai išsaugoti šiame darbe.";"";"HTML ataskaitos įrašyti dar nepavyko.";"";"Bandykite išsaugoti dar kartą arba pasirinkite kitą aplanką."],38);
@@ -431,7 +433,7 @@ function rt_guide_refresh()
     case "between" then target=MO.ui.primary;lines=["Šio bandymo rodmenys jau įrašyti.";"Spauskite Kitas bandymas. Nustatymus paruoš programa."];
     case "complete" then
         target=MO.ui.primary;
-        if MO.reportPath<>"" then lines=["Darbas baigtas, HTML ataskaita išsaugota.";"Spauskite Atverti ataskaitą arba Rodyti ataskaitos aplanką."];
+        if MO.reportPath<>"" then lines=["Darbas baigtas, HTML ataskaita išsaugota.";"Spauskite "+MO.ui.primary.string+" arba Rodyti ataskaitos aplanką."];
         else lines=["Matavimai išliko. HTML ataskaita dar neišsaugota.";"Spauskite Pakartoti ataskaitos išsaugojimą arba pasirinkite kitą aplanką."];end
     end
     if ~isempty(target) then
@@ -622,6 +624,7 @@ endfunction
 function rt_save_report(showSaved)
     global MO;
     MO.reportPath=mo_export_report(MO);
+    MO.portfolioReady=%t;
     rt_event("report_saved",MO.reportPath);MO.message="Ataskaita išsaugota: "+MO.reportPath;
     mo_checkpoint();
     if showSaved then bench_report_saved(MO.reportPath,"Ataskaita paruošta");end
@@ -634,22 +637,16 @@ endfunction
 function rt_report_save_as(token)
     global MO;
     if argn(2)>0 then if ~rt_accept_context(token) then return;end;end
-    folder=uigetdir(bench_documents(),"Pasirinkite aplanką HTML ataskaitai");
+    folder=uigetdir(bench_documents(),"Pasirinkite aplanką bendro studento failo kopijai");
     if isempty(folder) then return;end
     if type(folder)<>10 then return;end
     if stripblanks(folder)=="" then return;end
     try
-        if MO.reportPath<>"" & isfile(MO.reportPath) then
-            [oldFolder,name,ext]=fileparts(MO.reportPath);dest=fullfile(folder,name+ext);
-            if dest<>MO.reportPath then
-                if isfile(dest) then dest=fullfile(folder,name+"-"+bench_id()+ext);end
-                [ok,msg]=copyfile(MO.reportPath,dest);if ~ok then error(msg);end
-                [kind,payload,why]=mo_read_report(dest);if kind<>1 then error("Ataskaitos kopijos patikrinti nepavyko.");end
-                MO.reportPath=dest;
-            end
-            bench_report_saved(MO.reportPath,"Ataskaita paruošta");
-        else MO.reportFolder=folder;rt_save_report(%t);end
-        MO.message="Ataskaita išsaugota: "+MO.reportPath;
+        dest=mo7_export_copy(MO,folder);
+        if MO.reportPath=="" then MO.reportPath=dest;MO.portfolioReady=%t;end
+        if ~isfile(MO.reportPath) then MO.reportPath=dest;MO.portfolioReady=%t;end
+        bench_report_saved(dest,"Ataskaita paruošta");
+        MO.message="Bendro studento failo kopija išsaugota: "+dest;
     catch MO.message="Ataskaitos išsaugoti nepavyko: "+strcat(lasterror()," ");end
     mo_checkpoint();rt_render();
 endfunction

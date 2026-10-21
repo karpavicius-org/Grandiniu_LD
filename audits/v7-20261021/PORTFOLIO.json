@@ -1,0 +1,98 @@
+{
+  "status": "PASS",
+  "owned_files": {
+    "mo_portfolio.sci": "6d61f0575f775297acff910a483b5ba38ba3c38f89f765ba6dc17184461a7e8a",
+    "mo_report.sci": "874452f9529aaa59951c92e0d50d61d1475d5556ddb6cd1f349c315438a84de9"
+  },
+  "stable_cumulative_updates": {
+    "status": "PASS",
+    "actual_source": "Actual completed v6 OS checkpoints/records, same student; no invented measurements",
+    "updates": 12,
+    "final_reports": 12,
+    "one_stable_filename": true,
+    "input_records_unchanged": true,
+    "evidence": "RESULT.json"
+  },
+  "failure_and_recovery": {
+    "status": "PASS",
+    "cases": [
+      {
+        "case": "repeat_LD",
+        "status": "PASS",
+        "reports": 12
+      },
+      {
+        "case": "stable_copy_all12",
+        "status": "PASS"
+      },
+      {
+        "case": "other_identity_separate_file",
+        "status": "PASS"
+      },
+      {
+        "case": "tampered_current_rejected_preserves_file",
+        "status": "PASS"
+      },
+      {
+        "case": "active_writer_lock_preserved",
+        "status": "PASS"
+      },
+      {
+        "case": "native_absent_lock_owner_recovered",
+        "status": "PASS"
+      },
+      {
+        "case": "unknown_lock_owner_preserved",
+        "status": "PASS"
+      },
+      {
+        "case": "missing_canonical_recovers_all12_from_backup",
+        "status": "PASS"
+      },
+      {
+        "case": "declared_move_failure_restores_exact_previous_file",
+        "status": "PASS"
+      },
+      {
+        "case": "duplicate_and_mixed_identity_envelope_rejected",
+        "status": "PASS"
+      },
+      {
+        "case": "existing_tampered_child_rejected_unchanged",
+        "status": "PASS"
+      }
+    ],
+    "fault_injection": "Replacement failure and alternative identity explicitly declared; input measurements derive from actual v6 OS records"
+  },
+  "pid_checks": {
+    "status": "PASS",
+    "native_posix_checks": 2,
+    "declared_windows_tasklist_mocks": 6,
+    "declared_posix_error_mocks": 3
+  },
+  "final_source_repeat_and_escaping": {
+    "status": "PASS",
+    "all12_repeat_seconds": 8.04200005531311,
+    "path": "/tmp/v7-portfolio-native-final-20261021/Grandiniu_ataskaitos/Studento_LD1-LD12-V01-fb12f26472a0b2b2d60d.html",
+    "reports": 12,
+    "html_protective_escape_roundtrip": "PASS",
+    "literal_escaped_backslashes_preserved": true
+  },
+  "existing_visuals_and_math_byte_unchanged": true,
+  "source_boundary_evidence": "OWNED_SOURCE_BOUNDARY.json",
+  "native_html": {
+    "file": "ld_revision7/verification/portfolio/final_native_html/Studento_LD1-LD12-V01-fb12f26472a0b2b2d60d.html",
+    "bytes": 1319950,
+    "sha256": "fd0e31702ebe96aadcc936743a23a1ab191fa7f85d0963627cc7bc195390e6b8"
+  },
+  "independent_browser": "Sibling v6_report_qa verified all12 navigation/child controls/print and36 height cases; complex identity+literalbackslashes twice-export +actual WebKit injection safety PASS; separate portfolio_browser evidence",
+  "preserved_failed_attempts": [
+    "attempt1.log (list equality error, fixed with recursive list-aware semantic equality)",
+    "attempt2/debug/strict/attempt3/attempt4/attempt5 (workspace watcher/rsync resurrected transient lock; exact same locking constraints pass under isolated /tmp; original failed logs retained)",
+    "pid_tests.log (ps/currentPID probe invalid under unsharePID with host/proc; changed to kill0 with strict ESRCH vsEPERM handling; native+mock tests passed)"
+  ],
+  "limitations": [
+    "No Windows or macOS native GUI run by this agent; Windows PID checks are explicitly declared command-output mocks.",
+    "Normal all12 incremental proof preceded only protective-ASCII reader decoding change; final12repeat and independent specialidentity exports exercise final owned source."
+  ]
+}
