@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "scope": "Only cumulative report title and H1 text changed",
+  "title": "Grandiniu laboratoriniai darbai",
+  "source_before_sha256": "6d61f0575f775297acff910a483b5ba38ba3c38f89f765ba6dc17184461a7e8a",
+  "source_after_sha256": "4c2fafe7a688e27ad6f0ab99872f75c8ff4e829587fd975960655700b644fb81",
+  "original_archive_sha256": "6b82b93e80981fb4e57903473cfedb25c0da4789794a8c54d1a4c8e4d89d2f32",
+  "archive_sha256": "637dd5fdb49abaadc4ef5774a7b04f3a6099fbdc1364a444d2b9e44770817bae",
+  "members": 222,
+  "only_changed_member": "Grandiniu_LD/mo_portfolio.sci",
+  "all_other_members_and_permissions_unchanged": true,
+  "executed_from_extracted_final_archive": true,
+  "actual_report_labs": 12,
+  "native_render_and_readback": "PASS",
+  "all_child_reports_unchanged": true,
+  "all_embedded_measurement_data_unchanged": true
+}
