@@ -102,7 +102,7 @@ function ld6_student_primary()
     global LD6;
     if LD6.demoMode then ld6_toggle_solution(); return; end
     ld6_save_answers();
-    if LD6.step==6 & LD6.done(6) then
+    if LD6.step==6 & and(LD6.done) then
         ld6_export_report();
         return;
     end
@@ -111,6 +111,8 @@ function ld6_student_primary()
     end
     if LD6.done(LD6.step) & LD6.step<6 then
         ld6_next_step();
+    elseif LD6.step==6 & LD6.done(6) & ~and(LD6.done) then
+        pending=find(~LD6.done); ld6_set_step(pending(1));
     end
     ld6_student_sync(); bench_autosave("LD6");
 endfunction
@@ -144,4 +146,5 @@ function ld6_student_sync()
             LD6.ui.studentPrimary.string = "TIKRINTI";
         end
     end
+    ld6_guide_refresh();
 endfunction

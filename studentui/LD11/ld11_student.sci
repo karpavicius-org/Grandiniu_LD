@@ -142,4 +142,5 @@ function ld11_student_sync()
             LD11.ui.studentPrimary.string = "TIKRINTI";
         end
     end
+    ld11_guide_refresh();
 endfunction

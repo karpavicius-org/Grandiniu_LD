@@ -1,6 +1,5 @@
-// LD9 · Nuosekliai sujungtos RLC grandinės: trikampiai ir įtampų rezonansas.
 mode(-1);
-ld9_dir = get_absolute_file_path("LD9.sce");
-exec(ld9_dir + "LD9_LOAD.sce", -1);
-ld9_student_main(ld9_dir + "../");
-clear ld9_dir;
+rt_entry=get_absolute_file_path("LD9.sce");
+exec(rt_entry+"LD9_LOAD.sce",-1);
+exec(rt_entry+"../RT_LOAD.sce",-1);
+rt_launch(rt_entry+"../","LD9");

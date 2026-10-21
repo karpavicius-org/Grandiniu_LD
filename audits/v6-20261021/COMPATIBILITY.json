@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "scope": "Current production protocol/measurement/public-text functions; old approved v5 reports/checkpoints read only. Only draft/wiring/between phase changes are declared checkpoint fixtures.",
+  "actual_v5_reports": 12,
+  "actual_complete_checkpoints": 12,
+  "declared_other_phase_checkpoints": 36,
+  "negative_cases": 48,
+  "product_files": [
+    "mo_public.sci",
+    "rt_session.sci",
+    "mo_report.sci:two validation comparisons"
+  ],
+  "frozen_helper_sha256": "3286d0af128e06eee0aae874ae617e47b95c3afac5a10d679bf42a27b169fe5c",
+  "json_gate": "Old array signatures wrapped in a JSON object before the existing strict syntax gate; no direct malformed fromJSON call",
+  "identity": "Student name/group never enter public-text conversion; restored identity equality asserted",
+  "preserved_failures": [
+    "attempt1_fixture_regexpi",
+    "attempt2",
+    "attempt3_signature_array_gate"
+  ],
+  "intermediate_pass": "attempt4_wrapped_calls_PASS"
+}

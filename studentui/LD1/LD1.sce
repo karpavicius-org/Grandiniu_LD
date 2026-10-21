@@ -1,4 +1,5 @@
-// Student launch: identity, assigned parameters, then the bench.
 mode(-1);
-exec(get_absolute_file_path("LD1.sce")+"LD1_LOAD.sce",-1);
-ld1_student_main(LD1_ROOT);
+rt_entry=get_absolute_file_path("LD1.sce");
+exec(rt_entry+"LD1_LOAD.sce",-1);
+exec(rt_entry+"../RT_LOAD.sce",-1);
+rt_launch(rt_entry+"../","LD1");

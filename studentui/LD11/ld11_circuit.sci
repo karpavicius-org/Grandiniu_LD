@@ -5,13 +5,43 @@
 // režimas 1–2, P mW, režimas]; režimas 1 – be Ck, 2 – su Ck. f = 50 Hz.
 // ============================================================================
 
-function wires = ld11_canonical_wires(mode)
+function plan = ld11_instrument_plan(mode)
     wires = emptystr(0, 2);
-    if ~ld11_valid_index(mode, 2) then return; end
-    base = ["GEN_P" "K1";"K2" "A_P";"A_N" "RL_A";"RL_B" "GEN_N"];
-    select mode
-    case 1 then wires = base;
-    case 2 then wires = [base;"RL_A" "C_A";"C_B" "GEN_N"];
+    if ~ld11_valid_index(mode, 2) then plan = struct("wires", wires); return; end
+    // A and the wattmeter current coil carry the total current before RL/C split.
+    wires = ["GEN_P" "K1";"K2" "A_P";"A_N" "W_I_P";"W_I_N" "RL_A"; ...
+        "RL_B" "GEN_N";"V_P" "GEN_P";"V_N" "GEN_N"; ...
+        "W_U_P" "RL_A";"W_U_N" "RL_B"];
+    if mode == 2 then wires = [wires;"RL_A" "C_A";"C_B" "GEN_N"]; end
+    plan = struct("wires", wires, "mode", mode);
+endfunction
+
+function wires = ld11_canonical_wires(mode)
+    plan = ld11_instrument_plan(mode); wires = plan.wires;
+endfunction
+
+function same = ld11_wires_equal(actual, planned)
+    same = %f;
+    if type(actual) <> 10 | size(actual, 2) <> 2 then return; end
+    if size(actual, 1) <> size(planned, 1) then return; end
+    used = zeros(size(planned, 1), 1) == 1;
+    for row = 1:size(actual, 1)
+        match = 0;
+        for k = 1:size(planned, 1)
+            if ~used(k) then
+                if and(actual(row,:) == planned(k,:)) | and(actual(row,:) == planned(k,[2 1])) then match = k; break; end
+            end
+        end
+        if match == 0 then return; end
+        used(match) = %t;
+    end
+    same = and(used);
+endfunction
+
+function [ok, mode] = ld11_detect_measurement(wires)
+    ok = %f; mode = 0;
+    for candidate = 1:2
+        if ld11_wires_equal(wires, ld11_canonical_wires(candidate)) then ok = %t; mode = candidate; return; end
     end
 endfunction
 
@@ -25,24 +55,9 @@ function editable = ld11_wiring_editable()
 endfunction
 
 function [ok, reason] = ld11_wiring_valid(wires)
-    global LD11;
-    ok = %f; reason = "Sujunkite grandinę pagal Pagalba → Kaip sujungti.";
-    if ~ld11_valid_index(LD11.wireMode, 2) then return; end
-    canonical = ld11_canonical_wires(LD11.wireMode);
-    if wires == [] then return; end
-    if type(wires) <> 10 | size(wires, 2) <> 2 then reason = "Netinkami sujungimo duomenys."; return; end
-    if size(wires, 1) > size(canonical, 1) then reason = "Per daug laidų."; return; end
-    for index = 1:size(canonical, 1)
-        present = %f;
-        for row = 1:size(wires, 1)
-            if and(wires(row,:) == canonical(index,:)) | and(wires(row,:) == canonical(index,[2 1])) then present = %t; end
-        end
-        if ~present then
-            reason = "Trūksta laido ["+ld11_terminal_code(canonical(index,1))+"]–["+ld11_terminal_code(canonical(index,2))+"].";
-            return;
-        end
-    end
-    ok = %t; reason = "";
+    [ok, mode] = ld11_detect_measurement(wires);
+    reason = "Prijunkite visus grandinės, ampermetro, voltmetro ir abiejų vatmetro ričių laidus pagal geltonus kontaktus.";
+    if ok then reason = ""; end
 endfunction
 
 function [u, i, ok, message, p] = ld11_measure_values()
@@ -53,9 +68,10 @@ function [u, i, ok, message, p] = ld11_measure_values()
     if ~LD11.switchOn then message = "Uždarykite jungiklį."; return; end
     [valid, message] = ld11_wiring_valid(LD11.wires);
     if ~valid then return; end
+    [valid, mode] = ld11_detect_measurement(LD11.wires);
     bench_core_require(); cfg = LD11.cfg;
     ck = 0;
-    if LD11.wireMode == 2 then ck = cfg.Ck; end
+    if mode == 2 then ck = cfg.Ck; end
     v = bench_cpp_ac(5, cfg.E, 50, cfg.R, cfg.L, ck);
     u = cfg.E; i = v(4)*1000; p = v(6)*1000; ok = %t;
 endfunction
@@ -65,6 +81,7 @@ function ld11_init_state()
     assessment=%t; practice=%f;
     if isfield(LD11,"assessment") then assessment=LD11.assessment; end
     if isfield(LD11,"practice_used") then practice=LD11.practice_used; end
+    LD11.guide_enabled = %f;
     LD11.step = 1; LD11.done = zeros(1, 6) == 1; LD11.skipped = zeros(1, 6) == 1;
     LD11.powerOn = %f; LD11.switchOn = %f; LD11.wireMode = 1;
     LD11.wires = emptystr(0, 2); LD11.journal = [];

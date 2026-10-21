@@ -137,4 +137,5 @@ function ld8_student_sync()
             LD8.ui.studentPrimary.string = "TIKRINTI";
         end
     end
+    if exists("ld8_guide_refresh")==1 then ld8_guide_refresh(); end
 endfunction

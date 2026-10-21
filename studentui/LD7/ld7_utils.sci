@@ -4,6 +4,7 @@
 
 function ld7_set_status(msg, kind, hint)
     global LD7;
+    if exists("ld7_guide_refresh")==1 then ld7_guide_refresh(); end
     if argn(2) < 3 then hint = ""; end
     if argn(2) < 2 then kind = "info"; end
     if isfield(LD7, "ui") then

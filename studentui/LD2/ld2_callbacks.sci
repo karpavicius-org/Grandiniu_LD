@@ -13,7 +13,7 @@ function ld2_save_answers()
         try
             raw=h.string;
             if size(raw,"*")<>1 then raw=strcat(raw," "); end
-            if LD2.state.answers_text(owner,k)<>raw then LD2.state.completed(owner)=0; end
+            if LD2.state.answers_text(owner,k)<>raw then LD2.state.completed(owner)=0;LD2.state.completed(12)=0;end
             LD2.state.answers_text(owner,k)=raw;
             LD2.state.answers(owner,k)=ld2_safe_number(raw);
         catch
@@ -25,6 +25,12 @@ endfunction
 function ld2_go_step(step, force)
     global LD2;
     if step<1 | step>12 then return; end
+    if step==3 then step=4; end
+    if step==6 then step=7; end
+    // Retired compatibility slots mirror the actual wiring stages exactly.
+    // No independent scoring/measurement/answer state survives for 3 and 6.
+    LD2.state.completed(3)=LD2.state.completed(2); LD2.state.skipped(3)=0;
+    LD2.state.completed(6)=LD2.state.completed(5); LD2.state.skipped(6)=0;
     if LD2.example_active then
         ld2_clear_dynamic();
         ld2_prepare_example(step);
@@ -34,7 +40,9 @@ function ld2_go_step(step, force)
 
     oldphase=ld2_phase_for_step(LD2.state.step);
     newphase=ld2_phase_for_step(step);
-    if oldphase<>newphase then LD2.state.power=%f; end
+    // Wiring must also be editable after returning from a measurement in the
+    // same phase. The compact UI has no separate power-off control.
+    if oldphase<>newphase | or(step==[2 5 8]) then LD2.state.power=%f; end
     ld2_reset_live_readings(newphase);
     LD2.state.selected_terminal="";
 
@@ -86,7 +94,7 @@ function ld2_step_button(step)
         ld2_go_step(step,%t);
         return;
     end
-    if step==LD2.state.step+1 then
+    if step==ld2_visible_next(LD2.state.step) & step<>LD2.state.step then
         ld2_next();
     elseif step<=LD2.state.step | LD2.state.completed(step)==1 | LD2.state.skipped(step)==1 then
         ld2_go_step(step,%f);
@@ -101,20 +109,10 @@ function ld2_step_button(step)
     end
 endfunction
 
-function ld2_teacher_toggle()
-    global LD2;
-    LD2.state.teacher_mode=(LD2.ui.teacher.value==1);
-    if LD2.state.teacher_mode then
-        ld2_set_status("Dėstytojo režimas įjungtas: galima iš karto atverti bet kurį etapą.","ok");
-    else
-        ld2_set_status("Dėstytojo režimas išjungtas.","info");
-    end
-    ld2_update_nav_colors();
-endfunction
 
 function ld2_prev()
     global LD2;
-    if LD2.state.step>1 then ld2_go_step(LD2.state.step-1,%f); end
+    if LD2.state.step>1 then ld2_go_step(ld2_visible_previous(LD2.state.step),%f); end
 endfunction
 
 function ld2_next()
@@ -123,7 +121,7 @@ function ld2_next()
     if step>=12 then return; end
     ld2_save_answers();
     if LD2.state.completed(step)==1 | LD2.state.teacher_mode then
-        ld2_go_step(step+1,LD2.state.teacher_mode);
+        ld2_go_step(ld2_visible_next(step),LD2.state.teacher_mode);
         return;
     end
     if LD2.state.assessment then
@@ -133,7 +131,7 @@ function ld2_next()
     choice=x_choose(["LIKTI IR BAIGTI";"PEREITI NEBAIGUS"],"Etapas dar nepatikrintas. Ką daryti?");
     if choice==2 then
         LD2.state.skipped(step)=1;
-        ld2_go_step(step+1,%f);
+        ld2_go_step(ld2_visible_next(step),%f);
     end
 endfunction
 
@@ -168,6 +166,13 @@ endfunction
 
 function ld2_terminal_click(id)
     global LD2;
+    // Clicking an already selected contact cancels the selection.
+    if LD2.state.selected_terminal==id then
+        LD2.state.selected_terminal="";
+        ld2_render_step();
+        ld2_set_status("Kontaktas atžymėtas. Pasirinkite geltonai paryškintą gnybtą.","info");
+        return;
+    end
     if LD2.state.selected_terminal=="" then
         LD2.state.selected_terminal=id;
         ld2_render_step();
@@ -610,43 +615,6 @@ function ld2_export_csv()
     ld2_export_all();
 endfunction
 
-function ld2_edit_parameters()
-    global LD2;
-    if LD2.example_active then
-        ld2_show_error("Parametrų keitimas pavyzdyje negalimas.",["Pirmiausia grįžkite į savo darbą."]); return;
-    end
-    labels=["RC E, V RMS";"RC f, Hz (originalo schemoje 60)";"R8, Ω (demo: 1000)";"C2, µF"; ...
-      "RL E, V RMS";"RL f, Hz (redaguojama prielaida)";"R9, Ω (demo: 1000)";"L1, H"; ...
-      "RLC E, V RMS";"R13, Ω (demo: 100)";"L3, mH (demo: 100)";"C4, nF (demo: 10)"];
-    defs=[string(LD2.cfg.E_RC);string(LD2.cfg.F_RC);string(LD2.cfg.R8);string(LD2.cfg.C2*1e6); ...
-      string(LD2.cfg.E_RL);string(LD2.cfg.F_RL);string(LD2.cfg.R9);string(LD2.cfg.L1); ...
-      string(LD2.cfg.E_RLC);string(LD2.cfg.R13);string(LD2.cfg.L3*1e3);string(LD2.cfg.C4*1e9)];
-    vals=x_mdialog("LD2: originalo reikšmės ir aiškiai pažymėtas demonstracinis rinkinys",labels,defs);
-    if size(vals,"*")==0 then return; end
-    n=zeros(12,1);
-    for k=1:12
-        n(k)=ld2_safe_number(vals(k));
-        if isnan(n(k)) | n(k)<=0 then
-            ld2_show_error(labels(k)+": netinkama reikšmė.",["Įrašykite teigiamą skaičių nurodytais vienetais, be formulės."]); return;
-        end
-    end
-    cfg=LD2.cfg;
-    cfg.E_RC=n(1); cfg.F_RC=n(2); cfg.R8=n(3); cfg.C2=n(4)*1e-6;
-    cfg.E_RL=n(5); cfg.F_RL=n(6); cfg.R9=n(7); cfg.L1=n(8);
-    cfg.E_RLC=n(9); cfg.R13=n(10); cfg.L3=n(11)*1e-3; cfg.C4=n(12)*1e-9;
-    [valid,why]=ld2_validate_config(cfg);
-    if ~valid then ld2_show_error(why,["Pakartokite PARAMETRAI ir pataisykite nurodytą reikšmę. Ankstesni parametrai nepakeisti."]); return; end
-    if length(LD2.state.measurements)>0 | or(LD2.state.answers_text<>"") then
-        pick=x_choose(["ATŠAUKTI";"KEISTI IR PRADĖTI NAUJĄ DARBĄ"], ...
-            "Parametrų pakeitimas išvalys šio darbo matavimus. Prireikus pirma IŠSAUGOKITE.");
-        if pick<>2 then return; end
-    end
-    ld2_clear_dynamic();
-    LD2.cfg=cfg;
-    LD2.state=ld2_initial_state(cfg);
-    ld2_go_step(1,%t);
-    ld2_set_status("Parametrai pritaikyti; pradėtas naujas darbas.","ok");
-endfunction
 
 function ld2_show_method_fixes()
     ld2_show_info("Originalas ir aiškiai pažymėti patikslinimai", [ ...
@@ -692,207 +660,30 @@ function ld2_help_current()
 endfunction
 
 function ok=ld2_assessment_ready()
-    global LD2;
-    ok=%f; step=LD2.state.step;
-    [labels,n]=ld2_answer_spec(step);
-    for k=1:n
-        raw=stripblanks(LD2.state.answers_text(step,k));
-        if raw=="" then
-            ld2_set_status("Užpildykite "+labels(k)+".","error","Atsakymo teisingumą vertins dėstytojo programa.");
-            return;
-        end
-        if isnan(ld2_safe_number(raw)) then
-            ld2_set_status("Įrašykite skaičių: "+labels(k)+".","error","Tinka kablelis arba taškas. Formulės ir vienetai į lauką nerašomi.");
-            return;
-        end
-    end
-    select step
-    case 1 then ok=%t;
-    case 2 then
-        [ok,missing]=ld2_validate_main("RC");
-        if ~ok then ld2_set_status("RC grandinė dar nesujungta.","error","Užbaikite laidus pagal schemą kairėje."); end
-    case 3 then ok=%t;
-    case 4 then
-        ok=~isnan(LD2.state.rc_I) & ~isnan(LD2.state.rc_UR) & ~isnan(LD2.state.rc_UC) & ~isnan(LD2.state.rc_UE);
-        if ~ok then ld2_set_status("Trūksta RC matavimo.","error","Užfiksuokite I, UR, UC ir šaltinio įtampą."); end
-    case 5 then
-        [ok,missing]=ld2_validate_main("RL");
-        if ~ok then ld2_set_status("RL grandinė dar nesujungta.","error","Užbaikite laidus pagal schemą kairėje."); end
-    case 6 then ok=%t;
-    case 7 then
-        ok=~isnan(LD2.state.rl_I) & ~isnan(LD2.state.rl_UR) & ~isnan(LD2.state.rl_UL) & ~isnan(LD2.state.rl_UE);
-        if ~ok then ld2_set_status("Trūksta RL matavimo.","error","Užfiksuokite I, UR, UL ir šaltinio įtampą."); end
-    case 8 then
-        [ok,missing]=ld2_validate_main("RLC");
-        if ~ok then ld2_set_status("RLC grandinė dar nesujungta.","error","Užbaikite laidus pagal schemą kairėje."); end
-    case 9 then
-        if size(LD2.state.res_f,"*")<3 then
-            ld2_set_status("Rezonanso paieškai reikia bent trijų matavimo taškų.","error","Užfiksuokite taškus abipus stebimo maksimumo."); return;
-        end
-        [umax,imax]=max(LD2.state.res_ur); fm=LD2.state.res_f(imax);
-        ok=min(LD2.state.res_f)<fm & max(LD2.state.res_f)>fm;
-        if ~ok then ld2_set_status("Rezonanso maksimumas dar neaprėmintas.","error","Reikia matavimo mažesniu ir didesniu dažniu."); end
-    case 10 then
-        ok=%t;
-        for target=["UL" "UC" "ULC"]
-            idx=find(LD2.state.peak_target==target);
-            [bestf,bestu,found]=ld2_peak_best(target);
-            if ~found | size(idx,"*")<3 | min(LD2.state.peak_f(idx))>=bestf | max(LD2.state.peak_f(idx))<=bestf then ok=%f; end
-        end
-        if ~ok then ld2_set_status("Trūksta ekstremumų matavimo taškų.","error","Kiekvienam UL, UC ir ULC reikia bent trijų taškų abipus ekstremumo."); end
-    case 11 then
-        ok=~isnan(LD2.state.f1_meas) & ~isnan(LD2.state.f2_meas) & LD2.state.f2_meas>LD2.state.f1_meas;
-        if ~ok then ld2_set_status("Trūksta f1 ir f2 matavimų.","error","Užfiksuokite abu dažnius skirtingose rezonanso pusėse."); end
-    case 12 then
-        if ~and(LD2.state.completed(1:11)==1) then
-            ld2_set_status("Dar yra neužfiksuotų ankstesnių etapų.","error","Per Pagalba → Tęsti arba atkurti darbą → Etapai grįžkite prie neužbaigtų etapų.");
-            return;
-        end
-        // Scilab's indexed append may create an 11×1 column, whereas the
-        // expected frequency grid is a 1×11 row. Compare actual samples in
-        // acquisition order, not a broadcasted 11×11 matrix.
-        expected=0:1000:LD2.cfg.F_MAX;
-        ok=size(LD2.state.sweep_f,"*")==size(expected,"*");
-        if ok then
-            acquired=matrix(LD2.state.sweep_f,1,-1);
-            ok=and(acquired==expected);
-        end
-        if ~ok then ld2_set_status("Dažninė lentelė dar neužpildyta.","error","Atlikite 0–10 kHz skenavimą."); end
-    end
-    if ok then ld2_set_status("Etapo duomenys įrašyti.","ok","Teisingumą vertins dėstytojo programa."); end
+    [ok,why]=ld2_workflow_ready();
+    if ~ok then ld2_set_status(why,"warn"); end
 endfunction
 
 function ld2_check_step()
     global LD2;
-    if LD2.example_active then
-        ld2_set_status("Tai pavyzdys: etapai neįskaitomi. Spauskite MANO DARBAS.","warn"); return;
-    end
+    if LD2.example_active then return; end
     ld2_save_answers();
+    [ok,why]=ld2_workflow_ready();
+    if ~ok then ld2_set_status(why,"warn"); return; end
     step=LD2.state.step;
-    LD2.state.completed(step)=0;
-    LD2.state.last_error=""; LD2.state.last_fix="";
-    select step
-    case 1 then
-        ok=%t;
-    case 2 then
-        [ok,missing]=ld2_validate_main("RC");
-        if ~ok then ld2_check_wiring(); return; end
-    case 3 then
-        r=ld2_rc_values(LD2.cfg.E_RC,LD2.cfg.F_RC,LD2.cfg.R8,LD2.cfg.C2);
-        ref=[r.X r.Z r.I*1000 r.UR r.UX r.P*1000 r.PHI_I];
-        [ok,bad]=ld2_check_answer_vector(step,ref);
-        if ~ok then ld2_answer_error(bad,ref(bad)); return; end
-    case 4 then
-        if isnan(LD2.state.rc_I) | isnan(LD2.state.rc_UR) | isnan(LD2.state.rc_UC) | isnan(LD2.state.rc_UE) then
-            ld2_show_error("Trūksta RC matavimo.",["Išmatuokite I mygtuku MATUOTI I."; ...
-              "UR: V → R8 M1; COM → R8 M2.";"UC: V → C2 M1; COM → C2 M2."; ...
-              "UE: V → generatoriaus M~; COM → M0. Kaskart spauskite MATUOTI U."]); return;
-        end
-        ref=[sqrt(LD2.state.rc_UR^2+LD2.state.rc_UC^2) LD2.state.rc_UR/LD2.cfg.R8*1000];
-        [ok,bad]=ld2_check_answer_vector(step,ref);
-        if ~ok then ld2_answer_error(bad,ref(bad)); return; end
-    case 5 then
-        [ok,missing]=ld2_validate_main("RL");
-        if ~ok then ld2_check_wiring(); return; end
-    case 6 then
-        r=ld2_rl_values(LD2.cfg.E_RL,LD2.cfg.F_RL,LD2.cfg.R9,LD2.cfg.L1);
-        ref=[r.X r.Z r.I*1000 r.UR r.UX r.P*1000 r.PHI_I];
-        [ok,bad]=ld2_check_answer_vector(step,ref);
-        if ~ok then ld2_answer_error(bad,ref(bad)); return; end
-    case 7 then
-        if isnan(LD2.state.rl_I) | isnan(LD2.state.rl_UR) | isnan(LD2.state.rl_UL) | isnan(LD2.state.rl_UE) then
-            ld2_show_error("Trūksta RL matavimo.",["Išmatuokite I mygtuku MATUOTI I."; ...
-              "UR: V → R9 M1; COM → R9 M2.";"UL: V → L1 M1; COM → L1 M2."; ...
-              "UE: V → generatoriaus M~; COM → M0. Kaskart spauskite MATUOTI U."]); return;
-        end
-        ref=[sqrt(LD2.state.rl_UR^2+LD2.state.rl_UL^2) LD2.state.rl_UR/LD2.cfg.R9*1000];
-        [ok,bad]=ld2_check_answer_vector(step,ref);
-        if ~ok then ld2_answer_error(bad,ref(bad)); return; end
-    case 8 then
-        [ok,missing]=ld2_validate_main("RLC");
-        if ~ok then ld2_check_wiring(); return; end
-    case 9 then
-        if size(LD2.state.res_f,"*")<3 then
-            ld2_show_error("Rezonanso paieškai reikia bent trijų užfiksuotų taškų.", ...
-                ["V → R13 M1; COM → R13 M2. Įjunkite generatorių."; ...
-                 "Keiskite f, spauskite MATUOTI U ir ĮRAŠYTI TAŠKĄ."; ...
-                 "Reikia taško žemiau maksimumo, ties juo ir aukščiau."]); return;
-        end
-        [umax,imax]=max(LD2.state.res_ur); fm=LD2.state.res_f(imax);
-        if min(LD2.state.res_f)>=fm | max(LD2.state.res_f)<=fm then
-            ld2_show_error("Maksimumas dar neaprėmintas matavimais iš abiejų pusių.", ...
-                ["Įrašykite tašką mažesniu ir tašką didesniu dažniu už "+ld2_num(fm,3)+" Hz."]); return;
-        end
-        if umax<0.97*LD2.cfg.E_RLC then
-            ld2_show_error("Rastas UR13 dar per mažas rezonanso maksimumui.", ...
-                ["Artinkite dažnį prie didžiausią rodmenį turinčio taško."; ...
-                 "Naudokite ±1 Hz arba tikslų įvedimo lauką; įrašykite naują tašką."]); return;
-        end
-        rr=ld2_resonance_values(LD2.cfg.R13,LD2.cfg.L3,LD2.cfg.C4);
-        ref=[rr.F0 fm 1000/fm umax];
-        [ok,bad]=ld2_check_answer_vector_custom(step,ref,[0.005 0.0002 0.01 0.015]);
-        if ~ok then ld2_answer_error(bad,ref(bad)); return; end
-    case 10 then
-        [fl,ul,okl]=ld2_peak_best("UL"); [fc,uc,okc]=ld2_peak_best("UC");
-        [fz,uz,okz]=ld2_peak_best("ULC");
-        if ~okl | ~okc | ~okz then
-            ld2_show_error("Trūksta UL, UC maksimumų arba ULC minimumo tyrimo.", ...
-                ["Kiekvienam taikiniui prijunkite abu zondus pagal PAGALBA."; ...
-                 "Keiskite dažnį; MATUOTI U → ĮRAŠYTI TAŠKĄ."; ...
-                 "Kiekvienam taikiniui užfiksuokite bent 3 skirtingus dažnius."]); return;
-        end
-        for target=["UL" "UC" "ULC"]
-            idx=find(LD2.state.peak_target==target);
-            [bestf,bestu,found]=ld2_peak_best(target);
-            if size(idx,"*")<3 then
-                ld2_show_error(target+": per mažai taškų.",["Tam pačiam taikiniui įrašykite bent 3 skirtingus dažnius."]); return;
-            end
-            if min(LD2.state.peak_f(idx))>=bestf | max(LD2.state.peak_f(idx))<=bestf then
-                ld2_show_error(target+": ekstremumas dar neaprėmintas.", ...
-                    ["Įrašykite matavimus mažesniu ir didesniu f už "+ld2_num(bestf,3)+" Hz."]); return;
-            end
-        end
-        if uz>0.1*LD2.cfg.E_RLC then
-            ld2_show_error("ULC minimumas dar nepakankamai arti rezonanso.", ...
-                ["Prijunkite V → LC1, COM → LC2."; ...
-                 "Mažais dažnio žingsniais mažinkite ULC ir įrašykite naują tašką."]); return;
-        end
-        // These references come from the actual recorded frequencies, NOT an exact f0 substituted later.
-        ref=[ul uc uz fl fc fz];
-        [ok,bad]=ld2_check_answer_vector_custom(step,ref,[0.015 0.015 0.015 0.0002 0.0002 0.0002]);
-        if ~ok then ld2_answer_error(bad,ref(bad)); return; end
-    case 11 then
-        if isnan(LD2.state.f1_meas) | isnan(LD2.state.f2_meas) then
-            ld2_show_error("f1 ir f2 dar neužfiksuoti matavimo mygtukais.", ...
-                ["V → R13 M1, COM → R13 M2. Įjunkite generatorių."; ...
-                 "Žemiau fr raskite slenkstį; MATUOTI U → ĮRAŠYTI f1."; ...
-                 "Virš fr pakartokite MATUOTI U → ĮRAŠYTI f2."; ...
-                 "Vien skaičių įrašymas į atsakymų laukus nelaikomas matavimu."]); return;
-        end
-        threshold=ld2_half_power_threshold();
-        if abs(LD2.state.f1_u-threshold)>0.0301*threshold | abs(LD2.state.f2_u-threshold)>0.0301*threshold then
-            ld2_show_error("Pasikeitė slenkstis arba senieji f1/f2 rodmenys jo nebeatitinka.", ...
-                ["Pagal dabar rodomą R13 slenkstį iš naujo išmatuokite ir užfiksuokite f1 bei f2."]); return;
-        end
-        bw=LD2.state.f2_meas-LD2.state.f1_meas;
-        if bw<=0 then ld2_show_error("f2 turi būti didesnis už f1.",["Iš naujo užfiksuokite taškus skirtingose rezonanso pusėse."]); return; end
-        rr=ld2_resonance_values(LD2.cfg.R13,LD2.cfg.L3,LD2.cfg.C4);
-        fr=LD2.state.res_fr_meas; if isnan(fr) then fr=rr.F0; end
-        ref=[ld2_half_power_threshold() LD2.state.f1_meas LD2.state.f2_meas bw fr/bw];
-        [ok,bad]=ld2_check_answer_vector_custom(step,ref,[0.015 0.0002 0.0002 0.02 0.02]);
-        if ~ok then ld2_answer_error(bad,ref(bad)); return; end
-    case 12 then
-        expected=(0:1000:LD2.cfg.F_MAX);
-        if size(LD2.state.sweep_f,"*")<>size(expected,"*") then
-            ld2_show_error("Dažninė lentelė dar neužpildyta.", ...
-                ["V → R13 M1, COM → R13 M2. Įjunkite generatorių."; ...
-                 "Spauskite SKENUOTI 0–10 kHz."]); return;
-        end
-        ok=%t;
+    if or(step==[4 7 10]) then
+        ok=LD2.state.comparisons(step)==1;
+    elseif step==9 then
+        [u,i]=max(LD2.state.res_ur);ok=LD2.state.resonance_choice==i;
+    elseif step==11 then
+        ok=ld2_close_enough(ld2_safe_number(LD2.state.answers_text(11,1)), ...
+            LD2.state.f2_meas-LD2.state.f1_meas);
     end
-    LD2.state.completed(step)=1; LD2.state.skipped(step)=0;
-    ld2_render_step();
-    ld2_set_status("Etapas "+string(step)+" patikrintas. Matavimai ir atsakymai išsaugoti stendo būsenoje.","ok");
+    if ~ok then
+        ld2_set_status("Dar kartą palyginkite rodmenis. Paaiškinimą atveria Pagalba.","warn");return;
+    end
+    LD2.state.completed(step)=1;LD2.state.skipped(step)=0;
+    ld2_render_step();ld2_set_status("Etapas patikrintas. Spauskite Toliau.","ok");
 endfunction
 
 function [ok,bad]=ld2_check_answer_vector(step,ref)
@@ -977,10 +768,6 @@ function ld2_prepare_example(step)
     ref=[];
     if step==2 | step==5 | step==8 | step==1 then
         LD2.state.power=%f;
-    elseif step==3 then
-        ref=[rc.X rc.Z rc.I*1000 rc.UR rc.UX rc.P*1000 rc.PHI_I];
-    elseif step==6 then
-        ref=[rl.X rl.Z rl.I*1000 rl.UR rl.UX rl.P*1000 rl.PHI_I];
     elseif step==4 | step==7 then
         ld2_measure_current();
         if phase=="RC" then targets=["UR" "UC" "UE"]; else targets=["UR" "UL" "UE"]; end
@@ -988,7 +775,7 @@ function ld2_prepare_example(step)
             ld2_example_connect_probe(phase,target);
             ld2_measure_voltage();
         end
-        if phase=="RC" then ref=[LD2.cfg.E_RC rc.I*1000]; else ref=[LD2.cfg.E_RL rl.I*1000]; end
+        LD2.state.comparisons(step)=1;
     elseif step==9 then
         ld2_example_connect_probe("RLC","UR");
         for f=[rr.F0-rr.BW/2 rr.F0 rr.F0+rr.BW/2]
@@ -996,7 +783,8 @@ function ld2_prepare_example(step)
             ld2_measure_voltage(); ld2_record_resonance_point();
         end
         LD2.state.freq=rr.F0; ld2_reset_live_readings("RLC"); ld2_measure_voltage();
-        ref=[rr.F0 rr.F0 1000/rr.F0 LD2.cfg.E_RLC];
+        LD2.state.resonance_choice=2;
+        LD2.state.answers_text(9,1)=ld2_num(rr.F0,8);LD2.state.answers(9,1)=rr.F0;
     elseif step==10 then
         targets=["UL" "UC" "ULC"]; centers=[rr.FL rr.FC rr.F0];
         for j=1:3
@@ -1007,13 +795,13 @@ function ld2_prepare_example(step)
             end
         end
         [fl,ul,yes]=ld2_peak_best("UL"); [fc,uc,yes]=ld2_peak_best("UC"); [fz,uz,yes]=ld2_peak_best("ULC");
-        ref=[ul uc uz fl fc fz];
+        LD2.state.comparisons(10)=1;
         LD2.state.freq=rr.F0; ld2_reset_live_readings("RLC"); ld2_measure_voltage();
     elseif step==11 then
         ld2_example_connect_probe("RLC","UR");
         LD2.state.freq=rr.F1; ld2_reset_live_readings("RLC"); ld2_measure_voltage(); ld2_record_f1();
         LD2.state.freq=rr.F2; ld2_reset_live_readings("RLC"); ld2_measure_voltage(); ld2_record_f2();
-        ref=[LD2.cfg.E_RLC/sqrt(2) rr.F1 rr.F2 rr.BW rr.Q];
+        ref=rr.BW;
     elseif step==12 then
         ld2_example_connect_probe("RLC","UR");
         ld2_run_sweep();
@@ -1026,7 +814,7 @@ function ld2_prepare_example(step)
     LD2.state.completed=zeros(1,12);
     LD2.ui.suppress_render=%f;
     ld2_render_step();
-    ld2_set_status("PAVYZDYS: galima išbandyti valdiklius. Jūsų darbas nepakeistas; grįžimui spauskite MANO DARBAS.","warn");
+    ld2_set_status("Mokomasis pavyzdys. Peržiūrėkite rodmenis; grįžimui spauskite Grįžti į savo darbą.","warn");
 endfunction
 
 function ld2_example_connect_probe(phase,target)

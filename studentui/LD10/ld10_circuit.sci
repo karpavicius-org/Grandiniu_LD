@@ -5,10 +5,47 @@
 // Žurnalas: [U V, I_taikinio mA, taškas 1–3, f Hz, taikinys 1–4].
 // ============================================================================
 
-function wires = ld10_canonical_wires()
-    // Lygiagretus jungimas: visos trys šakos tarp tų pačių dviejų mazgų.
-    wires = ["GEN_P" "K1";"K2" "A_P";"A_N" "R_A";"R_A" "L_A";"L_A" "C_A"; ...
-             "R_B" "GEN_N";"R_B" "L_B";"L_B" "C_B"];
+function wires=ld10_canonical_wires(target)
+    if argn(2)<1 then target=1;end
+    plan=ld10_instrument_plan(target);wires=plan.wires;
+endfunction
+
+function plan=ld10_instrument_plan(target)
+    wires=emptystr(0,2);
+    if ~ld10_valid_index(target,4) then plan=struct("wires",wires);return;end
+    tail=["R_B" "GEN_N";"R_B" "L_B";"L_B" "C_B"];
+    select target
+    case 1 then wires=["GEN_P" "K1";"K2" "L_A";"L_A" "C_A";"L_A" "A_P";"A_N" "R_A";tail];
+    case 2 then wires=["GEN_P" "K1";"K2" "R_A";"R_A" "C_A";"R_A" "A_P";"A_N" "L_A";tail];
+    case 3 then wires=["GEN_P" "K1";"K2" "R_A";"R_A" "L_A";"L_A" "A_P";"A_N" "C_A";tail];
+    case 4 then wires=["GEN_P" "K1";"K2" "A_P";"A_N" "R_A";"R_A" "L_A";"L_A" "C_A";tail];
+    end
+    wires=[wires;"V_P" "GEN_P";"V_N" "GEN_N"];
+    plan=struct("wires",wires,"target",target);
+endfunction
+
+function [ok,target]=ld10_detect_measurement(wires)
+    ok=%f;target=0;
+    for t=1:4
+        if ld10_wires_equal(wires,ld10_canonical_wires(t)) then ok=%t;target=t;return;end
+    end
+endfunction
+function same=ld10_wires_equal(actual,planned)
+    same=%f;
+    if type(actual)<>10 | size(actual,2)<>2 then return;end
+    if size(actual,1)<>size(planned,1) then return;end
+    used=zeros(size(planned,1),1)==1;
+    for row=1:size(actual,1)
+        match=0;
+        for k=1:size(planned,1)
+            if ~used(k) then
+                if and(actual(row,:)==planned(k,:)) | and(actual(row,:)==planned(k,[2 1])) then match=k;break;end
+            end
+        end
+        if match==0 then return;end
+        used(match)=%t;
+    end
+    same=and(used);
 endfunction
 
 function editable = ld10_wiring_editable()
@@ -16,23 +53,10 @@ function editable = ld10_wiring_editable()
     editable = ~LD10.demoMode & LD10.step == 1;
 endfunction
 
-function [ok, reason] = ld10_wiring_valid(wires)
-    ok = %f; reason = "Sujunkite grandinę pagal Pagalba → Kaip sujungti.";
-    canonical = ld10_canonical_wires();
-    if wires == [] then return; end
-    if type(wires) <> 10 | size(wires, 2) <> 2 then reason = "Netinkami sujungimo duomenys."; return; end
-    if size(wires, 1) > size(canonical, 1) then reason = "Per daug laidų."; return; end
-    for index = 1:size(canonical, 1)
-        present = %f;
-        for row = 1:size(wires, 1)
-            if and(wires(row,:) == canonical(index,:)) | and(wires(row,:) == canonical(index,[2 1])) then present = %t; end
-        end
-        if ~present then
-            reason = "Trūksta laido ["+ld10_terminal_code(canonical(index,1))+"]–["+ld10_terminal_code(canonical(index,2))+"].";
-            return;
-        end
-    end
-    ok = %t; reason = "";
+function [ok,reason]=ld10_wiring_valid(wires)
+    [ok,target]=ld10_detect_measurement(wires);
+    reason="Prijunkite visus grandinės ir matavimo prietaisų laidus pagal geltonus kontaktus.";
+    if ok then reason="";end
 endfunction
 
 function values = ld10_reference(k)
@@ -63,13 +87,14 @@ function [voltage, current, ok, message] = ld10_measure_values()
     [valid, message] = ld10_wiring_valid(LD10.wires);
     if ~valid then return; end
     if LD10.freqPoint == 0 then message = "Pasirinkite šio etapo dažnį."; return; end
-    if LD10.target == 0 then message = "Pasirinkite matuojamą srovę: IR, IL, IC arba I."; return; end
+    [valid,target]=ld10_detect_measurement(LD10.wires);
+    if ~valid then message="Matavimo prietaisas neprijungtas.";return;end
     bench_core_require();
     kk = [0.5 1 2];
     f = kk(LD10.freqPoint)/sqrt(LD10.cfg.L*LD10.cfg.C)/(2*%pi);
     v = bench_cpp_ac(4, LD10.cfg.E, f, LD10.cfg.R, LD10.cfg.L, LD10.cfg.C);
     current = v(4)*1000;
-    if LD10.target == 1 then current = v(5)*1000; elseif LD10.target == 2 then current = v(6)*1000; elseif LD10.target == 3 then current = v(7)*1000; end
+    if target == 1 then current = v(5)*1000; elseif target == 2 then current = v(6)*1000; elseif target == 3 then current = v(7)*1000; end
     voltage = LD10.cfg.E; ok = %t;
 endfunction
 
@@ -78,6 +103,7 @@ function ld10_init_state()
     assessment=%t; practice=%f;
     if isfield(LD10,"assessment") then assessment=LD10.assessment; end
     if isfield(LD10,"practice_used") then practice=LD10.practice_used; end
+    LD10.guide_enabled = %f;
     LD10.step = 1; LD10.done = zeros(1, 6) == 1; LD10.skipped = zeros(1, 6) == 1;
     LD10.powerOn = %f; LD10.switchOn = %f; LD10.freqPoint = 0; LD10.target = 0;
     LD10.wires = emptystr(0, 2); LD10.journal = [];

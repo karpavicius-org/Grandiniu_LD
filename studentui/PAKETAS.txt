@@ -1,0 +1,10 @@
+LD1–LD12 | ataskaitų vaizdai ir ergonomika | v6 | 2026-10-21
+
+Išskleiskite visą ZIP. Paleiskite Grandiniu_LD / PALEISTI.bat.
+Studentui: PRADĖKITE.txt. Dėstytojui: DESTYTOJUI.sce.
+12 dabartinių darbų, pažįstami stendai, matomi tikri prietaisų laidai.
+Studentas jungia ir perrašo rodmenis. Ataskaita – vienas savarankiškas HTML.
+
+Išsaugota v5 darbo eiga ir matavimai. Trumpesnės laidų trasos, vietinės
+įvesties užuominos, kiekvienam darbui pritaikyti ataskaitos vaizdai.
+Ataskaitoje: Spausdinti / PDF. V5 darbo kopijos suderinamos.

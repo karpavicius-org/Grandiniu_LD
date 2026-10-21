@@ -83,7 +83,7 @@ function ld6_init_state()
         LD6.wires_by_mode(index)=emptystr(0,2); LD6.report_wires(index)=emptystr(0,2);
     end
     LD6.answers=emptystr(6,8); LD6.demoMode=%f; LD6.lastMeasurement=%nan; LD6.pending="";
-    LD6.workflow_revision=3;
+    LD6.workflow_revision=3; LD6.guide_enabled=%f;
     LD6.assessment=assessment; LD6.practice_used=practice;
 endfunction
 

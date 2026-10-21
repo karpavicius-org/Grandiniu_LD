@@ -116,7 +116,9 @@ function ld3_render_wires()
         LD3.term.handles($+1)=h; LD3.term.handleIds($+1,1)=id; LD3.ui.dynamic($+1)=h; ld3_track_board(h);
     end
     ld3_track_board(student_end_wires(p));
+    if isfield(LD3.ui,"trialProgress") then LD3.ui.trialProgress.string=student_wrap(ld3_trial_caption(),100);end
     LD3.fig.immediate_drawing=drawing;
+    ld3_guide_refresh();
 endfunction
 
 function ld3_render_journal()
@@ -151,6 +153,16 @@ function ld3_render_stage()
     LD3.ui.progress.string=string(LD3.step)+" / 6 etapas";
     LD3.ui.identity.string=student_caption(LD3.student);
     ld3_render_wires(); ld3_render_journal(); ld3_student_sync();
+    if isfield(LD3.ui,"restoreWires") then
+        LD3.ui.restoreWires.visible="off";
+        if LD3.step==1 then
+            LD3.ui.restoreWires.string="Išvalyti laidus";LD3.ui.restoreWires.visible="on";
+        elseif or(LD3.step==[2 3]) then
+            [journalOK,why]=ld3_journal_order_valid();
+            if ~journalOK then LD3.ui.restoreWires.string="Pradėti matavimus iš naujo";LD3.ui.restoreWires.visible="on";end
+        end
+    end
+    ld3_guide_refresh();
 endfunction
 
 function ld3_build_gui()
@@ -167,6 +179,7 @@ function ld3_build_gui()
     p=student_frame(f,[0.025 0.12 0.655 0.77]); LD3.ui.circuitFrame=p;
     right=student_frame(f,[0.70 0.12 0.275 0.77]); LD3.ui.right=right;
     student_text(p,[0.04 0.87 0.92 0.065],"Omo dėsnio stendas · I = U / R",19,%t);
+    LD3.ui.trialProgress=student_text(p,[0.04 0.80 0.92 0.065],"",13,%f);
     // Two unobstructed control rows. Measurement journal stays next to the circuit.
     LD3.ui.journalList=uicontrol(p,"style","listbox","units","normalized","position",[0.04 0.13 0.28 0.25], ...
         "string","Matavimai","fontname","DejaVu Sans","fontunits","pixels","fontsize",14,"tag","V02");
@@ -192,8 +205,12 @@ function ld3_build_gui()
         LD3.ui.answerEdits($+1)=h;
     end
     LD3.ui.studentPrimary=ld3_button(right,[0.07 0.085 0.86 0.075],"Tikrinti","ld3_student_primary()",15,[0.08 0.39 0.37]);
+    LD3.ui.studentPrimary.tag="LD3_PRIMARY";
     controls($+1)=LD3.ui.studentPrimary;
     controls($+1)=ld3_button(right,[0.07 0.015 0.37 0.045],"← Atgal","ld3_jump_step(LD3.step-1)",12);
+    controls($).tag="LD3_BACK";
+    LD3.ui.restoreWires=ld3_button(right,[0.07 0.30 0.86 0.07],"Išvalyti laidus","ld3_restore_stage()",13);
+    controls($+1)=LD3.ui.restoreWires;
     LD3.ui.controls=controls; LD3.ui.dynamic=controls;
     LD3.ui.statusMain=student_text(f,[0.025 0.055 0.95 0.035],"",13,%t,[0.94 0.96 0.96]);
     LD3.ui.statusFix=student_text(f,[0.025 0.020 0.95 0.035],"",12,%f,[0.94 0.96 0.96]);
@@ -203,8 +220,11 @@ endfunction
 
 function ld3_show_actions()
     global LD3;
-    choice=x_choose(["Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
+    choice=x_choose(["Vesti žingsnis po žingsnio";"Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
         "Ataskaita ir režimas";"Mano duomenys";"Daugiau veiksmų"],"LD3 · Pagalba");
+    if choice==1 then ld3_guide_show(); return; end
+    if choice==0 then return; end
+    choice=choice-1;
     select choice
     case 1 then
         extra=x_choose(["Kaip sujungti";"Stendo žemėlapis"],"Šio etapo pagalba");

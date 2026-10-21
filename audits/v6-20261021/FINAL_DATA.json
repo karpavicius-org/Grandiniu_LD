@@ -1,0 +1,184 @@
+{
+  "status": "PASS",
+  "scope": "Actual all12 OS-generated standalone student HTML files imported by real Scilab teacher aggregation; independent numerical checks use observed readings only",
+  "student_reports": [
+    {
+      "lab": 1,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD1_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD1_V1/data/Grandiniu_ataskaitos/LD1-V01-ataskaita-20261021T044642-53-639-5.html",
+      "sha256": "fb8110a8c5f0405fa5bfa399c9650e096f9ef703de9e9a452eef075159057846"
+    },
+    {
+      "lab": 2,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD2_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD2_V1/data/Grandiniu_ataskaitos/LD2-V01-ataskaita-20261021T044736-874-315-5.html",
+      "sha256": "7dd48f09856fc183b631848247f715deaa196ac6f9aa3c2e4d83141f9e6eb12b"
+    },
+    {
+      "lab": 3,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD3_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD3_V1/data/Grandiniu_ataskaitos/LD3-V01-ataskaita-20261021T044752-2142-106-5.html",
+      "sha256": "a58a3be6978ecbc1b71d670686bee61820777edede69127bc3eeb54c8b4d802b"
+    },
+    {
+      "lab": 4,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD4_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD4_V1/data/Grandiniu_ataskaitos/LD4-V01-ataskaita-20261021T044818-2660-801-5.html",
+      "sha256": "eb5275045aed1b908dfbe50ddb2321efe7872a99329f87db15d67b3e73bef3e9"
+    },
+    {
+      "lab": 5,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD5_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD5_V1/data/Grandiniu_ataskaitos/LD5-V01-ataskaita-20261021T044833-3420-189-5.html",
+      "sha256": "f22c30625bdc4c07068315fc1a930ba7f9b796ef50085181637c04218cec5cb3"
+    },
+    {
+      "lab": 6,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD6_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/accepted_ld1_6/LD6_V1/data/Grandiniu_ataskaitos/LD6-V01-ataskaita-20261021T044853-3857-111-5.html",
+      "sha256": "f33e8699b75815d3ab5e8f50a3df81b5d89a669a245f7a155853855242a850c8"
+    },
+    {
+      "lab": 7,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_10/LD7_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_10/LD7_V1/data/Grandiniu_ataskaitos/LD7-V01-ataskaita-20261021T045216-52-941-5.html",
+      "sha256": "d0d07c1efbd5c5352db72b7fe8f498aec2d73cca096cc181c02fda43f419e3c8"
+    },
+    {
+      "lab": 8,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_12/LD8_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_12/LD8_V1/data/Grandiniu_ataskaitos/LD8-V01-ataskaita-20261021T044659-756-157-5.html",
+      "sha256": "0d7efb7adaab3358838a2f03c103c2365953da91bb2b2854c3a9ca3d5dd0b477"
+    },
+    {
+      "lab": 9,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_12/LD9_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_12/LD9_V1/data/Grandiniu_ataskaitos/LD9-V01-ataskaita-20261021T044751-2505-891-5.html",
+      "sha256": "fc93595ea57de01dc1b1ee2020c78d7dd73778cccbf4e75e1f97d9afe5c5e509"
+    },
+    {
+      "lab": 10,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_10/LD10_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_10/LD10_V1/data/Grandiniu_ataskaitos/LD10-V01-ataskaita-20261021T045315-751-173-5.html",
+      "sha256": "c1469613d04f94d0138b575b2ab94093e5f86a2eaa6cc36424405b457ccf9acd"
+    },
+    {
+      "lab": 11,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_12/LD11_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_12/LD11_V1/data/Grandiniu_ataskaitos/LD11-V01-ataskaita-20261021T044919-5212-417-5.html",
+      "sha256": "0c9a325579051f9e8cfa64b69ae0929c5aae44a6251f06b74a62caf3a06af4fa"
+    },
+    {
+      "lab": 12,
+      "os_result": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_12/LD12_V1/result.json",
+      "original_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/os/final_ld7_12/LD12_V1/data/Grandiniu_ataskaitos/LD12-V01-ataskaita-20261021T044953-5825-443-5.html",
+      "sha256": "f9cb1edd447ad8dc4222bd6d4e55d5c2ca3a983a3648bdde4dd321497e0d7da8"
+    }
+  ],
+  "numerical": [
+    {
+      "lab": 1,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 7,
+      "readings": 7,
+      "wave_channels": 0
+    },
+    {
+      "lab": 2,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 12,
+      "readings": 17,
+      "wave_channels": 0
+    },
+    {
+      "lab": 3,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 3,
+      "readings": 6,
+      "wave_channels": 0
+    },
+    {
+      "lab": 4,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 7,
+      "readings": 14,
+      "wave_channels": 0
+    },
+    {
+      "lab": 5,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 3,
+      "readings": 6,
+      "wave_channels": 0
+    },
+    {
+      "lab": 6,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 4,
+      "readings": 8,
+      "wave_channels": 0
+    },
+    {
+      "lab": 7,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 7,
+      "readings": 12,
+      "wave_channels": 0
+    },
+    {
+      "lab": 8,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 12,
+      "readings": 20,
+      "wave_channels": 0
+    },
+    {
+      "lab": 9,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 12,
+      "readings": 15,
+      "wave_channels": 60
+    },
+    {
+      "lab": 10,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 12,
+      "readings": 15,
+      "wave_channels": 60
+    },
+    {
+      "lab": 11,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 4,
+      "readings": 12,
+      "wave_channels": 16
+    },
+    {
+      "lab": 12,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 4,
+      "readings": 8,
+      "wave_channels": 20
+    }
+  ],
+  "student_rows": 1,
+  "completed_labs": 12,
+  "history_reports": 12,
+  "trials": 87,
+  "readings": 140,
+  "wave_channels": 156,
+  "html": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/final_data/student_html/Matavimu_suvestine-20261021T045321-55-626-1/matavimu_suvestine.html",
+  "csv": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/final_data/student_html/Matavimu_suvestine-20261021T045321-55-626-1/matavimu_suvestine.csv"
+}

@@ -323,6 +323,7 @@ function ld9_close()
     if LD9.demoMode then ld9_toggle_solution();end
     bench_autosave("LD9");
     if isfield(LD9,"autosave_error") then if LD9.autosave_error<>"" then return;end;end
+    ld9_guide_close();
     delete(LD9.fig);
 endfunction
 

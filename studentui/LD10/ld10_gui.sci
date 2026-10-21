@@ -23,7 +23,7 @@ function [term_xy, boxes] = ld10_layout()
     term_xy = struct("GEN_N", [4.5 28.5], "GEN_P", [24.5 28.5], "K1", [35.5 28.5], ...
         "K2", [53.5 28.5], "A_P", [63.5 28.5], "A_N", [83 28.5], ...
         "R_A", [72.5 46], "R_B", [93.5 46], "L_A", [72.5 60], "L_B", [93.5 60], ...
-        "C_A", [72.5 74], "C_B", [93.5 74]);
+        "C_A", [72.5 74], "C_B", [93.5 74], "V_P", [3.5 48], "V_N", [30.5 48]);
 endfunction
 
 function xy = ld10_terminal_xy(id)
@@ -38,6 +38,7 @@ function txt = ld10_terminal_button_text(id)
     case "R_A" then txt = "a"; case "R_B" then txt = "b";
     case "L_A" then txt = "1"; case "L_B" then txt = "2";
     case "C_A" then txt = "1"; case "C_B" then txt = "2";
+    case "V_P" then txt="+"; case "V_N" then txt="−";
     end
 endfunction
 
@@ -69,6 +70,44 @@ function route = ld10_route(a, b)
     // Kanoniniai maršrutai nepriklausomai nuo paspaudimo eilės (absoliučiai taškai).
     // Kairysis bėgis: A_N → R_A → L_A → C_A; dešinysis: R_B → GEN_N, R_B → L_B → C_B.
     route = [];
+    if (a=="R_A" & b=="C_A") | (a=="C_A" & b=="R_A") then
+        route=[[.725 .46];[.725 .525];[.985 .525];[.985 .845];[.725 .845];[.725 .74]];return;
+    end
+    if or([a b]=="A_P") | or([a b]=="A_N") then
+        if a=="A_P" | a=="A_N" then amp=a;other=b;else amp=b;other=a;end
+        if ~or(other==["K2" "GEN_P" "GEN_N"]) then
+            p=ld10_terminal_xy(amp);q=ld10_terminal_xy(other);
+            if other=="C_A" then
+                lane=.995;level=.835;lower=.355;
+                if amp=="A_N" then lane=.97;level=.815;lower=.38;end
+                route=[p;p(1) lower;lane lower;lane level;q(1) level;q];return;
+            end
+            lane=.60;
+            if amp=="A_N" then lane=.69;end
+            lower=.355;if amp=="A_N" then lower=.36;end
+            route=[p;p(1) lower;lane lower;lane q(2);q];return;
+        end
+    end
+    if a=="K2" | b=="K2" then
+        if a=="K2" then other=b;else other=a;end
+        if or(other==["R_A" "L_A" "C_A"]) then
+            q=ld10_terminal_xy(other);level=.435;if q(2)>.5 then level=q(2)-.045;end;route=[[.535 .285];[.59 .285];[.59 level];[q(1) level];q];return;
+        end
+    end
+    // V probes use independent lanes, ending horizontally at the chosen socket.
+    if or([a b]=="V_P") | or([a b]=="V_N") then
+        if a=="V_P" | a=="V_N" then probe=a;other=b;else probe=b;other=a;end
+        p=ld10_terminal_xy(probe);q=ld10_terminal_xy(other);
+        if other=="GEN_P" then route=[p;p(1) .365;q(1) .365;q];
+        elseif other=="GEN_N" then route=[p;p(1) .385;.015 .385;.015 q(2);q];
+        else
+            lane=.675;if probe=="V_N" then lane=.965;end
+            level=q(2)-.065;if probe=="V_N" then level=q(2)+.055;end
+            route=[p;p(1) level;lane level;lane q(2);q];
+        end
+        return;
+    end
+
     if (a == "A_N" & b == "R_A") | (a == "R_A" & b == "A_N") then
         route = [[.83 .285];[.83 .375];[.725 .375];[.725 .46]];
     elseif (a == "R_B" & b == "GEN_N") | (a == "GEN_N" & b == "R_B") then
@@ -103,29 +142,23 @@ function ld10_render_wires()
         ld10_polyline(pts, [0.22 0.40 0.42]);
     end
     [tt, bb] = ld10_layout(); ids = ["GEN" "K" "A" "R" "L" "C" "V"];
-    names = ["GEN ~";"JUNGIKLIS";"AMPERMETRAS";"R";"L";"C";"MATAVIMAI"];
+    names = ["GEN ~";"JUNGIKLIS";"AMPERMETRAS";"R";"L";"C";"VOLTMETRAS"];
     switchText = "Atviras"; if LD10.switchOn then switchText = "Uždarytas"; end
     [u, i, valid, reason] = ld10_measure_values();
     freqText = "f = ?";
     if LD10.freqPoint > 0 then freqText = msprintf("f = %g Hz", ld10_current_frequency()); end
     voltText = "— V";
     if valid then voltText = msprintf("%.4f V", u); end
-    ampText="— mA"; selectedText="Pasirinkite srovę";
-    if valid then
-        kk=[0.5 1 2];reference=ld10_reference(kk(LD10.freqPoint));
-        // The drawn ammeter is in the main line; it must always show total I.
-        ampText=msprintf("%.3f mA",reference(6));
-        targetNames=["IR";"IL";"IC";"I"];
-        selectedText=msprintf("%s = %.3f mA",targetNames(LD10.target),i);
-    end
+    ampText="— mA";
+    if valid then ampText=msprintf("%.3f mA",i);end
     vals = [msprintf("5 V ~ · %s", freqText), switchText, ampText, ...
         msprintf("%g Ω", LD10.cfg.R), msprintf("%g mH", LD10.cfg.LmH), msprintf("%g nF", LD10.cfg.CnF), voltText];
-    pairs = ["GEN_N" "GEN_P";"K1" "K2";"A_P" "A_N";"R_A" "R_B";"L_A" "L_B";"C_A" "C_B";"" ""];
+    pairs = ["GEN_N" "GEN_P";"K1" "K2";"A_P" "A_N";"R_A" "R_B";"L_A" "L_B";"C_A" "C_B";"V_P" "V_N"];
     for k = 1:7
         r = bb(ids(k))/100; bg = [0.94 0.97 0.97];
         if ids(k) == "R" then bg = [0.98 0.96 0.88]; end
         if ids(k) == "A" | ids(k) == "V" then bg = [0.95 0.97 0.99]; end
-        if k < 7 then
+        if %t then
             for j = 1:2
                 xy = tt(pairs(k,j))/100; edge = [r(1) xy(2)]; if xy(1) > r(1)+r(3)/2 then edge(1) = r(1)+r(3); end
                 ld10_track_board(student_wire(p, xy, edge, [0.41 0.49 0.51], "lead:" + ids(k)));
@@ -135,14 +168,8 @@ function ld10_render_wires()
         h = student_text(fr, [0.06 0.66 0.88 0.24], names(k), 12, %t, bg); h.horizontalalignment = "center";
         h = student_text(fr, [0.04 0.04 0.92 0.58], vals(k), 13, %t, bg); h.horizontalalignment = "center";
         h.tag = "reading:" + ids(k);
-        if k==3 then h.tooltipstring="Schemos ampermetras rodo bendrąją šaltinio srovę I.";end
-        if k==7 then
-            h.position=[0.04 0.35 0.92 0.25];
-            h.tooltipstring="Bendroji įtampa U vienoda visose lygiagretėse šakose.";
-            selected=student_text(fr,[0.04 0.04 0.92 0.25],selectedText,13,%t,bg);
-            selected.horizontalalignment="center";selected.tag="reading:SELECTED";
-            selected.tooltipstring="Mygtuku pasirinktos šakos arba bendrosios srovės rodmuo.";
-        end
+        if k==3 then h.tooltipstring="Srovė toje šakoje, į kurią realiai įjungtas ampermetras.";end
+        if k==7 then h.tooltipstring="Voltmetro zondai prijungti prie generatoriaus gnybtų.";end
         if k == 5 then h.tooltipstring = msprintf("Rišlė: L = %g mH.", LD10.cfg.LmH); end
         if k == 6 then h.tooltipstring = msprintf("Kondensatorius: C = %g nF.", LD10.cfg.CnF); end
     end
@@ -168,6 +195,7 @@ function ld10_render_wires()
     if ~LD10.demoMode & or(LD10.step == [2 3 4]) then LD10.ui.controls(10).enable = "on"; end
     ld10_font(p);
     LD10.fig.immediate_drawing = drawing;
+    ld10_guide_refresh();
 endfunction
 
 function ld10_render_journal()
@@ -291,8 +319,10 @@ function ld10_build_gui()
         LD10.ui.answerEdits($+1) = h;
     end
     LD10.ui.studentPrimary = ld10_button(right, [0.07 0.085 0.86 0.075], "Tikrinti", "ld10_student_primary()", 15, [0.08 0.39 0.37]);
+    LD10.ui.studentPrimary.tag="LD10_PRIMARY";
     controls($+1) = LD10.ui.studentPrimary;
     controls($+1) = ld10_button(right, [0.07 0.015 0.37 0.045], "← Atgal", "ld10_jump_step(LD10.step-1)", 12);
+    controls($).tag="LD10_BACK";
     LD10.ui.controls = controls; LD10.ui.dynamic = controls;
     LD10.ui.statusMain = student_text(f, [0.025 0.055 0.95 0.035], "", 13, %t, [0.94 0.96 0.96]);
     LD10.ui.statusFix = student_text(f, [0.025 0.020 0.95 0.035], "", 12, %f, [0.94 0.96 0.96]);
@@ -305,9 +335,11 @@ function ld10_show_actions()
     global LD10;
     if ~isfield(LD10,"fig") then return; end
     if ~is_handle_valid(LD10.fig) then return; end
-    choice=x_choose(["Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
+    choice=x_choose(["Vesti žingsnis po žingsnio";"Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
         "Išsaugoti ataskaitą";"Mokymosi / atsiskaitymo režimas"; ...
         "Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD10 · Pagalba");
+    if choice==1 then ld10_guide_show(); return; end
+    if choice>1 then choice=choice-1; end
     select choice
     case 1 then bench_open_snapshot("LD10");
     case 2 then ld10_show_wiring_guide();

@@ -1,19 +1,21 @@
-// Run in a separate Scilab process: opens and closes only its own test windows.
-mode(-1);
+mode(-1);funcprot(0);
 root=get_absolute_file_path("GUI_PATIKRA.sce");
 try
-    if ~isdir(root+"tests/results") then mkdir(root+"tests/results"); end
-    exec(root+"LD1/LD1_LOAD.sce",-1); exec(root+"LD2/LD2_LOAD.sce",-1); exec(root+"LD3/LD3_LOAD.sce",-1); exec(root+"LD4/LD4_LOAD.sce",-1); exec(root+"LD5/LD5_LOAD.sce",-1); exec(root+"LD6/LD6_LOAD.sce",-1); exec(root+"LD7/LD7_LOAD.sce",-1); exec(root+"LD8/LD8_LOAD.sce",-1); exec(root+"LD9/LD9_LOAD.sce",-1); exec(root+"LD10/LD10_LOAD.sce",-1); exec(root+"LD11/LD11_LOAD.sce",-1); exec(root+"LD12/LD12_LOAD.sce",-1);
-    exec(root+"tests/workflows.sci",-1);
-    bench_core_require();
-    for n=[1 17 64]
-        bench_ld1_workflow(n,root);
-        bench_ld2_workflow(n,root,%t);
-        bench_ld3_workflow(n,root,%t); bench_ld4_workflow(n,root,%t); bench_ld5_workflow(n,root,%t); bench_ld6_workflow(n,root,%t); bench_ld7_workflow(n,root,%t); bench_ld8_workflow(n,root,%t); bench_ld9_workflow(n,root,%t); bench_ld10_workflow(n,root,%t); bench_ld11_workflow(n,root,%t); bench_ld12_workflow(n,root,%t);
-    end
-    verdict="GUI_PASS: LD1 9, LD2 12, LD3 6, LD4 7 ir LD5 6 ir LD6 6 ir LD7 6 ir LD8 6 ir LD9 6 ir LD10 6 ir LD11 6 ir LD12 6 etapai, variantai 1/17/64, mygtukų funkcijos, matavimai, duomenų išlaikymas, eksportas";
-    mputl(verdict,root+"GUI_PATIKRA_LAST.txt"); disp(verdict); exit(0);
+ exec(root+"RT_MODELS_LOAD.sce",-1);exec(root+"RT_LOAD.sce",-1);bench_core_require();
+ global MO;
+ for n=1:12
+  lab="LD"+string(n);cfg=mo_config(lab,1);st=student_profile(1,"Langu patikra "+bench_id(),"PATIKRA",lab);
+  rt_start(root,lab,st,cfg);assert_checkequal(MO.phase,"wiring");assert_checkfalse(MO.helpEnabled);
+  rt_help();assert_checktrue(MO.helpEnabled);assert_checktrue(rt_target_ready(MO.focusHandle));
+  t=MO.protocol.trials(1);
+  for k=1:size(t.wires,1);rt_port(t.wires(k,1));rt_port(t.wires(k,2));end
+  assert_checktrue(mo_wires_equal(MO.wires,t.wires));rt_measure();assert_checkequal(MO.phase,"copy");
+  for k=1:size(MO.current.values,"*");MO.ui.copyEdits(k).string=MO.displayed(k);end
+  rt_primary();assert_checkequal(MO.phase,"between");
+  rt_help_close();rt_close();
+  mprintf("PASS %s: langas, kontaktai, pagalba ir matavimas\n",lab);
+ end
+ mprintf("PASS: 12 stendu GUI callback patikra\n");exit(0);
 catch
-    verdict="GUI_FAIL: "+strcat(lasterror()," | ");
-    mputl(verdict,root+"GUI_PATIKRA_LAST.txt"); disp(verdict); exit(1);
+ [e,c,l,f]=lasterror();mprintf("FAIL %s:%d %s\n",f,l,strcat(e," "));exit(1);
 end

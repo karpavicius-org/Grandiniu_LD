@@ -4,7 +4,7 @@
 // ============================================================================
 
 function ids = ld10_terminal_ids()
-    ids = ["GEN_P";"GEN_N";"K1";"K2";"A_P";"A_N";"R_A";"R_B";"L_A";"L_B";"C_A";"C_B"];
+    ids = ["GEN_P";"GEN_N";"K1";"K2";"A_P";"A_N";"R_A";"R_B";"L_A";"L_B";"C_A";"C_B";"V_P";"V_N"];
 endfunction
 
 function code = ld10_terminal_code(id)
@@ -17,8 +17,8 @@ function name = ld10_terminal_name(id)
     names = ["Generatoriaus + gnybtas";"Generatoriaus − gnybtas"; ...
              "Jungiklio įėjimas";"Jungiklio išėjimas";"Ampermetro + gnybtas"; ...
              "Ampermetro − gnybtas";"Rezistoriaus R gnybtas a";"Rezistoriaus R gnybtas b"; ...
-             "Reaktyviosios rišlės L gnybtas a";"Reaktyviosios rišlės L gnybtas b"; ...
-             "Kondensatoriaus C gnybtas a";"Kondensatoriaus C gnybtas b"];
+             "Ritės L gnybtas a";"Ritės L gnybtas b"; ...
+             "Kondensatoriaus C gnybtas a";"Kondensatoriaus C gnybtas b";"Voltmetro + zondas";"Voltmetro − zondas"];
     tids = ld10_terminal_ids();
     k = find(tids == id);
     if size(k, "*") ~= 1 then name = id; else name = names(k(1)); end

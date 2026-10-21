@@ -47,7 +47,7 @@ function lines=student_parameter_lines(lab,cfg)
             msprintf("Šaltinių vidinės varžos: r1 = %g Ω; r2 = %g Ω.",cfg.r1,cfg.r2); ...
             "Tiriami vienas E1, abu nuosekliai, priešpriešiais ir lygiagrečiai."];
     elseif lab=="LD7" then
-        lines=[msprintf("Šaltinis: E = %.0f V (vidinė varža nežymima — nustatysite 3 etape).",cfg.E); ...
+        lines=[msprintf("Šaltinis: E = %.0f V. Ataskaitoje programa paaiškins vidinės varžos poveikį.",cfg.E); ...
             msprintf("Reostato padėtys: P1 = %.1f Ω; P2 = %.1f Ω; P3 = %.1f Ω; P4 = %.1f Ω; P5 = %.1f Ω.",cfg.R1,cfg.R2,cfg.R3,cfg.R4,cfg.R5)];
     elseif lab=="LD8" then
         lines=[msprintf("Šaltinis: E = %.0f V. Trys tiriamieji rezistoriai (nominalai ±5 %%):",cfg.E); ...
@@ -55,15 +55,15 @@ function lines=student_parameter_lines(lab,cfg)
     elseif lab=="LD9" then
         lines=[msprintf("Generatorius: E = %.0f V RMS. Nuosekli RLC grandinė:",cfg.E); ...
             msprintf("R = %.2f Ω; L = %g mH; C = %g nF.",cfg.R,cfg.LmH,cfg.CnF); ...
-            "Rezonanso dažnį f0 apskaičiuosite pirmajame etape."];
+            "Dažnius parengs programa; stebėsite ir fiksuosite prietaisų rodmenis."];
     elseif lab=="LD10" then
         lines=[msprintf("Generatorius: E = %.0f V RMS. Lygiagretė RLC grandinė:",cfg.E); ...
             msprintf("R = %.2f Ω; L = %g mH; C = %g nF.",cfg.R,cfg.LmH,cfg.CnF); ...
-            "Rezonanso dažnį f0 apskaičiuosite pirmajame etape."];
+            "Dažnius parengs programa; stebėsite ir fiksuosite prietaisų rodmenis."];
     elseif lab=="LD11" then
         lines=[msprintf("Generatorius: E = %.0f V RMS, f = 50 Hz. Ritė (R, L nuosekliai):",cfg.E); ...
             msprintf("R = %g Ω; L = %g mH. Kompensuojantis kondensatorius Ck stende paruoštas.",cfg.R,cfg.LmH); ...
-            "Pradinį cos φ0 ir Ck apskaičiuosite patys."];
+            "Kondensatorius parengtas; matuosite prieš kompensavimą ir po jo."];
     elseif lab=="LD12" then
         lines=[msprintf("Trifazis šaltinis: Ul = %g V, 50 Hz, simetrinis.",cfg.Ul); ...
             msprintf("Trys vienodi imtuvai: R = %g Ω.",cfg.R); ...
@@ -93,6 +93,7 @@ function [ok,st,cfg]=student_enroll(lab,previous)
             ["Eilės numeris sąraše (1–64)";"Vardas ir pavardė";"Grupė"],defaults);
         if size(values,"*")==0 then return; end
         defaults=values;
+        profileValid=%f;
         try
             st=student_profile(values(1),values(2),values(3),lab);
             if lab=="LD1" then cfg=ld1_variant_config(st.number);
@@ -130,14 +131,17 @@ function [ok,st,cfg]=student_enroll(lab,previous)
                 cfg=ld2_variant_config(st.number);
                 [valid,why]=ld2_validate_config(cfg); if ~valid then error(why); end
             end
+            profileValid=%t;
         catch
-            messagebox(lasterror(),"Patikrinkite duomenis","error","modal"); continue;
+            messagebox(lasterror(),"Patikrinkite duomenis","error","modal");
         end
+        if profileValid then
         pick=messagebox([student_caption(st);"";student_parameter_lines(lab,cfg); ...
             "";"Šios reikšmės bus naudojamos visuose darbo etapuose."], ...
             "Jūsų priskirtos reikšmės","info",["Pradėti" "Taisyti"],"modal");
         if pick==1 then ok=%t; return; end
         if pick==0 then return; end
+        end
     end
 endfunction
 

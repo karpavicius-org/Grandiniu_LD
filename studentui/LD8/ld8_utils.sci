@@ -6,6 +6,7 @@ function ld8_set_status(msg, kind, hint)
     global LD8;
     if argn(2) < 3 then hint = ""; end
     if argn(2) < 2 then kind = "info"; end
+    if exists("ld8_guide_refresh") == 1 then ld8_guide_refresh(); end
     if isfield(LD8, "ui") then
         if isfield(LD8.ui, "headless") then
             if LD8.ui.headless then return; end

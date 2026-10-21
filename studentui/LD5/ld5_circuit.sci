@@ -62,6 +62,7 @@ function ld5_init_state()
     assessment=%t; practice=%f;
     if isfield(LD5,"assessment") then assessment=LD5.assessment; end
     if isfield(LD5,"practice_used") then practice=LD5.practice_used; end
+    LD5.guide_enabled=%f;
     LD5.step = 1;
     LD5.done = [%f %f %f %f %f %f];
     LD5.skipped = [%f %f %f %f %f %f];

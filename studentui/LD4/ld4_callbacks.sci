@@ -85,6 +85,7 @@ function ld4_set_voltage(v)
     if ~or(v==[LD4.cfg.U1 LD4.cfg.U2 LD4.cfg.U3]) then return; end
     LD4.voltage=v; LD4.lastMeasurement=%nan;
     ld4_render_wires(); bench_autosave("LD4");
+    ld4_guide_refresh();
 endfunction
 
 function ld4_measure()
@@ -254,6 +255,7 @@ function ld4_set_step(n)
         if ~isfield(LD4.ui, "headless") | ~LD4.ui.headless then ld4_render_stage(); end
     end
     bench_autosave("LD4");
+    ld4_guide_refresh();
 endfunction
 
 function s = ld4_step_instruction(n)
@@ -414,6 +416,7 @@ function ld4_answers_changed()
     // Atsakymo laukelio redagavimas: nedelsiant saugoma į store.
     global LD4;
     ld4_save_answers(); ld4_student_sync(); bench_autosave("LD4");
+    ld4_guide_refresh();
 endfunction
 
 function ld4_close()
@@ -429,6 +432,7 @@ function ld4_close()
         ld4_set_status("Nepavyko išsaugoti juodraščio.","error","Langas paliktas atvertas, kad neprarastumėte darbo. "+LD4.autosave_error); return;
     end
     f=LD4.fig;
+    ld4_guide_close();
     delete(f);
     LD4.fig=[];
 endfunction

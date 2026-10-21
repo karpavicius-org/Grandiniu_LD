@@ -75,6 +75,61 @@ function route = ld8_route(a, b)
     global LD8;
     // Kanoniniai maršrutai nepriklausomai nuo paspaudimo eilės (absoliučiai taškai).
     route = [];
+    if or([a b]=="V_P") | or([a b]=="V_N") then
+        if a=="V_P" | a=="V_N" then probe=a;other=b;else probe=b;other=a;end
+        p=ld8_terminal_xy(probe);q=ld8_terminal_xy(other);
+        if other=="E_P" then
+            route=[p;p(1) .365;q(1) .365;q];
+        elseif other=="E_N" then
+            route=[p;p(1) .385;.015 .385;.015 q(2);q];
+        elseif probe=="V_P" then
+            // Left probe lane clears the Measure button and uses the nearest
+            // element corridor; the top element is reached around the hint.
+            if other=="R3_A" then
+                route=[p;p(1) .355;.34 .355;.34 .79;.70 .79;.70 q(2);q];
+            elseif other=="R1_A" then
+                route=[p;p(1) .355;.34 .355;.34 .435;q(1) .435;q];
+            else
+                route=[p;p(1) .355;.34 .355;.34 .515;.74 .515;.74 q(2);q];
+            end
+        else
+            // The return probe uses a continuous outer lane below the controls.
+            level=q(2);
+            if abs(q(2)-.46)<1e-9 then level=q(2)-.065;
+            elseif abs(q(2)-.74)<1e-9 then level=q(2)+.085;end
+            if level==q(2) then route=[p;p(1) .185;.965 .185;.965 q(2);q];
+            else route=[p;p(1) .185;.965 .185;.965 level;q(1) level;q];end
+        end
+        return;
+    end
+    if (a=="R1_A" & b=="R3_A") | (a=="R3_A" & b=="R1_A") then
+        route=[[.725 .46];[.725 .525];[.985 .525];[.985 .845];[.725 .845];[.725 .74]];return;
+    end
+    if (a=="R1_B" & b=="R3_A") | (a=="R3_A" & b=="R1_B") then
+        route=[[.935 .46];[.985 .46];[.985 .67];[.71 .67];[.71 .74];[.725 .74]];return;
+    end
+    if or([a b]=="A_P") | or([a b]=="A_N") then
+        if a=="A_P" | a=="A_N" then amp=a;other=b;else amp=b;other=a;end
+        if ~or(other==["K2" "E_P" "E_N"]) then
+            p=ld8_terminal_xy(amp);q=ld8_terminal_xy(other);
+            if other=="R3_A" then
+                lane=.995;level=.835;lower=.355;
+                if amp=="A_N" then lane=.97;level=.815;lower=.38;end
+                route=[p;p(1) lower;lane lower;lane level;q(1) level;q];return;
+            end
+            lane=.60;
+            if amp=="A_N" then lane=.695;end
+            lower=.355;if amp=="A_N" then lower=.36;end
+            route=[p;p(1) lower;lane lower;lane q(2);q];return;
+        end
+    end
+    if a=="K2" | b=="K2" then
+        if a=="K2" then other=b;else other=a;end
+        if or(other==["R1_A" "R2_A" "R3_A"]) then
+            q=ld8_terminal_xy(other);level=.435;if q(2)>.5 then level=q(2)-.045;end;route=[[.535 .285];[.59 .285];[.59 level];[q(1) level];q];return;
+        end
+    end
+
     if (a == "V_P" & b == "E_P") | (a == "E_P" & b == "V_P") then
         route = [[.035 .48];[.035 .365];[.245 .365];[.245 .285]];
     elseif (a == "V_N" & b == "E_N") | (a == "E_N" & b == "V_N") then
@@ -163,6 +218,7 @@ function ld8_render_wires()
     end
     ld8_font(p);
     LD8.fig.immediate_drawing = drawing;
+    if exists("ld8_guide_refresh")==1 then ld8_guide_refresh(); end
 endfunction
 
 function value = cfg_value(id)
@@ -279,8 +335,10 @@ function ld8_build_gui()
         LD8.ui.answerEdits($+1) = h;
     end
     LD8.ui.studentPrimary = ld8_button(right, [0.07 0.085 0.86 0.075], "Tikrinti", "ld8_student_primary()", 15, [0.08 0.39 0.37]);
+    LD8.ui.studentPrimary.tag="LD8_PRIMARY";
     controls($+1) = LD8.ui.studentPrimary;
     controls($+1) = ld8_button(right, [0.07 0.015 0.37 0.045], "← Atgal", "ld8_jump_step(LD8.step-1)", 12);
+    controls($).tag="LD8_BACK";
     controls($+1) = ld8_button(right, [0.48 0.015 0.45 0.045], "Žemėlapis", "ld8_show_stand_map()", 12);
     LD8.ui.controls = controls; LD8.ui.dynamic = controls;
     LD8.ui.statusMain = student_text(f, [0.025 0.055 0.95 0.035], "", 13, %t, [0.94 0.96 0.96]);
@@ -294,17 +352,18 @@ function ld8_show_actions()
     global LD8;
     if ~isfield(LD8,"fig") then return; end
     if ~is_handle_valid(LD8.fig) then return; end
-    choice=x_choose(["Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
+    choice=x_choose(["Vesti žingsnis po žingsnio";"Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
         "Išsaugoti ataskaitą";"Mokymosi / atsiskaitymo režimas"; ...
         "Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD8 · Pagalba");
     select choice
-    case 1 then bench_open_snapshot("LD8");
-    case 2 then ld8_show_wiring_guide();
-    case 3 then ld8_show_theory();
-    case 4 then bench_export_current("LD8");
-    case 5 then bench_mode("LD8"); ld8_student_sync(); bench_autosave("LD8");
-    case 7 then ld8_student_details();
-    case 6 then
+    case 1 then ld8_guide_show();
+    case 2 then bench_open_snapshot("LD8");
+    case 3 then ld8_show_wiring_guide();
+    case 4 then ld8_show_theory();
+    case 5 then bench_export_current("LD8");
+    case 6 then bench_mode("LD8"); ld8_student_sync(); bench_autosave("LD8");
+    case 8 then ld8_student_details();
+    case 7 then
         extra=x_choose(["Žemėlapis";"Pavyzdys";"Atkurti stendą";"Pradėti iš naujo"],"LD8 · Daugiau veiksmų");
         select extra
         case 1 then ld8_show_stand_map();

@@ -505,6 +505,7 @@ function bench_restore_snapshot(session)
             ld12_set_status("Juodraštis atkurtas: "+student_caption(LD12.student),"ok","Maitinimas išjungtas.");
         else
             LD2.cfg=session.cfg;LD2.state=session.state;LD2.state.power=%f;
+            ld2_workflow_upgrade();
             if ~isfield(LD2.state,"assessment") then LD2.state.assessment=%f;end
             if ~isfield(LD2.state,"practice_used") then LD2.state.practice_used=%t;end
             LD2.example_active=%f;LD2.ui.answer_step=0;LD2.ui.answer_edits=[];

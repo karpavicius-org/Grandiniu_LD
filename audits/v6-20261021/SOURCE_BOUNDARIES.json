@@ -1,0 +1,111 @@
+{
+  "status": "PASS",
+  "scope": "All selected actual OS flows passed with unchanged sources during each run. Subsequent shared report-helper diff changes only LD10 arrow/label colours; LD7/10 flows replayed on final files. Current report HTML is separately native+browser verified. No source mismatch was silently ignored.",
+  "os_flows": [
+    {
+      "lab": "LD1",
+      "result": "ld_revision6/verification/os/accepted_ld1_6/LD1_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": [
+        "mo_report_late_visuals.sci"
+      ]
+    },
+    {
+      "lab": "LD2",
+      "result": "ld_revision6/verification/os/accepted_ld1_6/LD2_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": [
+        "mo_report_late_visuals.sci"
+      ]
+    },
+    {
+      "lab": "LD3",
+      "result": "ld_revision6/verification/os/accepted_ld1_6/LD3_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": [
+        "mo_report_late_visuals.sci"
+      ]
+    },
+    {
+      "lab": "LD4",
+      "result": "ld_revision6/verification/os/accepted_ld1_6/LD4_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": [
+        "mo_report_late_visuals.sci"
+      ]
+    },
+    {
+      "lab": "LD5",
+      "result": "ld_revision6/verification/os/accepted_ld1_6/LD5_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": [
+        "mo_report_late_visuals.sci"
+      ]
+    },
+    {
+      "lab": "LD6",
+      "result": "ld_revision6/verification/os/accepted_ld1_6/LD6_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": [
+        "mo_report_late_visuals.sci"
+      ]
+    },
+    {
+      "lab": "LD7",
+      "result": "ld_revision6/verification/os/final_ld7_10/LD7_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": []
+    },
+    {
+      "lab": "LD8",
+      "result": "ld_revision6/verification/os/final_ld7_12/LD8_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": [
+        "mo_report_late_visuals.sci"
+      ]
+    },
+    {
+      "lab": "LD9",
+      "result": "ld_revision6/verification/os/final_ld7_12/LD9_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": [
+        "mo_report_late_visuals.sci"
+      ]
+    },
+    {
+      "lab": "LD10",
+      "result": "ld_revision6/verification/os/final_ld7_10/LD10_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": []
+    },
+    {
+      "lab": "LD11",
+      "result": "ld_revision6/verification/os/final_ld7_12/LD11_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": [
+        "mo_report_late_visuals.sci"
+      ]
+    },
+    {
+      "lab": "LD12",
+      "result": "ld_revision6/verification/os/final_ld7_12/LD12_V1/result.json",
+      "flow_status": "PASS",
+      "all_used_flow_files_current": true,
+      "later_changed_files": [
+        "mo_report_late_visuals.sci"
+      ]
+    }
+  ],
+  "exact_later_diff": "LD10_PALETTE_ONLY.diff"
+}

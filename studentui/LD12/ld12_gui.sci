@@ -23,7 +23,8 @@ function [term_xy, boxes] = ld12_layout()
     term_xy = struct("N", [3 23], "L1", [26 42], "L2", [26 33], "L3", [26 24], ...
         "K1", [38 50.5], "K2", [53.5 50.5], ...
         "R1_A", [72.5 46], "R1_B", [93.5 46], "R2_A", [72.5 60], "R2_B", [93.5 60], ...
-        "R3_A", [72.5 74], "R3_B", [93.5 74]);
+        "R3_A", [72.5 74], "R3_B", [93.5 74], ...
+        "A_P", [3.5 53], "A_N", [24.5 53], "V_P", [3.5 69], "V_N", [24.5 69]);
 endfunction
 
 function xy = ld12_terminal_xy(id)
@@ -37,6 +38,8 @@ function txt = ld12_terminal_button_text(id)
     case "R1_A" then txt = "a"; case "R1_B" then txt = "b";
     case "R2_A" then txt = "a"; case "R2_B" then txt = "b";
     case "R3_A" then txt = "a"; case "R3_B" then txt = "b";
+    case "A_P" then txt = "+"; case "A_N" then txt = "−";
+    case "V_P" then txt = "+"; case "V_N" then txt = "−";
     end
 endfunction
 
@@ -65,26 +68,47 @@ function ld12_polyline(points, col)
 endfunction
 
 function route = ld12_route(a, b)
+    // Every current/probe cable has its own corridor and enters common nodes
+    // from a different direction. A crossing is not an electrical connection.
     route = [];
     if (a == "L1" & b == "R1_A") | (a == "R1_A" & b == "L1") then
-        // Aplink K dėžutę (x 40–52, y 44–57): žemyn iki y = .385, tada dešinėn.
-        route = [[.26 .42];[.31 .42];[.31 .385];[.70 .385];[.70 .46];[.725 .46]];
+        route = [.26 .42;.31 .42;.31 .385;.70 .385;.70 .46;.725 .46];
     elseif (a == "L2" & b == "R2_A") | (a == "R2_A" & b == "L2") then
-        route = [[.26 .33];[.33 .33];[.33 .60];[.725 .60]];
+        route = [.26 .33;.33 .33;.33 .60;.725 .60];
     elseif (a == "L3" & b == "R3_A") | (a == "R3_A" & b == "L3") then
-        route = [[.26 .24];[.35 .24];[.35 .74];[.725 .74]];
+        route = [.26 .24;.35 .24;.35 .74;.725 .74];
     elseif (a == "R1_B" & b == "R2_B") | (a == "R2_B" & b == "R1_B") then
-        route = [[.935 .46];[.935 .60]];
+        route = [.935 .46;.935 .60];
     elseif (a == "R2_B" & b == "R3_B") | (a == "R3_B" & b == "R2_B") then
-        route = [[.935 .60];[.935 .74]];
+        route = [.935 .60;.935 .74];
     elseif (a == "R3_B" & b == "N") | (a == "N" & b == "R3_B") then
-        route = [[.935 .74];[.975 .74];[.975 .19];[.03 .19];[.03 .23]];
+        route = [.935 .74;.975 .74;.975 .19;.03 .19;.03 .23];
     elseif (a == "R1_B" & b == "L2") | (a == "L2" & b == "R1_B") then
-        route = [[.935 .46];[.96 .46];[.96 .22];[.30 .22];[.30 .33];[.26 .33]];
+        route = [0.935 0.46;0.935 0.22;0.3 0.22;0.3 0.295;0.26 0.295;0.26 0.33];
     elseif (a == "R2_B" & b == "L3") | (a == "L3" & b == "R2_B") then
-        route = [[.935 .60];[.975 .60];[.975 .205];[.28 .205];[.28 .24];[.26 .24]];
+        route = [.935 .60;.975 .60;.975 .205;.26 .205;.26 .24];
     elseif (a == "R3_B" & b == "L1") | (a == "L1" & b == "R3_B") then
-        route = [[.935 .74];[.985 .74];[.985 .19];[.29 .19];[.29 .42];[.26 .42]];
+        route = [.935 .74;.985 .74;.985 .19;.29 .19;.29 .455;.26 .455;.26 .42];
+    elseif (a == "R1_B" & b == "A_P") | (a == "A_P" & b == "R1_B") then
+        route = [0.935 0.46;0.98 0.46;0.98 0.17;0.005 0.17;0.005 0.53;0.035 0.53];
+    elseif (a == "A_N" & b == "R2_B") | (a == "R2_B" & b == "A_N") then
+        route = [0.245 0.53;0.3 0.53;0.3 0.665;0.965 0.665;0.965 0.6;0.935 0.6];
+    elseif (a == "A_N" & b == "L2") | (a == "L2" & b == "A_N") then
+        route = [0.245 0.53;0.3 0.53;0.3 0.365;0.26 0.365;0.26 0.33];
+    elseif (a == "L1" & b == "A_P") | (a == "A_P" & b == "L1") then
+        route = [0.26 0.42;0.37 0.42;0.37 0.615;0.035 0.615;0.035 0.53];
+    elseif (a == "A_N" & b == "R1_A") | (a == "R1_A" & b == "A_N") then
+        route = [0.245 0.53;0.315 0.53;0.315 0.38;0.695 0.38;0.695 0.46;0.725 0.46];
+    elseif (a == "R3_B" & b == "A_N") | (a == "A_N" & b == "R3_B") then
+        route = [0.935 0.74;0.99 0.74;0.99 0.15;0.36 0.15;0.36 0.575;0.245 0.575;0.245 0.53];
+    elseif (a == "V_P" & b == "R1_A") | (a == "R1_A" & b == "V_P") then
+        route = [0.035 0.69;0.035 0.615;0.675 0.615;0.675 0.49;0.725 0.49;0.725 0.46];
+    elseif (a == "V_N" & b == "R1_B") | (a == "R1_B" & b == "V_N") then
+        route = [0.245 0.69;0.275 0.69;0.275 0.675;0.96 0.675;0.96 0.5;0.935 0.5;0.935 0.46];
+    elseif (a == "V_P" & b == "L1") | (a == "L1" & b == "V_P") then
+        route = [0.035 0.69;0.012 0.69;0.012 0.605;0.285 0.605;0.285 0.455;0.26 0.455;0.26 0.42];
+    elseif (a == "V_N" & b == "L2") | (a == "L2" & b == "V_N") then
+        route = [0.245 0.69;0.3 0.69;0.3 0.365;0.26 0.365;0.26 0.33];
     end
 endfunction
 
@@ -113,7 +137,7 @@ function ld12_render_wires()
         ld12_polyline(pts, [0.22 0.40 0.42]);
     end
     [tt, bb] = ld12_layout(); ids = ["SRC" "K" "VM" "R1" "R2" "R3" "V" "A"];
-    names = ["3~ ŠALTINIS";"JUNGIKLIS";"IMTUVAS";"R1";"R2";"R3";"VOLTMETRAS";"AMPERMETRAS"];
+    names = ["3~ ŠALTINIS";"JUNGIKLIS";"MATUOJAMA";"R1";"R2";"R3";"VOLTMETRAS";"AMPERMETRAS"];
     switchText = "Atviras"; if LD12.switchOn then switchText = "Uždarytas"; end
     [u, i, valid, reason] = ld12_measure_values();
     voltText = "— V";
@@ -121,11 +145,15 @@ function ld12_render_wires()
     ampText = "— mA";
     if valid then ampText = msprintf("%.3f mA", i); end
     modeName = "ŽVAIGŽDĖ"; if LD12.wireMode == 2 then modeName = "TRIKAMPIS"; end
-    phaseName=ld12_branch_name(LD12.wireMode,LD12.phase);
+    measurement = "phase";
+    if isfield(LD12, "rt_measurement") then measurement = LD12.rt_measurement; end
+    [connected, actualMode, actualMeasurement] = ld12_detect_measurement(LD12.wires);
+    if connected then measurement = actualMeasurement; end
+    phaseName = "R1: Uf / If"; if measurement == "line" then phaseName = "L1: Ul / Il"; end
     vals = [msprintf("Ul=%g V",LD12.cfg.Ul), switchText, phaseName, ...
         msprintf("%g Ω", LD12.cfg.R), msprintf("%g Ω", LD12.cfg.R), msprintf("%g Ω", LD12.cfg.R), ...
         voltText, ampText];
-    pairs = ["N" "L1";"" "";"" "";"" "";"" "";"" "";"" "";"" ""];
+    pairs = ["N" "L1";"" "";"" "";"R1_A" "R1_B";"R2_A" "R2_B";"R3_A" "R3_B";"V_P" "V_N";"A_P" "A_N"];
     for k = 1:8
         r = bb(ids(k))/100; bg = [0.94 0.97 0.97];
         if ids(k) == "R" then bg = [0.98 0.96 0.88]; end
@@ -149,9 +177,9 @@ function ld12_render_wires()
         if or(k == [4 5 6]) then h.tooltipstring = msprintf("Imtuvas: R = %g Ω (visi trys vienodi).", LD12.cfg.R); end
         if k==1 then h.tooltipstring="Ul – efektinė įtampa tarp dviejų šaltinio linijų, f=50 Hz.";end
         if k==2 then h.tooltipstring="Įmontuotas bendras trifazis jungiklis. Jo atskirais laidais jungti nereikia.";end
-        if k==3 then h.tooltipstring="Matuojamas imtuvas ir jo prijungimo taškai.";end
-        if k == 7 then h.tooltipstring = "Voltmetras: pasirinkto imtuvo fazinė įtampa Uf."; end
-        if k == 8 then h.tooltipstring = "Ampermetras: srovė If per pasirinktą imtuvą; trikampyje ji nelygi linijinei Il."; end
+        if k==3 then h.tooltipstring="Fazinis matavimas: voltmetras prie R1, ampermetras po R1. Linijinis: voltmetras tarp L1 ir L2, ampermetras prieš L1 šakotę.";end
+        if k == 7 then h.tooltipstring = "Voltmetras: Uf tarp R1 galų arba Ul tarp L1 ir L2; matavimo vietą nustato tikri V+/V− laidai."; end
+        if k == 8 then h.tooltipstring = "Ampermetras: If po R1 arba Il prieš L1 šakotę; matavimo vietą nustato tikri A+/A− laidai."; end
     end
     tids = ld12_terminal_ids();
     for id = matrix(tids, 1, -1)
@@ -175,6 +203,7 @@ function ld12_render_wires()
     LD12.ui.controls(8).enable = "off";
     if ~LD12.demoMode & or(LD12.step == [2 4]) & LD12.wireMode == ld12_stage_mode(LD12.step) then LD12.ui.controls(8).enable = "on"; end
     ld12_font(p);
+    ld12_guide_refresh();
     LD12.fig.immediate_drawing = drawing;
 endfunction
 
@@ -292,8 +321,10 @@ function ld12_build_gui()
         LD12.ui.answerEdits($+1) = h;
     end
     LD12.ui.studentPrimary = ld12_button(right, [0.07 0.085 0.86 0.075], "Tikrinti", "ld12_student_primary()", 15, [0.08 0.39 0.37]);
+    LD12.ui.studentPrimary.tag="LD12_PRIMARY";
     controls($+1) = LD12.ui.studentPrimary;
     controls($+1) = ld12_button(right, [0.07 0.015 0.37 0.045], "← Atgal", "ld12_jump_step(LD12.step-1)", 12);
+    controls($).tag="LD12_BACK";
     LD12.ui.controls = controls; LD12.ui.dynamic = controls;
     LD12.ui.statusMain = student_text(f, [0.025 0.055 0.95 0.035], "", 13, %t, [0.94 0.96 0.96]);
     LD12.ui.statusFix = student_text(f, [0.025 0.020 0.95 0.035], "", 12, %f, [0.94 0.96 0.96]);
@@ -307,9 +338,11 @@ function ld12_show_actions()
     global LD12;
     if ~isfield(LD12,"fig") then return; end
     if ~is_handle_valid(LD12.fig) then return; end
-    choice=x_choose(["Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
+    choice=x_choose(["Vesti žingsnis po žingsnio";"Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
         "Išsaugoti ataskaitą";"Mokymosi / atsiskaitymo režimas"; ...
         "Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD12 · Pagalba");
+    if choice==1 then ld12_guide_show(); return; end
+    if choice>1 then choice=choice-1; end
     select choice
     case 1 then bench_open_snapshot("LD12");
     case 2 then ld12_show_wiring_guide();

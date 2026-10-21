@@ -1,4 +1,5 @@
-// Student launch. The complete regression suite has a separate launcher.
 mode(-1);
-exec(get_absolute_file_path("LD2.sce")+"LD2_LOAD.sce",-1);
-ld2_student_main(LD2_ROOT);
+rt_entry=get_absolute_file_path("LD2.sce");
+exec(rt_entry+"LD2_LOAD.sce",-1);
+exec(rt_entry+"../RT_LOAD.sce",-1);
+rt_launch(rt_entry+"../","LD2");

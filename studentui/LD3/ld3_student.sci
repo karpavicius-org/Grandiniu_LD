@@ -133,4 +133,5 @@ function ld3_student_sync()
             LD3.ui.studentPrimary.string = "TIKRINTI";
         end
     end
+    ld3_guide_refresh();
 endfunction

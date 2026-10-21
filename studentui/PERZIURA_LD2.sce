@@ -1,5 +1,6 @@
+// Originalaus stendo peržiūra su naujomis matavimo užduotimis.
 mode(-1);
-exec(get_absolute_file_path("PERZIURA_LD2.sce")+"LD2/LD2_LOAD.sce",-1);
-ld2_main(LD2_ROOT);
-ld2_go_step(2,%t);
-mprintf("LD2_STUDENT_GUI_READY\n");
+rt_preview=get_absolute_file_path("PERZIURA_LD2.sce");
+exec(rt_preview+"LD2/LD2_LOAD.sce",-1);
+exec(rt_preview+"RT_LOAD.sce",-1);
+rt_start(rt_preview,"LD2",student_profile(1,"Stendo peržiūra","BANDOMASIS","LD2"),mo_config("LD2",1));

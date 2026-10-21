@@ -23,7 +23,7 @@ function [term_xy, boxes] = ld9_layout()
     term_xy = struct("GEN_N", [4.5 28.5], "GEN_P", [24.5 28.5], "K1", [35.5 28.5], ...
         "K2", [53.5 28.5], "A_P", [63.5 28.5], "A_N", [83 28.5], ...
         "R_A", [72.5 46], "R_B", [93.5 46], "L_A", [72.5 60], "L_B", [93.5 60], ...
-        "C_A", [72.5 74], "C_B", [93.5 74]);
+        "C_A", [72.5 74], "C_B", [93.5 74], "V_P", [3.5 48], "V_N", [30.5 48]);
 endfunction
 
 function xy = ld9_terminal_xy(id)
@@ -38,6 +38,7 @@ function txt = ld9_terminal_button_text(id)
     case "R_A" then txt = "a"; case "R_B" then txt = "b";
     case "L_A" then txt = "1"; case "L_B" then txt = "2";
     case "C_A" then txt = "1"; case "C_B" then txt = "2";
+    case "V_P" then txt="+"; case "V_N" then txt="−";
     end
 endfunction
 
@@ -68,6 +69,32 @@ endfunction
 function route = ld9_route(a, b)
     // Kanoniniai maršrutai nepriklausomai nuo paspaudimo eilės (absoliučiai taškai).
     route = [];
+    // V probes use independent lanes, ending horizontally at the chosen socket.
+    if or([a b]=="V_P") | or([a b]=="V_N") then
+        if a=="V_P" | a=="V_N" then probe=a;other=b;else probe=b;other=a;end
+        p=ld9_terminal_xy(probe);q=ld9_terminal_xy(other);
+        if other=="GEN_P" then
+            route=[p;p(1) .365;q(1) .365;q];
+        elseif other=="GEN_N" then
+            route=[p;p(1) .385;.015 .385;.015 q(2);q];
+        elseif probe=="V_P" then
+            // Left probe lane clears the Measure button and uses the nearest
+            // element corridor; the top element is reached around the hint.
+            if other=="C_A" then
+                route=[p;p(1) .355;.34 .355;.34 .79;.70 .79;.70 q(2);q];
+            else
+                route=[p;p(1) .355;.34 .355;.34 q(2);q];
+            end
+        else
+            // The return probe uses a continuous outer lane below the controls.
+            level=q(2);
+            if abs(q(2)-.46)<1e-9 then level=q(2)-.065;
+            elseif abs(q(2)-.74)<1e-9 then level=q(2)+.085;end
+            if level==q(2) then route=[p;p(1) .185;.965 .185;.965 q(2);q];
+            else route=[p;p(1) .185;.965 .185;.965 level;q(1) level;q];end
+        end
+        return;
+    end
     if (a == "A_N" & b == "R_A") | (a == "R_A" & b == "A_N") then
         route = [[.83 .285];[.83 .375];[.725 .375];[.725 .46]];
     elseif (a == "R_B" & b == "L_A") | (a == "L_A" & b == "R_B") then
@@ -115,12 +142,12 @@ function ld9_render_wires()
     if valid then ampText = msprintf("%.3f mA", i); end
     vals = [msprintf("5 V ~ · %s", freqText), switchText, ampText, ...
         msprintf("%g Ω", LD9.cfg.R), msprintf("%g mH", LD9.cfg.LmH), msprintf("%g nF", LD9.cfg.CnF), voltText];
-    pairs = ["GEN_N" "GEN_P";"K1" "K2";"A_P" "A_N";"R_A" "R_B";"L_A" "L_B";"C_A" "C_B";"" ""];
+    pairs = ["GEN_N" "GEN_P";"K1" "K2";"A_P" "A_N";"R_A" "R_B";"L_A" "L_B";"C_A" "C_B";"V_P" "V_N"];
     for k = 1:7
         r = bb(ids(k))/100; bg = [0.94 0.97 0.97];
         if ids(k) == "R" then bg = [0.98 0.96 0.88]; end
         if ids(k) == "A" | ids(k) == "V" then bg = [0.95 0.97 0.99]; end
-        if k < 7 then
+        if %t then
             for j = 1:2
                 xy = tt(pairs(k,j))/100; edge = [r(1) xy(2)]; if xy(1) > r(1)+r(3)/2 then edge(1) = r(1)+r(3); end
                 ld9_track_board(student_wire(p, xy, edge, [0.41 0.49 0.51], "lead:" + ids(k)));
@@ -155,6 +182,7 @@ function ld9_render_wires()
     LD9.ui.controls(10).enable = "off";
     if ~LD9.demoMode & or(LD9.step == [2 3 4]) then LD9.ui.controls(10).enable = "on"; end
     ld9_font(p);
+    ld9_guide_refresh();
     LD9.fig.immediate_drawing = drawing;
 endfunction
 
@@ -279,8 +307,10 @@ function ld9_build_gui()
         LD9.ui.answerEdits($+1) = h;
     end
     LD9.ui.studentPrimary = ld9_button(right, [0.07 0.085 0.86 0.075], "Tikrinti", "ld9_student_primary()", 15, [0.08 0.39 0.37]);
+    LD9.ui.studentPrimary.tag = "LD9_PRIMARY";
     controls($+1) = LD9.ui.studentPrimary;
     controls($+1) = ld9_button(right, [0.07 0.015 0.37 0.045], "← Atgal", "ld9_jump_step(LD9.step-1)", 12);
+    controls($).tag = "LD9_BACK";
     LD9.ui.controls = controls; LD9.ui.dynamic = controls;
     LD9.ui.statusMain = student_text(f, [0.025 0.055 0.95 0.035], "", 13, %t, [0.94 0.96 0.96]);
     LD9.ui.statusFix = student_text(f, [0.025 0.020 0.95 0.035], "", 12, %f, [0.94 0.96 0.96]);
@@ -293,9 +323,11 @@ function ld9_show_actions()
     global LD9;
     if ~isfield(LD9,"fig") then return; end
     if ~is_handle_valid(LD9.fig) then return; end
-    choice=x_choose(["Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
+    choice=x_choose(["Vesti žingsnis po žingsnio";"Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
         "Išsaugoti ataskaitą";"Mokymosi / atsiskaitymo režimas"; ...
         "Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD9 · Pagalba");
+    if choice==1 then ld9_guide_show(); return; end
+    if choice>1 then choice=choice-1; end
     select choice
     case 1 then bench_open_snapshot("LD9");
     case 2 then ld9_show_wiring_guide();

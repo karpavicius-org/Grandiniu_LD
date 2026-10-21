@@ -1,6 +1,5 @@
-// LD4 · Tiesinių rezistorių tyrimas.
 mode(-1);
-ld4_dir = get_absolute_file_path("LD4.sce");
-exec(ld4_dir + "LD4_LOAD.sce", -1);
-ld4_student_main(ld4_dir + "../");
-clear ld4_dir;
+rt_entry=get_absolute_file_path("LD4.sce");
+exec(rt_entry+"LD4_LOAD.sce",-1);
+exec(rt_entry+"../RT_LOAD.sce",-1);
+rt_launch(rt_entry+"../","LD4");

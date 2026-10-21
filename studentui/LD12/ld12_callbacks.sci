@@ -325,6 +325,7 @@ function ld12_close()
     if LD12.demoMode then ld12_toggle_solution();end
     bench_autosave("LD12");
     if isfield(LD12,"autosave_error") then if LD12.autosave_error<>"" then return;end;end
+    ld12_guide_close();
     delete(LD12.fig);
 endfunction
 

@@ -5,6 +5,9 @@
 function ld3_terminal_click(id)
     global LD3;
     if LD3.demoMode then ld3_set_status("Pavyzdyje laidai jau sujungti.","info","Grįžkite į savo darbą per Pagalbą."); return; end
+    if LD3.powerOn then
+        ld3_set_status("Laidus keiskite tik išjungę maitinimą.","error","Spauskite Maitinimas, kad išjungtumėte šaltinį; tada rinkitės kontaktą.");return;
+    end
     if LD3.step ~= 1 & ~LD3.done(1) then
         ld3_set_status("Pirmiausia užbaikite 1 etapo sujungimą.","error","Mygtuku ← Atgal grįžkite į 1 etapą.");
         return;
@@ -16,6 +19,7 @@ function ld3_terminal_click(id)
         if id == LD3.pending then
             LD3.pending = "";
             ld3_set_status("Pasirinkimas atšauktas.","info","");
+            if isfield(LD3,"fig") then if is_handle_valid(LD3.fig) then ld3_render_wires();end;end
             return;
         end
         // Gnybtas talpina ne daugiau 2 laidų (zondai prispaudžiami ant rezistoriaus gnybtų).
@@ -26,6 +30,7 @@ function ld3_terminal_click(id)
         if uses >= 2 then
             LD3.pending = "";
             ld3_set_status("Šis gnybtas jau turi du laidus.","error","Pasirinkite kitą schemoje nurodytą gnybtą.");
+            if isfield(LD3,"fig") then if is_handle_valid(LD3.fig) then ld3_render_wires();end;end
             return;
         end
         LD3.wires($+1, :) = [LD3.pending, id];
@@ -81,16 +86,31 @@ function ld3_set_voltage(v)
         ld3_render_wires();
     end
     bench_autosave("LD3");
+    ld3_guide_refresh();
 endfunction
 
 function ld3_measure()
     global LD3;
-    [u, i, ok, msg] = ld3_measure_values();
-    if ~ok then ld3_set_status(msg, "error", ""); return; end
     if LD3.step ~= 2 & LD3.step ~= 3 then
         ld3_set_status("Matavimai atliekami 2 ir 3 etapuose.","info","Etapą rodo skaičius viršuje; grįžkite mygtuku ← Atgal.");
         return;
     end
+    [sequenceOK,why]=ld3_journal_order_valid();
+    if ~sequenceOK then ld3_set_status(why,"error","Spauskite Pradėti matavimus iš naujo; vedlys parodys visus tris bandymus iš eilės.");return;end
+    if LD3.step==2 then
+        expectedIndex=1;
+    else
+        if size(LD3.journal,1)<1 then ld3_set_status("Pirmas bandymas dar neužfiksuotas.","error","Mygtuku ← Atgal grįžkite į 2 etapą ir pamatuokite U1.");return;end
+        expectedIndex=size(LD3.journal,1)+1;
+    end
+    if expectedIndex>3 then ld3_set_status("Visi trys taškai jau užfiksuoti.","info","Spauskite pagrindinį mygtuką ir pereikite prie skaičiavimų.");return;end
+    expectedVoltage=LD3.cfg("U"+string(expectedIndex));
+    if LD3.voltage<>expectedVoltage then
+        ld3_set_status(msprintf("Dabar reikia %d bandymo: U%d = %g V.",expectedIndex,expectedIndex,expectedVoltage),"error", ...
+            msprintf("Spauskite U%d = %g V, tada Matuoti. Taip rodmenys išliks aiškia 1 → 2 → 3 seka.",expectedIndex,expectedVoltage));return;
+    end
+    [u, i, ok, msg] = ld3_measure_values();
+    if ~ok then ld3_set_status(msg, "error", ""); return; end
     jeigu = %t;
     // Taškas jau užfiksuotas šiam įtampos lygiui?
     for m = 1:size(LD3.journal, 1)
@@ -112,6 +132,18 @@ function ld3_measure()
         if ~isfield(LD3.ui, "headless") | ~LD3.ui.headless then ld3_render_journal(); ld3_render_wires(); end
     end
     bench_autosave("LD3");
+endfunction
+
+function [valid,why]=ld3_journal_order_valid()
+    // A report names the first three rows U1/U2/U3. Preserve that real sequence.
+    global LD3;
+    valid=%t;why="";
+    if size(LD3.journal,1)>3 then valid=%f;why="Matavimų sekoje yra daugiau nei trys taškai.";return;end
+    for k=1:size(LD3.journal,1)
+        if LD3.journal(k,1)<>LD3.cfg("U"+string(k)) then
+            valid=%f;why="Matavimų seka neatitinka U1 → U2 → U3 bandymų. Ankstesni rodmenys negali būti priskirti kitų įtampų pavadinimams.";return;
+        end
+    end
 endfunction
 
 function ok = ld3_close_enough(userValue, expectedValue, rel)
@@ -143,10 +175,14 @@ function ld3_check_step(check_answers)
             e=LD3.cfg.U1/LD3.cfg.R*1000;
             if ~ld3_close_enough(v,e,.01) then ld3_set_status("Teorinė srovė netiksli.","error",msprintf("Tikimasi ≈ %.2f mA.",e)); return; end
         end
+        [sequenceOK,why]=ld3_journal_order_valid();
+        if ~sequenceOK then ld3_set_status(why,"error","Spauskite Pradėti matavimus iš naujo.");return;end
         if size(LD3.journal,1)<1 then ld3_set_status("Trūksta pirmo matavimo.","error","Pasirinkite U1 ir spauskite Matuoti."); return; end
         LD3.done(2)=%t;
         ld3_set_status("2 etapas užfiksuotas.","ok","Spauskite Toliau.");
     case 3 then
+        [sequenceOK,why]=ld3_journal_order_valid();
+        if ~sequenceOK then ld3_set_status(why,"error","Spauskite Pradėti matavimus iš naujo.");return;end
         if size(LD3.journal,1)<3 then
             truksta=3-size(LD3.journal,1);
             ld3_set_status("Trūksta "+string(truksta)+" matavimo taškų.","error","Pamatuokite likusias U2 ir U3 reikšmes."); return;
@@ -228,6 +264,7 @@ function ld3_set_step(n)
         end
     end
     bench_autosave("LD3");
+    ld3_guide_refresh();
 endfunction
 
 function s = ld3_step_instruction(n)
@@ -266,6 +303,7 @@ function ld3_answers_changed()
     global LD3;
     if LD3.demoMode then return; end
     ld3_save_answers(); ld3_student_sync(); bench_autosave("LD3");
+    ld3_guide_refresh();
 endfunction
 
 function [st, sl] = ld3_answer_slot(k)
@@ -379,7 +417,12 @@ function ld3_restore_stage()
     global LD3;
     if LD3.demoMode then ld3_toggle_solution(); return; end
     LD3.pending = "";
-    if LD3.step == 1 then LD3.wires = []; end
+    if LD3.step == 1 then
+        LD3.wires = [];LD3.powerOn=%f;LD3.switchOn=%f;LD3.done(1)=%f;
+    elseif or(LD3.step==[2 3]) then
+        LD3.journal=[];LD3.lastMeasurement=%nan;LD3.powerOn=%f;LD3.switchOn=%f;LD3.voltage=0;
+        LD3.done(2:6)=%f;LD3.step=2;
+    end
     ld3_set_status("Etapo stendas atkurtas į pradinę būseną.","info","");
     if isfield(LD3, "ui") then
         if ~isfield(LD3.ui,"headless") | ~LD3.ui.headless then ld3_render_stage(); end
@@ -417,5 +460,6 @@ function ld3_close()
             ld3_set_status("Nepavyko išsaugoti juodraščio.","error","Langas paliktas atvertas, kad neprarastumėte darbo."); return;
         end
     end
+    ld3_guide_close();
     delete(LD3.fig);
 endfunction

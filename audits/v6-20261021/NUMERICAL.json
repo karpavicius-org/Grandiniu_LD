@@ -1,0 +1,104 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "lab": 1,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 7,
+      "readings": 7,
+      "wave_channels": 0
+    },
+    {
+      "lab": 2,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 12,
+      "readings": 17,
+      "wave_channels": 0
+    },
+    {
+      "lab": 3,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 3,
+      "readings": 6,
+      "wave_channels": 0
+    },
+    {
+      "lab": 4,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 7,
+      "readings": 14,
+      "wave_channels": 0
+    },
+    {
+      "lab": 5,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 3,
+      "readings": 6,
+      "wave_channels": 0
+    },
+    {
+      "lab": 6,
+      "status": "PASS",
+      "method": "independent analytical equations",
+      "trials": 4,
+      "readings": 8,
+      "wave_channels": 0
+    },
+    {
+      "lab": 8,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 12,
+      "readings": 20,
+      "wave_channels": 0
+    },
+    {
+      "lab": 9,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 12,
+      "readings": 15,
+      "wave_channels": 60
+    },
+    {
+      "lab": 11,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 4,
+      "readings": 12,
+      "wave_channels": 16
+    },
+    {
+      "lab": 12,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 4,
+      "readings": 8,
+      "wave_channels": 20
+    },
+    {
+      "lab": 7,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 7,
+      "readings": 12,
+      "wave_channels": 0
+    },
+    {
+      "lab": 10,
+      "status": "PASS",
+      "method": "independent complex MNA from actual cable graph",
+      "trials": 12,
+      "readings": 15,
+      "wave_channels": 60
+    }
+  ],
+  "trials": 87,
+  "readings": 140,
+  "wave_channels": 156
+}

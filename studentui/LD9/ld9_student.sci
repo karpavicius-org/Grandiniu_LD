@@ -142,4 +142,5 @@ function ld9_student_sync()
             LD9.ui.studentPrimary.string = "TIKRINTI";
         end
     end
+    ld9_guide_refresh();
 endfunction

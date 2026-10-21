@@ -22,6 +22,9 @@ function m=ld2_store_measurement(phase,target,value,unit)
     m.step=LD2.state.step;
     m.id=length(LD2.state.measurements)+1;
     m.origin="VIRTUALUS MATAVIMAS";
+    if isfield(LD2.state,"auto_recording") then
+        if LD2.state.auto_recording then m.origin="AUTOMATINIS VIRTUALUS MATAVIMAS"; end
+    end
     if LD2.example_active then m.origin="MOKOMASIS PAVYZDYS"; end
     LD2.state.measurements($+1)=m;
 endfunction

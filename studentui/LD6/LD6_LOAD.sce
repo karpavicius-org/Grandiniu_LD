@@ -6,7 +6,7 @@ exec(LD6_ROOT+"../student_profile.sci",-1);
 exec(LD6_ROOT+"../bench_common.sci",-1);
 exec(LD6_ROOT+"../bench_report.sci",-1);
 exec(LD6_ROOT+"../bench_session.sci",-1);
-for ld6_file=["ld6_ids.sci" "ld6_config.sci" "ld6_utils.sci" "ld6_circuit.sci" "ld6_gui.sci" "ld6_callbacks.sci" "ld6_student.sci"]
+for ld6_file=["ld6_ids.sci" "ld6_config.sci" "ld6_utils.sci" "ld6_circuit.sci" "ld6_gui.sci" "ld6_callbacks.sci" "ld6_student.sci" "ld6_guidance.sci"]
     exec(LD6_ROOT+ld6_file,-1);
 end
 funcprot(ld6_saved_funcprot);

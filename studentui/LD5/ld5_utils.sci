@@ -4,6 +4,7 @@
 
 function ld5_set_status(msg, kind, hint)
     global LD5;
+    ld5_guide_refresh();
     if argn(2) < 3 then hint = ""; end
     if argn(2) < 2 then kind = "info"; end
     if isfield(LD5, "ui") then

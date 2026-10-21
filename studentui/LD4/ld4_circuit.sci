@@ -82,6 +82,7 @@ function ld4_init_state()
     assessment=%t; practice=%f;
     if isfield(LD4,"assessment") then assessment=LD4.assessment; end
     if isfield(LD4,"practice_used") then practice=LD4.practice_used; end
+    LD4.guide_enabled=%f;
     LD4.step = 1;
     LD4.done = [%f %f %f %f %f %f %f];
     LD4.skipped = [%f %f %f %f %f %f %f];

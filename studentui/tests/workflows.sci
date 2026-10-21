@@ -114,7 +114,13 @@ endfunction
 
 function bench_ld2_answers(step,values)
     global LD2;
-    if LD2.ui.headless then ld2_test_answers(step,values); return; end
+    if LD2.ui.headless then
+        for k=1:size(values,"*")
+            LD2.state.answers_text(step,k)=msprintf("%.12g",values(k));
+            LD2.state.answers(step,k)=values(k);
+        end
+        LD2.state.completed(step)=0;LD2.state.completed(12)=0;return;
+    end
     for k=1:size(values,"*")
         LD2.ui.answer_edits(k).string=msprintf("%.12g",values(k));
         execstr(LD2.ui.answer_edits(k).callback);
@@ -134,159 +140,64 @@ function bench_ld2_workflow(n,root,gui)
         "ui",struct("headless",~gui,"suppress_render",%f,"dynamic",[],"answer_edits",[],"answer_step",0,"test_no_dialogs",%t), ...
         "example_active",%f,"example_backup",struct());
     LD2.state.student=student_profile(n,"Automatinė Patikra","TEST","LD2");
-    if gui then
-        ld2_build_gui(); LD2.ui.figure.figure_name="PATIKRA · LD2 · variantas "+string(n);
-        assert_checkequal(LD2.ui.figure.closerequestfcn,"ld2_student_close()");
-    end
+    LD2.state.assessment=%t;
+    if gui then ld2_build_gui();end
     ld2_go_step(1,%f);
-    rc=ld2_rc_values(cfg.E_RC,cfg.F_RC,cfg.R8,cfg.C2);
-    rl=ld2_rl_values(cfg.E_RL,cfg.F_RL,cfg.R9,cfg.L1);
-    rr=ld2_peak_reference(cfg);
-    for step=1:12
+    for step=ld2_visible_steps()
         assert_checkequal(LD2.state.step,step);
-        phase=ld2_phase_for_step(step);
-        if step==2 | step==5 | step==8 then
-            W=ld2_required_main(phase);
-            for k=1:size(W,1); bench_ld2_click(W(k,1)); bench_ld2_click(W(k,2)); end
-        elseif step==3 then
-            bench_ld2_answers(step,[rc.X rc.Z rc.I*1000 rc.UR rc.UX rc.P*1000 rc.PHI_I]);
-        elseif step==6 then
-            bench_ld2_answers(step,[rl.X rl.Z rl.I*1000 rl.UR rl.UX rl.P*1000 rl.PHI_I]);
-        elseif step==4 | step==7 then
-            bench_ld2_action("ld2_power_toggle()"); bench_ld2_action("ld2_measure_current()");
-            if step==4 then targets=["UR" "UC" "UE"]; r=rc; e=cfg.E_RC;
-            else targets=["UR" "UL" "UE"]; r=rl; e=cfg.E_RL; end
-            for target=targets; bench_ld2_probe(phase,target); bench_ld2_action("ld2_measure_voltage()"); end
-            bench_ld2_answers(step,[e r.I*1000]);
+        if step>1 then
+            assert_checkfalse(ld2_assessment_ready());
+            bench_ld2_action("ld2_auto_stage()");
+        end
+        if or(step==[4 7 10]) then
+            assert_checkfalse(ld2_assessment_ready());
+            bench_ld2_action("ld2_choose_comparison(1)");
         elseif step==9 then
-            bench_ld2_probe("RLC","UR"); bench_ld2_action("ld2_power_toggle()");
-            for f=[rr.F0-rr.BW/2 rr.F0 rr.F0+rr.BW/2]
-                ld2_set_frequency(f); bench_ld2_action("ld2_measure_voltage()"); bench_ld2_action("ld2_record_resonance_point()");
-            end
-            bench_ld2_answers(step,[rr.F0 rr.F0 1000/rr.F0 cfg.E_RLC]);
-        elseif step==10 then
-            targets=["UL" "UC" "ULC"]; centers=[rr.FL rr.FC rr.F0];
-            for j=1:3
-                bench_ld2_probe("RLC",targets(j));
-                for f=[centers(j)-rr.BW/2 centers(j) centers(j)+rr.BW/2]
-                    ld2_set_frequency(f); bench_ld2_action("ld2_measure_voltage()"); bench_ld2_action("ld2_record_peak_point()");
-                end
-            end
-            [fl,ul,yes]=ld2_peak_best("UL"); [fc,uc,yes]=ld2_peak_best("UC"); [fz,uz,yes]=ld2_peak_best("ULC");
-            bench_ld2_answers(step,[ul uc uz fl fc fz]);
+            [value,index]=max(LD2.state.res_ur);
+            bench_ld2_action(msprintf("ld2_choose_resonance(%d)",index));
         elseif step==11 then
-            bench_ld2_probe("RLC","UR");
-            ld2_set_frequency(rr.F1); bench_ld2_action("ld2_measure_voltage()"); bench_ld2_action("ld2_record_f1()");
-            ld2_set_frequency(rr.F2); bench_ld2_action("ld2_measure_voltage()"); bench_ld2_action("ld2_record_f2()");
-            bench_ld2_answers(step,[cfg.E_RLC/sqrt(2) rr.F1 rr.F2 rr.BW rr.Q]);
-        elseif step==12 then
-            bench_ld2_probe("RLC","UR"); bench_ld2_action("ld2_run_sweep()");
-            // Native user-input testing exposed an 11×1 acquired sweep that
-            // was mistakenly compared to the expected 1×11 frequency row.
-            // Both orientations represent the SAME eleven ordered samples.
+            bench_ld2_answers(11,cfg.R13/(2*%pi*cfg.L3));
+        end
+        assert_checktrue(ld2_assessment_ready());
+        if step==12 then
             recorded=LD2.state.sweep_f;
-            expected=0:1000:cfg.F_MAX;
-            assert_checkequal(matrix(recorded,1,-1),expected);
-            LD2.state.sweep_f=matrix(recorded,-1,1);
-            assert_checktrue(ld2_assessment_ready());
-            LD2.state.sweep_f=matrix(recorded,1,-1);
-            assert_checktrue(ld2_assessment_ready());
-            LD2.state.sweep_f=matrix(recorded,-1,1);
+            assert_checkequal(matrix(recorded,1,-1),0:1000:cfg.F_MAX);
             LD2.state.sweep_f(2)=LD2.state.sweep_f(2)+1;
-            assert_checkfalse(ld2_assessment_ready());  // corrupted sample must fail
-            LD2.state.sweep_f=[];
-            assert_checkfalse(ld2_assessment_ready());  // missing scan is not enough
-            LD2.state.sweep_f=recorded;
-            assert_checktrue(ld2_assessment_ready());
-        end
-        bench_ld2_primary();
-        if LD2.state.completed(step)<>1 then error("LD2 V"+string(n)+" etapas "+string(step)+": "+LD2.state.last_error); end
-        if gui & step==3 then
-            saved=LD2.ui.answer_edits(1).string;
-            LD2.ui.answer_edits(1).string="0"; execstr(LD2.ui.answer_edits(1).callback);
-            bench_ld2_primary(); assert_checkequal(LD2.state.completed(3),0);
-            assert_checktrue(LD2.state.last_error<>"");
-            LD2.ui.answer_edits(1).string=saved; execstr(LD2.ui.answer_edits(1).callback);
-            bench_ld2_primary(); assert_checkequal(LD2.state.completed(3),1);
-        end
-        if step>1 & step<12 then bench_ld2_primary(); end
-        if gui then mprintf("PASS LD2 V%02d: etapas %d\n",n,step); end
+            assert_checkfalse(ld2_assessment_ready());
+            LD2.state.sweep_f=recorded;LD2.state.completed(12)=1;
+        else bench_ld2_primary();end
     end
     assert_checktrue(and(LD2.state.completed==1));
     assert_checktrue(length(LD2.state.measurements)>=30);
-    assert_checkequal(LD2.state.student.number,n);
+    clean=LD2.state;
+    ld2_go_step(11,%f);bench_ld2_answers(11,0);
+    bench_ld2_primary();assert_checkequal(LD2.state.step,12);
+    assert_checkequal(LD2.state.answers_text(11,1),"0");
+    ld2_go_step(11,%f);
     if gui then
-        // Formal assessment accepts nonempty raw text without local correctness disclosure.
-        clean=LD2.state; LD2.state.assessment=%t; LD2.state.practice_used=%f;
-        mprintf("PASS LD2 V17: postflow baseline\n");
-        ld2_go_step(3,%f); LD2.state.completed(3)=0;
-        mprintf("PASS LD2 V17: reopened step 3\n");
-        LD2.ui.answer_edits(1).string="0"; execstr(LD2.ui.answer_edits(1).callback);
-        mprintf("PASS LD2 V17: numeric wrong edit callback\n");
+        LD2.ui.answer_edits(1).string="1+2";ld2_student_answers_changed();
+    else LD2.state.answers_text(11,1)="1+2";end
+    assert_checkfalse(ld2_assessment_ready());
+    // Discard the deliberately invalid live editor before restoring the saved
+    // fixture, exactly as the production ld2_restore_session() does.
+    ld2_clear_dynamic();LD2.state=clean;ld2_render_step();
+    ld2_write_session(root+"tests/results/LD2-test.sod");
+    session=ld2_read_session(root+"tests/results/LD2-test.sod");
+    ld2_restore_session(session);
+    assert_checktrue(and(LD2.state.completed==1));
+    assert_checkequal(LD2.state.comparisons,clean.comparisons);
+    assert_checkfalse(LD2.state.power);
+    if gui then
+        ld2_show_solution();assert_checkfalse(LD2.example_active);
         bench_ld2_primary();
-        mprintf("PASS LD2 V17: assessment numeric wrong accepted\n");
-        assert_checkequal(LD2.state.step,4); assert_checkequal(LD2.state.completed(3),1);
-        assert_checkequal(LD2.state.answers_text(3,1),"0");
-        // Neskaitinis tekstas yra pilnumo / formato klaida, bet neatskleidžia etalono.
-        ld2_go_step(3,%f); LD2.state.completed(3)=0;
-        LD2.ui.answer_edits(1).string="raw-wrong"; execstr(LD2.ui.answer_edits(1).callback);
-        bench_ld2_primary();
-        assert_checkequal(LD2.state.step,3); assert_checkequal(LD2.state.completed(3),0);
-        assert_checktrue(strindex(LD2.state.status_text,"skaičių")<>[]);
-        mprintf("PASS LD2 V17: assessment rejects nonnumeric text without answer key\n");
-        // Restore the fully correct state and verify formal example blocking/export.
-        LD2.state=clean; LD2.state.assessment=%t; LD2.state.practice_used=%f; LD2.state.completed(11)=0; LD2.state.step=12; ld2_render_step();
-        assert_checkfalse(ld2_assessment_ready());
-        assert_checktrue(strindex(LD2.state.status_text,"ankstesnių etapų")<>[]);
-        mprintf("PASS LD2 V17: final export blocked by unfinished prior stage\n");
-        LD2.state=clean; LD2.state.assessment=%t; LD2.state.practice_used=%f; ld2_render_step();
-        ld2_show_solution(); assert_checkfalse(LD2.example_active); assert_checkfalse(LD2.state.practice_used);
-        mprintf("PASS LD2 V17: formal example block\n");
-        bench_ld2_primary();
-        if isempty(strindex(LD2.ui.status.string,"Ataskaita išsaugota")) then
-            mprintf("LD2 export diagnostic: "+LD2.state.status_text+" | "+LD2.state.status_hint+"\n");
-        end
         assert_checktrue(strindex(LD2.state.status_text,"Ataskaita išsaugota")<>[]);
-        assert_checktrue(strindex(LD2.ui.status.string,"Ataskaita išsaugota")<>[]);
-        mprintf("PASS LD2 V17: formal report export\n");
-        ld2_write_exports(root+"tests/results/");
-        mprintf("PASS LD2 V17: CSV exports\n");
-        ld2_write_session(root+"tests/results/LD2-test.sod");
-        mprintf("PASS LD2 V17: session write\n");
-        session=ld2_read_session(root+"tests/results/LD2-test.sod");
-        mprintf("PASS LD2 V17: session read\n");
-        assert_checkequal(session.state.student,LD2.state.student);
-        assert_checktrue(session.state.assessment); assert_checkfalse(session.state.practice_used);
-        ld2_restore_session(session);
-        mprintf("PASS LD2 V17: formal session restore\n");
-        assert_checktrue(and(LD2.state.completed==1)); assert_checktrue(LD2.state.assessment);
-        assert_checkfalse(LD2.state.power);
-        // Mokymosi bandymas lieka mokomasis. IŠ NAUJO pradeda švarų formalų bandymą.
-        LD2.state.assessment=%f; LD2.state.practice_used=%t;
-        ld2_show_solution(); assert_checktrue(LD2.example_active);
-        mprintf("PASS LD2 V17: learning example open\n");
-        bench_ld2_primary(); assert_checkfalse(LD2.example_active); assert_checktrue(LD2.state.practice_used);
-        mprintf("PASS LD2 V17: learning example close\n");
-        ld2_restart_apply(); assert_checktrue(LD2.state.assessment); assert_checkfalse(LD2.state.practice_used);
-        assert_checkequal(LD2.state.step,1); assert_checkequal(length(LD2.state.measurements),0);
-        assert_checktrue(isfield(LD2,"autosave_paths")); assert_checkequal(size(LD2.autosave_paths,"*"),0);
-        mprintf("PASS LD2 V17: restart creates clean assessment and autosave chain\n");
-        ld2_step_button(5); assert_checkequal(LD2.state.step,1);
-        assert_checktrue(strindex(LD2.state.status_text,"dar nepasiekėte")<>[]);
-        assert_checktrue(strindex(LD2.state.status_text,"DĖSTYTOJO")==[]);
-        mprintf("PASS LD2 V17: future-stage navigation is student-facing\n");
-        ld2_restore_session(session);
-        mprintf("PASS LD2 V17: second session restore\n");
-        st=student_profile(n,"Pataisytas Vardas","TEST-2","LD2"); ld2_apply_profile(st,cfg);
-        mprintf("PASS LD2 V17: same variant profile\n");
-        assert_checktrue(and(LD2.state.completed==1)); assert_checktrue(LD2.state.assessment);
-        st=student_profile(modulo(n,64)+1,"Kitas Studentas","TEST","LD2");
-        ld2_apply_profile(st,ld2_variant_config(st.number));
-        mprintf("PASS LD2 V17: new variant profile\n");
-        assert_checkequal(length(LD2.state.measurements),0); assert_checkequal(LD2.state.step,1);
-        assert_checktrue(LD2.state.assessment); assert_checkfalse(LD2.state.practice_used);
-        ld2_student_close(); assert_checkfalse(is_handle_valid(LD2.ui.figure));
-        mprintf("PASS LD2 V17: close autosave path\n");
+        LD2.state.assessment=%f;LD2.state.practice_used=%t;
+        ld2_show_solution();assert_checktrue(LD2.example_active);
+        bench_ld2_primary();assert_checkfalse(LD2.example_active);
+        ld2_restart_apply();assert_checktrue(LD2.state.assessment);
+        assert_checkequal(LD2.state.step,1);assert_checkequal(length(LD2.state.measurements),0);
+        ld2_step_button(5);assert_checkequal(LD2.state.step,1);
+        ld2_student_close();assert_checkfalse(is_handle_valid(LD2.ui.figure));
     end
 endfunction
 
@@ -489,12 +400,13 @@ function bench_ld3_workflow(n,root,gui)
         ld3_apply_profile(st,cfg);
         assert_checkequal(LD3.done,before); assert_checkequal(LD3.student.name,"Pataisytas Vardas");
         // Kitas variantas pradeda švarų darbą, bet išsaugo pasirinktą režimą.
+        before_assessment=LD3.assessment;before_practice=LD3.practice_used;
         st=student_profile(modulo(n,64)+1,"Kitas Studentas","TEST","LD3");
         ld3_apply_profile(st,ld3_variant_config(st.number));
         assert_checkequal(LD3.step,1); assert_checkfalse(or(LD3.done));
         assert_checkequal(size(LD3.journal,1),0);
         // Varianto keitimas išsaugo studento pasirinktą mokymosi / atsiskaitymo režimą.
-        assert_checkfalse(LD3.assessment); assert_checktrue(LD3.practice_used);
+        assert_checkequal(LD3.assessment,before_assessment); assert_checkequal(LD3.practice_used,before_practice);
         mprintf("PASS LD3 V17: student data and variant change\n");
         ld3_close();
         assert_checkfalse(is_handle_valid(LD3.fig));

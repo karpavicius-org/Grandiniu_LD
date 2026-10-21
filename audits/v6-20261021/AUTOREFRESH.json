@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "scope": "Declared authentic-v5 copied checkpoint/report seed; real production rt_start, auto-refresh export, rt_close and rt_start reopen in native GUI; no OS student protocol claim",
+  "lab": "LD7",
+  "records_preserved": 7,
+  "identity_preserved": true,
+  "numeric_values_copies_wires_preserved": true,
+  "new_revision": 6,
+  "old_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/compat_text/autorefresh/v5_seed.html",
+  "new_report": "/workspace/scratch/67e4c3cdba10/ld_revision6/verification/compat_text/autorefresh/updated_reports/LD7-V01-ataskaita-20261021T045258-54-947-5.html",
+  "reopened_same_report": true,
+  "runtime_exit": 0,
+  "original_v5_report_sha256": "73dacaf9834bf92f0d4d4e243459316d6aeb8d9977644ab2cbef164e1e268a58",
+  "original_v5_report_unchanged": true,
+  "copied_seed_report_sha256": "73dacaf9834bf92f0d4d4e243459316d6aeb8d9977644ab2cbef164e1e268a58",
+  "copied_seed_report_unchanged": true,
+  "relevant_sources_unchanged": true
+}

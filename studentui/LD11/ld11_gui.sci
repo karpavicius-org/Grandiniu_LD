@@ -22,7 +22,9 @@ function [term_xy, boxes] = ld11_layout()
         "RL", [75 40 16 12], "CK", [75 68 16 12], "V", [6 40 21 14], "W", [6 58 21 14]);
     term_xy = struct("GEN_N", [4.5 28.5], "GEN_P", [24.5 28.5], "K1", [35.5 28.5], ...
         "K2", [53.5 28.5], "A_P", [63.5 28.5], "A_N", [83 28.5], ...
-        "RL_A", [72.5 46], "RL_B", [93.5 46], "C_A", [72.5 74], "C_B", [93.5 74]);
+        "RL_A", [72.5 46], "RL_B", [93.5 46], "C_A", [72.5 74], "C_B", [93.5 74], ...
+        "V_P", [3.5 47], "V_N", [29.5 47], "W_I_P", [29.5 61], "W_I_N", [29.5 70], ...
+        "W_U_P", [3.5 61], "W_U_N", [3.5 70]);
 endfunction
 
 function xy = ld11_terminal_xy(id)
@@ -36,6 +38,9 @@ function txt = ld11_terminal_button_text(id)
     case "A_P" then txt = "+"; case "A_N" then txt = "−";
     case "RL_A" then txt = "a"; case "RL_B" then txt = "b";
     case "C_A" then txt = "1"; case "C_B" then txt = "2";
+    case "V_P" then txt = "+"; case "V_N" then txt = "−";
+    case "W_I_P" then txt = "I+"; case "W_I_N" then txt = "I−";
+    case "W_U_P" then txt = "U+"; case "W_U_N" then txt = "U−";
     end
 endfunction
 
@@ -64,16 +69,26 @@ function ld11_polyline(points, col)
 endfunction
 
 function route = ld11_route(a, b)
-    // Kanoniniai maršrutai nepriklausomai nuo paspaudimo eilės (absoliučiai taškai).
+    // Separate lanes also at common nodes: crossing gaps cannot fix collinear cables.
     route = [];
-    if (a == "A_N" & b == "RL_A") | (a == "RL_A" & b == "A_N") then
-        route = [[.83 .285];[.83 .375];[.725 .375];[.725 .46]];
+    if (a == "A_N" & b == "W_I_P") | (a == "W_I_P" & b == "A_N") then
+        route = [.83 .285;.83 .375;.615 .375;.615 .61;.295 .61];
+    elseif (a == "W_I_N" & b == "RL_A") | (a == "RL_A" & b == "W_I_N") then
+        route = [.295 .70;.325 .70;.325 .59;.69 .59;.69 .46;.725 .46];
     elseif (a == "RL_B" & b == "GEN_N") | (a == "GEN_N" & b == "RL_B") then
-        route = [[.935 .46];[.98 .46];[.98 .20];[.045 .20];[.045 .285]];
+        route = [.935 .46;.975 .46;.975 .195;.045 .195;.045 .285];
     elseif (a == "RL_A" & b == "C_A") | (a == "C_A" & b == "RL_A") then
-        route = [[.725 .46];[.725 .74]];
+        route = [.725 .46;.725 .74];
     elseif (a == "C_B" & b == "GEN_N") | (a == "GEN_N" & b == "C_B") then
-        route = [[.935 .74];[.98 .74];[.98 .20];[.045 .20];[.045 .285]];
+        route = [.935 .74;.99 .74;.99 .175;.02 .175;.02 .285;.045 .285];
+    elseif (a == "V_P" & b == "GEN_P") | (a == "GEN_P" & b == "V_P") then
+        route = [.035 .47;.007 .47;.007 .365;.245 .365;.245 .285];
+    elseif (a == "V_N" & b == "GEN_N") | (a == "GEN_N" & b == "V_N") then
+        route = [.295 .47;.31 .47;.31 .385;.045 .385;.045 .285];
+    elseif (a == "W_U_P" & b == "RL_A") | (a == "RL_A" & b == "W_U_P") then
+        route = [.035 .61;.012 .61;.012 .55;.685 .55;.685 .425;.725 .425;.725 .46];
+    elseif (a == "W_U_N" & b == "RL_B") | (a == "RL_B" & b == "W_U_N") then
+        route = [.035 .70;.007 .70;.007 .565;.96 .565;.96 .50;.935 .50;.935 .46];
     end
 endfunction
 
@@ -114,7 +129,7 @@ function ld11_render_wires()
     vals = [msprintf("50 Hz ~ · %g V RMS", LD11.cfg.E), switchText, ampText, ...
         msprintf("%g Ω · %g mH", LD11.cfg.R, LD11.cfg.LmH), ...
         msprintf("%g µF", LD11.cfg.Ck*1e6), voltText, wattText];
-    pairs = ["GEN_N" "GEN_P";"K1" "K2";"A_P" "A_N";"RL_A" "RL_B";"C_A" "C_B";"" "";"" ""];
+    pairs = ["GEN_N" "GEN_P";"K1" "K2";"A_P" "A_N";"RL_A" "RL_B";"C_A" "C_B";"V_P" "V_N";"W_I_P" "W_I_N"];
     for k = 1:7
         r = bb(ids(k))/100; bg = [0.94 0.97 0.97];
         if ids(k) == "R" then bg = [0.98 0.96 0.88]; end
@@ -125,12 +140,18 @@ function ld11_render_wires()
                 ld11_track_board(student_wire(p, xy, edge, [0.41 0.49 0.51], "lead:" + ids(k)));
             end
         end
+        if ids(k) == "W" then
+            for coilId = ["W_U_P" "W_U_N"]
+                xy = tt(coilId)/100;
+                ld11_track_board(student_wire(p, xy, [r(1) xy(2)], [0.41 0.49 0.51], "lead:W"));
+            end
+        end
         fr = student_frame(p, r, bg); fr.tag = "component:" + ids(k); ld11_track_board(fr);
         h = student_text(fr, [0.06 0.66 0.88 0.24], names(k), 12, %t, bg); h.horizontalalignment = "center";
         h = student_text(fr, [0.04 0.04 0.92 0.58], vals(k), 13, %t, bg); h.horizontalalignment = "center";
         h.tag = "reading:" + ids(k);
         if k == 6 then h.tooltipstring = "Voltmetras: įtampa U prie generatoriaus galų."; end
-        if k == 7 then h.tooltipstring = "Vatmetras: aktyvioji galia P, kurią suvartoja grandinė."; end
+        if k == 7 then h.tooltipstring = "Vatmetras: I+/I− srovės ritė nuosekliai visai apkrovai; U+/U− įtampos ritė lygiagrečiai apkrovai. Rodmuo P rodomas tik prijungus visus keturis laidus."; end
         if k == 4 then h.tooltipstring = msprintf("Ritė: R = %g Ω, L = %g mH (nuosekliai).", LD11.cfg.R, LD11.cfg.LmH); end
         if k == 5 then h.tooltipstring = msprintf("Kompensuojantis kondensatorius Ck = %g µF (režimas SU Ck).", LD11.cfg.Ck*1e6); end
     end
@@ -153,6 +174,7 @@ function ld11_render_wires()
     if ~LD11.demoMode & or(LD11.step == [2 4]) & LD11.wireMode == ld11_stage_mode(LD11.step) then LD11.ui.controls(5).enable = "on"; end
     ld11_font(p);
     LD11.fig.immediate_drawing = drawing;
+    ld11_guide_refresh();
 endfunction
 
 function ld11_render_journal()
@@ -264,8 +286,10 @@ function ld11_build_gui()
         LD11.ui.answerEdits($+1) = h;
     end
     LD11.ui.studentPrimary = ld11_button(right, [0.07 0.085 0.86 0.075], "Tikrinti", "ld11_student_primary()", 15, [0.08 0.39 0.37]);
+    LD11.ui.studentPrimary.tag="LD11_PRIMARY";
     controls($+1) = LD11.ui.studentPrimary;
     controls($+1) = ld11_button(right, [0.07 0.015 0.37 0.045], "← Atgal", "ld11_jump_step(LD11.step-1)", 12);
+    controls($).tag="LD11_BACK";
     LD11.ui.controls = controls; LD11.ui.dynamic = controls;
     LD11.ui.statusMain = student_text(f, [0.025 0.055 0.95 0.035], "", 13, %t, [0.94 0.96 0.96]);
     LD11.ui.statusFix = student_text(f, [0.025 0.020 0.95 0.035], "", 12, %f, [0.94 0.96 0.96]);
@@ -278,9 +302,11 @@ function ld11_show_actions()
     global LD11;
     if ~isfield(LD11,"fig") then return; end
     if ~is_handle_valid(LD11.fig) then return; end
-    choice=x_choose(["Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
+    choice=x_choose(["Vesti žingsnis po žingsnio";"Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
         "Išsaugoti ataskaitą";"Mokymosi / atsiskaitymo režimas"; ...
         "Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD11 · Pagalba");
+    if choice==1 then ld11_guide_show(); return; end
+    if choice>1 then choice=choice-1; end
     select choice
     case 1 then bench_open_snapshot("LD11");
     case 2 then ld11_show_wiring_guide();

@@ -4,6 +4,7 @@
 
 function ld4_set_status(msg, kind, hint)
     global LD4;
+    ld4_guide_refresh();
     if argn(2) < 3 then hint = ""; end
     if argn(2) < 2 then kind = "info"; end
     if isfield(LD4, "ui") then

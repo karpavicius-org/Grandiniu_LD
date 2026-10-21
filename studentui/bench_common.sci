@@ -55,6 +55,7 @@ function bench_report_saved(path,title)
     f=figure("default_axes","off","dockable","off","menubar","none","toolbar","none","axes_size",[680 260],"figure_name",title,"resize","off");
     f.infobar_visible="off"; BENCH_REPORT_WINDOW=f;
     instruction="Persiųskite dėstytojui vieną HTML failą.";
+    if title=="Matavimų suvestinė parengta" then instruction="Matavimų užbaigtumo suvestinė ir CSV lentelė paruoštos."; end
     if title=="Vertinimas baigtas" then instruction="Pažymiai, komentarai ir CSV lentelė paruošti."; end
     if title=="Vertinimas sustabdytas" then instruction="Vertinimas sustabdytas. Išsaugoti tik jau apdorotų failų daliniai rezultatai."; end
     if title=="Mokymosi ataskaita išsaugota" then instruction="Savikontrolės ataskaita; į pažymių suvestinę ji neįtraukiama."; end

@@ -417,5 +417,6 @@ function ld7_close()
             ld7_set_status("Nepavyko išsaugoti juodraščio.","error","Langas paliktas atvertas, kad neprarastumėte darbo."); return;
         end
     end
+    ld7_guide_close();
     delete(LD7.fig);
 endfunction

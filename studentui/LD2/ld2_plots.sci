@@ -31,7 +31,7 @@ function ld2_plot_scope_current()
     [ok,missing]=ld2_validate_main(phase);
     if ~ok | ~LD2.state.power then
         ld2_show_error("Oscilogramai reikia uždaros grandinės ir įjungto generatoriaus.", ...
-            ["Sujunkite pagrindinius laidus ir įjunkite generatorių."]); return;
+            ["Paleiskite bandymą mygtuku po grandine."]); return;
     end
     ld2_plot_scope(phase);
 endfunction
@@ -95,11 +95,11 @@ endfunction
 
 function ld2_plot_resonance()
     global LD2;
-    if LD2.state.step==12 then fdata=LD2.state.sweep_f; udata=LD2.state.sweep_ur; data_label="12 etapo lentelės taškai (0 Hz – teorinė riba)";
-    else fdata=LD2.state.res_f; udata=LD2.state.res_ur; data_label="9 etape užfiksuoti V~ taškai"; end
+    if LD2.state.step==12 then fdata=LD2.state.sweep_f; udata=LD2.state.sweep_ur; data_label="10 etapo lentelės taškai (0 Hz – teorinė riba)";
+    else fdata=LD2.state.res_f; udata=LD2.state.res_ur; data_label="7 etape užfiksuoti V~ taškai"; end
     if size(fdata,"*")==0 then
         ld2_show_error("Nėra užfiksuotų taškų grafikui.", ...
-            ["9 etape spauskite MATUOTI U → ĮRAŠYTI TAŠKĄ; 12 etape atlikite skenavimą."; ...
+            ["Spauskite Palyginti tris dažnius arba Sudaryti dažninę kreivę."; ...
              "Teorinį variantą galite pamatyti PAVYZDYJE."]); return;
     end
     [fs,order]=gsort(matrix(fdata,-1,1),"g","i"); us=matrix(udata,-1,1); us=us(order);
@@ -117,12 +117,21 @@ function ld2_show_summary_window()
     else
         rows=["Mokymasis: PATIKRINTA reiškia, kad etapas patikrintas šiame stende.";" "];
     end
-    for step=1:12
+    for step=ld2_visible_steps()
         if LD2.state.completed(step)==1 then
             if LD2.state.assessment then result="ĮRAŠYTA"; else result="PATIKRINTA"; end
         elseif LD2.state.skipped(step)==1 then result="PRALEISTA";
         else result="NEATLIKTA"; end
-        rows($+1,1)=string(step)+". "+ld2_step_title(step)+" — "+result;
+        rows($+1,1)=ld2_step_title(step)+" — "+result;
+        if or(step==[4 7 10]) then
+            answers=["Neatsakyta" "Taip" "Ne"];value=LD2.state.comparisons(step);
+            [question,details]=ld2_workflow_question(step);
+            rows($+1,1)="    "+question+" "+answers(value+1);
+            rows=[rows;ld2_workflow_readings(step)];
+        elseif step==9 then
+            raw=LD2.state.answers_text(9,1);if raw=="" then raw="Nepasirinkta";end
+            rows($+1,1)="    Pasirinktas rezonanso dažnis: "+raw+" Hz";
+        end
         [labels,n]=ld2_answer_spec(step);
         for j=1:n
             raw=LD2.state.answers_text(step,j);
@@ -138,7 +147,7 @@ function ld2_show_journal()
     rows=emptystr(0,1);
     for k=1:length(LD2.state.measurements)
         m=LD2.state.measurements(k);
-        rows($+1,1)=msprintf("#%d | %d etapas | %s | %s | %s",m.id,m.step,m.phase,ld2_reading_text(m),m.origin);
+        rows($+1,1)=msprintf("#%d | %d etapas | %s | %s | %s",m.id,ld2_visible_ordinal(m.step),m.phase,ld2_reading_text(m),m.origin);
     end
     if size(rows,"*")==0 then rows="NEATLIKTA – matavimų dar nėra."; end
     ld2_text_window("LD2 – visų virtualių matavimų žurnalas",rows);

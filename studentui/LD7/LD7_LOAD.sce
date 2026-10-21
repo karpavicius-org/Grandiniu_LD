@@ -6,7 +6,7 @@ exec(LD7_ROOT + "../student_profile.sci", -1);
 exec(LD7_ROOT + "../bench_common.sci", -1);
 exec(LD7_ROOT + "../bench_report.sci", -1);
 exec(LD7_ROOT + "../bench_session.sci", -1);
-for ld7_file = ["ld7_ids.sci" "ld7_config.sci" "ld7_utils.sci" "ld7_circuit.sci" "ld7_gui.sci" "ld7_callbacks.sci" "ld7_student.sci"]
+for ld7_file = ["ld7_ids.sci" "ld7_config.sci" "ld7_utils.sci" "ld7_circuit.sci" "ld7_gui.sci" "ld7_callbacks.sci" "ld7_student.sci" "ld7_guidance.sci"]
     exec(LD7_ROOT + ld7_file, -1);
 end
 funcprot(ld7_saved_funcprot);

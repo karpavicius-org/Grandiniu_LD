@@ -149,6 +149,7 @@ function ld4_render_wires()
     ld4_track_board(student_end_wires(p));
     ld4_font(p);
     LD4.fig.immediate_drawing=drawing;
+    ld4_guide_refresh();
 endfunction
 
 function ld4_render_journal()
@@ -185,6 +186,7 @@ function ld4_render_stage()
     LD4.ui.progress.string=string(LD4.step)+" / 7 etapas · "+regime;
     LD4.ui.identity.string=student_caption(LD4.student);
     ld4_render_wires(); ld4_render_journal(); ld4_student_sync();
+    ld4_guide_refresh();
 endfunction
 
 function ld4_build_gui()
@@ -228,8 +230,10 @@ function ld4_build_gui()
         LD4.ui.answerEdits($+1)=h;
     end
     LD4.ui.studentPrimary=ld4_button(right,[0.07 0.085 0.86 0.075],"Tikrinti","ld4_student_primary()",15,[0.08 0.39 0.37]);
+    LD4.ui.studentPrimary.tag="LD4_PRIMARY";
     controls($+1)=LD4.ui.studentPrimary;
     controls($+1)=ld4_button(right,[0.07 0.015 0.37 0.045],"← Atgal","ld4_jump_step(LD4.step-1)",12);
+    controls($).tag="LD4_BACK";
     LD4.ui.controls=controls; LD4.ui.dynamic=controls;
     LD4.ui.statusMain=student_text(f,[0.025 0.055 0.95 0.035],"",13,%t,[0.94 0.96 0.96]);
     LD4.ui.statusFix=student_text(f,[0.025 0.020 0.95 0.035],"",12,%f,[0.94 0.96 0.96]);
@@ -239,8 +243,11 @@ endfunction
 
 function ld4_show_actions()
     global LD4;
-    choice=x_choose(["Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
+    choice=x_choose(["Vesti žingsnis po žingsnio";"Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
         "Ataskaita ir režimas";"Mano duomenys";"Daugiau veiksmų"],"LD4 · Pagalba");
+    if choice==1 then ld4_guide_show(); return; end
+    if choice==0 then return; end
+    choice=choice-1;
     select choice
     case 1 then
         extra=x_choose(["Kaip sujungti";"Stendo žemėlapis"],"Šio etapo pagalba");

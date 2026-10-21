@@ -147,6 +147,7 @@ function ld6_render_wires()
     if ~LD6.demoMode & or(LD6.step==[2 3 4 5]) & LD6.wireMode==ld6_stage_mode(LD6.step) then LD6.ui.controls(7).enable="on"; end
     ld6_font(p);
     LD6.fig.immediate_drawing=drawing;
+    ld6_guide_refresh();
 endfunction
 
 function ld6_render_journal()
@@ -197,6 +198,7 @@ function ld6_render_stage()
     if LD6.demoMode then LD6.ui.progress.string="PAVYZDYS"; end
     LD6.ui.identity.string=student_caption(LD6.student);
     ld6_render_wires(); ld6_render_journal(); ld6_student_sync();
+    ld6_guide_refresh();
 endfunction
 
 function ld6_resize(id)
@@ -251,8 +253,10 @@ function ld6_build_gui()
         LD6.ui.answerEdits($+1)=h;
     end
     LD6.ui.studentPrimary=ld6_button(right,[0.07 0.085 0.86 0.075],"Tikrinti","ld6_student_primary()",15,[0.08 0.39 0.37]);
+    LD6.ui.studentPrimary.tag="LD6_PRIMARY";
     controls($+1)=LD6.ui.studentPrimary;
     controls($+1)=ld6_button(right,[0.07 0.015 0.37 0.045],"← Atgal","ld6_jump_step(LD6.step-1)",12);
+    controls($).tag="LD6_BACK";
     LD6.ui.controls=controls; LD6.ui.dynamic=controls;
     LD6.ui.statusMain=student_text(f,[0.025 0.055 0.95 0.035],"",13,%t,[0.94 0.96 0.96]);
     LD6.ui.statusFix=student_text(f,[0.025 0.020 0.95 0.035],"",12,%f,[0.94 0.96 0.96]);
@@ -263,8 +267,10 @@ endfunction
 
 function ld6_show_actions()
     global LD6;
-    choice=x_choose(["Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
+    choice=x_choose(["Vesti žingsnis po žingsnio";"Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
         "Ataskaita ir režimas";"Mano duomenys";"Daugiau veiksmų"],"LD6 · Pagalba");
+    if choice==1 then ld6_guide_show(); return; end
+    choice=choice-1;
     select choice
     case 1 then
         extra=x_choose(["Kaip sujungti";"Stendo žemėlapis"],"Šio etapo pagalba");

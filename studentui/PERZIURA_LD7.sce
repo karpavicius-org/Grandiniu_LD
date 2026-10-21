@@ -1,15 +1,6 @@
-// LD7 peržiūra be registracijos dialogo.
+// Originalaus stendo peržiūra su naujomis matavimo užduotimis.
 mode(-1);
-perziura_root = get_absolute_file_path("PERZIURA_LD7.sce");
-exec(perziura_root + "LD7/LD7_LOAD.sce", -1);
-global LD7;
-LD7 = struct();
-LD7.student = student_profile(1, "Peržiūra", "TEST", "LD7");
-LD7.cfg = ld7_variant_config(1);
-ld7_init_state();
-ld7_start();
-etapai = ["1 etapas: sujungimas";"2 etapas: matavimai P1–P5";"3 etapas: vidinė varža"; ...
-    "4 etapas: galia ir suderinamumas";"5 etapas: TE ir TJ";"6 etapas: išvados"];
-k = x_choose(etapai, "LD7 peržiūra · pasirinkite etapą");
-if k > 0 then ld7_set_step(k); end
-clear perziura_root etapai k;
+rt_preview=get_absolute_file_path("PERZIURA_LD7.sce");
+exec(rt_preview+"LD7/LD7_LOAD.sce",-1);
+exec(rt_preview+"RT_LOAD.sce",-1);
+rt_start(rt_preview,"LD7",student_profile(1,"Stendo peržiūra","BANDOMASIS","LD7"),mo_config("LD7",1));

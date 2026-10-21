@@ -5,8 +5,42 @@
 // Žurnalas: [U V, I mA, taškas 1–3, f Hz, taikinys 1–4].
 // ============================================================================
 
-function wires = ld9_canonical_wires()
-    wires = ["GEN_P" "K1";"K2" "A_P";"A_N" "R_A";"R_B" "L_A";"L_B" "C_A";"C_B" "GEN_N"];
+function wires=ld9_canonical_wires(target)
+    if argn(2)<1 then target=1;end
+    plan=ld9_instrument_plan(target);wires=plan.wires;
+endfunction
+
+function plan=ld9_instrument_plan(target)
+    wires=emptystr(0,2);
+    if ~ld9_valid_index(target,4) then plan=struct("wires",wires);return;end
+    base=["GEN_P" "K1";"K2" "A_P";"A_N" "R_A";"R_B" "L_A";"L_B" "C_A";"C_B" "GEN_N"];
+    ends=["R_A" "R_B";"L_A" "L_B";"C_A" "C_B";"GEN_P" "GEN_N"];
+    wires=[base;"V_P" ends(target,1);"V_N" ends(target,2)];
+    plan=struct("wires",wires,"target",target);
+endfunction
+
+function [ok,target]=ld9_detect_measurement(wires)
+    ok=%f;target=0;
+    for t=1:4
+        if ld9_wires_equal(wires,ld9_canonical_wires(t)) then ok=%t;target=t;return;end
+    end
+endfunction
+function same=ld9_wires_equal(actual,planned)
+    same=%f;
+    if type(actual)<>10 | size(actual,2)<>2 then return;end
+    if size(actual,1)<>size(planned,1) then return;end
+    used=zeros(size(planned,1),1)==1;
+    for row=1:size(actual,1)
+        match=0;
+        for k=1:size(planned,1)
+            if ~used(k) then
+                if and(actual(row,:)==planned(k,:)) | and(actual(row,:)==planned(k,[2 1])) then match=k;break;end
+            end
+        end
+        if match==0 then return;end
+        used(match)=%t;
+    end
+    same=and(used);
 endfunction
 
 function editable = ld9_wiring_editable()
@@ -14,23 +48,10 @@ function editable = ld9_wiring_editable()
     editable = ~LD9.demoMode & LD9.step == 1;
 endfunction
 
-function [ok, reason] = ld9_wiring_valid(wires)
-    ok = %f; reason = "Sujunkite grandinę pagal Pagalba → Kaip sujungti.";
-    canonical = ld9_canonical_wires();
-    if wires == [] then return; end
-    if type(wires) <> 10 | size(wires, 2) <> 2 then reason = "Netinkami sujungimo duomenys."; return; end
-    if size(wires, 1) > size(canonical, 1) then reason = "Per daug laidų."; return; end
-    for index = 1:size(canonical, 1)
-        present = %f;
-        for row = 1:size(wires, 1)
-            if and(wires(row,:) == canonical(index,:)) | and(wires(row,:) == canonical(index,[2 1])) then present = %t; end
-        end
-        if ~present then
-            reason = "Trūksta laido ["+ld9_terminal_code(canonical(index,1))+"]–["+ld9_terminal_code(canonical(index,2))+"].";
-            return;
-        end
-    end
-    ok = %t; reason = "";
+function [ok,reason]=ld9_wiring_valid(wires)
+    [ok,target]=ld9_detect_measurement(wires);
+    reason="Prijunkite visus grandinės ir matavimo prietaisų laidus pagal geltonus kontaktus.";
+    if ok then reason="";end
 endfunction
 
 function values = ld9_reference(k)
@@ -60,13 +81,14 @@ function [voltage, current, ok, message] = ld9_measure_values()
     [valid, message] = ld9_wiring_valid(LD9.wires);
     if ~valid then return; end
     if LD9.freqPoint == 0 then message = "Pasirinkite šio etapo dažnį: 0,5·f0, f0 arba 2·f0."; return; end
-    if LD9.target == 0 then message = "Pasirinkite voltmetro įtampą UR, UL, UC arba U."; return; end
+    [valid,target]=ld9_detect_measurement(LD9.wires);
+    if ~valid then message="Matavimo prietaisas neprijungtas.";return;end
     bench_core_require();
     kk = [0.5 1 2];
     f = kk(LD9.freqPoint)/sqrt(LD9.cfg.L*LD9.cfg.C)/(2*%pi);
     v = bench_cpp_ac(3, LD9.cfg.E, f, LD9.cfg.R, LD9.cfg.L, LD9.cfg.C);
     voltage = LD9.cfg.E;
-    if LD9.target == 1 then voltage = v(5); elseif LD9.target == 2 then voltage = v(6); elseif LD9.target == 3 then voltage = v(7); end
+    if target == 1 then voltage = v(5); elseif target == 2 then voltage = v(6); elseif target == 3 then voltage = v(7); end
     current = v(4)*1000; ok = %t;
 endfunction
 
@@ -75,6 +97,7 @@ function ld9_init_state()
     assessment=%t; practice=%f;
     if isfield(LD9,"assessment") then assessment=LD9.assessment; end
     if isfield(LD9,"practice_used") then practice=LD9.practice_used; end
+    LD9.guide_enabled = %f;
     LD9.step = 1; LD9.done = zeros(1, 6) == 1; LD9.skipped = zeros(1, 6) == 1;
     LD9.powerOn = %f; LD9.switchOn = %f; LD9.freqPoint = 0; LD9.target = 0;
     LD9.wires = emptystr(0, 2); LD9.journal = [];

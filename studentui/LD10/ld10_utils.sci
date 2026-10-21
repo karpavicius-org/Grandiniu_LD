@@ -17,6 +17,7 @@ function ld10_set_status(msg, kind, hint)
             LD10.ui.statusFix.string = hint;
         end
     end
+    ld10_guide_refresh();
 endfunction
 
 function v = ld10_parse_number(s)

@@ -42,7 +42,7 @@ function ld6_terminal_click(id)
             LD6.switchOn=%f; ld6_invalidate_mode();
         end
     end
-    ld6_render_wires(); ld6_render_journal(); ld6_student_sync(); bench_autosave("LD6");
+    ld6_render_wires(); ld6_render_journal(); ld6_student_sync(); ld6_guide_refresh(); bench_autosave("LD6");
 endfunction
 
 function ld6_toggle_power()
@@ -319,7 +319,7 @@ function ld6_restart()
 endfunction
 
 function ld6_answers_changed()
-    ld6_save_answers(); ld6_student_sync(); bench_autosave("LD6");
+    ld6_save_answers(); ld6_student_sync(); ld6_guide_refresh(); bench_autosave("LD6");
 endfunction
 
 function ld6_close()
@@ -333,5 +333,6 @@ function ld6_close()
             ld6_set_status("Nepavyko išsaugoti juodraščio.","error","Langas paliktas atvertas, kad neprarastumėte darbo."); return;
         end
     end
+    ld6_guide_close();
     delete(LD6.fig);
 endfunction

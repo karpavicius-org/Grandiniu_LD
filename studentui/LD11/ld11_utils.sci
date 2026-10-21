@@ -6,6 +6,7 @@ function ld11_set_status(msg, kind, hint)
     global LD11;
     if argn(2) < 3 then hint = ""; end
     if argn(2) < 2 then kind = "info"; end
+    ld11_guide_refresh();
     if isfield(LD11, "ui") then
         if isfield(LD11.ui, "headless") then
             if LD11.ui.headless then return; end

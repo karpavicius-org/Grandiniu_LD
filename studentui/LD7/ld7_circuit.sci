@@ -100,7 +100,7 @@ function ld7_init_state()
         LD7.wires_by_mode(index) = emptystr(0, 2); LD7.report_wires(index) = emptystr(0, 2);
     end
     LD7.answers = emptystr(6, 8); LD7.demoMode = %f; LD7.lastMeasurement = %nan; LD7.pending = "";
-    LD7.workflow_revision = 2;
+    LD7.workflow_revision = 2; LD7.guide_enabled = %f;
     LD7.assessment=assessment; LD7.practice_used=practice;
 endfunction
 

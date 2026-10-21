@@ -79,6 +79,11 @@ function s = ld2_initial_state(cfg)
     s.f2_u = %nan;
     s.sweep_source = emptystr(0,1);
     s.free_note = "";
+    s.auto_actions=emptystr(0,1);
+    s.auto_recording=%f;
+    s.workflow_revision=4;
+    s.comparisons=zeros(1,12);
+    s.resonance_choice=0;
     s.student = student_empty("LD2");
 endfunction
 

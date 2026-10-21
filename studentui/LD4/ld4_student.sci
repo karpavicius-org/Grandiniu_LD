@@ -142,4 +142,5 @@ function ld4_student_sync()
             LD4.ui.studentPrimary.string = "TIKRINTI";
         end
     end
+    ld4_guide_refresh();
 endfunction

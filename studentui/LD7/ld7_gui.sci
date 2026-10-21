@@ -91,8 +91,8 @@ function ld7_render_wires()
                (a == "A_N" & b == "E_N") | (b == "A_N" & a == "E_N") then
             pts = [p1; p1(1) 0.555; p2(1) 0.555; p2];
         elseif (a == "E_N" & b == "R_B") | (b == "E_N" & a == "R_B") then
-            if a == "E_N" then pts = [p1; .015 p1(2); .015 .195; p2(1) .195; p2];
-            else pts = [p1; p1(1) .195; .015 .195; .015 p2(2); p2]; end
+            if a == "E_N" then pts = [p1; .015 p1(2); .015 .185; .99 .185; .99 p2(2); p2];
+            else pts = [p1; .99 p1(2); .99 .185; .015 .185; .015 p2(2); p2]; end
         elseif or([a b] == "V_P") | or([a b] == "V_N") then
             if a == "V_P" | a == "V_N" then pts = [p1; p2(1) p1(2); p2];
             else pts = [p1; p1(1) p2(2); p2]; end
@@ -166,6 +166,7 @@ function ld7_render_wires()
         LD7.ui.controls(11).enable = "on";
     end
     ld7_font(p);
+    ld7_guide_refresh();
     LD7.fig.immediate_drawing = drawing;
 endfunction
 
@@ -195,6 +196,7 @@ endfunction
 
 function ld7_render_stage()
     global LD7;
+    if exists("ld7_guide_refresh")==1 then ld7_guide_refresh(); end
     if ~isfield(LD7, "ui") then return; end
     if isfield(LD7.ui, "headless") then if LD7.ui.headless then return; end; end
     if ~isfield(LD7.ui, "answerEdits") then return; end
@@ -287,8 +289,10 @@ function ld7_build_gui()
         LD7.ui.answerEdits($+1) = h;
     end
     LD7.ui.studentPrimary = ld7_button(right, [0.07 0.085 0.86 0.075], "Tikrinti", "ld7_student_primary()", 15, [0.08 0.39 0.37]);
+    LD7.ui.studentPrimary.tag = "LD7_PRIMARY";
     controls($+1) = LD7.ui.studentPrimary;
     controls($+1) = ld7_button(right, [0.07 0.015 0.37 0.045], "← Atgal", "ld7_jump_step(LD7.step-1)", 12);
+    controls($).tag = "LD7_BACK";
     controls($+1) = ld7_button(right, [0.48 0.015 0.45 0.045], "Žemėlapis", "ld7_show_stand_map()", 12);
     LD7.ui.controls = controls; LD7.ui.dynamic = controls;
     LD7.ui.statusMain = student_text(f, [0.025 0.055 0.95 0.035], "", 13, %t, [0.94 0.96 0.96]);
@@ -300,9 +304,11 @@ endfunction
 
 function ld7_show_actions()
     global LD7;
-    choice=x_choose(["Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
+    choice=x_choose(["Vesti žingsnis po žingsnio";"Tęsti išsaugotą darbą";"Kaip sujungti";"Teorija ir paaiškinimai"; ...
         "Išsaugoti ataskaitą";"Mokymosi / atsiskaitymo režimas"; ...
         "Daugiau veiksmų";"Studentas ir priskirtos reikšmės"],"LD7 · Pagalba");
+    if choice==1 then ld7_guide_show(); return; end
+    choice=choice-1;
     select choice
     case 1 then bench_open_snapshot("LD7");
     case 2 then ld7_show_wiring_guide();

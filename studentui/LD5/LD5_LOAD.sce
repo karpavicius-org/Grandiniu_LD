@@ -9,4 +9,5 @@ exec(LD5_ROOT+"../bench_session.sci",-1);
 for ld5_file=["ld5_ids.sci" "ld5_config.sci" "ld5_utils.sci" "ld5_circuit.sci" "ld5_gui.sci" "ld5_callbacks.sci" "ld5_student.sci"]
     exec(LD5_ROOT+ld5_file,-1);
 end
+exec(LD5_ROOT+"ld5_guidance.sci",-1);
 funcprot(ld5_saved_funcprot);

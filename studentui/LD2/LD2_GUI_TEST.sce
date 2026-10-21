@@ -10,7 +10,7 @@ global LD2;
 LD2_GUI_LOG=["Natyvi Scilab GUI patikra";getversion()];
 LD2_GUI_OK=%t;
 try
-    for ld2_step=1:12
+    for ld2_step=ld2_visible_steps()
         ld2_go_step(ld2_step,%t);
         ld2_show_solution();
         if ~LD2.example_active then error("Nepavyko atverti pavyzdžio "+string(ld2_step)); end
@@ -24,15 +24,12 @@ try
         if LD2.example_active then error("Nepavyko grįžti iš pavyzdžio."); end
         LD2_GUI_LOG($+1,1)="PASS | Etapo "+string(ld2_step)+" atvaizdavimas ir pavyzdžio grąžinimas";
     end
-    ld2_go_step(3,%t);
+    ld2_go_step(11,%t);ld2_auto_stage();
     LD2.ui.answer_edits(1).string="12,34";
-    LD2.ui.answer_edits(2).string="1e";
     ld2_render_step();
-    if LD2.ui.answer_edits(1).string<>"12,34" | LD2.ui.answer_edits(2).string<>"1e" then
-        error("Įvesčių tekstas prarastas po GUI atnaujinimo.");
-    end
-    ld2_go_step(4,%t); ld2_go_step(3,%t);
-    if LD2.ui.answer_edits(1).string<>"12,34" then error("Tekstas prarastas pakeitus etapą."); end
+    if LD2.ui.answer_edits(1).string<>"12,34" then error("Įvesties tekstas prarastas po GUI atnaujinimo.");end
+    ld2_go_step(10,%t);ld2_go_step(11,%t);
+    if LD2.ui.answer_edits(1).string<>"12,34" then error("Tekstas prarastas pakeitus etapą.");end
     LD2_GUI_LOG($+1,1)="PASS | Tikrų įvesties valdiklių išsaugojimas";
     ld2_go_step(10,%t);
     ld2_show_solution();

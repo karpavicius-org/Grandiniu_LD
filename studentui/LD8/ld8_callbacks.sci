@@ -390,5 +390,6 @@ function ld8_close()
     if isfield(LD8,"autosave_error") then
         if LD8.autosave_error<>"" then return; end
     end
+    ld8_guide_close();
     delete(LD8.fig);
 endfunction

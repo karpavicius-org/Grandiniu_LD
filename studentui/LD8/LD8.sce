@@ -1,6 +1,5 @@
-// LD8 · Nuosekliojo, lygiagretaus ir mišriojo jungimo tyrimas.
 mode(-1);
-ld8_dir = get_absolute_file_path("LD8.sce");
-exec(ld8_dir + "LD8_LOAD.sce", -1);
-ld8_student_main(ld8_dir + "../");
-clear ld8_dir;
+rt_entry=get_absolute_file_path("LD8.sce");
+exec(rt_entry+"LD8_LOAD.sce",-1);
+exec(rt_entry+"../RT_LOAD.sce",-1);
+rt_launch(rt_entry+"../","LD8");

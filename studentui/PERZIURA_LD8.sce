@@ -1,15 +1,6 @@
-// LD8 peržiūra be registracijos dialogo.
+// Originalaus stendo peržiūra su naujomis matavimo užduotimis.
 mode(-1);
-perziura_root = get_absolute_file_path("PERZIURA_LD8.sce");
-exec(perziura_root + "LD8/LD8_LOAD.sce", -1);
-global LD8;
-LD8 = struct();
-LD8.student = student_profile(1, "Peržiūra", "TEST", "LD8");
-LD8.cfg = ld8_variant_config(1);
-ld8_init_state();
-ld8_start();
-etapai = ["1 etapas: nuoseklioji grandinė";"2 etapas: varžų skaičiavimai";"3 etapas: lygiagretė grandinė"; ...
-    "4 etapas: mišrioji grandinė";"5 etapas: šakų srovės";"6 etapas: išvados"];
-k = x_choose(etapai, "LD8 peržiūra · pasirinkite etapą");
-if k > 0 then ld8_set_step(k); end
-clear perziura_root etapai k;
+rt_preview=get_absolute_file_path("PERZIURA_LD8.sce");
+exec(rt_preview+"LD8/LD8_LOAD.sce",-1);
+exec(rt_preview+"RT_LOAD.sce",-1);
+rt_start(rt_preview,"LD8",student_profile(1,"Stendo peržiūra","BANDOMASIS","LD8"),mo_config("LD8",1));

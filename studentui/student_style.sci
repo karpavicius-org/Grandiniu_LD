@@ -1,4 +1,220 @@
 // Shared native Scilab styling for both student benches.
+// Opt-in guidance. Looking at help never changes an experiment. The explicit
+// action button runs the existing bench callbacks, with a separate student
+// click required for a displayed answer and for advancing to another stage.
+
+function found=student_guide_find(parent,tag)
+    found=[];
+    if tag=="" | ~is_handle_valid(parent) then return; end
+    if parent.type=="uicontrol" then
+        if parent.tag==tag then found=parent;return;end
+    end
+    for child=matrix(parent.children,1,-1)
+        if child.type<>"uicontrol" then continue;end
+        found=student_guide_find(child,tag);
+        if found<>[] then return;end
+    end
+endfunction
+
+function student_guide_unfocus(lab)
+    global STUDENT_GUIDE_FOCUS;
+    if typeof(STUDENT_GUIDE_FOCUS)<>"st" then STUDENT_GUIDE_FOCUS=struct();return;end
+    if ~isfield(STUDENT_GUIDE_FOCUS,lab) then return;end
+    old=STUDENT_GUIDE_FOCUS(lab);
+    if old.handle==[] then return;end
+    if is_handle_valid(old.handle) then
+        // A redraw may already have applied a new selected-mode colour. Keep
+        // it; restore the saved colour only while our own yellow is present.
+        if and(abs(old.handle.backgroundcolor-[1 .86 .20])<1d-10) then
+            old.handle.backgroundcolor=old.background;
+            old.handle.foregroundcolor=old.foreground;
+        end
+    end
+    STUDENT_GUIDE_FOCUS(lab)=struct("handle",[]);
+endfunction
+
+function h=student_guide_focus(lab,fig,tag,enabled)
+    h=[];
+    if getscilabmode()=="NWNI" then return;end
+    student_guide_unfocus(lab);
+    if ~enabled | tag=="" then return;end
+    h=student_guide_find(fig,tag);
+    if h==[] then return;end
+    if h.visible<>"on" | h.enable<>"on" then h=[];return;end
+    global STUDENT_GUIDE_FOCUS;
+    STUDENT_GUIDE_FOCUS(lab)=struct("handle",h,"background",h.backgroundcolor,"foreground",h.foregroundcolor);
+    h.backgroundcolor=[1 .86 .20];h.foregroundcolor=[.12 .12 .08];
+endfunction
+
+function student_guide_action_refresh(lab,fig,tag,value,enabled)
+    if getscilabmode()=="NWNI" then return;end
+    global STUDENT_GUIDE_ACTIONS STUDENT_GUIDE_BUSY;
+    if typeof(STUDENT_GUIDE_ACTIONS)<>"st" then STUDENT_GUIDE_ACTIONS=struct();end
+    if typeof(STUDENT_GUIDE_BUSY)<>"st" then STUDENT_GUIDE_BUSY=struct();end
+    STUDENT_GUIDE_ACTIONS(lab)=struct("fig",fig,"enabled",enabled);
+    h=findobj("tag",lab+"-guide-action");
+    if h==[] then return;end
+    h.enable="off";
+    busy=%f;if isfield(STUDENT_GUIDE_BUSY,lab) then busy=STUDENT_GUIDE_BUSY(lab);end
+    if busy then h.string="Atliekamas jūsų pasirinktas bandymas…";return;end
+    if ~enabled then return;end
+    target=student_guide_find(fig,tag);
+    if target==[] then h.string="Atlikite aukščiau paaiškintą veiksmą stende";return;end
+    if target.visible<>"on" | target.enable<>"on" then
+        h.string="Atlikite aukščiau paaiškintą veiksmą stende";return;
+    end
+    if tag==lab+"_PRIMARY" | tag==lab+"_BACK" then
+        h.string="Tęskite geltonu mygtuku stende";return;
+    end
+    if target.style=="edit" then
+        if value=="" then h.string="Savo atsakymą įrašykite geltoname lauke";return;end
+        h.string="Įrašyti parodytą reikšmę: "+value;
+    elseif target.style=="popupmenu" then
+        if ~or(value==["1" "2"]) then h.string="Pasirinkite išvadą geltoname sąraše";return;end
+        h.string="Pasirinkti parodytą išvadą";
+    else h.string="Paruošti ir atlikti šio etapo bandymą";end
+    h.enable="on";
+endfunction
+
+function student_guide_action(lab)
+    global LD3 LD4 LD5 LD6 LD7 LD8 LD9 LD10 LD11 LD12;
+    global STUDENT_GUIDE_ACTIONS STUDENT_GUIDE_BUSY;
+    if ~or(lab==["LD3" "LD4" "LD5" "LD6" "LD7" "LD8" "LD9" "LD10" "LD11" "LD12"]) then return;end
+    if typeof(STUDENT_GUIDE_ACTIONS)<>"st" then return;end
+    if ~isfield(STUDENT_GUIDE_ACTIONS,lab) then return;end
+    entry=STUDENT_GUIDE_ACTIONS(lab);
+    if ~entry.enabled | ~is_handle_valid(entry.fig) then return;end
+    if isfield(STUDENT_GUIDE_BUSY,lab) then if STUDENT_GUIDE_BUSY(lab) then return;end;end
+    name=convstr(lab,"l");
+    execstr("stage="+lab+".step;");
+    STUDENT_GUIDE_BUSY(lab)=%t;
+    failure="";
+    try
+        // Stop before a stage transition or an answer. There is no hidden
+        // progression and no synthetic measurement appended to a journal.
+        for count=1:160
+            execstr("currentStage="+lab+".step;");
+            if currentStage<>stage then break;end
+            execstr("[lines,tag,value]="+name+"_guide_next();");
+            if tag=="" | tag==lab+"_PRIMARY" | tag==lab+"_BACK" then break;end
+            target=student_guide_find(entry.fig,tag);
+            if target==[] then break;end
+            if target.enable<>"on" | target.visible<>"on" then break;end
+            cb=target.callback;
+            if cb=="" then break;end
+            if target.style=="edit" then
+                // Only an explicit click starting on this displayed answer
+                // may copy it. A physical batch never fills the next answer.
+                if count==1 & value<>"" then target.string=value;execstr(cb);end
+                break;
+            end
+            if target.style=="popupmenu" then
+                if count==1 & or(value==["1" "2"]) then
+                    choice=2;if value=="2" then choice=3;end
+                    target.value=choice;execstr(cb);
+                end
+                break;
+            end
+            if target.style<>"pushbutton" then break;end
+            execstr("beforeWires="+lab+".wires; beforePending="+lab+".pending; beforeJournal="+lab+".journal;");
+            execstr(cb);
+            execstr("[nextLines,nextTag,nextValue]="+name+"_guide_next();");
+            if nextTag==tag then
+                // The next wire may start at the very contact just clicked.
+                // An unchanged tag is not an unchanged experiment.
+                execstr("progress=~isequal(beforeWires,"+lab+".wires) | beforePending<>"+lab+".pending | ~isequal(beforeJournal,"+lab+".journal);");
+                if ~progress then break;end
+            end
+        end
+    catch
+        failure=lasterror();
+    end
+    STUDENT_GUIDE_BUSY(lab)=%f;
+    execstr(name+"_guide_refresh();");
+    if failure<>"" then
+        content=findobj("tag",lab+"-guide-content");
+        if content<>[] then content.string=["Veiksmas sustojo. Duomenys išliko; tęskite pagal geltoną žymėjimą.";failure;content.string];end
+    end
+endfunction
+
+function student_guide_hide(lab)
+    if getscilabmode()=="NWNI" then return; end
+    if or(lab==["LD3" "LD4" "LD5" "LD6" "LD7" "LD8" "LD9" "LD10" "LD11" "LD12"]) then
+        student_guide_unfocus(lab);
+        global STUDENT_GUIDE_ACTIONS;
+        if typeof(STUDENT_GUIDE_ACTIONS)=="st" then
+            if isfield(STUDENT_GUIDE_ACTIONS,lab) then STUDENT_GUIDE_ACTIONS(lab).enabled=%f;end
+        end
+    end
+    windows=findobj("tag",lab+"-guide-window");
+    if windows<>[] then delete(windows); end
+endfunction
+
+function out=student_guide_wrap(lines,width)
+    out=emptystr(0,1);
+    for line=matrix(lines,1,-1)
+        words=tokens(line," "); current="";
+        for k=1:size(words,"*")
+            if length(current)+length(words(k))+1>width & current<>"" then
+                out($+1,1)=current;current="";
+            end
+            if current<>"" then current=current+" ";end
+            current=current+words(k);
+        end
+        out($+1,1)=current;
+    end
+endfunction
+
+function student_guide_update(lab,title,lines,enabled)
+    if getscilabmode()=="NWNI" then return; end
+    if ~or(lab==["LD1" "LD2" "LD3" "LD4" "LD5" "LD6" "LD7" "LD8" "LD9" "LD10" "LD11" "LD12"]) then return; end
+    if ~enabled then student_guide_hide(lab); return; end
+    windows=findobj("tag",lab+"-guide-window");
+    if windows==[] then
+        s=get(0,"screensize_px");
+        sz=min([720 720],max([360 280],s(3:4)-[60 120]));
+        side=s(3)-1320;
+        if side>=400 then sz(1)=min(720,side);end
+        text=student_guide_wrap(lines,max(30,floor(sz(1)*.92/8.5)));
+        f=figure("default_axes","off","dockable","off","menubar","none", ...
+            "toolbar","none","axes_size",sz,"figure_name",lab+" · Pagalba žingsnis po žingsnio", ...
+            "tag",lab+"-guide-window","resize","on");
+        f.infobar_visible="off";
+        if side>=400 then f.figure_position=[1300 10];end
+        f.closerequestfcn=convstr(lab,"l")+"_guide_close()";
+        uicontrol(f,"style","text","units","normalized","position",[.04 .86 .92 .11], ...
+            "tag",lab+"-guide-title","string",title,"fontname","SansSerif", ...
+            "fontunits","pixels","fontsize",19,"fontweight","bold", ...
+            "horizontalalignment","left","backgroundcolor",[.96 .98 .97]);
+        interactive=or(lab==["LD3" "LD4" "LD5" "LD6" "LD7" "LD8" "LD9" "LD10" "LD11" "LD12"]);
+        contentPosition=[.04 .13 .92 .71];
+        if interactive then contentPosition=[.04 .22 .92 .62];end
+        uicontrol(f,"style","listbox","units","normalized","position",contentPosition, ...
+            "tag",lab+"-guide-content","string",text, ...
+            "max",2,"min",0,"enable","on","fontname","SansSerif", ...
+            "fontunits","pixels","fontsize",16,"horizontalalignment","left", ...
+            "backgroundcolor",[1 1 1]);
+        if interactive then
+            uicontrol(f,"style","pushbutton","units","normalized","position",[.04 .13 .92 .07], ...
+                "string","Atlikti parodytą veiksmą","tag",lab+"-guide-action", ...
+                "callback","student_guide_action("""+lab+""")","fontunits","pixels","fontsize",15, ...
+                "backgroundcolor",[1 .86 .20],"foregroundcolor",[.12 .12 .08]);
+        end
+        uicontrol(f,"style","pushbutton","units","normalized","position",[.50 .03 .46 .07], ...
+            "string","Baigti vedimą","tag",lab+"-guide-close", ...
+            "callback",convstr(lab,"l")+"_guide_close()","fontunits","pixels","fontsize",15);
+        uicontrol(f,"style","text","units","normalized","position",[.04 .025 .44 .08], ...
+            "string","Veiksmus atlikite stendo lange. Pagalba atsinaujina po veiksmo.", ...
+            "fontunits","pixels","fontsize",12,"horizontalalignment","left");
+    else
+        sz=windows(1).axes_size;
+        text=student_guide_wrap(lines,max(30,floor(sz(1)*.92/8.5)));
+        h=findobj("tag",lab+"-guide-title"); h.string=title;
+        h=findobj("tag",lab+"-guide-content");
+        if ~isequal(h.string,text) then h.string=text; end
+    end
+endfunction
+
 function student_finish_window(f,screen,design)
     // One fixed canvas in every lab. A smaller screen scrolls the canvas;
     // stage transitions never move controls or shrink contact targets.

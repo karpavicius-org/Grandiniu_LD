@@ -1,0 +1,40 @@
+LD1–LD12 · v6 · 2026-10-21
+
+Išsaugota 12 darbų numeracija, stendai, matavimo eiga ir skaitinis branduolys.
+Patvirtintas v5 paketas paliktas atskirai.
+
+Kas patobulinta
+- LD7–LD12 laidai vengiami mygtukų, kontaktų ir informacijos sričių;
+  sumažintas nereikalingų trasų posūkių skaičius.
+- Netinkamas rodmuo paaiškinamas prie lauko konkrečiu prietaiso pavyzdžiu.
+  Įvestas tekstas išlieka. Taškas ir kablelis priimami.
+- Kiekviename darbe pateiktas temai skirtas vaizdus paaiškinimas.
+  LD7 parodo didžiausią išmatuotą apkrovos galią, LD8 – rezistorių jungimus;
+  LD9 palygina įtampas, LD10 – šakų sroves. LD11 galios trikampiai rodomi
+  vienodu masteliu su pradine būsena, LD12 – trys fazės ir abu jungimai.
+- Spausdinti / PDF išsaugotas; spaudinyje matyti kreivių legendos.
+- V5 darbo kopijos ir ataskaitos suderinamos. Baigto darbo vaizdų atnaujinimas
+  kuria atskirą HTML, palikdamas ankstesnį failą.
+
+Patikra
+- Scilab 2024.0.0, Linux, vietinis C++ branduolys.
+- Modelis: 12 darbų × 64 variantai; 5568 bandymai, 8960 rodmenų;
+  5568 nepilnų sujungimų atmesta.
+- Visų 12 darbų eiga patikrinta tikrais pelės ir klaviatūros veiksmais:
+  87 bandymai, 140 rodmenų, sukurtos visos HTML ataskaitos.
+- Rodmenys papildomai patikrinti nepriklausomomis lygtimis, LD7–LD12 –
+  pagal sujungtų kabelių grandinės grafą; patikrinti 156 signalų kanalai.
+- Laidai: 51 schema, 437 kabeliai; tikrinti ir tikri mygtukų plotai.
+- Ataskaitos tikrintos naršyklėje, įskaitant kreivių valdymą ir PDF mygtuką.
+  Tikrintas siauresnis langas ir trys spausdinimo maketo pavyzdžiai.
+- Tikrintas suderinamumas su visų 12 darbų v5 HTML bei darbo kopijomis,
+  tęsiamų etapų duomenimis ir netinkamais pakeistais įrašais.
+- Visos 12 atliktų darbų ataskaitų priimtos dėstytojo suvestinėje; CSV ir
+  nuorodos į darbus veikia.
+
+Patikros ribos
+Windows grafinė aplinka šiame cikle nevykdyta. Windows DLL nepakeista.
+Baigus pagrindinę eigos patikrą suderintos tik LD10 vaizdo spalvos;
+LD7 ir LD10 eiga pakartota su galutiniais failais. Ataskaitos tikrintos
+atskirai su galutine vaizdų versija. Spausdinimas tikrintas naršyklės
+mygtuko ir PDF maketo lygmeniu, ne Windows spausdintuvo tvarkyklėmis.

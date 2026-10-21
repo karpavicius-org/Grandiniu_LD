@@ -1,10 +1,10 @@
 // ============================================================================
 // LD12 elementų numerių registras. Bankas LD12-64-A-2026.
-// REGISTRY-CODES: T01:T10 B01:B14 E01:E06 A01.01 A02.01 A03.01 A04.01 A05.01:A05.03 A06.01:A06.03 V02 H01
+// REGISTRY-CODES: T01:T14 B01:B14 E01:E06 A01.01 A02.01 A03.01 A04.01 A05.01:A05.03 A06.01:A06.03 V02 H01
 // ============================================================================
 
 function ids = ld12_terminal_ids()
-    ids = ["L1";"L2";"L3";"N";"R1_A";"R1_B";"R2_A";"R2_B";"R3_A";"R3_B"];
+    ids = ["L1";"L2";"L3";"N";"R1_A";"R1_B";"R2_A";"R2_B";"R3_A";"R3_B";"A_P";"A_N";"V_P";"V_N"];
 endfunction
 
 function code = ld12_terminal_code(id)
@@ -17,7 +17,8 @@ function name = ld12_terminal_name(id)
     names = ["Linija L1";"Linija L2";"Linija L3";"Neutralis N"; ...
              "Imtuvo R1 gnybtas a";"Imtuvo R1 gnybtas b"; ...
              "Imtuvo R2 gnybtas a";"Imtuvo R2 gnybtas b"; ...
-             "Imtuvo R3 gnybtas a";"Imtuvo R3 gnybtas b"];
+             "Imtuvo R3 gnybtas a";"Imtuvo R3 gnybtas b"; ...
+             "Ampermetro + gnybtas";"Ampermetro − gnybtas";"Voltmetro + gnybtas";"Voltmetro − gnybtas"];
     tids = ld12_terminal_ids();
     k = find(tids == id);
     if size(k, "*") ~= 1 then name = id; else name = names(k(1)); end

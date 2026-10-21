@@ -5,12 +5,66 @@
 // Režimas 1 – žvaigždė (Uf = Ul/√3, If = Il), 2 – trikampis (Uf = Ul).
 // ============================================================================
 
-function wires = ld12_canonical_wires(mode)
+function plan = ld12_instrument_plan(mode, measurement)
+    if argn(2) < 2 then measurement = "phase"; end
     wires = emptystr(0, 2);
-    if ~ld12_valid_index(mode, 2) then return; end
-    select mode
-    case 1 then wires = ["L1" "R1_A";"L2" "R2_A";"L3" "R3_A";"R1_B" "R2_B";"R2_B" "R3_B";"R3_B" "N"];
-    case 2 then wires = ["L1" "R1_A";"R1_B" "L2";"L2" "R2_A";"R2_B" "L3";"L3" "R3_A";"R3_B" "L1"];
+    if ~ld12_valid_index(mode, 2) then plan = struct("wires", wires); return; end
+    if measurement <> "phase" & measurement <> "line" then plan = struct("wires", wires); return; end
+    // Phase: A is after R1; V is across R1. Line: A precedes the L1 split;
+    // V is across L1/L2. Thus all four measurements have distinct real graphs.
+    if measurement == "phase" then
+        if mode == 1 then
+            wires = ["L1" "R1_A";"L2" "R2_A";"L3" "R3_A";"R1_B" "A_P"; ...
+                "A_N" "R2_B";"R2_B" "R3_B";"R3_B" "N"];
+        else
+            wires = ["L1" "R1_A";"R1_B" "A_P";"A_N" "L2";"L2" "R2_A"; ...
+                "R2_B" "L3";"L3" "R3_A";"R3_B" "L1"];
+        end
+        wires = [wires;"V_P" "R1_A";"V_N" "R1_B"];
+    else
+        if mode == 1 then
+            wires = ["L1" "A_P";"A_N" "R1_A";"L2" "R2_A";"L3" "R3_A"; ...
+                "R1_B" "R2_B";"R2_B" "R3_B";"R3_B" "N"];
+        else
+            wires = ["L1" "A_P";"A_N" "R1_A";"R1_B" "L2";"L2" "R2_A"; ...
+                "R2_B" "L3";"L3" "R3_A";"R3_B" "A_N"];
+        end
+        wires = [wires;"V_P" "L1";"V_N" "L2"];
+    end
+    plan = struct("wires", wires, "mode", mode, "measurement", measurement);
+endfunction
+
+function wires = ld12_canonical_wires(mode, measurement)
+    if argn(2) < 2 then measurement = "phase"; end
+    plan = ld12_instrument_plan(mode, measurement); wires = plan.wires;
+endfunction
+
+function same = ld12_wires_equal(actual, planned)
+    same = %f;
+    if type(actual) <> 10 | size(actual, 2) <> 2 then return; end
+    if size(actual, 1) <> size(planned, 1) then return; end
+    used = zeros(size(planned, 1), 1) == 1;
+    for row = 1:size(actual, 1)
+        match = 0;
+        for k = 1:size(planned, 1)
+            if ~used(k) then
+                if and(actual(row,:) == planned(k,:)) | and(actual(row,:) == planned(k,[2 1])) then match = k; break; end
+            end
+        end
+        if match == 0 then return; end
+        used(match) = %t;
+    end
+    same = and(used);
+endfunction
+
+function [ok, mode, measurement] = ld12_detect_measurement(wires)
+    ok = %f; mode = 0; measurement = "";
+    for candidate = 1:2
+        for selected = ["phase" "line"]
+            if ld12_wires_equal(wires, ld12_canonical_wires(candidate, selected)) then
+                ok = %t; mode = candidate; measurement = selected; return;
+            end
+        end
     end
 endfunction
 
@@ -24,41 +78,27 @@ function editable = ld12_wiring_editable()
 endfunction
 
 function [ok, reason] = ld12_wiring_valid(wires)
-    global LD12;
-    ok = %f; reason = "Sujunkite imtuvus pagal Pagalba → Kaip sujungti.";
-    if ~ld12_valid_index(LD12.wireMode, 2) then return; end
-    canonical = ld12_canonical_wires(LD12.wireMode);
-    if wires == [] then return; end
-    if type(wires) <> 10 | size(wires, 2) <> 2 then reason = "Netinkami sujungimo duomenys."; return; end
-    if size(wires, 1) > size(canonical, 1) then reason = "Per daug laidų."; return; end
-    for index = 1:size(canonical, 1)
-        present = %f;
-        for row = 1:size(wires, 1)
-            if and(wires(row,:) == canonical(index,:)) | and(wires(row,:) == canonical(index,[2 1])) then present = %t; end
-        end
-        if ~present then
-            reason = "Trūksta laido ["+ld12_terminal_code(canonical(index,1))+"]–["+ld12_terminal_code(canonical(index,2))+"].";
-            return;
-        end
-    end
-    ok = %t; reason = "";
+    [ok, mode, measurement] = ld12_detect_measurement(wires);
+    reason = "Prijunkite visus imtuvų, ampermetro ir voltmetro laidus pagal geltonus kontaktus.";
+    if ok then reason = ""; end
 endfunction
 
 function [u, i, ok, message] = ld12_measure_values()
-    // U ir I pasirinktoje fazėje (LD12.phase 1–3) su esamu režimu.
+    // The full submitted graph determines both topology and meter position.
+    // Native If/Il values are already mA. No virtual phase selector is used.
     global LD12;
     u = %nan; i = %nan; ok = %f; message = "";
     if ~LD12.powerOn then message = "Įjunkite trifazį šaltinį."; return; end
     if ~LD12.switchOn then message = "Uždarykite jungiklį."; return; end
-    [valid, message] = ld12_wiring_valid(LD12.wires);
-    if ~valid then return; end
-    if ~ld12_valid_index(LD12.phase,3) then message = "Pasirinkite matuojamą imtuvą R1, R2 arba R3."; return; end
-    // Fizika — ld_ac kind 6 (trifazė MNA branduolyje):
-    // v = [Uf_Y, If_Y, Uf_D, If_D, Il_D, P_Y, P_D, Ul].
+    [valid, mode, measurement] = ld12_detect_measurement(LD12.wires);
+    if ~valid then message = "Prijunkite visus imtuvų, ampermetro ir voltmetro laidus pagal geltonus kontaktus."; return; end
     bench_core_require(); cfg = LD12.cfg;
     v = bench_cpp_ac(6, cfg.Ul, 50, cfg.R, 1, 1);
-    if LD12.wireMode == 2 then u = v(3); i = v(4);
-    else u = v(1); i = v(2); end
+    if measurement == "line" then
+        u = v(8); i = v(2); if mode == 2 then i = v(5); end
+    else
+        u = v(1); i = v(2); if mode == 2 then u = v(3); i = v(4); end
+    end
     ok = %t;
 endfunction
 
@@ -74,6 +114,7 @@ function ld12_init_state()
     assessment=%t; practice=%f;
     if isfield(LD12,"assessment") then assessment=LD12.assessment; end
     if isfield(LD12,"practice_used") then practice=LD12.practice_used; end
+    LD12.guide_enabled = %f;
     LD12.step = 1; LD12.done = zeros(1, 6) == 1; LD12.skipped = zeros(1, 6) == 1;
     LD12.powerOn = %f; LD12.switchOn = %f; LD12.wireMode = 1; LD12.phase = 0;
     LD12.wires = emptystr(0, 2); LD12.journal = [];

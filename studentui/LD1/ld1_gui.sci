@@ -140,6 +140,12 @@ endfunction
 
 function ld1_clear_board_controls()
     global LD1;
+    if isfield(LD1.ui,"rtWireHandles") then
+        for h=matrix(LD1.ui.rtWireHandles,1,-1)
+            if is_handle_valid(h) then delete(h); end
+        end
+        LD1.ui.rtWireHandles=[];
+    end
     if isfield(LD1.ui,"boardHandles") then
         for k=1:length(LD1.ui.boardHandles)
             try
@@ -209,6 +215,9 @@ function tf = ld1_terminal_should_show(id)
     // Visi kontaktai matomi ir pažymėti; čia sprendžiama tik ar juos galima keisti.
     global LD1;
     tf=%f;
+    // RT owns the current trial's editable contacts. Legacy step 8 locking is
+    // unrelated to the independently measured R2/R3 branch configurations.
+    if isfield(LD1,"rt_mode") then if LD1.rt_mode then tf=%t;return;end;end
     if isfield(LD1,"demoMode") & LD1.demoMode then
         // Pavyzdžio režime stendas tik peržiūrimas: laidai ir komponentai matomi,
         // bet studentas negali netyčia pakeisti teisingo pavyzdžio.
@@ -249,7 +258,10 @@ function ld1_create_terminal(id)
 
     // 8 etape dvi reikalingos poros pažymimos spalvomis.
     hint=ld1_measurement_hint_pair();
-    if LD1.pendingTerminal==id then
+    isRT=%f;if isfield(LD1,"rt_mode") then isRT=LD1.rt_mode;end
+    if isRT then
+        bg=[0.08 0.39 0.37];fg=[1 1 1];
+    elseif LD1.pendingTerminal==id then
         bg=[1.00 0.82 0.28]; fg=[0.08 0.08 0.08];
     elseif or(hint==id) then
         bg=[1.00 0.82 0.28]; fg=[0.08 0.08 0.08];
@@ -381,9 +393,13 @@ endfunction
 
 function ld1_redraw_panel_classic()
     global LD1;
+    isRT=%f;if isfield(LD1,"rt_mode") then isRT=LD1.rt_mode;end
     ld1_clear_board_controls();
     ports=[]; sz=student_size(LD1.ui.circuitFrame);
     for id=matrix(LD1.term.active,1,-1)
+        if isRT then
+            if ~or(LD1.rt_port_ids==id) then continue;end
+        end
         wh=[36 40];
         ports($+1,:)=[ld1_get_xy(id)/100 wh];
     end
@@ -397,7 +413,7 @@ function ld1_redraw_panel_classic()
          0.78 0.48 0.12; ..
          0.48 0.32 0.72; ..
          0.20 0.60 0.65];
-    if size(LD1.wires,1)>0 then
+    if ~isRT & size(LD1.wires,1)>0 then
         for k=1:size(LD1.wires,1)
             a=LD1.wires(k,1); b=LD1.wires(k,2);
             if ld1_is_active_term(a) & ld1_is_active_term(b) then
@@ -422,7 +438,15 @@ function ld1_redraw_panel_classic()
             ld1_create_locked_terminal(LD1.term.active(k));
         end
     end
-    h=student_end_wires(LD1.ui.circuitFrame); if h<>[] then ld1_track_board_handle(h); end
+    if isRT then
+        // Static buses are retained as geometry. Only the cable layer changes
+        // on an ordinary click; component and terminal handles stay alive.
+        data=LD1.ui.circuitFrame.user_data;LD1.ui.rtStaticSegments=data.segments;
+        data.collect=%f;LD1.ui.circuitFrame.user_data=data;
+        ld1_rt_refresh_wires();
+    else
+        h=student_end_wires(LD1.ui.circuitFrame); if h<>[] then ld1_track_board_handle(h); end
+    end
 endfunction
 
 function ld1_build_panel(kind)

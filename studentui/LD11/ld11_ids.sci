@@ -1,10 +1,10 @@
 // ============================================================================
 // LD11 elementų numerių registras. Bankas LD11-64-A-2026.
-// REGISTRY-CODES: T01:T10 B01:B11 E01:E06 A01.01 A02.01:A02.03 A03.01 A05.01:A05.04 A06.01:A06.03 V02 H01
+// REGISTRY-CODES: T01:T16 B01:B11 E01:E06 A01.01 A02.01:A02.03 A03.01 A05.01:A05.04 A06.01:A06.03 V02 H01
 // ============================================================================
 
 function ids = ld11_terminal_ids()
-    ids = ["GEN_P";"GEN_N";"K1";"K2";"A_P";"A_N";"RL_A";"RL_B";"C_A";"C_B"];
+    ids = ["GEN_P";"GEN_N";"K1";"K2";"A_P";"A_N";"RL_A";"RL_B";"C_A";"C_B";"V_P";"V_N";"W_I_P";"W_I_N";"W_U_P";"W_U_N"];
 endfunction
 
 function code = ld11_terminal_code(id)
@@ -17,7 +17,8 @@ function name = ld11_terminal_name(id)
     names = ["Generatoriaus + gnybtas";"Generatoriaus − gnybtas"; ...
              "Jungiklio įėjimas";"Jungiklio išėjimas";"Ampermetro + gnybtas"; ...
              "Ampermetro − gnybtas";"Ritės (R, L) gnybtas a";"Ritės (R, L) gnybtas b"; ...
-             "Kondensatoriaus Ck gnybtas a";"Kondensatoriaus Ck gnybtas b"];
+             "Kondensatoriaus Ck gnybtas a";"Kondensatoriaus Ck gnybtas b"; ...
+             "Voltmetro + gnybtas";"Voltmetro − gnybtas";"Vatmetro srovės ritės įėjimas I+";"Vatmetro srovės ritės išėjimas I−";"Vatmetro įtampos ritės + gnybtas U+";"Vatmetro įtampos ritės − gnybtas U−"];
     tids = ld11_terminal_ids();
     k = find(tids == id);
     if size(k, "*") ~= 1 then name = id; else name = names(k(1)); end

@@ -75,6 +75,7 @@ endfunction
 
 function ld5_set_voltage(v)
     // LD5: įtampa fiksuota E (daliklis), slankiklio nėra — tuščias suderinamumui.
+    ld5_guide_refresh();
 endfunction
 
 function ld5_measure()
@@ -208,6 +209,7 @@ function ld5_set_step(n)
         if ~isfield(LD5.ui, "headless") | ~LD5.ui.headless then ld5_render_stage(); end
     end
     bench_autosave("LD5");
+    ld5_guide_refresh();
 endfunction
 
 function s = ld5_step_instruction(n)
@@ -383,6 +385,7 @@ function ld5_answers_changed()
     // Atsakymo laukelio redagavimas: nedelsiant saugoma į store.
     global LD5;
     ld5_save_answers(); ld5_student_sync(); bench_autosave("LD5");
+    ld5_guide_refresh();
 endfunction
 
 function ld5_close()
@@ -396,5 +399,6 @@ function ld5_close()
             ld5_set_status("Nepavyko išsaugoti juodraščio.","error","Langas paliktas atvertas, kad neprarastumėte darbo."); return;
         end
     end
+    ld5_guide_close();
     delete(LD5.fig);
 endfunction

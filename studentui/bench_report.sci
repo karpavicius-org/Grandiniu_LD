@@ -336,18 +336,15 @@ function r=bench_report_data(lab)
         s=LD2.state; st=s.student; cfg=LD2.cfg;
         if isfield(s,"assessment") then if s.assessment then mode="assessment"; end; end
         if isfield(s,"practice_used") then practice=s.practice_used;end
-        for step=[3 4 6 7 9 10 11]
-            select step
-            case 3 then units=["Ohm" "Ohm" "mA" "V" "V" "mW" "deg"];
-            case 6 then units=["Ohm" "Ohm" "mA" "V" "V" "mW" "deg"];
-            case 4 then units=["V" "mA"];
-            case 7 then units=["V" "mA"];
-            case 9 then units=["Hz" "Hz" "ms" "V"];
-            case 10 then units=["V" "V" "V" "Hz" "Hz" "Hz"];
-            case 11 then units=["V" "Hz" "Hz" "Hz" "1"];
-            end
-            for q=1:size(units,"*"); answers($+1)=bench_answer(msprintf("s%d.q%d",step,q),s.answers_text(step,q),units(q)); end
+        // LD2-4: choices belong to the student; values belong to the instruments.
+        for step=[4 7]
+            raw="";if s.comparisons(step)>0 then raw=string(s.comparisons(step));end
+            answers($+1)=bench_answer(msprintf("s%d.compare",step),raw,"choice");
         end
+        answers($+1)=bench_answer("s9.q2",s.answers_text(9,1),"Hz");
+        raw="";if s.comparisons(10)>0 then raw=string(s.comparisons(10));end
+        answers($+1)=bench_answer("s10.compare",raw,"choice");
+        answers($+1)=bench_answer("s11.q4",s.answers_text(11,1),"Hz");
         fields=["rc_I" "rc_UR" "rc_UC" "rc_UE" "rl_I" "rl_UR" "rl_UL" "rl_UE" "f1_meas" "f2_meas" "f1_u" "f2_u"];
         units=["A" "V" "V" "V" "A" "V" "V" "V" "Hz" "Hz" "V" "V"];
         for k=1:size(fields,"*"); observations($+1)=bench_observation(fields(k),s(fields(k)),units(k)); end
@@ -355,6 +352,14 @@ function r=bench_report_data(lab)
             params(field)=cfg(field);
         end
         evidence.wiring=struct("RC",bench_pairs(s.rc_connections),"RL",bench_pairs(s.rl_connections),"RLC",bench_pairs(s.rlc_connections));
+        evidence.removed_theory_pages=%t;
+        evidence.workflow_revision=4;
+        evidence.resonance_choice=s.resonance_choice;
+        evidence.automatic_virtual_procedures=%f;
+        if isfield(s,"auto_actions") then
+            evidence.auto_actions=s.auto_actions;
+            evidence.automatic_virtual_procedures=size(s.auto_actions,"*")>0;
+        end
         evidence.resonance=list();
         for k=1:size(s.res_f,"*"); evidence.resonance($+1)=struct("f",s.res_f(k),"u",s.res_ur(k)); end
         evidence.peaks=list();
@@ -372,6 +377,7 @@ function r=bench_report_data(lab)
     if lab=="LD6" then r.lab_revision="3"; r.rubric_version="LD6-3"; end
     if lab=="LD7" then r.lab_revision="2"; r.rubric_version="LD7-2"; end
     if lab=="LD8" then r.lab_revision="2"; r.rubric_version="LD8-2"; end
+    if lab=="LD2" then r.lab_revision="4"; r.rubric_version="LD2-4"; end
     if lab=="LD1" then
         if isfield(evidence,"automatic_setup") then
             if evidence.automatic_setup then r.lab_revision="2";r.rubric_version="LD1-2";end
@@ -387,6 +393,26 @@ function path=bench_export_report(lab,folder)
     bench_core_require(); p=ascii(path); b=ascii(toJSON(r));
     status=call("ld_export_report",p,1,"i",size(p,"*"),2,"i",b,3,"i",size(b,"*"),4,"i","out",[1 1],5,"i");
     if status<>0 then error("Ataskaita neišsaugota. Patikrinkite aplanko teises ir darbo duomenis."); end
+endfunction
+
+function learning=bench_learning_report(lab)
+    global LD1 LD2 LD3 LD4 LD5 LD6 LD7 LD8 LD9 LD10 LD11 LD12;
+    select lab
+    case "LD1" then s=LD1;
+    case "LD2" then s=LD2.state;
+    case "LD3" then s=LD3;
+    case "LD4" then s=LD4;
+    case "LD5" then s=LD5;
+    case "LD6" then s=LD6;
+    case "LD7" then s=LD7;
+    case "LD8" then s=LD8;
+    case "LD9" then s=LD9;
+    case "LD10" then s=LD10;
+    case "LD11" then s=LD11;
+    case "LD12" then s=LD12;
+    else error("Nežinomas laboratorinis darbas.");
+    end
+    learning=(~s.assessment | s.practice_used);
 endfunction
 
 function path=bench_export_current(lab)
@@ -428,7 +454,22 @@ function path=bench_export_current(lab)
 
     // Nuo šios vietos HTML jau yra išsaugotas. UI patvirtinimo langas yra
     // antrinis patogumo sluoksnis ir jo gedimas negali atšaukti eksporto.
-    if lab=="LD1" then
+    learning_report=bench_learning_report(lab);
+    if or(lab==["LD2" "LD8" "LD9" "LD10" "LD11" "LD12"]) then
+        msg="Ataskaita išsaugota: "+path;kind="ok";hint="Persiųskite šį HTML failą dėstytojui.";
+        if learning_report then
+            msg="Mokymosi ataskaita išsaugota: "+path;kind="info";
+            hint="Šis bandymas neįtraukiamas į pažymių suvestinę.";
+        end
+        select lab
+        case "LD2" then ld2_set_status(msg,kind,hint);
+        case "LD8" then ld8_set_status(msg,kind,hint);
+        case "LD9" then ld9_set_status(msg,kind,hint);
+        case "LD10" then ld10_set_status(msg,kind,hint);
+        case "LD11" then ld11_set_status(msg,kind,hint);
+        case "LD12" then ld12_set_status(msg,kind,hint);
+        end
+    elseif lab=="LD1" then
         if LD1.assessment & ~LD1.practice_used then
             ld1_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
         else
@@ -458,11 +499,6 @@ function path=bench_export_current(lab)
         else
             ld6_set_status("Mokymosi ataskaita išsaugota: "+path,"info","Šis bandymas neįtraukiamas į pažymių suvestinę.");
         end
-    elseif lab=="LD8" then ld8_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
-    elseif lab=="LD9" then ld9_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
-    elseif lab=="LD10" then ld10_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
-    elseif lab=="LD11" then ld11_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
-    elseif lab=="LD12" then ld12_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
     elseif lab=="LD7" then
         if LD7.assessment & ~LD7.practice_used then
             ld7_set_status("Ataskaita išsaugota: "+path,"ok","Persiųskite šį HTML failą dėstytojui.");
@@ -470,14 +506,6 @@ function path=bench_export_current(lab)
             ld7_set_status("Mokymosi ataskaita išsaugota: "+path,"info","Šis bandymas neįtraukiamas į pažymių suvestinę.");
         end
     else ld2_set_status("Ataskaita išsaugota: "+path+". Persiųskite šį HTML failą dėstytojui.","ok"); end
-
-    learning_report=%f;
-    if lab=="LD1" then learning_report=(~LD1.assessment | LD1.practice_used); end
-    if lab=="LD3" then learning_report=(~LD3.assessment | LD3.practice_used); end
-    if lab=="LD4" then learning_report=(~LD4.assessment | LD4.practice_used); end
-    if lab=="LD5" then learning_report=(~LD5.assessment | LD5.practice_used); end
-    if lab=="LD6" then learning_report=(~LD6.assessment | LD6.practice_used); end
-    if lab=="LD7" then learning_report=(~LD7.assessment | LD7.practice_used); end
 
     try
         if learning_report then bench_report_saved(path,"Mokymosi ataskaita išsaugota");

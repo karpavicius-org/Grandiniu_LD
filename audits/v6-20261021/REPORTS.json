@@ -1,0 +1,175 @@
+{
+  "status": "PASS",
+  "scope": "Verification only; no application source edited by this agent. Real native exports and actual CPU WebKit standalone HTML.",
+  "native": {
+    "reports": 36,
+    "variants": [
+      1,
+      17,
+      64
+    ],
+    "labs": 12,
+    "trials": 261,
+    "readings": 420,
+    "export_reader_core_verification": "PASS",
+    "evidence": "final_native_results.json"
+  },
+  "browser": {
+    "engine": {
+      "browserName": "MiniBrowser",
+      "browserVersion": "2.52.3",
+      "platformName": "linux",
+      "acceptInsecureCerts": false,
+      "strictFileInteractability": false,
+      "setWindowRect": true,
+      "unhandledPromptBehavior": "dismiss and notify",
+      "pageLoadStrategy": "normal",
+      "proxy": {},
+      "timeouts": {
+        "script": 30000,
+        "pageLoad": 300000,
+        "implicit": 0
+      }
+    },
+    "reports": 36,
+    "svg": 255,
+    "tooltip_points": 678,
+    "series_toggles": 306,
+    "wave_options": 51,
+    "actual_print_callbacks": 36,
+    "checked": [
+      "JavaScript initialisation",
+      "every series toggle off/on",
+      "tooltip focus text",
+      "comparison controls",
+      "every wave panel",
+      "finite SVG coordinates",
+      "visible text within SVG viewBox",
+      "page overflow",
+      "actual print button callback"
+    ],
+    "responsive": {
+      "cases": 24,
+      "widths": [
+        800,
+        520
+      ],
+      "all_labs_variant": 1,
+      "page_and_hero_overflow": 0
+    },
+    "colour_fix": {
+      "issue": "LD10 IC/IL colours differed from existing graph",
+      "resolved": "IC blue / IL orange, arrows and labels; LD9 unchanged",
+      "native_reexports": 3,
+      "actual_browser_replays": 3,
+      "colour_assertions": "PASS",
+      "visual_review": "PASS"
+    },
+    "evidence": [
+      "attempt1/browser/RESULT.json",
+      "attempt1/responsive/RESULT.json",
+      "attempt2/browser/RESULT.json"
+    ]
+  },
+  "teacher": {
+    "students": 3,
+    "labs_each": 12,
+    "entries": 36,
+    "source": "Final36 reports include colour-corrected LD10 files",
+    "matrix_search_group_filter_history_relative_link": "PASS",
+    "evidence": "final_teacher_browser/RESULT.json"
+  },
+  "terminology": {
+    "forbidden_stem": "virtual",
+    "final_reports_scanned_including_payload": 36,
+    "matches": 0,
+    "all_initial_and_targeted_generated_HTML_scanned": 41,
+    "all_generated_matches": 0
+  },
+  "pdf": {
+    "status": "PASS",
+    "samples": [
+      {
+        "lab": 5,
+        "pages": 4,
+        "bytes": 35549,
+        "no_blank_pages": true,
+        "no_forbidden_word": true,
+        "renderer": "WeasyPrint70 printCSS; Poppler pagePNGs"
+      },
+      {
+        "lab": 11,
+        "pages": 11,
+        "bytes": 74667,
+        "no_blank_pages": true,
+        "no_forbidden_word": true,
+        "renderer": "WeasyPrint70 printCSS; Poppler pagePNGs"
+      },
+      {
+        "lab": 12,
+        "pages": 9,
+        "bytes": 59590,
+        "no_blank_pages": true,
+        "no_forbidden_word": true,
+        "renderer": "WeasyPrint70 printCSS; Poppler pagePNGs"
+      }
+    ],
+    "visual_review": "LD5 pages1/2; LD11 pages4/7; LD12 pages2/3 inspected as Poppler PNGs; SVG/labels readable and unclipped",
+    "scope": "Actual exported HTML print CSS rendered by WeasyPrint70; WebKit print button callback tested separately. No Windows printer-driver claim.",
+    "evidence": "attempt1/print/RESULT.json"
+  },
+  "visual_review": {
+    "browser_labs": [
+      1,
+      5,
+      6,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "phase_and_sinusoid_labs": [
+      2,
+      11
+    ],
+    "responsive_labs": [
+      9,
+      12
+    ],
+    "result": "PASS"
+  },
+  "old_v5_compatibility": {
+    "status": "PASS",
+    "actual_reports": 12,
+    "performed_by": "v6_compat_text agent; separate evidence reviewed",
+    "evidence": "../compat_text/STATUS.json"
+  },
+  "source_freeze": {
+    "source_final_sha256": {
+      "mo_report.sci": "d8626aad4f6b5ecc6d0321c98bb3122a1cfd9717db9d9168cdf76be176f3ac7e",
+      "mo_report_dc_visuals.sci": "e23fb6c155bca8fe5ad007595d40c025905399111a4a2859bd2d4f96f0bd076f",
+      "mo_report_late_visuals.sci": "a81e76fe96930b6a37d1fc45d9788a9f93d0607cd3d5b93425c46f700319cfbd",
+      "mo_public.sci": "3286d0af128e06eee0aae874ae617e47b95c3afac5a10d679bf42a27b169fe5c",
+      "mo_common.sci": "60f3fee36620394fa23ace36b7f5cd93012297624466685eb5bc063f79d84f60",
+      "mo_ld1_2.sci": "c1d1d384c9067a4386cd9d33721d1bddb4c8ebc6af9540896e772afe49968f8a",
+      "mo_ld3_6.sci": "3d7440bfa3459f2a841a370717ba47ade171e8ff113b1e5b5220392dfb577930",
+      "mo_ld7_12.sci": "c1e7239878da2641abd081483e388593e7d8eb1fd25d53447b7489b9cd6e7c02",
+      "mo_teacher.sci": "3e12b2455280ddbd0511dd91842408525b50fc3ba089efe346b54695e11524f9",
+      "RT_MODELS_LOAD.sce": "136fa27e769a87b5f989dc96084f0609d4f97206a638fff93fb291fb5ea239b4"
+    },
+    "changed_since_initial_freeze": [
+      "mo_report_late_visuals.sci"
+    ],
+    "allowed_change": "Only LD10 arrow/label colours; source diff preserved in colour_fix.diff",
+    "unchanged_other9_sources": true,
+    "snapshot": "source_final/"
+  },
+  "preserved_verification_fixtures": {
+    "pdf_initial_cli_argument_error": "attempt1/print_attempt1_fixture_arg_failure",
+    "targeted_export_initial_missing_environment": "attempt2/export_env_fixture_failure.log",
+    "targeted_incremental_manifest_had2records": "attempt2/all_reports_results.incremental.json; V64 explicitly exported and verified in v64_final.json",
+    "initial_browser_incomplete_paths_assertion": "attempt2/browser_incomplete_fixture/RESULT.json"
+  },
+  "final_html_sha256": "final_html_sha256.json"
+}

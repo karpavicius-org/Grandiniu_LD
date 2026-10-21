@@ -6,6 +6,7 @@ function ld6_set_status(msg, kind, hint)
     global LD6;
     if argn(2) < 3 then hint = ""; end
     if argn(2) < 2 then kind = "info"; end
+    if exists("ld6_guide_refresh")==1 then ld6_guide_refresh(); end
     if isfield(LD6, "ui") then
         if isfield(LD6.ui, "headless") then
             if LD6.ui.headless then return; end

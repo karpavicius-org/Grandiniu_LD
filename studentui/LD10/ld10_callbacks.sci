@@ -321,6 +321,7 @@ function ld10_close()
     if LD10.demoMode then ld10_toggle_solution();end
     bench_autosave("LD10");
     if isfield(LD10,"autosave_error") then if LD10.autosave_error<>"" then return;end;end
+    ld10_guide_close();
     delete(LD10.fig);
 endfunction
 

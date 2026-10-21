@@ -63,6 +63,7 @@ function ld3_init_state()
     assessment=%t; practice=%f;
     if isfield(LD3,"assessment") then assessment=LD3.assessment; end
     if isfield(LD3,"practice_used") then practice=LD3.practice_used; end
+    LD3.guide_enabled=%f;
     LD3.step = 1;
     LD3.done = [%f %f %f %f %f %f];
     LD3.skipped = [%f %f %f %f %f %f];

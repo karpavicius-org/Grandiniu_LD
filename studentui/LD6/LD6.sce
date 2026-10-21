@@ -1,6 +1,5 @@
-// LD6 · Tiesinių rezistorių tyrimas.
 mode(-1);
-ld6_dir = get_absolute_file_path("LD6.sce");
-exec(ld6_dir + "LD6_LOAD.sce", -1);
-ld6_student_main(ld6_dir + "../");
-clear ld6_dir;
+rt_entry=get_absolute_file_path("LD6.sce");
+exec(rt_entry+"LD6_LOAD.sce",-1);
+exec(rt_entry+"../RT_LOAD.sce",-1);
+rt_launch(rt_entry+"../","LD6");

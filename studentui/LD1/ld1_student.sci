@@ -391,7 +391,7 @@ function ld1_student_source(pos)
     volts="0 V DC"; if LD1.powerOn then volts=string(LD1.cfg.E)+" V DC"; end
     LD1.ui.sourceDisplay=student_text(fr,[0.09 0.43 0.82 0.22],volts,20,%t,bg);
     state="Išjungta"; if LD1.powerOn then state="Įjungta"; end
-    student_text(fr,[0.09 0.10 0.82 0.22],state,14,%t,bg);
+    LD1.ui.sourceState=student_text(fr,[0.09 0.10 0.82 0.22],state,14,%t,bg);
 endfunction
 
 function ld1_student_resistor(pos,name,value,variable)
@@ -418,14 +418,14 @@ function ld1_student_meter(pos)
     bg=[0.93 0.96 0.96]; fr=student_frame(LD1.ui.circuitFrame,pos,bg); ld1_track_board_handle(fr);
     fr.tag="component:M";
     name="AMPERMETRAS"; if LD1.meterMode=="V" then name="VOLTMETRAS"; end
-    student_text(fr,[0.07 0.74 0.86 0.20],name,12,%t,bg);
+    LD1.ui.meterName=student_text(fr,[0.07 0.74 0.86 0.20],name,12,%t,bg);
     reading="— "+LD1.meterMode;
     if ~isnan(LD1.lastMeasurement) then reading=ld1_num(LD1.lastMeasurement,3)+" "+LD1.lastMeasurementUnit; end
     LD1.ui.meterDisplay=student_text(fr,[0.07 0.40 0.86 0.28],reading,20,%t,bg);
     LD1.ui.meterDisplay.horizontalalignment="center";
     state="Rodmuo dar neįrašytas";
     if ~isnan(LD1.lastMeasurement) then state="Rodmuo įrašytas"; end
-    student_text(fr,[0.07 0.06 0.86 0.25],student_wrap(state,16),12,%f,bg);
+    LD1.ui.meterState=student_text(fr,[0.07 0.06 0.86 0.25],student_wrap(state,16),12,%f,bg);
 endfunction
 
 function ld1_draw_series_board()
@@ -467,6 +467,15 @@ endfunction
 function ld1_build_panel(kind)
     global LD1;
     LD1.panel=kind; LD1.pendingTerminal=""; LD1.wires=emptystr(0,2);
+    ld1_configure_panel_geometry(kind);
+    ld1_redraw_panel();
+endfunction
+
+// The original contact positions, without drawing or clearing an experiment.
+// RT uses this only when panel/meter geometry actually changes.
+function ld1_configure_panel_geometry(kind)
+    global LD1;
+    LD1.panel=kind;
     LD1.term.xy=%nan*ones(size(LD1.term.ids,"*"),2);
     if kind=="series" then
         LD1.term.active=["SRC_P";"SRC_N";"R1_1";"R1_2";"VR1_1";"VR1_2";"M_P";"M_N"];
@@ -490,7 +499,6 @@ function ld1_build_panel(kind)
         end
         ld1_set_parallel_meter_layout(LD1.step==8);
     end
-    ld1_redraw_panel();
 endfunction
 
 function ld1_draw_component_leads()

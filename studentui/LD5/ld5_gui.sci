@@ -143,6 +143,7 @@ function ld5_render_wires()
     if ~LD5.demoMode & or(LD5.step==[2 3]) then LD5.ui.controls(6).enable="on"; end
     ld5_font(p);
     LD5.fig.immediate_drawing=drawing;
+    ld5_guide_refresh();
 endfunction
 
 function ld5_render_journal()
@@ -181,6 +182,7 @@ function ld5_render_stage()
     if LD5.demoMode then LD5.ui.progress.string="PAVYZDYS"; end
     LD5.ui.identity.string=student_caption(LD5.student);
     ld5_render_wires(); ld5_render_journal(); ld5_student_sync();
+    ld5_guide_refresh();
 endfunction
 
 function ld5_build_gui()
@@ -223,8 +225,10 @@ function ld5_build_gui()
         LD5.ui.answerEdits($+1)=h;
     end
     LD5.ui.studentPrimary=ld5_button(right,[0.07 0.085 0.86 0.075],"Tikrinti","ld5_student_primary()",15,[0.08 0.39 0.37]);
+    LD5.ui.studentPrimary.tag="LD5_PRIMARY";
     controls($+1)=LD5.ui.studentPrimary;
     controls($+1)=ld5_button(right,[0.07 0.015 0.37 0.045],"← Atgal","ld5_jump_step(LD5.step-1)",12);
+    controls($).tag="LD5_BACK";
     LD5.ui.controls=controls; LD5.ui.dynamic=controls;
     LD5.ui.statusMain=student_text(f,[0.025 0.055 0.95 0.035],"",13,%t,[0.94 0.96 0.96]);
     LD5.ui.statusFix=student_text(f,[0.025 0.020 0.95 0.035],"",12,%f,[0.94 0.96 0.96]);
@@ -234,8 +238,11 @@ endfunction
 
 function ld5_show_actions()
     global LD5;
-    choice=x_choose(["Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
+    choice=x_choose(["Vesti žingsnis po žingsnio";"Šio etapo pagalba";"Tęsti arba atkurti darbą"; ...
         "Ataskaita ir režimas";"Mano duomenys";"Daugiau veiksmų"],"LD5 · Pagalba");
+    if choice==1 then ld5_guide_show(); return; end
+    if choice==0 then return; end
+    choice=choice-1;
     select choice
     case 1 then
         extra=x_choose(["Kaip sujungti";"Stendo žemėlapis"],"Šio etapo pagalba");

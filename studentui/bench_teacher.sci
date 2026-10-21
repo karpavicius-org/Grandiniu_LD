@@ -10,11 +10,10 @@ function [p,status]=bench_batch_call(command,source,destination)
         "out",[1 4],6,"d",[1 1],7,"i");
 endfunction
 
-function bench_teacher()
+function bench_teacher_legacy(folder)
     global BENCH_TEACHER_CANCEL;
     BENCH_TEACHER_CANCEL=%f;
     try bench_core_require(); catch messagebox(lasterror(),"Vertinimas","error"); return; end
-    folder=uigetdir(bench_documents(),"Pasirinkite aplanką su studentų ataskaitomis");
     if isempty(folder) then return; end
     if stripblanks(folder)=="" then return; end
     destination=fullfile(folder,"Vertinimai-"+bench_id());
@@ -42,5 +41,32 @@ function bench_teacher()
     catch
         if is_handle_valid(f) then delete(f); end
         messagebox(lasterror(),"Vertinimo klaida","error");
+    end
+endfunction
+
+// New measurement-only submissions have their own completion summary.
+// They never enter the earlier rubric of student calculation answers.
+function bench_teacher()
+    global BENCH_RUNTIME_ROOT;
+    exec(BENCH_RUNTIME_ROOT+"RT_MODELS_LOAD.sce",-1);
+    exec(BENCH_RUNTIME_ROOT+"mo_report.sci",-1);
+    exec(BENCH_RUNTIME_ROOT+"mo_teacher.sci",-1);
+    folder=uigetdir(bench_documents(),"Pasirinkite aplanką su studentų ataskaitomis");
+    if isempty(folder) then return; end
+    if stripblanks(folder)=="" then return; end
+    try
+        [fresh,legacy]=mo_teacher_count(folder);
+        if fresh==0 then bench_teacher_legacy(folder); return; end
+        if legacy>0 then
+            pick=x_choose(["Matavimų ataskaitų suvestinė ("+string(fresh)+")"; ...
+                "Ankstesnio formato ataskaitų vertinimas ("+string(legacy)+")"], ...
+                "Aplanke yra dviejų formatų ataskaitos. Pasirinkite, ką apdoroti.");
+            if pick==0 then return; end
+            if pick==2 then bench_teacher_legacy(folder); return; end
+        end
+        path=mo_teacher_summary(folder);
+        bench_report_saved(path,"Matavimų suvestinė parengta");
+    catch
+        messagebox(lasterror(),"Suvestinės klaida","error");
     end
 endfunction

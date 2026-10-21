@@ -1,0 +1,156 @@
+{
+  "status": "PASS",
+  "scope": "Only six route blocks changed, approved v5 archive preserved; actual route geometry and native button rectangles, final OS click checks with help OFF. Numeric sources unchanged. Not a new full-lab completion claim.",
+  "all_route_graphs": 51,
+  "all_cables": 437,
+  "route_obstacles": [
+    "all active non-endpoint 36x40 contact rectangles",
+    "component cards",
+    "journal",
+    "wiring hint",
+    "Measure button (all six labs)"
+  ],
+  "collinear_overlaps": 0,
+  "metrics": {
+    "LD7": {
+      "before": {
+        "length": 17.96,
+        "bends": 36
+      },
+      "after": {
+        "length": 18.16,
+        "bends": 36
+      }
+    },
+    "LD8": {
+      "before": {
+        "length": 68.63,
+        "bends": 229
+      },
+      "after": {
+        "length": 64.62,
+        "bends": 225
+      }
+    },
+    "LD9": {
+      "before": {
+        "length": 61.11,
+        "bends": 192
+      },
+      "after": {
+        "length": 59.25,
+        "bends": 189
+      }
+    },
+    "LD10": {
+      "before": {
+        "length": 55.23,
+        "bends": 219
+      },
+      "after": {
+        "length": 50.73,
+        "bends": 201
+      }
+    },
+    "LD11": {
+      "before": {
+        "length": 30.987,
+        "bends": 116
+      },
+      "after": {
+        "length": 30.747,
+        "bends": 116
+      }
+    },
+    "LD12": {
+      "before": {
+        "length": 32.519,
+        "bends": 134
+      },
+      "after": {
+        "length": 31.787,
+        "bends": 113
+      }
+    }
+  },
+  "actual_geometry_15_stages": {
+    "status": "PASS",
+    "stages": 15,
+    "visible_button_instances": 257,
+    "segment_button_checks": 6787,
+    "padding_px": 2,
+    "issues": [],
+    "scope": "Actual native visible control rectangles from complete wiring phase; Measure visible and enabled. Endpoint sockets alone exempt, no hidden-control substitutions."
+  },
+  "LD8_measure_paint": [
+    {
+      "stage": "LD8-T11",
+      "painted_fraction": 0.49688352162056876
+    },
+    {
+      "stage": "LD8-T12",
+      "painted_fraction": 0.49688352162056876
+    },
+    {
+      "stage": "LD8-T2",
+      "painted_fraction": 0.49688352162056876
+    },
+    {
+      "stage": "LD8-T3",
+      "painted_fraction": 0.49688352162056876
+    },
+    {
+      "stage": "LD8-T4",
+      "painted_fraction": 0.49688352162056876
+    },
+    {
+      "stage": "LD8-T7",
+      "painted_fraction": 0.49688352162056876
+    },
+    {
+      "stage": "LD8-T8",
+      "painted_fraction": 0.49688352162056876
+    }
+  ],
+  "actual_OS_help_OFF_measure_clicks": [
+    {
+      "status": "PASS",
+      "help_enabled": false,
+      "measure_painted_before_hover_fraction": 0.8400561910495685,
+      "actual_XTest_click_phase": "copy",
+      "lab": 7
+    },
+    {
+      "status": "PASS",
+      "help_enabled": false,
+      "measure_painted_before_hover_fraction": 0.83403572145294,
+      "actual_XTest_click_phase": "copy",
+      "lab": 9
+    },
+    {
+      "status": "PASS",
+      "help_enabled": false,
+      "measure_painted_before_hover_fraction": 0.83403572145294,
+      "actual_XTest_click_phase": "copy",
+      "lab": 10
+    },
+    {
+      "status": "PASS",
+      "help_enabled": false,
+      "measure_painted_before_hover_fraction": 0.83403572145294,
+      "actual_XTest_click_phase": "copy",
+      "lab": 11
+    }
+  ],
+  "LD12_actual_GUI": [
+    "ld12/gui1366/RESULT.json",
+    "ld12/gui1920/RESULT.json"
+  ],
+  "source_boundaries": "SOURCE_BOUNDARIES.json",
+  "fixture_failures_retained": [
+    "INITIAL_GEOMETRY.json: previously omitted Measure obstacles revealed 70 intersections",
+    "GEOMETRY_ATTEMPT1/2: trial endpoint collinear overlaps caught and fixed",
+    "paint_probe1: actual OS succeeded, then test cleanup name shadow failed; bounded final probes fixed harness",
+    "gui_actual1: rapid multi-figure screenshots sometimes stale; isolated real-event-loop and OS probes proved button paint"
+  ]
+}

@@ -4,6 +4,7 @@
 
 function ld3_set_status(msg, kind, hint)
     global LD3;
+    ld3_guide_refresh();
     if argn(2) < 3 then hint = ""; end
     if argn(2) < 2 then kind = "info"; end
     if isfield(LD3, "ui") then

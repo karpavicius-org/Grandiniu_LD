@@ -1,13 +1,13 @@
 // ============================================================================
 
-// REGISTRY-CODES: T01:T38 B01:B45 H01:H04 E01:E12 F01:F04 V01 V02 W01:W05 D01 D02 A03.01:A03.07 A04.01:A04.02 A06.01:A06.07 A07.01:A07.02 A09.01:A09.04 A10.01:A10.06 A11.01:A11.05
+// REGISTRY-CODES: T01:T38 B01:B45 H01:H04 E01:E12 F01:F04 V01 V02 W01:W05 D01 D02 A11.01
 // LD2 vienarūšis elementų numerių registras („rėmai").
-// Kontaktai [T01]–[T38], valdikliai [B01]–[B45], etapai [E01]–[E12],
+// Kontaktai [T01]–[T38], valdikliai [B01]–[B45], 10 etapų parinktis per Pagalba,
 // įvedimo laukai [F01]–[F04], papildomi valdikliai [V01]–[V02],
 // metodikos lango pagalba [H01]–[H04], dialogų parinktys [D01]–[D02],
 // atsakymų laukai [A%02d.%02d] ir laidai [W%02d].
 // Instrukcijose, statuso ir metodikos tekstuose kodai rašomi
-// laužtiniuose skliaustuose: [T07], [B12], [A03.01]. Šiame registre
+// laužtiniuose skliaustuose: [T07], [B12], [A04.01]. Šiame registre
 // kodai yra pliki string literalai. Tas pats numeris visada reiškia
 // tą pačią paskirtį.
 // ============================================================================
@@ -178,6 +178,14 @@ function h=ld2_button_reg(p,pos,txt,cb,primary,withprefix,fs,bg)
     end
     if argn(2)>=7 then h.fontsize=fs; end
     if argn(2)>=8 then h.backgroundcolor=bg; end
+    // Only a visual hint: no click or student result is generated here.
+    if exists("ld2_guide_next")==1 & ld2_guide_enabled() then
+        [gtext,gtargets,gcallback,gfield]=ld2_guide_next();
+        if gcallback==cb then
+            h.backgroundcolor=[1.00 0.78 0.32];
+            h.foregroundcolor=[0.18 0.16 0.10];
+        end
+    end
 endfunction
 
 function stamp=ld2_timestamp()

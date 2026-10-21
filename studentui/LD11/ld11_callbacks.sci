@@ -329,6 +329,7 @@ function ld11_close()
     if LD11.demoMode then ld11_toggle_solution();end
     bench_autosave("LD11");
     if isfield(LD11,"autosave_error") then if LD11.autosave_error<>"" then return;end;end
+    ld11_guide_close();
     delete(LD11.fig);
 endfunction
 

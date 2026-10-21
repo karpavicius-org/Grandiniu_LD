@@ -1,0 +1,57 @@
+LD1–LD12 · GRANDINIŲ LABORATORINIAI DARBAI · v6
+
+1. Išskleiskite visą ZIP. Aplanke Grandiniu_LD paleiskite PALEISTI.bat.
+   Jei grafinis Scilab jau atvertas, vykdykite STENDAS.sce.
+2. Pasirinkite darbą ir įrašykite savo studento duomenis.
+3. Perskaitykite bandymo tikslą. Sujunkite kabelį spustelėdami jo abu kontaktus.
+   Pasirinktą kontaktą atšauksite spustelėdami jį dar kartą.
+   Pakartoję jau sujungtą porą atjungsite kabelį.
+4. Prireikus spauskite Pagalba. Geltonai pažymimas kitas kontaktas arba veiksmas.
+   Pagalba rodo visą kabelio porą ir jo numerį. Jei kitas kabelis prasideda tuo
+   pačiu kontaktu, spustelėkite šį kontaktą dar kartą naujam kabeliui.
+5. Sujungę nurodytus kabelius spauskite Įjungti ir matuoti.
+6. Pažiūrėkite į stendo prietaisus. Į dešinėje esančius laukus perrašykite jų
+   skaičius, be vienetų. Tinka tiek 3.00, tiek 3,00. Minuso ženklą palikite.
+   Jei įrašas netinka, prie lauko matysite pavyzdį: „Voltmetras rodo 5 V.
+   Įrašykite 5 be V.“ Įvestas tekstas išlieka, kad galėtumėte jį pataisyti.
+   Spauskite Įrašyti rodmenis. Pagalba gali parodyti kiekvieną lauką ir rodmenį.
+7. Spauskite Kitas bandymas. Tinkami kabeliai liks; prijunkite trūkstamus.
+8. Baigus visus bandymus sukuriamas HTML. Matysite jo pavadinimą ir mygtukus
+   Atverti ataskaitą, Rodyti ataskaitos aplanką bei Išsaugoti kitame aplanke.
+   Dėstytojui perduokite šį vieną HTML failą, pavyzdžiui, per Google Drive.
+   Ataskaitos mygtuku Spausdinti / PDF atversite naršyklės spausdinimo langą;
+   jame galite pasirinkti išsaugojimą PDF formatu.
+
+Jei failo įrašyti nepavyko, matavimai išlieka. Bandykite išsaugoti dar kartą
+arba pasirinkite kitą aplanką. Įprasta vieta jūsų naudotojo aplanke:
+Grandiniu_LD_darbai / Grandiniu_ataskaitos.
+
+Tęsdami pradėtą arba baigtą darbą pasirinkite tą patį LD ir įrašykite tiksliai
+tą patį vardą, grupę bei sąrašo numerį. Atkuriami matavimai ir jų laukai.
+V5 darbo kopijos taip pat tęsiamos. Baigto darbo ataskaita prireikus
+atnaujinama į naują failą; ankstesnis HTML išsaugomas.
+
+LD3: to paties rezistoriaus srovę matuojate esant trims įtampoms. Nustatymai
+keičiami paeiliui. Ataskaitoje matysite, kaip srovė didėja didinant įtampą.
+LD7: keisdami apkrovą ieškote, kada ji gauna didžiausią galią.
+LD8: palyginate tris rezistorių jungimus ir atskirų rezistorių rodmenis.
+LD9: perjungiate voltmetro laidus tarp R, L, C ir generatoriaus.
+LD10: ampermetrą įjungiate į nurodytą R, L, C šaką arba bendrąjį laidą.
+      IC – to paties ampermetro rodmuo, kai jis įjungtas į kondensatoriaus šaką.
+LD11: palyginate keturias kompensavimo talpas. Vatmetrui reikia ir srovės,
+      ir įtampos grandinės laidų, voltmetrui – dviejų matavimo laidų.
+LD12: palyginate fazinius ir linijinius matavimus žvaigždėje bei trikampyje.
+
+Kiekvienoje ataskaitoje yra darbo temai skirtas vaizdus paaiškinimas.
+LD9 lyginamos priešingos elementų įtampos, LD10 – šakų srovės, LD11 –
+galios trikampiai vienodu masteliu, LD12 – trys fazės ir abu jungimai.
+Ataskaitose galima pasirinkti signalų bandymą, slėpti grafikų kreives ir
+palyginti dviejų bandymų rodmenis. HTML veikia naršyklėje be interneto.
+
+Dėstytojui: surinkite studentų HTML į vieną aplanką (galima su poaplankiais)
+ir paleiskite DESTYTOJUI.sce. Sukuriama studentų × 12 LD suvestinė,
+pateikimų istorija, HTML ir CSV. Ankstesnės versijos įrašai atskiriami.
+
+Reikalingas grafinis Scilab. Windows paleidiklis ieško įdiegto Scilab x64.
+Atskirų bin failų paleisti nereikia. Linux ir macOS paleidikliai taip pat pridėti;
+macOS reikalingas tai platformai sukompiliuotas skaičiavimo branduolys.

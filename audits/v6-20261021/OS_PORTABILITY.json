@@ -1,0 +1,71 @@
+{
+  "host": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "native_runtimes": {
+    "scilab-cli": "/usr/bin/scilab-cli",
+    "scilab": "/usr/bin/scilab",
+    "wine": null,
+    "wine64": null,
+    "qemu-system-x86_64": null,
+    "qemu-system-aarch64": null,
+    "xcrun": null,
+    "osxcross": null
+  },
+  "binary_files": [
+    "ldcore.dll"
+  ],
+  "syntax_checks": [
+    {
+      "file": "PALEISTI.sh",
+      "status": "PASS",
+      "command": "bash -n /workspace/scratch/67e4c3cdba10/ld_revision6/Grandiniu_LD/PALEISTI.sh",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "file": "PALEISTI.command",
+      "status": "PASS",
+      "command": "bash -n /workspace/scratch/67e4c3cdba10/ld_revision6/Grandiniu_LD/PALEISTI.command",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "file": "PATIKRINTI.sh",
+      "status": "PASS",
+      "command": "bash -n /workspace/scratch/67e4c3cdba10/ld_revision6/Grandiniu_LD/PATIKRINTI.sh",
+      "exit": 0,
+      "stderr": ""
+    }
+  ],
+  "accepted_package_linux_launcher": {
+    "exit": 1,
+    "stderr": "Trūksta /workspace/scratch/67e4c3cdba10/ld_revision6/Grandiniu_LD/bin/ldcore.so. Išskleiskite visą savo platformos paketą.\n",
+    "command": "bash /workspace/scratch/67e4c3cdba10/ld_revision6/Grandiniu_LD/PALEISTI.sh",
+    "status": "FAIL_MISSING_NATIVE_BINARY"
+  },
+  "linux_native_smoke": {
+    "status": "PASS",
+    "exit": 0,
+    "scope": "Accepted app protocol+core first trial of all12; external same Linux .so used by prior v6 verification, not packaged default launch",
+    "command": "LD_CORE_LIBRARY=/workspace/scratch/67e4c3cdba10/ld_sources/build-linux/ldcore.so OPENBLAS_NUM_THREADS=1 scilab-cli -nb -f /workspace/scratch/67e4c3cdba10/ld_revision6/verification/os_portability/smoke.sce",
+    "binary_sha256": "1e47bd9a8713dc25c384970eaa1bbef6dd6c5d1ff7054258df85051d395f26ed",
+    "log": "smoke.log"
+  },
+  "windows11": {
+    "status": "USER_REPORTED_STARTUP_PASS",
+    "native_host_available": false,
+    "scope": "User reports accepted v6 launches on Win11; no local Windows execution"
+  },
+  "macos": {
+    "status": "NOT_EXECUTED_MISSING_ENV_AND_DYLIB",
+    "native_host_available": false,
+    "packaged_binary_present": false,
+    "scope": "PALEISTI.command + PALEISTI.sh syntax only; no macOS runtime/SDK available"
+  },
+  "existing_linux_evidence": [
+    "../model64.log",
+    "../final_data/RESULT.json",
+    "../report_qa/RESULT.json"
+  ],
+  "accepted_release_files_unchanged": true
+}

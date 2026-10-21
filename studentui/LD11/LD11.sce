@@ -1,6 +1,5 @@
-// LD11 · Nuosekliai sujungtos RLC grandinės: trikampiai ir įtampų rezonansas.
 mode(-1);
-ld11_dir = get_absolute_file_path("LD11.sce");
-exec(ld11_dir + "LD11_LOAD.sce", -1);
-ld11_student_main(ld11_dir + "../");
-clear ld11_dir;
+rt_entry=get_absolute_file_path("LD11.sce");
+exec(rt_entry+"LD11_LOAD.sce",-1);
+exec(rt_entry+"../RT_LOAD.sce",-1);
+rt_launch(rt_entry+"../","LD11");

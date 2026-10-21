@@ -147,4 +147,5 @@ function ld7_student_sync()
             LD7.ui.studentPrimary.string = "TIKRINTI";
         end
     end
+    ld7_guide_refresh();
 endfunction
