@@ -1,0 +1,59 @@
+GRANDINIU_LD PROPRIETARY LICENSE
+Version 1.0 | Notice date: 2026-10-22
+
+Copyright (c) 2026 Rimas Karpavicius (Rimas Karpavičius).
+All rights reserved in the original protectable contributions.
+Permission contact: karpaviciux@gmail.com
+
+1. RIGHTS AND SCOPE
+Rimas Karpavičius identifies himself as the rights holder for the original
+protectable software, source code, documentation, graphics and other materials
+that he has created or lawfully acquired for the Grandiniu_LD project. This
+notice applies only to rights that he actually holds under applicable law.
+It does not claim ownership of third-party materials, general ideas, facts,
+algorithms as such, AI models, or material that is not legally protectable.
+
+2. PRIOR WRITTEN PERMISSION
+Except as provided in section 3, installing, running, using, copying, modifying,
+publishing, distributing, selling, sublicensing or otherwise exploiting the
+covered materials requires prior written permission from Rimas Karpavičius.
+Request permission at karpaviciux@gmail.com. A request, silence, public access
+to a repository, possession of a copy, or attribution alone does not constitute
+permission. The written permission must identify the permitted purpose and
+scope. This notice itself grants no general right of use.
+
+3. EXISTING AND THIRD-PARTY RIGHTS
+This notice does not restrict rights granted by a valid earlier license or
+written permission, mandatory law, applicable statutory exceptions, or the
+terms of a hosting platform. Third-party components remain subject to their
+own licenses and notices. No permission from Rimas Karpavičius is required to
+exercise rights independently granted by those third-party licenses. Preserve
+all applicable third-party notices and comply with their conditions.
+
+4. AI ASSISTANCE
+The rights holder states that GPT 6.1 Sol Ultra was used as an AI assistance
+tool during development. This is a rights-holder declaration, not an
+independent verification of the model used. It does not assign ownership of
+the AI model or its provider's intellectual property to the rights holder.
+Copyright is asserted only to the extent recognized by applicable law.
+
+5. UNAUTHORIZED USE AND REMEDIES
+Use outside the permissions and exceptions stated above is prohibited.
+Unlawful use may result in claims for cessation, damages or other civil
+remedies and, where the statutory elements of an offence are established,
+criminal liability under applicable law. This notice does not itself create
+an offence, establish liability, or impose a penalty.
+
+6. WARRANTY AND LIABILITY
+Unless a separate written agreement or mandatory law provides otherwise,
+the covered materials are supplied without a promise of fitness, accuracy,
+availability or error-free operation. To the extent the law permits, the
+rights holder excludes warranties and liability arising from their use.
+Rights and liabilities that cannot lawfully be excluded remain unaffected.
+
+7. LANGUAGE AND VERSION EVIDENCE
+The English and Lithuanian texts are intended to have the same meaning.
+If they conflict, LICENCIJA_LT.txt prevails to the extent permitted by law.
+Git commit identifiers and file checksums identify versions; they do not
+independently establish legal ownership, AI model use, or a digital signature.
+This is a proprietary license, not the MIT License.

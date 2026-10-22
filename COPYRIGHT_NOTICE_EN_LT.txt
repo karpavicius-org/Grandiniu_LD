@@ -1,0 +1,33 @@
+GRANDINIU_LD COPYRIGHT AND DEVELOPMENT NOTICE
+GRANDINIU_LD AUTORIŲ TEISIŲ IR KŪRIMO PRANEŠIMAS
+2026-10-22
+
+ENGLISH
+Copyright (c) 2026 Rimas Karpavičius (Rimas Karpavicius).
+All rights reserved in the original protectable contributions to Grandiniu_LD.
+The rights holder declares that GPT 6.1 Sol Ultra was used to assist development.
+Prior written permission is required for use of the covered materials, except
+where a valid earlier permission, third-party license, mandatory law, statutory
+exception or hosting-platform right independently permits the activity.
+Permission contact: karpaviciux@gmail.com.
+Unlawful use may lead to liability under applicable law. See LICENSE and
+LICENCIJA_LT.txt for the complete terms; this notice is only a summary.
+
+LIETUVIŲ KALBA
+Autorių teisės (c) 2026 Rimas Karpavičius (Rimas Karpavicius).
+Visos teisės į originalų teisiškai saugomą Grandiniu_LD projekto indėlį saugomos.
+Teisių turėtojas deklaruoja, kad kuriant naudotas GPT 6.1 Sol Ultra.
+Šiai medžiagai naudoti būtinas išankstinis rašytinis leidimas, išskyrus veiklą,
+kurią savarankiškai leidžia galiojantis ankstesnis leidimas, trečiosios šalies
+licencija, imperatyvioji teisės norma, įstatymo išimtis ar prieglobos platformos
+suteikta teisė. Kontaktas leidimams gauti: karpaviciux@gmail.com.
+Dėl neteisėto naudojimo gali kilti atsakomybė taikytinos teisės nustatyta tvarka.
+Visos sąlygos pateiktos LICENSE ir LICENCIJA_LT.txt; šis pranešimas yra santrauka.
+
+EVIDENCE / ĮRODYMAI
+The AI model statement is supplied by the rights holder; it is not independently
+verified by Git history. Git SHA identifiers prove neither ownership nor model
+identity. Existing inspected commits are unsigned.
+DI modelio įrašą pateikia teisių turėtojas; Git istorija jo nepriklausomai
+nepatvirtina. Git SHA neįrodo nei nuosavybės, nei modelio tapatybės. Patikrinti
+ankstesni Git įrašai nepasirašyti.
