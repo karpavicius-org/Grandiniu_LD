@@ -1,0 +1,83 @@
+{
+  "archive_sha256_match_receipt": true,
+  "archive_size_match_receipt": true,
+  "signature_sha256_match_receipt": true,
+  "signature_matches_standalone_output": true,
+  "receipt_key_matches_delivered_key_metadata": true,
+  "zip_crc_check": true,
+  "documents": {
+    "docx": {
+      "byte_identical_to_output": true,
+      "sha256": "8a1fef837c258d4ca5587e18a7b3c7f1fef7724db2f907ac1633922220b0bc53",
+      "fingerprint_present": true,
+      "key_scope_excerpts": [
+        "0-22T07:07:27.532080+00:00 Rakto kilmė ir pasitikėjimas Tai naujas šiam projekto leidimui užduoties vykdymo aplinkoje sukurtas raktas. Jis nėra anksčiau naudotas asmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus ir",
+        "kdymo aplinkoje sukurtas raktas. Jis nėra anksčiau naudotas asmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus rakto išlikimas vykdymo aplinkoje negarantuojamas. Atspaudas tu",
+        "generated project key is not an independently authenticated personal key of Rimas Karpavičius. The signature does not change the unsigned status of the historical Git commits or certify legal ownership. OpenSSH  ssh keygen manual",
+        "is GPT 6.1 Sol Ultra. Tai teisių turėtojo deklaracija, o ne nepriklausomas naudoto modelio patvirtinimas. Šis įrašas neperduoda teisių turėtojui DI modelio ar jo teikėjo intelektinės nuosavybės. Autorių teisės deklaruojamos tik tiek, kiek j",
+        "1 Sol Ultra“ nurodytas kaip jo pateikta kūrimo deklaracija. Nepriklausomų modelio tapatybės metaduomenų patikrintoje Git istorijoje nerasta. Trečiųjų šalių komponentai Eigen 5.0.0 taikoma MPL 2.0 ir atitinkami papildomi pranešimai; JSON for",
+        "ssion from Rimas Karpavičius is required to exercise rights independently granted by those third-party licenses. Preserve all applicable third-party notices and comply with their conditions. 4 AI assistance The rights holder states that GPT",
+        "ng development. This is a rights-holder declaration, not an independent verification of the model used. It does not assign ownership of the AI model or its provider's intellectual property to the rights holder. Copyright is asserted only to",
+        "a anksčiau naudotas asmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus rakto išlikimas vykdymo aplinkoje negarantuojamas. Atspaudas turi sutapti su patikimu kanalu gautu atsp",
+        "s raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus rakto išlikimas vykdymo aplinkoje negarantuojamas. Atspaudas turi sutapti su patikimu kanalu gautu atspaudu. Parašas patvirtina turinio vientisumą ir atitinkamo rakto pan",
+        "043 Git laikas UTC: 2026-10-22T06:50:18Z  |  Parašo būsena: unsigned Atverti paskelbtą licencijos įrašą Medžio SHA 4e5c375c29c9d59af709790998acc89cf87d6053 Patikrintos ankstesnės versijos Patvirtintas v6 pagrindas  |  2026-10-21T10:54:30Z 4",
+        "key of Rimas Karpavičius. The signature does not change the unsigned status of the historical Git commits or certify legal ownership. OpenSSH  ssh keygen manual",
+        "nys. SHA ir SSH reikšmė Visi keturi čia pateikti Git įrašai nepasirašyti. SHA yra Git objekto identifikatorius. SSH ryšio autentifikavimas, Git įrašo pasirašymas ir archyvo pasirašymas yra atskiri veiksmai. Atnaujintam galutiniam archyvui t"
+      ]
+    },
+    "pdf": {
+      "byte_identical_to_output": true,
+      "sha256": "bda9c081707f01153006e41d642e6e28ee3753dc2a0c077aa96999a8e62d92bd",
+      "fingerprint_present": true,
+      "key_scope_excerpts": [
+        "0-22T07:07:27.532080+00:00\nRakto kilmė ir pasitikėjimas\nTai naujas šiam projekto leidimui užduoties vykdymo aplinkoje sukurtas raktas. Jis nėra anksčiau naudotas \nasmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus i",
+        "dymo aplinkoje sukurtas raktas. Jis nėra anksčiau naudotas \nasmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus \nrakto išlikimas vykdymo aplinkoje negarantuojamas.\nAtspaudas t",
+        "enerated project key is not an independently \nauthenticated personal key of Rimas Karpavičius. The signature does not change the unsigned status of the historical \nGit commits or certify legal ownership.\nOpenSSH  ssh keygen manual",
+        "s GPT 6.1 Sol Ultra. Tai teisių turėtojo deklaracija, \no ne nepriklausomas naudoto modelio patvirtinimas. Šis įrašas neperduoda teisių turėtojui DI modelio ar jo teikėjo \nintelektinės nuosavybės. Autorių teisės deklaruojamos tik tiek, kiek ",
+        "1 Sol Ultra“ nurodytas kaip jo pateikta kūrimo deklaracija. Nepriklausomų modelio tapatybės metaduomenų \npatikrintoje Git istorijoje nerasta.\nTrečiųjų šalių komponentai\nEigen 5.0.0 taikoma MPL 2.0 ir atitinkami papildomi pranešimai; JSON fo",
+        "ssion from Rimas Karpavičius is required to exercise rights independently \ngranted by those third-party licenses. Preserve all applicable third-party notices and comply with their conditions.\n4 AI assistance\nThe rights holder states that GP",
+        "g development. This is a \nrights-holder declaration, not an independent verification of the model used. It does not assign ownership of the AI \nmodel or its provider's intellectual property to the rights holder. Copyright is asserted only t",
+        " anksčiau naudotas \nasmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus \nrakto išlikimas vykdymo aplinkoje negarantuojamas.\nAtspaudas turi sutapti su patikimu kanalu gautu ats",
+        "s raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus \nrakto išlikimas vykdymo aplinkoje negarantuojamas.\nAtspaudas turi sutapti su patikimu kanalu gautu atspaudu. Parašas patvirtina turinio vientisumą ir atitinkamo rakto \np",
+        "043\nGit laikas UTC: 2026-10-22T06:50:18Z  |  Parašo būsena: unsigned\nAtverti paskelbtą licencijos įrašą\nMedžio SHA\n4e5c375c29c9d59af709790998acc89cf87d6053\nPatikrintos ankstesnės versijos\nPatvirtintas v6 pagrindas  |  2026-10-21T10:54:30Z\n4",
+        "key of Rimas Karpavičius. The signature does not change the unsigned status of the historical \nGit commits or certify legal ownership.\nOpenSSH  ssh keygen manual",
+        "nys.\nSHA ir SSH reikšmė\nVisi keturi čia pateikti Git įrašai nepasirašyti. SHA yra Git objekto identifikatorius. SSH ryšio autentifikavimas, Git \nįrašo pasirašymas ir archyvo pasirašymas yra atskiri veiksmai. Atnaujintam galutiniam archyvui "
+      ]
+    }
+  },
+  "public_metadata_copies_match": true,
+  "internal_sha256_manifest": {
+    "entries": 32,
+    "failures": []
+  },
+  "nested_app_matches_standalone_output": true,
+  "public_archive_secret_scan": {
+    "recursive_entries_scanned": 589,
+    "private_key_filename_hits": [],
+    "private_key_header_hits": [],
+    "scope": "Tik du perduodami ZIP ir jų įdėtiniai archyvai; išorinės raktų saugyklos netikrintos ir neskaitytos."
+  },
+  "windows_limit_explicit": true,
+  "independent_openssh_tests": [
+    {
+      "case": "original_final_archive",
+      "exit_code": 0,
+      "accepted_as_expected": true
+    },
+    {
+      "case": "one_added_byte_in_memory",
+      "exit_code": 255,
+      "rejected_as_expected": true
+    },
+    {
+      "case": "wrong_namespace",
+      "exit_code": 255,
+      "rejected_as_expected": true
+    }
+  ],
+  "fingerprint_verified_from_public_key": "SHA256:M7TjtCmzarwlyBhi420fRarK0Bpth1qskfXS175U6X0",
+  "archive_sha256": "fca4e2a128d8a6a9d0b0a43bd112601d9e472a0a1e76d65e9ddc2ce24a829ffa",
+  "verification_zip_sha256": "8d5adddefe8410349c513982777cc7b33cd54b3f35ae6477c0913ec5e2c544f7",
+  "key_scope_text_review": "DOCX ir PDF aiškiai įvardija naują projekto raktą, jo atskyrimą nuo ankstesnio Rimo asmeninio SSH rakto, nepriklausomo tapatybės patvirtinimo nebuvimą, privataus rakto neplatinimą, išlikimo ribą ir nepasirašytų istorinių commit būsenos nekeitimą.",
+  "status": "PASS"
+}

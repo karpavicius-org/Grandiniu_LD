@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "verified_at_utc": "2026-10-22T07:10:10.447427+00:00",
+  "archive": "Grandiniu_LD_pilnas_paketas_licencija_EN_LT_2026-10-22.zip",
+  "archive_sha256": "fca4e2a128d8a6a9d0b0a43bd112601d9e472a0a1e76d65e9ddc2ce24a829ffa",
+  "archive_size_bytes": 9458999,
+  "signature_file": "Grandiniu_LD_pilnas_paketas_licencija_EN_LT_2026-10-22.zip.sig",
+  "signature_sha256": "1021e8cddbb542608589d995c32a31ba25a497f206865ebe89abfee02794f610",
+  "key": {
+    "schema_version": 1,
+    "created_at_utc": "2026-10-22T07:07:27.532080+00:00",
+    "algorithm": "ssh-ed25519",
+    "fingerprint_sha256": "SHA256:M7TjtCmzarwlyBhi420fRarK0Bpth1qskfXS175U6X0",
+    "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOtybAAQlFUKij6ELlVOGhW036IZopFVCVqnvEm2hRo+ Grandiniu_LD release signing 2026-10-22",
+    "signer_id": "grandiniu-ld-release-20261022",
+    "namespace": "grandiniu-ld-release",
+    "key_origin": "New project release key generated in the task execution environment; not an existing personal SSH key of Rimas Karpavicius.",
+    "identity_assurance": "No independent verification of the named rights holder. Signer ID is a project label.",
+    "private_key_distribution": "Not included in public artifacts or Git. Kept in local execution-environment key storage; durable availability is not guaranteed.",
+    "archive": "Grandiniu_LD_pilnas_paketas_licencija_EN_LT_2026-10-22.zip",
+    "signature_file": "Grandiniu_LD_pilnas_paketas_licencija_EN_LT_2026-10-22.zip.sig",
+    "git_commit_status": "Existing four inspected commits remain unsigned; this operation signs the archive, not those commits."
+  },
+  "archive_sha256_before_ssh_update": "1d3b12182ac770956bb3aa3a28414fa3972ea301b2b6f1c9c61d4af0ebde5a37",
+  "openssh_tests": [
+    {
+      "case": "original_final_archive",
+      "expected_accept": true,
+      "exit_code": 0,
+      "stdout": "Good \"grandiniu-ld-release\" signature for grandiniu-ld-release-20261022 with ED25519 key SHA256:M7TjtCmzarwlyBhi420fRarK0Bpth1qskfXS175U6X0",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "case": "archive_with_one_added_byte",
+      "expected_accept": false,
+      "exit_code": 255,
+      "stdout": "Could not verify signature.",
+      "stderr": "Signature verification failed: incorrect signature",
+      "passed": true
+    },
+    {
+      "case": "wrong_namespace",
+      "expected_accept": false,
+      "exit_code": 255,
+      "stdout": "Could not verify signature.",
+      "stderr": "Couldn't verify signature: namespace does not match",
+      "passed": true
+    },
+    {
+      "case": "unrelated_public_key",
+      "expected_accept": false,
+      "exit_code": 255,
+      "stdout": "Could not verify signature.",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "case": "delivered_shell_script",
+      "expected_accept": true,
+      "exit_code": 0,
+      "stdout": "Good \"grandiniu-ld-release\" signature for grandiniu-ld-release-20261022 with ED25519 key SHA256:M7TjtCmzarwlyBhi420fRarK0Bpth1qskfXS175U6X0",
+      "stderr": "",
+      "passed": true
+    }
+  ],
+  "independent_cryptography_verification": {
+    "sshsig_parser": "explicit version 1 framing",
+    "hash_algorithm": "sha512",
+    "ed25519_original_accepted": true,
+    "ed25519_modified_rejected": true,
+    "fingerprint_independently_matched": true
+  },
+  "documents": {
+    "pages": 5,
+    "word_pdf_in_archive_match_delivered_bytes": true,
+    "visual_review_pages": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "application_and_teaching_archives_unchanged": true,
+  "windows_script_execution": "Not executed on this Linux host; cmd syntax and paths reviewed.",
+  "private_key_in_public_files": false,
+  "status": "PASS"
+}

@@ -1,0 +1,34 @@
+ARCHYVO SSH PARASO PATIKRA / ARCHIVE SSH SIGNATURE VERIFICATION
+
+Signed archive: Grandiniu_LD_pilnas_paketas_licencija_EN_LT_2026-10-22.zip
+Algorithm: Ed25519 (OpenSSH SSHSIG)
+Pinned public-key fingerprint: SHA256:M7TjtCmzarwlyBhi420fRarK0Bpth1qskfXS175U6X0
+Signer project label: grandiniu-ld-release-20261022
+Namespace: grandiniu-ld-release
+
+LIETUVISKAI
+Archyva ir visus iskleisto sio patikros priedo failus padekite i viena aplanka.
+Windows: paleiskite TIKRINTI.cmd (reikia ssh-keygen su SSHSIG palaikymu).
+Linux/macOS: terminale vykdykite sh TIKRINTI.sh.
+Jei archyvas kitur, perduokite jo pilna kelia kaip pirma skripto argumenta.
+Sekme: Good ir baigties kodas 0. Bet kuris kitas kodas yra nesekme.
+Pries pasitikedami patikra, sutikrinkite fingerprint su atspaudu, gautu patikimu
+nepriklausomu kanalu (pvz., uzduoties perdavimo pokalbiu). Vien kartu atsiustas
+allowed_signers failas neirodo, kam priklauso raktas.
+Tai naujas sio projekto leidimo raktas, sukurtas uzduoties vykdymo aplinkoje.
+Jis nera anksciau naudotas asmeninis Rimo Karpaviciaus raktas ir nera
+kvalifikuotas elektroninis parasas. Privatus raktas siame priede neplatinamas.
+Pasirasytas archyvas; Git istorijos irasai siuo veiksmu nepasirasomi.
+
+ENGLISH
+Place the archive and all extracted verification files in the same directory.
+Windows: run TIKRINTI.cmd. Linux/macOS: run sh TIKRINTI.sh.
+An SSHSIG-capable ssh-keygen is required. An archive at another path can be
+passed as the first script argument. Success means Good and exit code 0.
+Pin the fingerprint using an independent trusted source before verification.
+The supplied allowed_signers file alone is not an identity certificate.
+This is a newly generated project release key, not a previously authenticated
+personal key of Rimas Karpavicius or a qualified electronic signature.
+The private key is not distributed. Historical Git commits remain unsigned.
+See SIGNED_RELEASE.json for the exact archive hash and executed test results.
+OpenSSH manual: https://man.openbsd.org/ssh-keygen
