@@ -1,83 +1,1253 @@
 {
-  "archive_sha256_match_receipt": true,
-  "archive_size_match_receipt": true,
-  "signature_sha256_match_receipt": true,
-  "signature_matches_standalone_output": true,
-  "receipt_key_matches_delivered_key_metadata": true,
-  "zip_crc_check": true,
-  "documents": {
-    "docx": {
-      "byte_identical_to_output": true,
-      "sha256": "8a1fef837c258d4ca5587e18a7b3c7f1fef7724db2f907ac1633922220b0bc53",
-      "fingerprint_present": true,
-      "key_scope_excerpts": [
-        "0-22T07:07:27.532080+00:00 Rakto kilmė ir pasitikėjimas Tai naujas šiam projekto leidimui užduoties vykdymo aplinkoje sukurtas raktas. Jis nėra anksčiau naudotas asmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus ir",
-        "kdymo aplinkoje sukurtas raktas. Jis nėra anksčiau naudotas asmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus rakto išlikimas vykdymo aplinkoje negarantuojamas. Atspaudas tu",
-        "generated project key is not an independently authenticated personal key of Rimas Karpavičius. The signature does not change the unsigned status of the historical Git commits or certify legal ownership. OpenSSH  ssh keygen manual",
-        "is GPT 6.1 Sol Ultra. Tai teisių turėtojo deklaracija, o ne nepriklausomas naudoto modelio patvirtinimas. Šis įrašas neperduoda teisių turėtojui DI modelio ar jo teikėjo intelektinės nuosavybės. Autorių teisės deklaruojamos tik tiek, kiek j",
-        "1 Sol Ultra“ nurodytas kaip jo pateikta kūrimo deklaracija. Nepriklausomų modelio tapatybės metaduomenų patikrintoje Git istorijoje nerasta. Trečiųjų šalių komponentai Eigen 5.0.0 taikoma MPL 2.0 ir atitinkami papildomi pranešimai; JSON for",
-        "ssion from Rimas Karpavičius is required to exercise rights independently granted by those third-party licenses. Preserve all applicable third-party notices and comply with their conditions. 4 AI assistance The rights holder states that GPT",
-        "ng development. This is a rights-holder declaration, not an independent verification of the model used. It does not assign ownership of the AI model or its provider's intellectual property to the rights holder. Copyright is asserted only to",
-        "a anksčiau naudotas asmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus rakto išlikimas vykdymo aplinkoje negarantuojamas. Atspaudas turi sutapti su patikimu kanalu gautu atsp",
-        "s raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus rakto išlikimas vykdymo aplinkoje negarantuojamas. Atspaudas turi sutapti su patikimu kanalu gautu atspaudu. Parašas patvirtina turinio vientisumą ir atitinkamo rakto pan",
-        "043 Git laikas UTC: 2026-10-22T06:50:18Z  |  Parašo būsena: unsigned Atverti paskelbtą licencijos įrašą Medžio SHA 4e5c375c29c9d59af709790998acc89cf87d6053 Patikrintos ankstesnės versijos Patvirtintas v6 pagrindas  |  2026-10-21T10:54:30Z 4",
-        "key of Rimas Karpavičius. The signature does not change the unsigned status of the historical Git commits or certify legal ownership. OpenSSH  ssh keygen manual",
-        "nys. SHA ir SSH reikšmė Visi keturi čia pateikti Git įrašai nepasirašyti. SHA yra Git objekto identifikatorius. SSH ryšio autentifikavimas, Git įrašo pasirašymas ir archyvo pasirašymas yra atskiri veiksmai. Atnaujintam galutiniam archyvui t"
-      ]
-    },
-    "pdf": {
-      "byte_identical_to_output": true,
-      "sha256": "bda9c081707f01153006e41d642e6e28ee3753dc2a0c077aa96999a8e62d92bd",
-      "fingerprint_present": true,
-      "key_scope_excerpts": [
-        "0-22T07:07:27.532080+00:00\nRakto kilmė ir pasitikėjimas\nTai naujas šiam projekto leidimui užduoties vykdymo aplinkoje sukurtas raktas. Jis nėra anksčiau naudotas \nasmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus i",
-        "dymo aplinkoje sukurtas raktas. Jis nėra anksčiau naudotas \nasmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus \nrakto išlikimas vykdymo aplinkoje negarantuojamas.\nAtspaudas t",
-        "enerated project key is not an independently \nauthenticated personal key of Rimas Karpavičius. The signature does not change the unsigned status of the historical \nGit commits or certify legal ownership.\nOpenSSH  ssh keygen manual",
-        "s GPT 6.1 Sol Ultra. Tai teisių turėtojo deklaracija, \no ne nepriklausomas naudoto modelio patvirtinimas. Šis įrašas neperduoda teisių turėtojui DI modelio ar jo teikėjo \nintelektinės nuosavybės. Autorių teisės deklaruojamos tik tiek, kiek ",
-        "1 Sol Ultra“ nurodytas kaip jo pateikta kūrimo deklaracija. Nepriklausomų modelio tapatybės metaduomenų \npatikrintoje Git istorijoje nerasta.\nTrečiųjų šalių komponentai\nEigen 5.0.0 taikoma MPL 2.0 ir atitinkami papildomi pranešimai; JSON fo",
-        "ssion from Rimas Karpavičius is required to exercise rights independently \ngranted by those third-party licenses. Preserve all applicable third-party notices and comply with their conditions.\n4 AI assistance\nThe rights holder states that GP",
-        "g development. This is a \nrights-holder declaration, not an independent verification of the model used. It does not assign ownership of the AI \nmodel or its provider's intellectual property to the rights holder. Copyright is asserted only t",
-        " anksčiau naudotas \nasmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus \nrakto išlikimas vykdymo aplinkoje negarantuojamas.\nAtspaudas turi sutapti su patikimu kanalu gautu ats",
-        "s raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus \nrakto išlikimas vykdymo aplinkoje negarantuojamas.\nAtspaudas turi sutapti su patikimu kanalu gautu atspaudu. Parašas patvirtina turinio vientisumą ir atitinkamo rakto \np",
-        "043\nGit laikas UTC: 2026-10-22T06:50:18Z  |  Parašo būsena: unsigned\nAtverti paskelbtą licencijos įrašą\nMedžio SHA\n4e5c375c29c9d59af709790998acc89cf87d6053\nPatikrintos ankstesnės versijos\nPatvirtintas v6 pagrindas  |  2026-10-21T10:54:30Z\n4",
-        "key of Rimas Karpavičius. The signature does not change the unsigned status of the historical \nGit commits or certify legal ownership.\nOpenSSH  ssh keygen manual",
-        "nys.\nSHA ir SSH reikšmė\nVisi keturi čia pateikti Git įrašai nepasirašyti. SHA yra Git objekto identifikatorius. SSH ryšio autentifikavimas, Git \nįrašo pasirašymas ir archyvo pasirašymas yra atskiri veiksmai. Atnaujintam galutiniam archyvui "
-      ]
-    }
+  "scope": "Nepriklausoma galutinių1.1redakcijos viešų artefaktų patikra. Išskleistas tik SSH patikrosZIP; private/ ir privataus rakto atsarginė kopija neatverti.",
+  "fingerprint_expected": "SHA256:bUMPnbrOyyZtlXrSEdKTy00x/4ZB4Xx63wX1J/B6UAs",
+  "openssh_shell": {
+    "exit_code": 0,
+    "stdout": "Good \"grandiniu-ld-release\" signature for grandiniu-ld-release-20261022-v11 with ED25519 key SHA256:bUMPnbrOyyZtlXrSEdKTy00x/4ZB4Xx63wX1J/B6UAs",
+    "stderr": ""
   },
-  "public_metadata_copies_match": true,
-  "internal_sha256_manifest": {
-    "entries": 32,
-    "failures": []
+  "fingerprint_from_public_key": "256 SHA256:bUMPnbrOyyZtlXrSEdKTy00x/4ZB4Xx63wX1J/B6UAs Grandiniu_LD release 1.1 2026-10-22 (ED25519)",
+  "tampered_zip_in_memory_exit_code": 255,
+  "hashes": {
+    "archive_sha256": "9277b9c3e0baf9a8c708142383ddd861300537445f92168aedb335cd8af74346",
+    "signature_sha256": "073185e22313a783cf6450bb5c073ad8b057c9843a4d355006ebf4bc4adf4d9a",
+    "verification_zip_sha256": "af749f614072a110b9d86a6131219b2891196bd2ff1993883c39a41bd0d62886",
+    "runtime_zip_sha256": "5fbc209b210d3a4f2fb90c47f6c114bbca3c81ab3c9baf0d5e936aaa6f7274d4"
   },
-  "nested_app_matches_standalone_output": true,
-  "public_archive_secret_scan": {
-    "recursive_entries_scanned": 589,
-    "private_key_filename_hits": [],
-    "private_key_header_hits": [],
-    "scope": "Tik du perduodami ZIP ir jų įdėtiniai archyvai; išorinės raktų saugyklos netikrintos ir neskaitytos."
+  "original_runtime": {
+    "baseline_sha256": "637dd5fdb49abaadc4ef5774a7b04f3a6099fbdc1364a444d2b9e44770817bae",
+    "original_file_count": 222,
+    "changed_original_files": [],
+    "new_runtime_member_count": 234
   },
-  "windows_limit_explicit": true,
-  "independent_openssh_tests": [
+  "notice_copies": [
     {
-      "case": "original_final_archive",
-      "exit_code": 0,
-      "accepted_as_expected": true
+      "name": "LICENSE",
+      "canonical_sha256": "b924d885de7327bbf3d48f792e3aadb76e514ad4d74fbff0858ebbe5dbb21841",
+      "copies_checked": [
+        "git_root",
+        "git_studentui",
+        "runtime",
+        "full_licencija",
+        "full_source_root",
+        "full_source_studentui",
+        "full_nested_runtime"
+      ],
+      "mismatches": [],
+      "CURRENT_LICENSE_digest_matches": true
     },
     {
-      "case": "one_added_byte_in_memory",
-      "exit_code": 255,
-      "rejected_as_expected": true
+      "name": "LICENCIJA_LT.txt",
+      "canonical_sha256": "0ad4ac55e1124bb0090233661300b68ecfd6fb8588a3e68102c19dace18e134e",
+      "copies_checked": [
+        "git_root",
+        "git_studentui",
+        "runtime",
+        "full_licencija",
+        "full_source_root",
+        "full_source_studentui",
+        "full_nested_runtime"
+      ],
+      "mismatches": [],
+      "CURRENT_LICENSE_digest_matches": true
     },
     {
-      "case": "wrong_namespace",
-      "exit_code": 255,
-      "rejected_as_expected": true
+      "name": "COPYRIGHT_NOTICE_EN_LT.txt",
+      "canonical_sha256": "1539884f6dfe6c1bacd871532f4bd140fa05cd07d76ccdea6c3a380767cffe3e",
+      "copies_checked": [
+        "git_root",
+        "git_studentui",
+        "runtime",
+        "full_licencija",
+        "full_source_root",
+        "full_source_studentui",
+        "full_nested_runtime"
+      ],
+      "mismatches": [],
+      "CURRENT_LICENSE_digest_matches": true
+    },
+    {
+      "name": "THIRD_PARTY_NOTICES.txt",
+      "canonical_sha256": "592bfa43dc5c86e48fa62946c6833b68f7aff63ed61114e9dd0179d27b03d458",
+      "copies_checked": [
+        "git_root",
+        "git_studentui",
+        "runtime",
+        "full_licencija",
+        "full_source_root",
+        "full_source_studentui",
+        "full_nested_runtime"
+      ],
+      "mismatches": [],
+      "CURRENT_LICENSE_digest_matches": true
     }
   ],
-  "fingerprint_verified_from_public_key": "SHA256:M7TjtCmzarwlyBhi420fRarK0Bpth1qskfXS175U6X0",
-  "archive_sha256": "fca4e2a128d8a6a9d0b0a43bd112601d9e472a0a1e76d65e9ddc2ce24a829ffa",
-  "verification_zip_sha256": "8d5adddefe8410349c513982777cc7b33cd54b3f35ae6477c0913ec5e2c544f7",
-  "key_scope_text_review": "DOCX ir PDF aiškiai įvardija naują projekto raktą, jo atskyrimą nuo ankstesnio Rimo asmeninio SSH rakto, nepriklausomo tapatybės patvirtinimo nebuvimą, privataus rakto neplatinimą, išlikimo ribą ir nepasirašytų istorinių commit būsenos nekeitimą.",
-  "status": "PASS"
+  "document_copy_identity": {
+    "docx": true,
+    "pdf": true
+  },
+  "pdf_page_count": 6,
+  "language_units": {
+    "source_PAIRED_TEXT_sha256": "a1f177d5ce77818fb2023e22b297d2dae62390134eeec0f008e13ab38354c376",
+    "source_LICENSE_CLAUSES_sha256": "ed3b6e6731a69841f8330f40d0aa49e3a0466477491a1adde2dd0b983b6575fa",
+    "expected_units_per_language": 43,
+    "actual_units_checked_per_language": {
+      "en": 43,
+      "lt": 43
+    },
+    "checks": [
+      {
+        "language": "en",
+        "unit": "provenance_title",
+        "source_text_sha256": "f4f08c2e570d9820f7c4e7f95740684981493b7c0d3b6b4d06c32a7ac701d764",
+        "source_compact_sha256": "69c662627b81e889bd62dffcfcdb3d87f83241047f875d26ad8152a83ecfd9d9",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "provenance_intro",
+        "source_text_sha256": "e8287e966898a2ac08e31eb9e3520e4fe34d88bed2807706a1b6090a2e4e2f51",
+        "source_compact_sha256": "a57dea1b7920ba09b665036de5d83859619ffee62aa2d9fe0d93f003108b88a9",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "repository",
+        "source_text_sha256": "dbb4eb16e41e05f9000510e9bc221adfed1b357592bde4ee0cd983e462c8daf7",
+        "source_compact_sha256": "1cf3a99b538db96c0c71bd5eb39d3751a7a887c11badef4aedfa025ccad4fb08",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "prior_commit",
+        "source_text_sha256": "c8709ebc9c6e110f60bf0202155789e078ff33c51bc7f1e49fa94ebedb901f31",
+        "source_compact_sha256": "4e5e97e8170adced12cbe47bc5cd960f4502d2a089d29e059cf16203ea6e5c99",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "first_license_commit",
+        "source_text_sha256": "0134c87d31cc079f0891cab86acd7bc55e4fb2fec1c7bb2c70d3104895f27309",
+        "source_compact_sha256": "f73b1cd24ba86142c31d85b62eeabdaec63ad3996d602351433419bc48aba9b3",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "runtime_commit",
+        "source_text_sha256": "a4e98d60b9b1ab1894e1fb91e95ff83cf905d91045c51c159fa5c87ffe620675",
+        "source_compact_sha256": "a85d567cbb8d61b2febec36184cf3bce8b69f9b4b643c8d44a61f73a12a5ed6f",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "git_limit",
+        "source_text_sha256": "0885dd877ee71500fe63fb3a9117a2f7a95ea05a9a60522e3e7532f841732ed9",
+        "source_compact_sha256": "2b7d5d577e9d2c5df5634f4bc8ccc26a594a29ea2178cc83ace08865690ac60b",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "artifact_hashes",
+        "source_text_sha256": "24c3fb76a6e6097f57c427e25cfab425a48ffeda72160b0dc0961e6040ba46c6",
+        "source_compact_sha256": "323f29125a34e7f8114fb4e351c2c7471c0f7285fd09c5255d2fdee1dc4c9934",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "artifact_limit",
+        "source_text_sha256": "2709142802dc7b550fd23d9ea85196338bc32f4c3dd1fd94522cc9536c73d061",
+        "source_compact_sha256": "408be13e1e4e9e3bab0165e64cd1de69751359cd73c3a565c90807730e9304f2",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "declarations_title",
+        "source_text_sha256": "9afdc0ad22c2ba1e3045709e25b931bdb332aba7e4943b5412e91cd5b28e5e1d",
+        "source_compact_sha256": "2be192938e41c0678397fcf11084a077ab1b8a9ecb37e25b819836c1053abac6",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "declarations",
+        "source_text_sha256": "d576c3d516a0a8537a9b68576bdfde6d59e02012a925f41628ebb55513caea23",
+        "source_compact_sha256": "6fcdbf759e9c4c7502fb8fa0bda35668470b731de6cb933df520ac9b3fba831d",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "third_party_title",
+        "source_text_sha256": "b685971b31df5a2e302f8c03732f9bcd5ad94728856aaa16fff1bd90b28b0288",
+        "source_compact_sha256": "ef2a4d7e9cedb1d6cfe83c01c33c57a761a1834c552c68488b9d3f2efb15a570",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "third_party",
+        "source_text_sha256": "62095019e165f9725c51581eb078aae8f94fa35fc16f394bb6ec28d8ef4f1cda",
+        "source_compact_sha256": "bd3f6c9519ac52e08cdc8fd360be678339c310c044d2dc31403812f8d1e6c79c",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "sources_title",
+        "source_text_sha256": "a8e5bbbecd0c709b54d5809df30e03c66c3e16b93c8e6cb77ada52166abcdb04",
+        "source_compact_sha256": "2e4a72d082027b7852b5af77fd5c75ddb8e1486ba75dcd4c8a93cb8571df0b84",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "signature_title",
+        "source_text_sha256": "216d2ab0353e2cb66375bbbc675097f4942042b5769e1b841e14f4a9f2d0298c",
+        "source_compact_sha256": "dea7ed72b58bc72a6aa0232f649cea5959d19d67ad205387e29858265ef5e4c8",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "signature_intro",
+        "source_text_sha256": "21e9bb9d3a54ed634c26b16cd5fb26bf88ffee20d33207d039c9b437dbdb1876",
+        "source_compact_sha256": "2cf7bde2fe06280dc79731461aa5afc3765f1ba62ee3320da531f4cda9a5355b",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "fingerprint_title",
+        "source_text_sha256": "2ad8edd397aa6ad72d951bd8db4c903e8a5a8bf84d49b6c27d96f8c9585f6eb8",
+        "source_compact_sha256": "4c820214ce00bb25e5c614c5da6f9196ee60e49119dbbb6304fc5bd9bb955971",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "signer_id",
+        "source_text_sha256": "4f676468bb9bcea69a3e402de535ced252f1024a529afcf0e81d23d7f881e523",
+        "source_compact_sha256": "b281e125cb99ab030cf425cb340755e790c50410758dec08396a3993d3b9f7bf",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "namespace",
+        "source_text_sha256": "82e192d52ce843b76dde63258575ba75173227e693ccb7d1d1030425c77e4b8f",
+        "source_compact_sha256": "e06fc8f005548e93d999b66663588df3bab76c52b6d1cda230f6a1cf2de8350f",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "key_date",
+        "source_text_sha256": "7a05e1809482580495437d86bbe0486994962f9f470e0406e1e9e5339a62371b",
+        "source_compact_sha256": "0d8b3594632b8f6da95b8ceaa4b14323f9332662a0dcfd2e7fa08e2e0db5a896",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "key_origin_title",
+        "source_text_sha256": "84b4174375753b21018b80b5f0528effe444ca11ec157f25dc2d627190070841",
+        "source_compact_sha256": "8753542977c689d22e9f5183ea4173c07bf168b2a5e34fadc4d32431f6cfd341",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "key_origin",
+        "source_text_sha256": "b02892d5d03eed13e1cd1feac4bb08b6a60ca857a327a6338d0af51854c5c348",
+        "source_compact_sha256": "532dcf2bc030690796da785367706ab1cfc35d30968b573804a0fd1c99cf73fa",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "key_rotation",
+        "source_text_sha256": "efcfd3f40808368d0647b957a5d894cef2bfbc4482a126d2f61539576565317b",
+        "source_compact_sha256": "c0dcfafcc268e8b68bf7000db1dcf9e17bc501d27da3f88eb15e9e65930868e7",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "trust",
+        "source_text_sha256": "a17024e604c39dbb04e339162123ae8b6743e4b6ba9b9c1c9f257fe2d421c210",
+        "source_compact_sha256": "fa53f4f075b74b49b6b37b6bf08b2737cf4a03c87622f2262309d6a526087a99",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "verify_title",
+        "source_text_sha256": "6a3810606b684ea2ba78325219d0d8cb7d12606c7a06a582f9f350656f5575a7",
+        "source_compact_sha256": "127b21d16d55bb43073b4836b7e79ea9a4fb46ed1bb24aa0bb10f52210698a93",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "verify_intro",
+        "source_text_sha256": "304b5fa597bff5dfc3a9bcdbd826496a90d297856ab35be3306caa7c68bbf420",
+        "source_compact_sha256": "973d762df9f355d15bfcb2abee8847c48d4e81abfb4ad0d73ed62ddaffe81206",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "verify_result",
+        "source_text_sha256": "c0c3fb64fe218c4f92ecb14eefe968d64d321bc28924967eb90f8ebaa29ec7fd",
+        "source_compact_sha256": "a093b4ce7364e07e8d5d8847186688cb09f7071b69f8aff26798e74df5ed7c91",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "receipt_title",
+        "source_text_sha256": "c554d5583c30b9e6bd54e1424388982d2ea02029c487239d700c32c85fb2d508",
+        "source_compact_sha256": "388fb5306b245854ea743f599ec22ba5071b7549df3423fa2ad395e9f2219f1c",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "receipt",
+        "source_text_sha256": "0138fcc936c83373a9ff0caeb50a96b3acc5bf3a8135ad8d4202dc2462267ab8",
+        "source_compact_sha256": "d26070963ec1d4102fcc1e31e9a96384ce8fe2dae0ad381629ea67ccfb504aa3",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_1_heading",
+        "source_text_sha256": "d676a953b8dcd5c4f4dbef04c5e2ddbc7233ef20baa60c36dd497015b830a046",
+        "source_compact_sha256": "60c4750c3a1f0729d6ad7c5223fdbc59a3aa7cbf8c31df66dfd989beb36f9262",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_1_body",
+        "source_text_sha256": "d516030d3431902b63d930adc188baf839bb70418ee8ec31c20bc23dc7f7f6d4",
+        "source_compact_sha256": "a564e3770707739545b62a2581556f5a887298119e1c12512327f6feae2fea63",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_2_heading",
+        "source_text_sha256": "d00fdbcc2ad4a7c58116eb2ea8241b14c99765432940b19f28ed1c02faf99c67",
+        "source_compact_sha256": "f7949e0603dbbda41d73747e4285ee884cfbd3f3af07c97d432ada3a54d15128",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_2_body",
+        "source_text_sha256": "9c69d18dd1a60d6e04eeb46b9fcae5d37aecb6c9d32a14be47e069bdce24028b",
+        "source_compact_sha256": "698c9fc0c2b65805f17ebfc5280abc61839662815f0509f81ee1d1b5b4cbff2c",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_3_heading",
+        "source_text_sha256": "df88dd5e4d108cd4d419296f199c808e48c3d9a1c197bba389928aa5e35244a8",
+        "source_compact_sha256": "21817499fcceac1ee65a7865a1078cf2f134e6efc3bcddba7a60e5ab0030da8d",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_3_body",
+        "source_text_sha256": "46e6ab9b0d18f2a876c2f724ae6465067a27129bb21fd9c58250921246422f67",
+        "source_compact_sha256": "de3acb0160aca0e88a6adddf4ebfe07fdae3bfbb7651f53d38f1eae2973425ca",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_4_heading",
+        "source_text_sha256": "22a65461bf9b4455cfc4e29e741ae66238e56d7bc9bcb60724d00d1963a94b9b",
+        "source_compact_sha256": "19879ced76374080329a305cc6634031d52911e3506d8a6deb7edf834e7ecbe0",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_4_body",
+        "source_text_sha256": "697320e307dd9546e23c6ec84d43876e35f617d502c1c6e99d9072b06e99e844",
+        "source_compact_sha256": "bec86d69a2d616a80db5477cd48b5848389b711c1c668507c20302d60a6e65f8",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_5_heading",
+        "source_text_sha256": "b91041d90e081f313647819e2ab62be2b74f0d9f8de0b150a522ad6c70c4191a",
+        "source_compact_sha256": "670fe6ea574669c317eb3027e1aaf96fa8709e1c3e07af75cbb962a4d96bdd64",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_5_body",
+        "source_text_sha256": "029bd7e0b5ca43659fb2751b7e99ad5555f31f1b3e540467b7c7060a93ae132b",
+        "source_compact_sha256": "79fb8486139f5cf3ec0e8210eab31fbb52e8843e0bdc8e74bd537eca1578343d",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_6_heading",
+        "source_text_sha256": "da2a34c7d9836071b99e9dba1754a7b4253560b2bedda1660196055af70bfdc6",
+        "source_compact_sha256": "71459ba9ba2846d7ab44c935e09a750af166c979eebf8b4983fca33f1bfa75fa",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_6_body",
+        "source_text_sha256": "a918e65b40d7a9dba87628efb7d1177b0a8361065d57cebd54382ae48d38e20e",
+        "source_compact_sha256": "b164038131878732c17680258e6b198eb380df8a4f96442ebcd964ac1660e499",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_7_heading",
+        "source_text_sha256": "b6640a7bbcb1a4996690d931ba4fe0970b7b51033789bfc55d54dbecc81510dd",
+        "source_compact_sha256": "1989c9fa6b4a7721f811887a404a741678dbf1d0b2ce234cfc4643240fc87423",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "en",
+        "unit": "license_clause_7_body",
+        "source_text_sha256": "e22735b2943502e8660620308acfc0cb999d6956d02f28a96f2c21f45dd87f30",
+        "source_compact_sha256": "b31b6b250272f5a9ae1589ac99fb9e4c8b01a7bcdb3d58e96f658d83b080d809",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "provenance_title",
+        "source_text_sha256": "7c5c5b5c706ab674b4f14c837199a60661f3a9484ab8515315ddcb0046bd2466",
+        "source_compact_sha256": "a4c8ed8e0aa9dd06799991e7acfb5a10b6971f8134e478d562482438d2fc3c77",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "provenance_intro",
+        "source_text_sha256": "ab029305652176ec619d131fa1baf8080b9231c5c5a05786c1273542907d824a",
+        "source_compact_sha256": "1ec7a93066276c1f7fd0c161f29782e1a3446c5523359ab57c440ad9700e3b26",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "repository",
+        "source_text_sha256": "ece708184dd9f23de5e8c1342b12ad452f1e415763a8c6703714da71449664a6",
+        "source_compact_sha256": "b347620f9a9b95358f42cb00ff55aa8a07336e56bb24b7e9dfd98bd6f8b11fed",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "prior_commit",
+        "source_text_sha256": "a9398eaaee85bc95e35b946ab09370e9c78ab71156090d59a253746fa951e5e2",
+        "source_compact_sha256": "34b37822e93f8be43687b72fa38d95362ba818b4da4f07bc71b6f3b0d14fd599",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "first_license_commit",
+        "source_text_sha256": "d4e4fea6996e153e17074b3e6e8a5c03d4f8fec03dc426c2591e951946c99ab2",
+        "source_compact_sha256": "0e1ca8afec2370f95dd795fa5f88b2bf22b9efa7a05ef0c8d5ab91aefa339f1e",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "runtime_commit",
+        "source_text_sha256": "9fdc1214a921b3342202fc19598cfc15ca51074f9093ee49e3f037d410984d1f",
+        "source_compact_sha256": "c46abcf293f14089a893690c4c4a2e37016bc6e88a84b1eb7af5bb0c0f2ee24d",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "git_limit",
+        "source_text_sha256": "7b9f965ec8d04ba550a960fbc5cc3db0175cf614b280c1db55dfcef7168dcc66",
+        "source_compact_sha256": "4d1f598132b1450dbc6d8fb03edbe90dbe0b64333355ec01f197803fc5fd84d6",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "artifact_hashes",
+        "source_text_sha256": "6f4fcea8c934867376e2235cf0ad9267fc877882d87c6b71364aba7b1d3d539b",
+        "source_compact_sha256": "80e17849661ead99e8d0481f1f3376ec448bdbea3a2b06266f741d5ec03c8aaf",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "artifact_limit",
+        "source_text_sha256": "26cc4b92b7f35305f4d5c78948d98dd2ed2f0f2e981ee8b77e25f56e6fcac9d7",
+        "source_compact_sha256": "9b4c39d42b5aa3afbf6e2bcc427dd8645390ebaa92e4e7a99991b2942e64f9ed",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "declarations_title",
+        "source_text_sha256": "632874caf115fbba143bc3bbcb6c113c64f6ac2bfbc8f402613014d343ca84d2",
+        "source_compact_sha256": "56c67c38379e5548dd58381be6eda665ceaca05a6e2be4c52a814272f31e321c",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "declarations",
+        "source_text_sha256": "57958ef1502ab17be82c61b243a0ed82dad7b25728c4d55d6fd1b730710f3355",
+        "source_compact_sha256": "66df5b01a80dc314b66c75e673cb377c2a4321631ae664b19b38636ca007bde2",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "third_party_title",
+        "source_text_sha256": "99a6f07412036da8e1d53e5e51aa160a9ac7847b3a205e96ae8c2908591f1e7a",
+        "source_compact_sha256": "d0e09cb4f180320560e8389bf6e41e7b89bd38870ee6b83df7810f2781767eee",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "third_party",
+        "source_text_sha256": "4ca10b651562eab7aa9cdece512fcbf7a99b2270152c84726881102240031a1b",
+        "source_compact_sha256": "d9dd13b48c13defad6119907d351fe4d2128170d629644a30dfd50ac8448b4d0",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "sources_title",
+        "source_text_sha256": "69ba5febd7fcf952664b7012ce054275ed6118ea815686f8d1147f7ffd5c605c",
+        "source_compact_sha256": "3280c75cf0438fbead5efd6b51e3d777af40b0b2b7f4ec09772225607bc2ea69",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "signature_title",
+        "source_text_sha256": "964d2a0d756b63dd9eaa399aceee1fda036456bf6649f436c05b94a780b63695",
+        "source_compact_sha256": "2d989225f796afb5548d0c0e06e94e80fe3d49433ad8e6b5d1787ba140fa19b4",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "signature_intro",
+        "source_text_sha256": "f8b81ef253360e62bc42fdd718b0e58a9817725ccfbbbde4ef34257c0c782ca3",
+        "source_compact_sha256": "2d8b7a8e26ba15d4ecea5f60ce9c2aedc708f4426b7c670e71006d2a9d3abbe4",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "fingerprint_title",
+        "source_text_sha256": "27f46371edd3d4ef11a0ef05c6d83805a66a2d5bfcfdcdf8b0f6209241d5a18f",
+        "source_compact_sha256": "492cb03ada90087d06df3b7861c40108eb42f39b238512c7ee1c77e560cd5c0d",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "signer_id",
+        "source_text_sha256": "471d8203a13539aa156af27cd670e9e4a21c42443ebc75db0e6b57b98a3942f2",
+        "source_compact_sha256": "f99d2d479659361e3685b3c2cf54d03ab1f71146158bd950914f3eb6283c9265",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "namespace",
+        "source_text_sha256": "b6360e1dc3fd844379314dc1c0517d6ed6374a0892f7bcbf5276f121922a2ea1",
+        "source_compact_sha256": "846fef7cb97cff4fd20afa5e14399d33fb3a2efb9c46832f9041dee6afe71a97",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "key_date",
+        "source_text_sha256": "70a7df233d8eb80f5584c31aa35bc0de5f4e3a86c839e2c70788b09907d2097f",
+        "source_compact_sha256": "d821b4c5cfa9426e9d4c5995ee705a21751354982301c677e2d314687cbcc70b",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "key_origin_title",
+        "source_text_sha256": "cc744dcb30eaae9a7d5150471a1b9644d973f01b761f497a562141520b0d095e",
+        "source_compact_sha256": "d4de31990561c5418653b70f16e7122b50781724667377588f2fe10c5ef93de3",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "key_origin",
+        "source_text_sha256": "a861fc142c4287dd3cebac5fcda7fc48ae94401e6c33e3730c8eb28681670e33",
+        "source_compact_sha256": "3374834101b1d66ad3085dc837732027f63c8500eaa1d9f40984ec771cc94a7e",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "key_rotation",
+        "source_text_sha256": "7b6054a82c66df1aff2400dff18ef27076d7758f68a5ac3ea185a8f0d80c2859",
+        "source_compact_sha256": "30faaf292d1c13b19b34811bcb4a4aa9ac9d161ec8b28783f6318dd2327309d0",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "trust",
+        "source_text_sha256": "bc1dfcc0bc08d3b8ee94c7c134d74cb6ef363cbd713c3d6d589f9edcf34802d3",
+        "source_compact_sha256": "25020cda5d8f500814b3b9ca39de2eac45cf3cc607100cf3f4f6a56fcf13a875",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "verify_title",
+        "source_text_sha256": "ea804cea3b5c39cb348600e51ac2c14eb7941d8581e328af5026b748fb0a25bb",
+        "source_compact_sha256": "1c6b7683551b46338a1b61536a47ff839e4c7d6d6748af88ee3cc8779786635c",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "verify_intro",
+        "source_text_sha256": "54c6fe4363223e83fd333892f02e541e63c68539a3a4ff7b3d9eb57da5754392",
+        "source_compact_sha256": "0a2dfe11758a56448073c6cb8ec0f516e6ca5509ee80369c0177952505f976a2",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "verify_result",
+        "source_text_sha256": "e2b41aaed7907fd851bc85b4a3cd5f4c02cd56b4669372e3bab29eafa1831c1e",
+        "source_compact_sha256": "380f73317fad9371afed72c0f9d3629b8b2fd34376c02699aec5df247334b027",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "receipt_title",
+        "source_text_sha256": "fec4dd3af0dc911aee46d5ccddab7309dcc37eebed2b52c8488375fd34f5736e",
+        "source_compact_sha256": "2018f269a0d780cd2544b21676291b45a248695be23221308f970a813d7a6d9a",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "receipt",
+        "source_text_sha256": "d2764d8d7ecb3c6eb0e8e3434650a4a993d3743b6e6721a3078d6921ca7249a4",
+        "source_compact_sha256": "5536a7de4a12e6f109a2a29b2f29cea295a2fe27f87e7317aeafdb7663c42ade",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_1_heading",
+        "source_text_sha256": "988bbc45db1954cfdb8f7e731e06cfb349f0328b6ebcabd30d9083c37130f129",
+        "source_compact_sha256": "b98a3f2c4c22986f709671c85356ba90f855a167a3c222d86fbfb7900d360184",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_1_body",
+        "source_text_sha256": "1920379b4d194d8c95602b788d52a1b8d6e19e7da29452aebdd267f165731ca0",
+        "source_compact_sha256": "cf556b4756d0b3b4bfde49652352fd74d89fc0ae64032b0ff7bddbbbdcb65e20",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_2_heading",
+        "source_text_sha256": "6a4751ab6909629f6cbc18642551d50fc9a4ad5acbc50c175422d81b5a743fb8",
+        "source_compact_sha256": "8a115d4ee0a7404a3e1c5c9df9c4a83ee029aec4a9dfb0347d3174ad94e12d7b",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_2_body",
+        "source_text_sha256": "313cc833f5f0d8b03857f50f31b9084c443619ba0deeb8eab1114896d1c65300",
+        "source_compact_sha256": "bd9523c544fd1248a44bbe6f8f2b57628124a0fb75fa965c742229ad6ff1840b",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_3_heading",
+        "source_text_sha256": "921636530013b920641476984c83fc6c1646b3b0e9516bfe3a40f36905b620ab",
+        "source_compact_sha256": "e81613463699f1b39145fcdb274c0dc6a9eb6966b4d4fceec9dd6c77d4693e86",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_3_body",
+        "source_text_sha256": "c3e9a7e037b3fdbde740a9d227c1a5bb436bff5e359e491dff3af5fed849eff2",
+        "source_compact_sha256": "eaf9177fa921f379a090ec92db4dcfc9302e4e11347932f722462d4e399bc86b",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_4_heading",
+        "source_text_sha256": "fbc87f33c973be22254d5131c3f918db48451e2c4ba89bdec6cd2ac687aa5997",
+        "source_compact_sha256": "11b127f42b7684b7c358959d46ee3825fb898bc1e0f5c6ea618143d9bee576e7",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_4_body",
+        "source_text_sha256": "f66f382274b8d6f97bd39fc22bdb9781bb33e92ae932666a945e8e0fe0a29261",
+        "source_compact_sha256": "e792743c8976fd8bec078a9f8a0b315d89e93ecc4d9a9e1ea1749b73beb6240b",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_5_heading",
+        "source_text_sha256": "0164bc8ec9318993deab0516936ad8d7a3b4621672512626cfc5e26fc2e2981b",
+        "source_compact_sha256": "891c96c324c4af805d277772e7e6820b83e9442a3655e3d975ffdee9e9d5fc70",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_5_body",
+        "source_text_sha256": "5fbdb18db78627dfad73f75ac1128ff57353a26bff6d16a4a1376a21d3596f8a",
+        "source_compact_sha256": "8df15cf90e8e63990beb95f7136675feb6d2eb49e4055ed6b70f29a22ba1696f",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_6_heading",
+        "source_text_sha256": "eabb2881e98b8fc3447b7a10e4a85e20e40b23db9ad0074cf0a19a565ee9e368",
+        "source_compact_sha256": "8b7d89186716538b55011bb0dee838768ddbdb216c2a5fd7257456d272372c8c",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_6_body",
+        "source_text_sha256": "d36098c2764fbf86a06f55c53804c0916aaf39899b65d284f98b4e673a8b8426",
+        "source_compact_sha256": "a7191cdde1b3bd0e3b10d68fac3b9d3df69cbca195922978a7f3f8ae0da7e1ba",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_7_heading",
+        "source_text_sha256": "7a88b4bf94a31f8c3c5f992f45b76ac3c042c8e47aeef5297078ae4d1aa76475",
+        "source_compact_sha256": "7c72105e98aea0bcbfed29fe1bc788fcfb956db47c5b373eee14a47c192b8294",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "language": "lt",
+        "unit": "license_clause_7_body",
+        "source_text_sha256": "ab918504787e2e2150a9766a9dadd19811ff7ae5d96318ea506dda3dbe6a61b7",
+        "source_compact_sha256": "183e69b5b5f6084b6072b5ec45d8e20f411a376d8a330db9f170a6848f15b822",
+        "present_in_DOCX": true,
+        "present_in_correct_PDF_language_pages": true,
+        "PDF_page_group": [
+          2,
+          4,
+          6
+        ]
+      }
+    ],
+    "verified_PDF_page_layout": {
+      "en": [
+        1,
+        3,
+        5
+      ],
+      "lt": [
+        2,
+        4,
+        6
+      ]
+    }
+  },
+  "embedded_source_identity": {
+    "PAIRED_TEXT.json": true,
+    "LICENSE_CLAUSES.json": true,
+    "FACTS.json": true
+  },
+  "internal_manifest": {
+    "entries": 43,
+    "failed": []
+  },
+  "historical_evidence_unchanged": {
+    "full": true,
+    "source": true,
+    "runtime": true,
+    "publication": true
+  },
+  "private_key_header_scan": {
+    "scope": "Tik perduodami viešiZIP; private/ ir rakto kopija neatverti.",
+    "hits": []
+  },
+  "issues": [],
+  "status": "PASS",
+  "checker_correction": "Pradinis tikrintuvas klaidingai grupavo1–3puslapius kaip EN,4–6kaipLT. Perskaičius tikras puslapių antraštes nustatyta pakaitinė kalbų sandara:EN1,3,5;LT2,4,6. Patikra pakartota pagal faktinį dokumento išdėstymą; dokumentai ir reikalavimai nebuvo pakeisti."
 }

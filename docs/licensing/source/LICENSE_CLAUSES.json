@@ -1,0 +1,62 @@
+{
+  "en": [
+    {
+      "heading": "Rights and scope",
+      "body": "Rimas Karpavičius identifies himself as the rights holder for the original protectable software, source code, documentation, graphics and other materials that he created or in which he lawfully acquired the relevant rights for the Grandiniu_LD project. This notice applies only to rights that he actually holds under applicable law. It does not claim ownership of third-party materials, general ideas, facts, algorithms as such, AI models, or material that is not legally protectable."
+    },
+    {
+      "heading": "Prior written permission",
+      "body": "Except as provided in section 3, installing, running, using, copying, modifying, publishing, distributing, selling, sublicensing or otherwise exploiting the covered materials requires prior written permission from Rimas Karpavičius. Request permission at karpaviciux@gmail.com. A request, silence, public access to a repository, possession of a copy, or attribution alone does not constitute permission. The written permission must identify the permitted purpose and scope. This notice itself grants no general right of use."
+    },
+    {
+      "heading": "Existing and third-party rights",
+      "body": "This notice does not restrict rights granted by a valid earlier license or written permission, mandatory law, applicable statutory exceptions, or the terms of a hosting platform. Third-party components remain subject to their own licenses and notices. No permission from Rimas Karpavičius is required to exercise rights independently granted by those third-party licenses. Preserve all applicable third-party notices and comply with their conditions."
+    },
+    {
+      "heading": "AI assistance",
+      "body": "The rights holder states that GPT 6.1 Sol Ultra was used as an AI assistance tool during development. This is a rights-holder declaration, not an independent verification of the model used. It does not assign ownership of the AI model or its provider's intellectual property to the rights holder. Copyright is asserted only to the extent recognized by applicable law."
+    },
+    {
+      "heading": "Unauthorized use and remedies",
+      "body": "Use outside the permissions and exceptions stated above is prohibited. Unlawful use may result in claims for cessation, damages or other civil remedies and, where the statutory elements of an offence are established, criminal liability under applicable law. This notice does not itself create an offence, establish liability, or impose a penalty."
+    },
+    {
+      "heading": "Warranty and liability",
+      "body": "Unless a separate written agreement or mandatory law provides otherwise, the covered materials are supplied without a promise of fitness for a particular purpose, accuracy, availability or error-free operation. To the extent the law permits, the rights holder excludes warranties and liability arising from their use. Rights and liabilities that cannot lawfully be excluded remain unaffected."
+    },
+    {
+      "heading": "Language and version evidence",
+      "body": "The English and Lithuanian texts are intended to have the same meaning. If they conflict, LICENCIJA_LT.txt prevails to the extent permitted by law. Git commit identifiers and file checksums identify versions; they do not independently establish legal ownership, AI model use, or the existence of an electronic signature. This is a proprietary license, not the MIT License."
+    }
+  ],
+  "lt": [
+    {
+      "heading": "Teisės ir taikymo sritis",
+      "body": "Rimas Karpavičius nurodo esantis originalios teisiškai saugomos programinės įrangos, pirminio kodo, dokumentacijos, grafikos ir kitų Grandiniu_LD projekto medžiagų, kurias jis sukūrė arba teises į kurias teisėtai įgijo, teisių turėtojas. Šis pranešimas taikomas tik jo faktiškai turimoms teisėms pagal taikytiną teisę. Juo nepretenduojama į trečiųjų šalių medžiagos, bendrųjų idėjų, faktų, algoritmų kaip tokių, DI modelių ar teisiškai nesaugomos medžiagos nuosavybę."
+    },
+    {
+      "heading": "Išankstinis rašytinis leidimas",
+      "body": "Išskyrus 3 punkte numatytus atvejus, šios medžiagos diegimui, vykdymui, naudojimui, kopijavimui, keitimui, viešinimui, platinimui, pardavimui, sublicencijavimui ar kitokiam panaudojimui būtinas išankstinis rašytinis Rimo Karpavičiaus leidimas. Dėl leidimo kreiptis karpaviciux@gmail.com. Prašymas, tylėjimas, vieša prieiga prie saugyklos, kopijos turėjimas ar vien autorystės nurodymas nelaikomi leidimu. Rašytiniame leidime turi būti nurodyta leidžiamo naudojimo paskirtis ir apimtis. Pats šis pranešimas bendro leidimo naudoti nesuteikia."
+    },
+    {
+      "heading": "Anksčiau suteiktos ir trečiųjų šalių teisės",
+      "body": "Šis pranešimas neriboja teisių, suteiktų galiojančia ankstesne licencija ar rašytiniu leidimu, imperatyviosiomis teisės normomis, taikytinomis įstatymų išimtimis arba prieglobos platformos sąlygomis. Trečiųjų šalių komponentams toliau taikomos jų pačių licencijos ir pranešimai. Naudojantis šiomis trečiųjų šalių licencijomis savarankiškai suteiktomis teisėmis, Rimo Karpavičiaus leidimo nereikia. Visi taikytini trečiųjų šalių pranešimai turi būti išsaugoti, o jų sąlygų privaloma laikytis."
+    },
+    {
+      "heading": "Dirbtinio intelekto pagalba",
+      "body": "Teisių turėtojas nurodo, kad kuriant naudotas DI pagalbos įrankis GPT 6.1 Sol Ultra. Tai teisių turėtojo deklaracija, o ne nepriklausomas naudoto modelio patvirtinimas. Šis įrašas neperduoda teisių turėtojui DI modelio ar jo teikėjo intelektinės nuosavybės. Autorių teisės deklaruojamos tik tiek, kiek jas pripažįsta taikytina teisė."
+    },
+    {
+      "heading": "Neteisėtas naudojimas ir teisių gynimas",
+      "body": "Naudoti medžiagą viršijant pirmiau nurodytus leidimus ir išimtis draudžiama. Dėl neteisėto naudojimo gali būti reikalaujama nutraukti pažeidimą, atlyginti žalą ar taikyti kitas civilines teisių gynimo priemones, o nustačius įstatyme numatytus nusikalstamos veikos požymius gali kilti baudžiamoji atsakomybė taikytinos teisės nustatyta tvarka. Pats šis pranešimas nenustato nusikalstamos veikos, atsakomybės ar bausmės."
+    },
+    {
+      "heading": "Garantijos ir atsakomybė",
+      "body": "Jeigu atskira rašytinė sutartis ar imperatyviosios teisės normos nenustato kitaip, medžiaga pateikiama nežadant jos tinkamumo konkrečiam tikslui, tikslumo, prieinamumo ar veikimo be klaidų. Kiek leidžia teisė, teisių turėtojas neteikia garantijų ir neprisiima dėl naudojimo kylančios atsakomybės. Teisės ir atsakomybė, kurių teisėtai atsisakyti negalima, lieka nepakeistos."
+    },
+    {
+      "heading": "Kalba ir versijų įrodymai",
+      "body": "Lietuviškas ir angliškas tekstai skirti tai pačiai prasmei perteikti. Jiems prieštaraujant, kiek leidžia teisė, pirmenybė teikiama LICENCIJA_LT.txt tekstui. Git įrašų identifikatoriai ir failų kontrolinės sumos identifikuoja versijas; jie savaime neįrodo teisinės nuosavybės, DI modelio naudojimo ar elektroninio parašo buvimo. Tai nuosavybinė licencija, o ne MIT licencija."
+    }
+  ]
+}

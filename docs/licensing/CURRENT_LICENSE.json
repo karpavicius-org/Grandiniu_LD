@@ -1,0 +1,28 @@
+{
+  "license_version": "1.1",
+  "notice_date": "2026-10-22",
+  "key_fingerprint": "SHA256:bUMPnbrOyyZtlXrSEdKTy00x/4ZB4Xx63wX1J/B6UAs",
+  "languages": [
+    "en",
+    "lt"
+  ],
+  "equivalent_units_per_language": 43,
+  "notices": [
+    {
+      "file": "LICENSE",
+      "sha256": "b924d885de7327bbf3d48f792e3aadb76e514ad4d74fbff0858ebbe5dbb21841"
+    },
+    {
+      "file": "LICENCIJA_LT.txt",
+      "sha256": "0ad4ac55e1124bb0090233661300b68ecfd6fb8588a3e68102c19dace18e134e"
+    },
+    {
+      "file": "COPYRIGHT_NOTICE_EN_LT.txt",
+      "sha256": "1539884f6dfe6c1bacd871532f4bd140fa05cd07d76ccdea6c3a380767cffe3e"
+    },
+    {
+      "file": "THIRD_PARTY_NOTICES.txt",
+      "sha256": "592bfa43dc5c86e48fa62946c6833b68f7aff63ed61114e9dd0179d27b03d458"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 {
-  "created_at_utc": "2026-10-22T07:21:52.463505+00:00",
+  "created_at_utc": "2026-10-22T07:40:13.404323+00:00",
   "backup_file": "Grandiniu_LD_release_ed25519_ENCRYPTED.key",
-  "backup_sha256": "7b8b85867f770f13655d40b09256a2af951f13755bcc64116c1ae7930b8a18ab",
-  "public_key_fingerprint": "SHA256:M7TjtCmzarwlyBhi420fRarK0Bpth1qskfXS175U6X0",
+  "backup_sha256": "45639978f10f5d88bc8bafdd727112405d2e1088801d94f1296270ce680c0848",
+  "public_key_fingerprint": "SHA256:bUMPnbrOyyZtlXrSEdKTy00x/4ZB4Xx63wX1J/B6UAs",
   "cipher": "aes256-ctr",
   "kdf": "bcrypt",
   "kdf_rounds": 64,

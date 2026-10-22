@@ -1,5 +1,5 @@
 GRANDINIU_LD NUOSAVYBINĖ LICENCIJA
-1.0 versija | Pranešimo data: 2026-10-22
+1.1 versija | Pranešimo data: 2026-10-22
 
 Autorių teisės (c) 2026 Rimas Karpavičius (Rimas Karpavicius).
 Visos teisės į originalų teisiškai saugomą indėlį saugomos.
@@ -17,21 +17,21 @@ medžiagos nuosavybę.
 2. IŠANKSTINIS RAŠYTINIS LEIDIMAS
 Išskyrus 3 punkte numatytus atvejus, šios medžiagos diegimui, vykdymui,
 naudojimui, kopijavimui, keitimui, viešinimui, platinimui, pardavimui,
-sublicencijavimui ar kitokiam panaudojimui būtinas išankstinis rašytinis
-Rimo Karpavičiaus leidimas. Dėl leidimo kreiptis karpaviciux@gmail.com.
-Prašymas, tylėjimas, vieša prieiga prie saugyklos, kopijos turėjimas ar vien
-autorystės nurodymas nelaikomi leidimu. Rašytiniame leidime turi būti
-nurodyta leidžiamo naudojimo paskirtis ir apimtis. Pats šis pranešimas
-bendro leidimo naudoti nesuteikia.
+sublicencijavimui ar kitokiam panaudojimui būtinas išankstinis rašytinis Rimo
+Karpavičiaus leidimas. Dėl leidimo kreiptis karpaviciux@gmail.com. Prašymas,
+tylėjimas, vieša prieiga prie saugyklos, kopijos turėjimas ar vien autorystės
+nurodymas nelaikomi leidimu. Rašytiniame leidime turi būti nurodyta leidžiamo
+naudojimo paskirtis ir apimtis. Pats šis pranešimas bendro leidimo naudoti
+nesuteikia.
 
 3. ANKSČIAU SUTEIKTOS IR TREČIŲJŲ ŠALIŲ TEISĖS
 Šis pranešimas neriboja teisių, suteiktų galiojančia ankstesne licencija ar
 rašytiniu leidimu, imperatyviosiomis teisės normomis, taikytinomis įstatymų
 išimtimis arba prieglobos platformos sąlygomis. Trečiųjų šalių komponentams
-toliau taikomos jų pačių licencijos ir pranešimai. Naudojantis šiomis
-trečiųjų šalių licencijomis savarankiškai suteiktomis teisėmis, Rimo
-Karpavičiaus leidimo nereikia. Visi taikytini trečiųjų šalių pranešimai turi
-būti išsaugoti, o jų sąlygų privaloma laikytis.
+toliau taikomos jų pačių licencijos ir pranešimai. Naudojantis šiomis trečiųjų
+šalių licencijomis savarankiškai suteiktomis teisėmis, Rimo Karpavičiaus
+leidimo nereikia. Visi taikytini trečiųjų šalių pranešimai turi būti
+išsaugoti, o jų sąlygų privaloma laikytis.
 
 4. DIRBTINIO INTELEKTO PAGALBA
 Teisių turėtojas nurodo, kad kuriant naudotas DI pagalbos įrankis GPT 6.1 Sol
@@ -45,19 +45,20 @@ Naudoti medžiagą viršijant pirmiau nurodytus leidimus ir išimtis draudžiama
 Dėl neteisėto naudojimo gali būti reikalaujama nutraukti pažeidimą, atlyginti
 žalą ar taikyti kitas civilines teisių gynimo priemones, o nustačius įstatyme
 numatytus nusikalstamos veikos požymius gali kilti baudžiamoji atsakomybė
-taikytinos teisės nustatyta tvarka. Pats šis pranešimas nenustato nusikalstamos
-veikos, atsakomybės ar bausmės.
+taikytinos teisės nustatyta tvarka. Pats šis pranešimas nenustato
+nusikalstamos veikos, atsakomybės ar bausmės.
 
 6. GARANTIJOS IR ATSAKOMYBĖ
 Jeigu atskira rašytinė sutartis ar imperatyviosios teisės normos nenustato
 kitaip, medžiaga pateikiama nežadant jos tinkamumo konkrečiam tikslui,
 tikslumo, prieinamumo ar veikimo be klaidų. Kiek leidžia teisė, teisių
-turėtojas neteikia garantijų ir neprisiima dėl naudojimo kylančios atsakomybės.
-Teisės ir atsakomybė, kurių teisėtai atsisakyti negalima, lieka nepakeistos.
+turėtojas neteikia garantijų ir neprisiima dėl naudojimo kylančios
+atsakomybės. Teisės ir atsakomybė, kurių teisėtai atsisakyti negalima, lieka
+nepakeistos.
 
 7. KALBA IR VERSIJŲ ĮRODYMAI
-Lietuviškas ir angliškas tekstai skirti tai pačiai prasmei perteikti.
-Jiems prieštaraujant, kiek leidžia teisė, pirmenybė teikiama šiam tekstui.
-Git įrašų identifikatoriai ir failų kontrolinės sumos identifikuoja versijas;
-jie savaime neįrodo teisinės nuosavybės, DI modelio naudojimo ar elektroninio
-parašo buvimo. Tai nuosavybinė licencija, o ne MIT licencija.
+Lietuviškas ir angliškas tekstai skirti tai pačiai prasmei perteikti. Jiems
+prieštaraujant, kiek leidžia teisė, pirmenybė teikiama LICENCIJA_LT.txt
+tekstui. Git įrašų identifikatoriai ir failų kontrolinės sumos identifikuoja
+versijas; jie savaime neįrodo teisinės nuosavybės, DI modelio naudojimo ar
+elektroninio parašo buvimo. Tai nuosavybinė licencija, o ne MIT licencija.

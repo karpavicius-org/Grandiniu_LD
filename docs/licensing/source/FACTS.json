@@ -1,0 +1,48 @@
+{
+  "version": "1.1",
+  "date": "2026-10-22",
+  "owner": "Rimas Karpavičius (Rimas Karpavicius)",
+  "contact": "karpaviciux@gmail.com",
+  "ai": "GPT 6.1 Sol Ultra",
+  "repo": "karpavicius-org/Grandiniu_LD",
+  "branch": "work/student-teacher-release-profiles-20261020",
+  "prior_commit": "ef9dee12212ae1867b20d410cdfa81480a2df62b",
+  "first_license_commit": "c30a7b35254132ea8ae9832940e3e15e01d92043",
+  "runtime_commit": "f810767c12ff0b8c62cc44bec5fd1eba7cbf624d",
+  "drive_url": "https://drive.google.com/drive/folders/1kw6QCnR_Z3sq3v1aQfZVnMzqBqC4lE4K",
+  "archive": "Grandiniu_LD_pilnas_paketas_licencija_EN_LT_2026-10-22.zip",
+  "key": {
+    "schema_version": 1,
+    "created_at_utc": "2026-10-22T07:36:55.645768+00:00",
+    "algorithm": "ssh-ed25519",
+    "fingerprint_sha256": "SHA256:bUMPnbrOyyZtlXrSEdKTy00x/4ZB4Xx63wX1J/B6UAs",
+    "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEGK8jGfN6aDnJMLBZejKLjO+MInub4SyoHmyo0EhoMA Grandiniu_LD release 1.1 2026-10-22",
+    "signer_id": "grandiniu-ld-release-20261022-v11",
+    "namespace": "grandiniu-ld-release",
+    "key_origin": "New project release key for revision 1.1; supersedes the previous project key after a passphrase-named file was observed publicly readable. Its contents were not read.",
+    "identity_assurance": "No independent verification of the named rights holder. Signer ID is a project label.",
+    "private_key_distribution": "An encrypted backup is stored in the designated Drive folder; the new passphrase is delivered separately and is excluded from Drive and Git.",
+    "archive": "Grandiniu_LD_pilnas_paketas_licencija_EN_LT_2026-10-22.zip",
+    "signature_file": "Grandiniu_LD_pilnas_paketas_licencija_EN_LT_2026-10-22.zip.sig",
+    "git_commit_status": "Existing four inspected commits remain unsigned; this operation signs the archive, not those commits.",
+    "license_version": "1.1",
+    "superseded_fingerprint_sha256": "SHA256:M7TjtCmzarwlyBhi420fRarK0Bpth1qskfXS175U6X0"
+  },
+  "artifacts": [
+    {
+      "file": "Grandiniu_LD1-LD12_v7_vienas_failas_Windows_Linux_macOS.zip",
+      "sha256": "637dd5fdb49abaadc4ef5774a7b04f3a6099fbdc1364a444d2b9e44770817bae",
+      "role": "approved runtime before licensing additions"
+    },
+    {
+      "file": "KVK_Grandiniu_LD1-LD12_metodiniai_nurodymai.pdf",
+      "sha256": "eeb311c9a22e4b203bb0f7df0d5e27aaf94c796fe43a395b6f2d75fa1abe89c6",
+      "role": "separate locally verified methodological artifact; not asserted to be contained in the baseline code commit"
+    },
+    {
+      "file": "KVK_Grandiniu_LD1-LD12_metodiniai_nurodymai_DOCX_PDF.zip",
+      "sha256": "51e9c3e2b866faf885b1335ce56f8346e600dff61488761a99aedfba977a5a2a",
+      "role": "separate locally verified methodological artifact; not asserted to be contained in the baseline code commit"
+    }
+  ]
+}

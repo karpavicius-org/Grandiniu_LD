@@ -1,46 +1,21 @@
-GRANDINIU_LD THIRD-PARTY COMPONENTS / TREČIŲJŲ ŠALIŲ KOMPONENTAI
-2026-10-22
+GRANDINIU_LD THIRD PARTY NOTICES / TREČIŲJŲ ŠALIŲ PRANEŠIMAI
+Version / Versija 1.1 | 2026-10-22
 
-The proprietary project notice does not replace or restrict the licenses of
-third-party components. Their copyright notices and license texts remain in
-third_party/ (or core/third_party/ and studentui/third_party/ in the source
-repository). Those texts remain authoritative for their respective components.
-Projekto nuosavybinis pranešimas nepakeičia ir nesusiaurina trečiųjų šalių
-komponentų licencijų. Jų autorių teisių pranešimai ir licencijų tekstai išsaugoti
-third_party/ (šaltinių saugykloje core/third_party/ ir studentui/third_party/).
-Atitinkamiems komponentams taikomi būtent šie tekstai.
+ENGLISH
+Eigen 5.0.0 is covered by MPL-2.0 and applicable additional notices; JSON for Modern C++ 3.12.0 is covered by MIT. All six supplied license texts remain unchanged. Scilab is installed separately. GNU/MinGW runtime notices are not fully documented in the inspected Windows package; this document does not certify complete distribution compliance.
+The proprietary project notice does not replace third-party licenses. Keep all applicable original notices in third_party/. The following upstream source links and supplied text names apply to the respective components. Their presence alone does not establish that every optional component was compiled.
+Eigen 5.0.0: https://gitlab.com/libeigen/eigen/-/archive/5.0.0/eigen-5.0.0.tar.gz
+Eigen-COPYING.MPL2, Eigen-COPYING.README, Eigen-COPYING.APACHE, Eigen-COPYING.BSD, Eigen-COPYING.MINPACK
+JSON for Modern C++ 3.12.0: https://github.com/nlohmann/json/releases/tag/v3.12.0
+Copyright 2013-2025 Niels Lohmann; json-LICENSE.MIT
+Pinned dependency checksums: tools/fetch_core_deps.py and core/CMakeLists.txt. The inspected Windows build statically links GNU/MinGW runtime components; their applicable licenses and runtime exceptions remain in force. The JSON MIT License does not license Grandiniu_LD as a whole under MIT.
 
-Eigen 5.0.0
-The dependency notice identifies MPL-2.0 and unmodified upstream source:
-https://gitlab.com/libeigen/eigen/-/archive/5.0.0/eigen-5.0.0.tar.gz
-Pinned dependency checksums are in tools/fetch_core_deps.py and core/CMakeLists.txt
-in the source repository. Supplied texts: Eigen-COPYING.MPL2, .README, .APACHE,
-.BSD and .MINPACK. Additional texts are retained as supplied; their presence
-alone does not establish that every optional upstream component was compiled.
-Priklausomybės pranešime nurodyta MPL-2.0 ir nepakeisto šaltinio archyvo nuoroda.
-Išsaugoti visi pakete pateikti Eigen licencijų tekstai; vien teksto buvimas
-nepatvirtina kiekvieno neprivalomo komponento įkompiliavimo.
+LIETUVIŲ KALBA
+Eigen 5.0.0 taikoma MPL-2.0 ir atitinkami papildomi pranešimai; JSON for Modern C++ 3.12.0 taikoma MIT. Visi šeši pateikti licencijų tekstai išlieka nepakeisti. Scilab diegiamas atskirai. GNU/MinGW vykdymo komponentų pranešimai patikrintame Windows pakete nevisi dokumentuoti; šis dokumentas nepatvirtina visos platinimo teisinės atitikties.
+Projekto nuosavybinis pranešimas nepakeičia trečiųjų šalių licencijų. Išsaugokite visus taikytinus originalius pranešimus third_party/ aplanke. Toliau pateiktos pirminių šaltinių nuorodos ir tekstų pavadinimai taikomi atitinkamiems komponentams. Vien jų buvimas nepatvirtina kiekvieno neprivalomo komponento įkompiliavimo.
+Eigen 5.0.0: https://gitlab.com/libeigen/eigen/-/archive/5.0.0/eigen-5.0.0.tar.gz
+Eigen-COPYING.MPL2, Eigen-COPYING.README, Eigen-COPYING.APACHE, Eigen-COPYING.BSD, Eigen-COPYING.MINPACK
+JSON for Modern C++ 3.12.0: https://github.com/nlohmann/json/releases/tag/v3.12.0
+Copyright 2013-2025 Niels Lohmann; json-LICENSE.MIT
+Fiksuotos priklausomybių sumos: tools/fetch_core_deps.py ir core/CMakeLists.txt. Patikrintas Windows kūrimo scenarijus statiškai jungia GNU/MinGW vykdymo komponentus; jų taikytinos licencijos ir vykdymo išimtys lieka galioti. JSON MIT licencija nesuteikia visam Grandiniu_LD projektui MIT licencijos.
 
-JSON for Modern C++ 3.12.0
-Copyright 2013-2025 Niels Lohmann. MIT License: third_party/json-LICENSE.MIT.
-https://github.com/nlohmann/json/releases/tag/v3.12.0
-This component's MIT License does not license Grandiniu_LD as a whole under MIT.
-Šio komponento MIT licencija nesuteikia visam Grandiniu_LD projektui MIT licencijos.
-
-Scilab
-Scilab is installed separately and is not redistributed in the inspected v7
-package. Scilab's own terms apply to that separate installation.
-Scilab diegiamas atskirai; patikrintame v7 pakete jis neplatinamas. Atskirai
-įdiegtam Scilab taikomos jo paties sąlygos.
-
-Compiler and operating-system runtimes / Kompiliatorių ir sistemų komponentai
-Native binaries may include or depend on compiler and system runtime components.
-The inspected Windows build statically links GNU/MinGW runtime components.
-Their applicable licenses and runtime exceptions remain in force. The inspected
-package does not separately document all of those runtime notices; this file is
-not a certification that every third-party distribution obligation is satisfied.
-Sukompiliuoti programos failai gali turėti kompiliatorių ir sistemų komponentų arba nuo jų
-priklausyti. Patikrintas Windows kūrimo scenarijus statiškai jungia GNU/MinGW
-vykdymo komponentus. Jų licencijos ir taikytinos išimtys lieka galioti. Patikrintame
-pakete ne visi šių komponentų pranešimai atskirai dokumentuoti; šis failas nėra
-visų trečiųjų šalių platinimo reikalavimų įvykdymo patvirtinimas.

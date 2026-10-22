@@ -1,159 +1,101 @@
 from pathlib import Path
-import json, re, shutil, hashlib, zipfile
+import json,re
 from docx import Document
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.shared import Inches,Pt,RGBColor
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
 
-ROOT=Path(__file__).resolve().parent
-OUT=ROOT/'output'
-FILES=ROOT/'repo_files'
-PUB=json.loads((ROOT/'evidence/PUBLICATION.json').read_text())
-BASE=json.loads((FILES/'audits/licensing-20261022/BASELINE.json').read_text())
-SIGN=json.loads((ROOT/'signing/public/SIGNING_KEY.json').read_text()) if (ROOT/'signing/public/SIGNING_KEY.json').exists() else None
-FONT='Times New Roman'
-d=Document()
-s=d.sections[0]
+R=Path(__file__).resolve().parent;OUT=R/'output';OUT.mkdir(exist_ok=True)
+DATA=R/'source' if (R/'source/FACTS.json').exists() else R
+F=json.loads((DATA/'FACTS.json').read_text())
+C=json.loads((DATA/'LICENSE_CLAUSES.json').read_text())
+T=json.loads((DATA/'PAIRED_TEXT.json').read_text());K=F['key']
+d=Document();s=d.sections[0]
 s.page_width=Inches(8.5);s.page_height=Inches(11)
-s.top_margin=Inches(.58);s.bottom_margin=Inches(.55)
-s.left_margin=Inches(.68);s.right_margin=Inches(.68)
-s.header_distance=Inches(.23);s.footer_distance=Inches(.23)
-for p in list(d.styles.element.iter(qn('w:pBdr'))):p.getparent().remove(p)
-for name in ['Normal','Title','Subtitle','Heading 1','Heading 2']:
-    st=d.styles[name];st.font.name=FONT;st.font.color.rgb=RGBColor(0,0,0)
-    st.element.get_or_add_rPr().rFonts.set(qn('w:eastAsia'),FONT)
-n=d.styles['Normal'];n.font.size=Pt(11)
-n.paragraph_format.line_spacing=1.02;n.paragraph_format.space_after=Pt(3)
-n.paragraph_format.widow_control=True
+s.top_margin=Inches(.55);s.bottom_margin=Inches(.52)
+s.left_margin=Inches(.65);s.right_margin=Inches(.65)
+s.header_distance=Inches(.22);s.footer_distance=Inches(.22)
+for x in list(d.styles.element.iter(qn('w:pBdr'))):x.getparent().remove(x)
+for name in ['Normal','Title','Subtitle','Heading 1']:
+    st=d.styles[name];st.font.name='Times New Roman';st.font.color.rgb=RGBColor(0,0,0)
+    st.element.get_or_add_rPr().rFonts.set(qn('w:eastAsia'),'Times New Roman')
+n=d.styles['Normal'];n.font.size=Pt(11);n.paragraph_format.line_spacing=1.01
+n.paragraph_format.space_after=Pt(2);n.paragraph_format.widow_control=True
 d.styles['Title'].font.size=Pt(20);d.styles['Title'].font.bold=True
 d.styles['Title'].paragraph_format.space_after=Pt(5)
-d.styles['Subtitle'].font.size=Pt(10)
-d.styles['Subtitle'].paragraph_format.space_after=Pt(6)
-for name in ['Heading 1','Heading 2']:
-    st=d.styles[name];st.font.size=Pt(11);st.font.bold=True
-    st.paragraph_format.space_before=Pt(6);st.paragraph_format.space_after=Pt(2)
-    st.paragraph_format.keep_with_next=True
-header=s.header.paragraphs[0];header.alignment=WD_ALIGN_PARAGRAPH.RIGHT
-r=header.add_run('GRANDINIU LD  |  RIMAS KARPAVIČIUS  |  2026 10 22');r.font.size=Pt(8)
-footer=s.footer.paragraphs[0];footer.alignment=WD_ALIGN_PARAGRAPH.RIGHT
-footer.add_run('EN / LT  ·  ')
-f=OxmlElement('w:fldSimple');f.set(qn('w:instr'),'PAGE');footer._p.append(f)
-for r in footer.runs:r.font.size=Pt(8)
-d.core_properties.title='Grandiniu LD nuosavybinė licencija ir Git patikra'
-d.core_properties.author='Rimas Karpavičius'
-d.core_properties.subject='English and Lithuanian proprietary license with verified version evidence'
-d.core_properties.language='lt-LT'
-
-def p(text,style=None):return d.add_paragraph(text,style)
-def h(text):return p(text,'Heading 1')
+d.styles['Subtitle'].font.size=Pt(10);d.styles['Subtitle'].paragraph_format.space_after=Pt(5)
+st=d.styles['Heading 1'];st.font.size=Pt(11);st.font.bold=True
+st.paragraph_format.space_before=Pt(5);st.paragraph_format.space_after=Pt(2)
+st.paragraph_format.keep_with_next=True
+hp=s.header.paragraphs[0];hp.alignment=WD_ALIGN_PARAGRAPH.RIGHT
+hp.add_run('GRANDINIU LD  |  RIMAS KARPAVIČIUS  |  1.1  |  2026 10 22').font.size=Pt(8)
+fp=s.footer.paragraphs[0];fp.alignment=WD_ALIGN_PARAGRAPH.RIGHT
+fp.add_run('EN / LT  ·  ').font.size=Pt(8)
+field=OxmlElement('w:fldSimple');field.set(qn('w:instr'),'PAGE');fp._p.append(field)
+d.core_properties.title='Grandiniu LD licencija ir versijų patikra'
+d.core_properties.author='Rimas Karpavičius';d.core_properties.language='en-US;lt-LT'
+d.core_properties.subject='Equivalent English and Lithuanian texts version 1.1'
+coverage={'en':[],'lt':[]}
+lang='en'
+def p(text,style=None,key=None):
+    pp=d.add_paragraph(text,style)
+    pr=pp._p.get_or_add_pPr();runpr=OxmlElement('w:rPr');lg=OxmlElement('w:lang');lg.set(qn('w:val'),'en-US' if lang=='en' else 'lt-LT');runpr.append(lg);pr.append(runpr)
+    if key:coverage[lang].append(key)
+    return pp
+def h(text,key=None):return p(text,'Heading 1',key)
+def unit(key,heading=False):return h(T[key][lang],key) if heading else p(T[key][lang],key=key)
 def mono(text):
-    pp=p(text);pp.paragraph_format.space_after=Pt(5)
-    for r in pp.runs:r.font.name='DejaVu Sans Mono';r.font.size=Pt(9)
+    pp=p(text)
+    for rr in pp.runs:rr.font.name='DejaVu Sans Mono';rr.font.size=Pt(9)
     return pp
 def link(label,url):
-    pp=p('');hyp=OxmlElement('w:hyperlink')
-    hyp.set(qn('r:id'),pp.part.relate_to(url,RT.HYPERLINK,is_external=True))
-    rr=OxmlElement('w:r');pr=OxmlElement('w:rPr');color=OxmlElement('w:color');color.set(qn('w:val'),'000000');pr.append(color)
-    rr.append(pr);tt=OxmlElement('w:t');tt.text=label;rr.append(tt);hyp.append(rr);pp._p.append(hyp)
-    return pp
-
-for idx,name in enumerate(['LICENSE','LICENCIJA_LT.txt']):
-    if idx:d.add_page_break()
-    blocks=(FILES/name).read_text().strip().split('\n\n')
-    first=blocks.pop(0).splitlines()
-    p('Grandiniu LD proprietary license' if idx==0 else 'Grandiniu LD nuosavybinė licencija','Title')
-    p(first[1],'Subtitle')
-    for block in blocks:
-        lines=block.splitlines()
-        if re.match(r'^\d+\.',lines[0]):
-            title=re.sub(r'^(\d+)\.\s*',r'\1 ',lines[0]).replace('-',' ')
-            number, words = title.split(' ',1)
-            words = words[:1].upper()+words[1:].lower()
-            if idx==0 and words.startswith('Ai '):words='AI '+words[3:]
-            h(number+' '+words)
-            p(' '.join(lines[1:]))
-        else:
-            for line in lines:
-                pp=p(line)
-                pp.paragraph_format.space_after=Pt(1)
-
-d.add_page_break()
-p('Grandiniu LD Git įrašų patikra','Title')
-p('Patikrinta 2026 m. spalio 22 d.  |  Versijų ir turinio įrodymai','Subtitle')
-p('Licencijos tekstai ir kilmės duomenys paskelbti esamoje darbo šakoje. Patikra patvirtina konkretaus turinio versijas ir įrašų ryšį; teisių turėtojo asmenybės, teisinės nuosavybės ar naudoto DI modelio ji neautentifikuoja.')
-h('Saugykla ir šaka')
-link('karpavicius-org/Grandiniu_LD','https://github.com/karpavicius-org/Grandiniu_LD')
-p(PUB['branch'])
-p('SSH saugyklos adresas')
-mono('git@github.com:karpavicius-org/Grandiniu_LD.git')
-h('Licencijos paskelbimo įrašas')
-c=PUB['published_commit'];mono(c['sha'])
-p('Git laikas UTC: '+c['committer']['date']+'  |  Parašo būsena: '+c['verification']['reason'])
-link('Atverti paskelbtą licencijos įrašą',c['html_url'])
-p('Medžio SHA');mono(PUB['tree_sha'])
-h('Patikrintos ankstesnės versijos')
-labels=['Patvirtintas v6 pagrindas','V7 paketas su macOS biblioteka','V7 ataskaitos antraštės pataisa']
-for cc,label in zip(BASE['verified_historical_commits'],labels):
-    pp=p(label+'  |  '+cc['committer']['date']);pp.paragraph_format.keep_with_next=True
-    mono(cc['sha'])
-h('Pakeitimų apimtis')
-p('Pridėta 10 licencijos, pranešimų ir patikros failų. Visų 608 anksčiau buvusių saugyklos failų Git blob SHA liko identiški. Pradinio v7 platinimo paketo 222 failai papildytame ZIP išsaugoti baitas į baitą; pridėti tik pranešimai ir patikros duomenys.')
-h('SHA ir SSH reikšmė')
-p('Visi keturi čia pateikti Git įrašai nepasirašyti. SHA yra Git objekto identifikatorius. SSH ryšio autentifikavimas, Git įrašo pasirašymas ir archyvo pasirašymas yra atskiri veiksmai. Atnaujintam galutiniam archyvui taikomas SSH parašas aprašytas 5 puslapyje; jis nekeičia ankstesnių Git įrašų parašo būsenos.')
-
-d.add_page_break()
-p('Kontrolinės sumos ir teiginių pagrindas','Title')
-p('SHA 256 sumos skirtos failų tapatumui tikrinti','Subtitle')
-h('Pradinis v7 programos paketas')
-p(BASE['artifact_checksums'][0]['file']);mono(BASE['artifact_checksums'][0]['sha256'])
-h('Atskirai parengti metodiniai nurodymai')
-for aa in BASE['artifact_checksums'][1:]:p(aa['file']);mono(aa['sha256'])
-p('Šios dokumentų sumos užfiksuotos naujame licencijos Git įraše. Tai nereiškia, kad dokumentų PDF ir Word failai buvo ankstesnių programos Git įrašų dalis.')
-h('Teisių turėtojo ir DI įrašai')
-p('Rimas Karpavičius ir kontaktas karpaviciux@gmail.com įrašyti pagal užduotyje pateiktą teisių turėtojo informaciją. „GPT 6.1 Sol Ultra“ nurodytas kaip jo pateikta kūrimo deklaracija. Nepriklausomų modelio tapatybės metaduomenų patikrintoje Git istorijoje nerasta.')
-h('Trečiųjų šalių komponentai')
-p('Eigen 5.0.0 taikoma MPL 2.0 ir atitinkami papildomi pranešimai; JSON for Modern C++ 3.12.0 taikoma MIT. Visi šeši anksčiau pateikti licencijų tekstai išsaugoti nepakeisti. Scilab diegiamas atskirai. Windows statinių GNU ir MinGW vykdymo komponentų pranešimai pradiniame pakete nevisi atskirai dokumentuoti, todėl šis dokumentas nėra visos platinimo teisinės atitikties pažyma.')
-h('Naudojimas be leidimo')
-p('Pranešimas reikalauja išankstinio rašytinio leidimo teisiškai saugomai nuosavai medžiagai naudoti ir išsaugo ankstesnių licencijų, įstatymų, platformos bei trečiųjų šalių suteiktas teises. Atsakomybė kyla tik pagal taikytiną teisę; vien licencijos įrašas bausmės nesukuria.')
-h('Pirminiai paaiškinimo šaltiniai')
-link('Open Source Initiative  MIT License','https://opensource.org/license/mit')
-link('WIPO  Copyright frequently asked questions','https://www.wipo.int/en/web/copyright/faq-copyright')
-link('Git  git verify commit documentation','https://git-scm.com/docs/git-verify-commit')
-p('MIT leidžia bendrą naudojimą be atskiro išankstinio leidimo. Dėl prašomo rašytinio sutikimo režimo parengta nuosavybinė licencija. Trečiųjų šalių MIT tekstai išlieka galioti savo komponentams.')
-
-if SIGN:
-    d.add_page_break()
-    p('Archyvo SSH parašas','Title')
-    p('Ed25519 parašas galutiniam platinimo archyvui','Subtitle')
-    p('Šio leidimo archyvas pasirašomas SSH Ed25519 raktu, kai į jį jau įtrauktos galutinės šio dokumento Word ir PDF versijos. Atskiras .sig failas ir patikros priedas perduodami kartu. Parašas apima visus pasirašyto ZIP baitus ir taip pat jo viduje esančius dokumentus.')
-    h('Viešojo rakto atspaudas')
-    mono(SIGN['fingerprint_sha256'])
-    p('Viešojo rakto failas: Grandiniu_LD_release_ed25519.pub')
-    p('Pasirašančiojo žyma: '+SIGN['signer_id'])
-    p('Naudojimo kontekstas namespace: '+SIGN['namespace'])
-    p('Rakto sukūrimo laikas UTC: '+SIGN['created_at_utc'])
-    h('Rakto kilmė ir pasitikėjimas')
-    p('Tai naujas šiam projekto leidimui užduoties vykdymo aplinkoje sukurtas raktas. Jis nėra anksčiau naudotas asmeninis Rimo Karpavičiaus SSH raktas. Privatus raktas į platinamus failus ir Git neįtrauktas. Ilgalaikis privataus rakto išlikimas vykdymo aplinkoje negarantuojamas.')
-    p('Atspaudas turi sutapti su patikimu kanalu gautu atspaudu. Parašas patvirtina turinio vientisumą ir atitinkamo rakto panaudojimą. Projekto žyma allowed_signers faile savaime nepatvirtina žmogaus tapatybės, teisinės nuosavybės ar nepriklausomo laiko žymens.')
-    h('Tikrinimas Linux ir macOS terminale')
-    p('Archyvą ir išskleistą patikros priedą laikykite tame pačiame aplanke. Jame vykdykite komandą; būtinas ssh-keygen su SSHSIG palaikymu.')
-    for line in [
-        'A=Grandiniu_LD_pilnas_paketas_licencija_EN_LT_2026-10-22.zip',
-        'ssh-keygen -Y verify -f allowed_signers \\',
-        '  -I grandiniu-ld-release-20261022 \\',
-        '  -n grandiniu-ld-release -s "$A.sig" < "$A"',
-    ]:
+    pp=p('');hy=OxmlElement('w:hyperlink');hy.set(qn('r:id'),pp.part.relate_to(url,RT.HYPERLINK,is_external=True))
+    rr=OxmlElement('w:r');tt=OxmlElement('w:t');tt.text=label;rr.append(tt);hy.append(rr);pp._p.append(hy)
+def page(title,sub):
+    if d.paragraphs:d.add_page_break()
+    p(title,'Title');p(sub,'Subtitle')
+for lang in ['en','lt']:
+    page('Grandiniu LD proprietary license' if lang=='en' else 'Grandiniu LD nuosavybinė licencija',('Version 1.1  |  Notice date ' if lang=='en' else '1.1 versija  |  Pranešimo data ')+F['date'])
+    p(('Copyright (c) 2026 ' if lang=='en' else 'Autorių teisės (c) 2026 ')+F['owner']+'.')
+    p('All rights reserved in the original protectable contributions.' if lang=='en' else 'Visos teisės į originalų teisiškai saugomą indėlį saugomos.')
+    p(('Permission contact: ' if lang=='en' else 'Kontaktas leidimams gauti: ')+F['contact'])
+    for i,c in enumerate(C[lang],1):h(str(i)+' '+c['heading'],'clause_heading_'+str(i));p(c['body'],key='clause_body_'+str(i))
+for lang in ['en','lt']:
+    coverage[lang].append('provenance_title')
+    page(T['provenance_title'][lang],('Version evidence  |  ' if lang=='en' else 'Versijų patikra  |  ')+F['date'])
+    unit('provenance_intro');unit('repository',True)
+    link(F['repo'],'https://github.com/'+F['repo']);p(F['branch'])
+    for key in ['prior_commit','first_license_commit','runtime_commit']:
+        unit(key,True);mono(F[key])
+    unit('git_limit')
+    unit('artifact_hashes',True)
+    for a in F['artifacts']:
+        pp=p(a['file']);pp.paragraph_format.keep_with_next=True
+        for rr in pp.runs:rr.font.size=Pt(9)
+        mono(a['sha256'])
+    unit('artifact_limit');unit('declarations_title',True);unit('declarations')
+    unit('third_party_title',True);unit('third_party')
+    unit('sources_title',True)
+    link('Open Source Initiative  MIT License','https://opensource.org/license/mit')
+    link('WIPO  Copyright','https://www.wipo.int/en/web/copyright/protection')
+    link('Git  verify commit','https://git-scm.com/docs/git-verify-commit')
+for lang in ['en','lt']:
+    coverage[lang].append('signature_title')
+    page(T['signature_title'][lang],('Final distribution  |  Ed25519  |  1.1' if lang=='en' else 'Galutinis platinimo paketas  |  Ed25519  |  1.1'))
+    unit('signature_intro');unit('fingerprint_title',True);mono(K['fingerprint_sha256'])
+    for key,value in [('signer_id',K['signer_id']),('namespace',K['namespace']),('key_date',K['created_at_utc'])]:
+        p(T[key][lang]+': '+value,key=key)
+    unit('key_origin_title',True);unit('key_origin');unit('key_rotation');unit('trust')
+    unit('verify_title',True);unit('verify_intro')
+    for line in ['A='+F['archive'],'ssh-keygen -Y verify -f allowed_signers \\',
+        '  -I '+K['signer_id']+' \\','  -n '+K['namespace']+' -s "$A.sig" < "$A"']:
         pp=mono(line);pp.paragraph_format.space_after=Pt(0)
-    p('Windows aplinkoje naudokite priede pateiktą TIKRINTI.cmd; Linux ir macOS aplinkoje galima vykdyti sh TIKRINTI.sh. Sėkmingas rezultatas yra Good ir proceso baigties kodas 0. Kitas rezultatas reiškia, kad patikra nepraėjo.')
-    h('Tikslus failas ir patikros įrodymai')
-    p('Galutinio archyvo SHA 256, .sig parašas ir realių patikrų rezultatai pateikiami atskirame SIGNED_RELEASE.json faile bei patikros priedo archyve. Šis dokumentas yra pasirašyto ZIP viduje, todėl jame neįrašoma to paties ZIP kontrolinė suma: ją įrašius pasikeistų paties archyvo baitai.')
-    h('Archive SSH signature')
-    p('The final ZIP containing this document is signed using the project release Ed25519 key identified above. The detached .sig file, public key, allowed_signers file and SIGNED_RELEASE.json are supplied separately. Verify the pinned key fingerprint before trusting the signature. This newly generated project key is not an independently authenticated personal key of Rimas Karpavičius. The signature does not change the unsigned status of the historical Git commits or certify legal ownership.')
-    link('OpenSSH  ssh keygen manual','https://man.openbsd.org/ssh-keygen')
-
-OUT.mkdir(exist_ok=True)
-doc=OUT/'Grandiniu_LD_licencija_EN_LT_ir_Git_patikra.docx'
-d.save(doc)
-print(json.dumps({'docx':str(doc),'paragraphs':len(d.paragraphs)},ensure_ascii=False))
+    unit('verify_result');unit('receipt_title',True);unit('receipt')
+    link('OpenSSH  ssh keygen','https://man.openbsd.org/ssh-keygen')
+assert coverage['en']==coverage['lt']
+for key in T:assert key in coverage['en'],key
+doc=OUT/'Grandiniu_LD_licencija_EN_LT_ir_Git_patikra.docx';d.save(doc)
+(R/'evidence/LANGUAGE_COVERAGE.json').write_text(json.dumps({'status':'PASS','equivalent_units_per_language':len(coverage['en']),'unit_ids':coverage['en'],'paired_clause_count':7,'same_fact_source':True},indent=2)+'\n')
+print(json.dumps({'document':str(doc),'units_per_language':len(coverage['en'])}))

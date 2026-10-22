@@ -1,34 +1,33 @@
-ARCHYVO SSH PARASO PATIKRA / ARCHIVE SSH SIGNATURE VERIFICATION
-
-Signed archive: Grandiniu_LD_pilnas_paketas_licencija_EN_LT_2026-10-22.zip
-Algorithm: Ed25519 (OpenSSH SSHSIG)
-Pinned public-key fingerprint: SHA256:M7TjtCmzarwlyBhi420fRarK0Bpth1qskfXS175U6X0
-Signer project label: grandiniu-ld-release-20261022
-Namespace: grandiniu-ld-release
-
-LIETUVISKAI
-Archyva ir visus iskleisto sio patikros priedo failus padekite i viena aplanka.
-Windows: paleiskite TIKRINTI.cmd (reikia ssh-keygen su SSHSIG palaikymu).
-Linux/macOS: terminale vykdykite sh TIKRINTI.sh.
-Jei archyvas kitur, perduokite jo pilna kelia kaip pirma skripto argumenta.
-Sekme: Good ir baigties kodas 0. Bet kuris kitas kodas yra nesekme.
-Pries pasitikedami patikra, sutikrinkite fingerprint su atspaudu, gautu patikimu
-nepriklausomu kanalu (pvz., uzduoties perdavimo pokalbiu). Vien kartu atsiustas
-allowed_signers failas neirodo, kam priklauso raktas.
-Tai naujas sio projekto leidimo raktas, sukurtas uzduoties vykdymo aplinkoje.
-Jis nera anksciau naudotas asmeninis Rimo Karpaviciaus raktas ir nera
-kvalifikuotas elektroninis parasas. Privatus raktas siame priede neplatinamas.
-Pasirasytas archyvas; Git istorijos irasai siuo veiksmu nepasirasomi.
+GRANDINIU_LD 1.1
+SHA256:bUMPnbrOyyZtlXrSEdKTy00x/4ZB4Xx63wX1J/B6UAs
 
 ENGLISH
-Place the archive and all extracted verification files in the same directory.
-Windows: run TIKRINTI.cmd. Linux/macOS: run sh TIKRINTI.sh.
-An SSHSIG-capable ssh-keygen is required. An archive at another path can be
-passed as the first script argument. Success means Good and exit code 0.
-Pin the fingerprint using an independent trusted source before verification.
-The supplied allowed_signers file alone is not an identity certificate.
-This is a newly generated project release key, not a previously authenticated
-personal key of Rimas Karpavicius or a qualified electronic signature.
-The private key is not distributed. Historical Git commits remain unsigned.
-See SIGNED_RELEASE.json for the exact archive hash and executed test results.
-OpenSSH manual: https://man.openbsd.org/ssh-keygen
+The final distribution ZIP is signed with the project Ed25519 key after the final Word and PDF documents are included. The detached .sig file and verification kit are supplied separately. The signature covers every byte of that ZIP, including the documents inside it.
+
+This is a new project key created for revision 1.1 in the task execution environment, not a previously authenticated personal key of Rimas Karpavičius. An encrypted private-key backup is saved in the designated Drive folder. Its new passphrase is delivered separately and is excluded from the public folder, distribution archives and Git.
+
+The previous project key is superseded because a passphrase-named file was found publicly readable. Its contents were not read. Do not use the previous fingerprint to authenticate this revision; the old and new fingerprints are recorded in KEY_REVOCATION.json.
+
+Compare the fingerprint with one obtained through a trusted independent channel. The signature verifies content integrity and use of the corresponding key. The project label in allowed_signers does not independently certify a person's identity, legal ownership or a trusted timestamp. Historical Git commit signatures are unchanged.
+
+Place the ZIP and the extracted verification files in the same folder. On Linux or macOS run the following command; an SSHSIG-capable ssh-keygen is required.
+
+Windows: use TIKRINTI.cmd. Linux/macOS: you may use sh TIKRINTI.sh. Success means Good and exit code 0; any other result is a failed verification. The Windows command script was reviewed but was not executed on this Linux host.
+
+SIGNED_RELEASE.json records the final ZIP SHA-256, detached-signature checksum and actual verification results. This document is inside the signed ZIP, so that ZIP's own checksum is recorded externally: inserting it here would change the archive bytes and the checksum itself.
+
+LIETUVIŲ KALBA
+Galutinis platinimo ZIP pasirašomas projekto Ed25519 raktu, kai į jį jau įtraukti galutiniai Word ir PDF dokumentai. Atskiras .sig failas ir patikros priedas pateikiami atskirai. Parašas apima kiekvieną to ZIP baitą, įskaitant jame esančius dokumentus.
+
+Tai naujas 1.1 redakcijai užduoties vykdymo aplinkoje sukurtas projekto raktas, o ne anksčiau autentifikuotas asmeninis Rimo Karpavičiaus raktas. Užšifruota privataus rakto kopija išsaugoma nurodytame Drive aplanke. Nauja jos slaptafrazė perduodama atskirai ir neįtraukiama į viešą aplanką, platinimo archyvus ar Git.
+
+Ankstesnis projekto raktas pakeistas, nes rastas viešai skaitomas failas, pavadintas slaptažodžiu. Jo turinys neskaitytas. Šiai redakcijai autentifikuoti nenaudokite ankstesnio atspaudo; senasis ir naujasis atspaudai pateikiami KEY_REVOCATION.json.
+
+Atspaudą palyginkite su gautu patikimu nepriklausomu kanalu. Parašas patvirtina turinio vientisumą ir atitinkamo rakto panaudojimą. Projekto žyma allowed_signers faile nepriklausomai nepatvirtina žmogaus tapatybės, teisinės nuosavybės ar patikimos laiko žymos. Istorinių Git įrašų parašai nepakeičiami.
+
+ZIP ir išskleistus patikros failus laikykite tame pačiame aplanke. Linux arba macOS aplinkoje vykdykite šią komandą; būtinas ssh-keygen su SSHSIG palaikymu.
+
+Windows aplinkoje naudokite TIKRINTI.cmd. Linux/macOS aplinkoje galima vykdyti sh TIKRINTI.sh. Sėkmė reiškia Good ir baigties kodą 0; bet kuris kitas rezultatas reiškia nepraėjusią patikrą. Windows komandų scenarijus peržiūrėtas, bet šiame Linux kompiuteryje nevykdytas.
+
+SIGNED_RELEASE.json pateikiama galutinio ZIP SHA-256 suma, atskiro parašo kontrolinė suma ir realūs patikros rezultatai. Šis dokumentas yra pasirašyto ZIP viduje, todėl to ZIP kontrolinė suma įrašoma išorėje: įrašius ją čia, pasikeistų archyvo baitai ir pati suma.
+

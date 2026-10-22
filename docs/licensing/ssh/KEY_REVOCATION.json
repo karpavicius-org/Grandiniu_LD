@@ -1,0 +1,9 @@
+{
+  "status": "SUPERSEDED_DO_NOT_TRUST_FOR_CURRENT_RELEASE",
+  "old_fingerprint_sha256": "SHA256:M7TjtCmzarwlyBhi420fRarK0Bpth1qskfXS175U6X0",
+  "new_fingerprint_sha256": "SHA256:bUMPnbrOyyZtlXrSEdKTy00x/4ZB4Xx63wX1J/B6UAs",
+  "reason": "A passphrase-named file was publicly readable in the shared folder; contents were not read. Treat the previous key as potentially exposed.",
+  "old_passphrase_file_move": "Blocked by Drive appNotAuthorizedToFile 403; file remained in its original folder.",
+  "current_release_uses_new_key": true,
+  "new_passphrase_excluded_from_drive_and_git": true
+}
